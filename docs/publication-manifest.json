@@ -6,8 +6,8 @@
       "size": 154
     },
     "README.md": {
-      "sha256": "32572944c7583360e76b8d7cc5d2a459b27d671cfcc5a89547548831df035b57",
-      "size": 3415
+      "sha256": "e388ca91fdd920cdae0f58cfa865be2a7eaafcf18be2b66cf93070fc511170fb",
+      "size": 3347
     },
     "THIRD_PARTY_NOTICES.md": {
       "sha256": "b9963f2e97bb70e28ca74dc6e4148e2e094a6492a046a383445701339fc949aa",
@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "0b42aa4b31a0bf4a2865ee0a455e0960a4b91c7d123dacc94642c2e736d8e506",
+      "sha256": "6b71a479f54013574323ff2a53a57178c2a28fd1a168e52b9ca4e7b63a4169fd",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
