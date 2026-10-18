@@ -1,0 +1,2 @@
+from pathlib import Path
+p=Path('work/sfm_model_geometry.h');s=p.read_text().replace('std::vector<uint32_t>bodyModelCounts;', 'std::vector<uint32_t>bodyModelCounts,bodyBases;').replace('result.bodyModelCounts.push_back(models.second);', 'auto bodyBase=nonnegative(body+8);if(!bodyBase||!models.second)throw std::runtime_error("invalid MDL body group metadata");result.bodyBases.push_back(bodyBase);result.bodyModelCounts.push_back(models.second);');p.write_text(s)

@@ -1,0 +1,3 @@
+#include <iostream>
+#include "quaternion_curve_sampler.h"
+int main(){try{RecoveredQuaternionCurveSampler s;s.times={0,10000};s.values={{{0,0,0,1}},{{0,0,0,-1}}};s.info.defaultKind=6*257;auto v=s.sample(5000);if(v!=std::array<float,4>{0,0,0,1})return 1;s.info.rightEdgeTime=20000;if(s.sample(21000)!=std::array<float,4>{0,0,0,1})return 2;s.kinds={15,15<<8};if(s.sample(5000)!=s.values[0])return 3;auto k=gatherRecoveredQuaternionCurveKey(s.times,s.values,s.kinds,-1,s.info,false);if(k.value!=std::array<float,4>{0,0,0,1})return 4;s.info.useEdgeInfo=false;if(recoveredQuaternionEdgeValue(s.info,false)!=std::array<float,4>{})return 5;std::cout<<"quaternion_curve_integration_checks=5\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 6;}}

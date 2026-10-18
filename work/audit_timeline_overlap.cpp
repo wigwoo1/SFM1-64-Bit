@@ -1,0 +1,6 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "clip_hierarchy.h"
+#include <iostream>
+void dump(const Graph&g,uint32_t id){const auto&e=g.elements.at(id);std::cout<<"element="<<id<<" type="<<g.strings[e.type]<<" name="<<g.strings[e.name]<<'\n';for(const auto&a:e.attributes){std::cout<<"  "<<g.strings[a.name]<<" type="<<unsigned(a.type)<<" values=";for(const auto&v:a.values){if(a.type==1||a.type==15)std::cout<<v.reference;else if(a.type==5)std::cout<<v.text;else if(a.type==4&&!v.wire.empty())std::cout<<unsigned(uint8_t(v.wire[0]));else if(a.type==3)std::cout<<wireFloat(v);else if(a.type==2||a.type==7)std::cout<<wireInt(v);else std::cout<<"bytes:"<<v.wire.size();std::cout<<',';}std::cout<<'\n';}}
+int main(){try{auto g=loadGraph("work/roundtrip-11.dmx");for(uint32_t clip:{5986u,6753u,6848u,7615u,15477u,16244u}){dump(g,clip);for(auto frame:hierarchyRefs(g,g.elements[clip],"timeFrame",1))dump(g,frame);for(uint32_t i=0;i<g.elements.size();++i){auto&a=g.elements[i];if(g.strings[a.type]!="DmeTrack")continue;auto children=hierarchyRefs(g,a,"children",15);if(std::find(children.begin(),children.end(),clip)!=children.end())dump(g,i);}}return 0;}catch(const std::exception&e){std::cerr<<e.what();return 1;}}

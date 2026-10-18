@@ -1,0 +1,8 @@
+#include "reference_handle_binding.h"
+#include <array>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8);if(argc!=2)return 2;std::ifstream f(argv[1],std::ios::binary);if(!f)throw std::runtime_error("missing oracle");unsigned cases=0;
+ for(unsigned index=0;index<8;++index)for(unsigned gen=0;gen<16;++gen)for(unsigned retired=0;retired<2;++retired)for(unsigned match=0;match<2;++match)for(unsigned ptr=0;ptr<2;++ptr){std::vector<RecoveredReferenceHandleSlotCandidate>slots(5,{(gen+1-match)|(retired<<31),0x1234});uint32_t active=9;bindRecoveredReferenceHandleCandidate((gen<<22)|index,ptr?0x87654321u:0,slots,active);std::array<uint32_t,11>actual{},expected{};actual[0]=active;for(unsigned i=0;i<5;++i){actual[1+i*2]=slots[i].state;actual[2+i*2]=uint32_t(slots[i].element);}f.read(reinterpret_cast<char*>(expected.data()),sizeof(expected));if(!f||actual!=expected)throw std::runtime_error("native binding mismatch");++cases;}
+ if(f.peek()!=std::char_traits<char>::eof())throw std::runtime_error("trailing oracle");std::vector<RecoveredReferenceHandleSlotCandidate>slots(1);uint32_t active=1;bindRecoveredReferenceHandleCandidate(0,0x123456789abcdef0ull,slots,active);if(slots[0].element!=0x123456789abcdef0ull)throw std::runtime_error("pointer truncation");auto prior=slots;bindRecoveredReferenceHandleCandidate(0xffffffffu,1,slots,active);if(slots[0].element!=prior[0].element)throw std::runtime_error("invalid handle write");std::cout<<"native_reference_handle_binding_matches="<<cases<<" wide_pointer_checks=1 invalid_handle_checks=1"<<std::endl;return 0;}catch(const std::exception&e){std::cerr<<e.what()<<std::endl;return 1;}}

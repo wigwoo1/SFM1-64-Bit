@@ -1,0 +1,8 @@
+#include "reference_owner_preparation.h"
+#include "reference_update_queues.h"
+#include "owner_preparation_fixture.h"
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+struct Node{unsigned index;uintptr_t key;Node* next;};
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8,"x64 required");if(argc!=2)throw std::runtime_error("oracle required");std::ifstream file(argv[1],std::ios::binary);for(unsigned seed=0;seed<4096;++seed){auto f=ownerPreparationFixture(seed);std::array<Node,32>nodes{};for(unsigned i=0;i<32;++i)nodes[i]={i,f.keys[i]+1,nullptr};for(unsigned i=0;i<f.sourceLength;++i)nodes[i].next=i+1<f.sourceLength?&nodes[i+1]:nullptr;for(unsigned i=0;i<f.destinationLength;++i)nodes[16+i].next=i+1<f.destinationLength?&nodes[17+i]:nullptr;Node*source=f.sourceLength?&nodes[0]:nullptr,*destination=f.destinationLength?&nodes[16]:nullptr;RecoveredReferenceUpdateQueueCandidate queue;prepareRecoveredReferenceOwnerCandidate(source,destination,f.key+1,f.blocked,[](Node*n){return n->key;},[](Node*n)->Node*&{return n->next;},[&](){queue.append(123);});std::array<uint32_t,48>actual{},expected{};for(unsigned which=0;which<2;++which){auto*node=which?destination:source;unsigned base=which?17:0;while(node){actual[base+1+actual[base]++]=node->index;node=node->next;}}actual[39]=uint32_t(queue.handles.size());actual[40]=queue.handles.empty()?0:queue.handles[0];actual[41]=1;if(!file.read(reinterpret_cast<char*>(expected.data()),sizeof(expected))||actual!=expected)throw std::runtime_error("oracle mismatch");}char extra;if(file.get(extra))throw std::runtime_error("extra oracle");std::cout<<"x64_owner_preparation_cases=4096"<<std::endl;return 0;}catch(const std::exception&e){std::cerr<<e.what()<<std::endl;return 1;}}

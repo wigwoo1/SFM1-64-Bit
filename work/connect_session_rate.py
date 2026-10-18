@@ -1,0 +1,13 @@
+from pathlib import Path
+p=Path('work/vulkan_model_swapchain_probe_candidate.h');s=p.read_text()
+s=s.replace('#include "session_frame_tick_grid_candidate.h"','#include "session_frame_tick_grid_candidate.h"\n#include "session_frame_rate_candidate.h"')
+s=s.replace('RenderFrameProviderCandidate frameProvider;', 'uint32_t resolvedSessionRate=0;RenderFrameProviderCandidate frameProvider;')
+s=s.replace('std::vector<int32_t>ticks;const char*start=', 'auto sessionGraph=loadGraph(sessionPath);std::vector<int32_t>ticks;const char*start=')
+s=s.replace('||(!stepSize&&!rateSize)', '')
+s=s.replace('(!rateSize&&(b.ec', '(stepSize&&(b.ec')
+s=s.replace('if(rateSize){if(stepSize)', 'if(!rateSize&&!stepSize){resolvedSessionRate=sessionFrameRateCandidate(sessionGraph,root);ticks=sessionFrameTickGridCandidate(gridStart,resolvedSessionRate,count);}else if(rateSize){if(stepSize)')
+s=s.replace('liveSessionFrameProviderCandidate(loadGraph(sessionPath),root', 'liveSessionFrameProviderCandidate(std::move(sessionGraph),root')
+s=s.replace('vulkanPlaybackState.clock.reset(playbackNowCandidate(),0);', 'if(resolvedSessionRate)vulkanPlaybackState.clock.setPackedRate(resolvedSessionRate);vulkanPlaybackState.clock.reset(playbackNowCandidate(),0);')
+p.write_text(s)
+run=Path('work/run_native_frame_grid_probe.cmd').read_text().replace('FRAME_COUNT=40','FRAME_COUNT=61').replace('LIVE_RATE_PACKED=65536003','LIVE_RATE_PACKED=')
+Path('work/run_session_rate_grid_probe.cmd').write_text(run)

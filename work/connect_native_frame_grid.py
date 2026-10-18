@@ -1,0 +1,10 @@
+from pathlib import Path
+p=Path('work/vulkan_model_swapchain_probe_candidate.h');s=p.read_text().replace('#include "session_tick_grid_candidate.h"','#include "session_tick_grid_candidate.h"\n#include "session_frame_tick_grid_candidate.h"')
+s=s.replace('char startText[32]{},stepText[32]{},countText[32]{};', 'char startText[32]{},stepText[32]{},countText[32]{},rateText[32]{};auto rateSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_LIVE_RATE_PACKED",rateText,sizeof(rateText));')
+s=s.replace('||!stepSize||stepSize>=sizeof(stepText)', '||(!stepSize&&!rateSize)||stepSize>=sizeof(stepText)||rateSize>=sizeof(rateText)')
+s=s.replace('||b.ec!=std::errc{}||b.ptr!=stepText+stepSize', '||(!rateSize&&(b.ec!=std::errc{}||b.ptr!=stepText+stepSize))')
+s=s.replace('ticks=sessionTickGridCandidate(gridStart,step,count);', 'if(rateSize){if(stepSize)throw std::runtime_error("conflicting frame rate and tick step");uint32_t rate=0;auto value=std::from_chars(rateText,rateText+rateSize,rate);if(value.ec!=std::errc{}||value.ptr!=rateText+rateSize)throw std::runtime_error("packed frame rate");ticks=sessionFrameTickGridCandidate(gridStart,rate,count);}else ticks=sessionTickGridCandidate(gridStart,step,count);')
+p.write_text(s)
+s=Path('work/run_live_tick_grid_probe.cmd').read_text().replace('set SFM64_DIAGNOSTIC_LIVE_STEP=333','set SFM64_DIAGNOSTIC_LIVE_STEP=\nset SFM64_DIAGNOSTIC_LIVE_RATE_PACKED=65536003')
+Path('work/run_native_frame_grid_probe.cmd').write_text(s)
+Path('work/open_native_frame_grid_vulkan.cmd').write_text(s.replace('setlocal','setlocal\ncd /d "%~dp0.."',1).replace('probe_vulkan_win32_surface_x64.exe\n','probe_vulkan_win32_surface_x64.exe --interactive\n'))

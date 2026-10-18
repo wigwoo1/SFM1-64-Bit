@@ -1,0 +1,26 @@
+#define NOMINMAX
+#include <windows.h>
+#include <array>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include "native_vphysics_library_fixture.h"
+template<class T>static T readAt(const void*p,size_t at){T v;std::memcpy(&v,static_cast<const uint8_t*>(p)+at,sizeof(v));return v;}
+template<class T>static void put(std::ostream&out,const T&v){out.write(reinterpret_cast<const char*>(&v),sizeof(v));}
+static LONG CALLBACK fault(EXCEPTION_POINTERS*p){if(p->ExceptionRecord->ExceptionCode==0xe06d7363)return EXCEPTION_CONTINUE_SEARCH;std::cerr<<"metadata fault eip="<<std::hex<<p->ContextRecord->Eip<<std::endl;ExitProcess(90);}
+int main(int argc,char**argv){try{
+    static_assert(sizeof(void*)==4,"original metadata x86");if(argc!=4)throw std::runtime_error("DLL directory PHY metadata output required");AddVectoredExceptionHandler(1,fault);NativeVphysicsLibraryFixture image(argv[1]);std::ifstream in(argv[2],std::ios::binary);if(!in)throw std::runtime_error("metadata PHY read");const std::vector<uint8_t>b((std::istreambuf_iterator<char>(in)),{});const auto before=b;if(b.size()<32)throw std::runtime_error("metadata PHY short header");const uint32_t header=readAt<uint32_t>(b.data(),0),count=readAt<uint32_t>(b.data(),8);if(header<16||header>=b.size()||!count||count>1024||b.size()-header>INT32_MAX)throw std::runtime_error("metadata PHY header");
+    alignas(16)std::array<uint8_t,32>vc;vc.fill(0xa7);using Load=void(__thiscall*)(void*,void*,int,const void*,int,bool);using Unload=void(__thiscall*)(void*,void*);using Get=const uint8_t*(__thiscall*)(void*);using Create=void*(__thiscall*)(void*,void*);using Count=int(__thiscall*)(void*);using Destroy=void(__thiscall*)(void*,void*);
+    reinterpret_cast<Load>(image.table[36])(image.object,vc.data()+8,int(count),b.data()+header,int(b.size()-header),false);const uint16_t loaded=readAt<uint16_t>(vc.data(),8)&0x7fff;const auto shapes=readAt<void**>(vc.data(),12);if(loaded!=count||!shapes)throw std::runtime_error("metadata loaded solids");std::ofstream out(argv[3],std::ios::binary);if(!out)throw std::runtime_error("metadata output open");put(out,loaded);
+    for(uint16_t s=0;s<loaded;++s){if(!shapes[s])throw std::runtime_error("metadata missing shape");const auto table=*reinterpret_cast<uintptr_t**>(shapes[s]);std::cout<<"solid="<<s<<" class_table="<<std::hex<<image.rva(reinterpret_cast<uintptr_t>(table))<<" destructor="<<image.rva(table[0])<<" compact_getter="<<std::hex<<image.rva(table[12])<<" metadata_getter="<<image.rva(table[14])<<std::dec;
+        const auto compact=reinterpret_cast<Get>(table[12])(shapes[s]);const auto metadata=reinterpret_cast<Get>(table[14])(shapes[s]);void*query=reinterpret_cast<Create>(image.table[43])(image.object,shapes[s]);if(!query)throw std::runtime_error("metadata query missing");const auto qt=*reinterpret_cast<uintptr_t**>(query);const int convexes=reinterpret_cast<Count>(qt[1])(query);if(convexes<0||convexes>65536)throw std::runtime_error("metadata query extent");const auto ledges=readAt<const uint8_t*const*>(query,12);const int records=metadata?readAt<int32_t>(metadata,0):0;if(records<0||records>65536)throw std::runtime_error("metadata record extent");put(out,uint32_t(convexes));put(out,uint32_t(records));size_t unmatched=0;
+        for(int i=0;i<records;++i){const uint8_t*record=metadata+4+i*24;const auto ledge=readAt<const uint8_t*>(record,0);uint32_t index=UINT32_MAX;for(int c=0;c<convexes;++c)if(ledges[c]==ledge){index=uint32_t(c);break;}unmatched+=index==UINT32_MAX;put(out,index);out.write(reinterpret_cast<const char*>(record+4),20);
+            if(!ledge)throw std::runtime_error("metadata record has no ledge");const uint16_t triangleCount=readAt<uint16_t>(ledge,12);if(!triangleCount||triangleCount>32767)throw std::runtime_error("metadata original triangle extent");std::vector<uint8_t>old(ledge,ledge+16+size_t(triangleCount)*16);std::array<uint8_t,56>rebuilt;rebuilt.fill(0xa7);std::memset(rebuilt.data()+16,0,24);using Build=void(__cdecl*)(const void*,void*);reinterpret_cast<Build>(image.address(0x26450))(ledge,rebuilt.data()+16);if(readAt<const uint8_t*>(rebuilt.data(),16)!=ledge||std::memcmp(ledge,old.data(),old.size()))throw std::runtime_error("metadata native rebuild changed reference/geometry");for(size_t g=0;g<16;++g)if(rebuilt[g]!=0xa7||rebuilt[40+g]!=0xa7)throw std::runtime_error("metadata rebuild canary");out.write(reinterpret_cast<const char*>(rebuilt.data()+20),20);}
+        std::cout<<" convexes="<<convexes<<" metadata="<<records<<" unmatched="<<unmatched<<" compact_magic="<<std::hex<<(compact?readAt<uint32_t>(compact,44):0)<<std::dec<<'\n';reinterpret_cast<Destroy>(image.table[44])(image.object,query);
+    }reinterpret_cast<Unload>(image.table[37])(image.object,vc.data()+8);for(size_t i=0;i<8;++i)if(vc[i]!=0xa7||vc[24+i]!=0xa7)throw std::runtime_error("metadata vcollide canary");if(b!=before)throw std::runtime_error("metadata original input changed");out.flush();if(!out)throw std::runtime_error("metadata output write");image.verify();return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

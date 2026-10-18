@@ -1,0 +1,7 @@
+from pathlib import Path
+s=Path('work/probe_native_tick_seconds_x86.cpp').read_text();prefix=s[:s.index('const unsigned char instructions[]')]
+suffix='''FlushInstructionCache(GetCurrentProcess(),mapped,nt->OptionalHeader.SizeOfImage);using Native=int32_t*(__thiscall*)(int32_t*,float,uint32_t,uint32_t);auto native=reinterpret_cast<Native>(mapped+0x1c2050);std::ofstream output(argv[1],std::ios::binary);size_t cases=0;
+ for(uint32_t rate:{3u|(1000u<<16),3u|(1250u<<16),3u|(1001u<<16),6u|(1001u<<16),1u|(10000u<<16),65535u|(1u<<16),1u|(65535u<<16)})for(float frame:{-10000.f,-30.f,-1.5f,-1.f,-.5f,-.1f,0.f,.1f,.5f,1.f,1.5f,2.f,3.f,29.f,30.f,39.f,1000.f,10000.f})for(uint32_t mode:{0u,1u,3u}){int32_t tick=0;native(&tick,frame,rate,mode);output.write(reinterpret_cast<const char*>(&frame),4);output.write(reinterpret_cast<const char*>(&rate),4);output.write(reinterpret_cast<const char*>(&mode),4);output.write(reinterpret_cast<const char*>(&tick),4);++cases;}output.close();if(!output)throw std::runtime_error("oracle write");VirtualFree(mapped,0,MEM_RELEASE);mapped=nullptr;std::cout<<"native frame tick oracle passed cases="<<cases<<" DLL_entrypoint_called=0 rounding_modes=0,1,3\\n";return 0;}catch(const std::exception&e){if(mapped)VirtualFree(mapped,0,MEM_RELEASE);std::cerr<<e.what()<<'\\n';return 1;}}
+'''
+Path('work/probe_native_frame_ticks_x86.cpp').write_text(prefix+suffix)
+s=Path('work/build_tick_seconds_oracle.cmd').read_text().replace('probe_native_tick_seconds_x86','probe_native_frame_ticks_x86');Path('work/build_frame_ticks_oracle.cmd').write_text(s)

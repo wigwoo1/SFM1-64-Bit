@@ -1,0 +1,5 @@
+#include "eye_iris_projection_candidate.h"
+#include <iostream>
+void check(bool value){if(!value)throw std::runtime_error("iris projection assertion");}
+float project(const std::array<float,4>&row,const std::array<float,3>&point){return row[0]*point[0]+row[1]*point[1]+row[2]*point[2]+row[3];}
+int main(){try{ModelEyeWorldCandidate eye{{10,20,30},{0,1,0},{0,0,1},6,.1f,0};auto rows=eyeIrisProjectionCandidate(eye);check(std::abs(project(rows.u,eye.origin)-.5f)<1e-6);check(std::abs(project(rows.v,eye.origin)-.5f)<1e-6);check(std::abs(project(rows.u,{15,20,30})-1.f)<1e-6);check(std::abs(project(rows.v,{10,25,30})-1.f)<1e-6);check(std::abs(project(rows.u,{10,20,36})-.5f)<1e-6);eye.up={0,0,1};bool rejected=false;try{eyeIrisProjectionCandidate(eye);}catch(...){rejected=true;}check(rejected);std::cout<<"iris projection candidate passed center mapping, scale, tangent coordinates, forward invariance, degenerate basis rejection; native parity unverified\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -1,0 +1,13 @@
+#include "source_physics_line_simplex_candidate.h"
+#include <cstring>
+#include <iostream>
+#include <limits>
+int main(){try{
+    unsigned checks=0;auto require=[&](bool pass){if(!pass)throw std::runtime_error("line simplex assertion");++checks;};SourcePhysicsSimplexCandidate state;state.count=UINT32_MAX;state.vertices[0]={{2,0,0},0x8001,0xffff};state.vertices[2]={{7,8,9},0xffff,0x8000};const auto unused=state.vertices[2];std::array<float,3>direction{7,8,9};SourcePhysicsSimplexVertexCandidate p{{1,0,0},0xfedc,0x9abc};require(!sourcePhysicsLineSimplexCandidate(state,p,direction));require(state.count==1&&state.vertices[0].point==p.point&&state.vertices[0].featureA==p.featureA&&state.vertices[0].featureB==p.featureB);require(direction==p.point&&std::memcmp(&unused,&state.vertices[2],16)==0);
+    state.vertices[0]={{1,0,0},0x8001,0xffff};const auto old=state.vertices[0];p={{-1,1,0},0x1234,0x8000};require(!sourcePhysicsLineSimplexCandidate(state,p,direction));require(state.count==2&&direction==std::array<float,3>{1,2,0});require(std::memcmp(&state.vertices[0],&old,16)==0&&state.vertices[1].featureA==p.featureA&&state.vertices[1].featureB==p.featureB);
+    state.vertices[0].point={1,0,0};p.point={-1,0,0};require(!sourcePhysicsLineSimplexCandidate(state,p,direction)&&state.count==2&&direction==std::array<float,3>{0,0,0});state.vertices[0].point=p.point;require(!sourcePhysicsLineSimplexCandidate(state,p,direction)&&state.count==1&&direction==p.point);
+    state.vertices[2].point[0]=std::numeric_limits<float>::quiet_NaN();const auto beforeUnused=state.vertices[2];direction[0]=std::numeric_limits<float>::quiet_NaN();require(!sourcePhysicsLineSimplexCandidate(state,p,direction)&&std::memcmp(&beforeUnused,&state.vertices[2],16)==0&&direction==p.point);
+    auto refuseUnchanged=[&](std::array<float,3>existing,std::array<float,3>incoming){state.vertices[0].point=existing;p.point=incoming;const auto before=state;const auto beforeDir=direction;bool rejected=false;try{sourcePhysicsLineSimplexCandidate(state,p,direction);}catch(const std::runtime_error&){rejected=true;}require(rejected&&std::memcmp(&before,&state,sizeof(state))==0&&std::memcmp(&beforeDir,&direction,sizeof(direction))==0);};
+    const float inf=std::numeric_limits<float>::infinity(),nan=std::numeric_limits<float>::quiet_NaN(),max=std::numeric_limits<float>::max();refuseUnchanged({inf,0,0},{1,0,0});refuseUnchanged({1,0,0},{nan,0,0});refuseUnchanged({max,0,0},{-max,0,0});refuseUnchanged({1e20f,0,0},{-1e20f,0,0});refuseUnchanged({1e15f,0,0},{-1e15f,1e15f,0});
+    std::cout<<"PASS line simplex analytical/transaction safety checks="<<checks<<'\n';return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

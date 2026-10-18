@@ -1,0 +1,2 @@
+from pathlib import Path
+p=Path('work/probe_vulkan_win32_surface_x64.cpp');s=p.read_text(encoding='utf-8');a='int main(int argc,char**argv){';start=s.index(a)+len(a);end=s.index('static_assert(sizeof(void*)==8',start);s=s[:start]+'try{configureSessionLaunchCandidate(argc,argv);}catch(const std::exception&e){std::cerr<<e.what()<<\'\\n\';return 1;}'+s[end:];anchor='#include "vulkan_win32_swapchain_probe_candidate.h"';assert anchor in s;s=s.replace(anchor,anchor+'\n#include "session_launch_arguments_candidate.h"');p.write_text(s,encoding='utf-8')

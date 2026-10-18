@@ -1,0 +1,8 @@
+#include "resolve_queue_dispatch.h"
+#include <array>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+struct Element{uint32_t id;uint8_t flags;std::array<uint16_t,2>attributes;};
+static uint32_t read(std::ifstream&in){uint32_t v;if(!in.read(reinterpret_cast<char*>(&v),4))throw std::runtime_error("short oracle");return v;}
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8,"x64 required");if(argc!=2)throw std::runtime_error("oracle required");std::ifstream in(argv[1],std::ios::binary);for(unsigned seed=0;seed<128;++seed){std::array<Element,3>elements;for(unsigned i=0;i<3;++i)elements[i]={i,static_cast<uint8_t>(seed+i),{0xffff,0xffff}};std::vector<uint32_t>queue,events;for(unsigned i=0;i<seed%9;++i)queue.push_back((seed+i*3)%4);recoveredResolveQueueDispatchCandidate(queue,[&](uint32_t h)->Element*{events.push_back(0x100+h);return h<3?&elements[h]:nullptr;},[&](Element*e){events.push_back(e->id);events.push_back(e->flags);e->flags|=4;},[](Element*e){e->flags&=0xfe;for(auto& a:e->attributes)a&=0xff7f;});if(events.size()!=read(in))throw std::runtime_error("event count");for(auto e:events)if(e!=read(in))throw std::runtime_error("event ordering");if(queue.size()!=read(in))throw std::runtime_error("queue clear");for(auto&e:elements){if(e.flags!=read(in))throw std::runtime_error("element flags");for(auto a:e.attributes)if(a!=read(in))throw std::runtime_error("attribute flags");}}if(in.peek()!=EOF)throw std::runtime_error("trailing oracle");std::cout<<"x64 resolve queue:128 native dispatch cases matched\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

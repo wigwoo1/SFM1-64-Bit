@@ -1,0 +1,2 @@
+from pathlib import Path
+p=Path('work/test_float_curve_sampler.cpp');s=p.read_text().replace('if(!std::isfinite(result)||result<0||result>1)', 'auto p=recoveredParameterizedCurve(code);double a=(1.0+p.second)*(1.0+p.third)*(1.0-p.first),b=(1.0-p.second)*(1.0+p.third)*(1.0-p.first),c=(1.0+p.second)*(1.0-p.third)*(1.0-p.first),d=(1.0-p.second)*(1.0-p.third)*(1.0-p.first);double expected=.5+.0625*(d-c+.5*b);(void)a;if(std::abs(result-expected)>2e-6)');p.write_text(s)

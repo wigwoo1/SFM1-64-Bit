@@ -1,0 +1,2 @@
+from pathlib import Path
+lines=Path('work/ifm-disassembly.txt').read_text().splitlines();a=next(i for i,s in enumerate(lines) if s.startswith('  1049B400:'));b=next(i for i in range(a+1,len(lines)) if lines[i].startswith('  1049B7E0:'));part=lines[a:b];Path('work/ifm-curve-parameterized-core.txt').write_text('\n'.join(part)+'\n');print('core disassembly lines',len(part));print('\n'.join(part[:36]))

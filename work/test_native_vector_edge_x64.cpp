@@ -1,0 +1,4 @@
+#include <fstream>
+#include <iostream>
+#include "gather_vector_curve_key.h"
+int main(int argc,char**argv){if(argc!=2)return 1;static_assert(sizeof(void*)==8);std::ifstream f(argv[1],std::ios::binary);if(!f)return 1;for(unsigned i=0;i<16;++i){unsigned flags,side;std::array<float,3>expected;f.read(reinterpret_cast<char*>(&flags),4);f.read(reinterpret_cast<char*>(&side),4);f.read(reinterpret_cast<char*>(expected.data()),12);if(!f||flags>7||side>1)return 2;RecoveredVectorCurveInfo info;info.useEdgeInfo=(flags&1)!=0;info.leftActive=(flags&2)!=0;info.rightActive=(flags&4)!=0;info.leftValue={1,2,3};info.rightValue={4,5,6};info.defaultEdgeZero={7,8,9};info.disabledEdgeValue={-2,-3,-4};auto actual=recoveredVectorEdgeValue(info,side!=0);if(std::memcmp(actual.data(),expected.data(),12))return 3;}char extra;if(f.get(extra))return 4;std::cout<<"native_vector_edge_x64_checks=16 mismatches=0\n";}

@@ -1,0 +1,8 @@
+#include "reference_handle_table.h"
+#include <array>
+#include <fstream>
+#include <iostream>
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8);if(argc!=2)return 2;std::ifstream f(argv[1],std::ios::binary);if(!f)throw std::runtime_error("missing oracle");auto word=[&](){uint32_t v=0;f.read(reinterpret_cast<char*>(&v),4);if(!f)throw std::runtime_error("short oracle");return v;};unsigned cases=0;
+ for(unsigned sequence=0;sequence<64;++sequence){RecoveredReferenceHandleTableCandidate table(0);std::vector<uint32_t>handles;for(unsigned step=0;step<256;++step){uint32_t result=0;unsigned selection=handles.size()>=32?unsigned(handles.size())-32+(step*7+sequence)%32:0;unsigned operation=(step%128)/32;if(operation==0){result=table.allocate()&0x7fffffffu;handles.push_back(result);}else if(operation==1)table.bind(handles[selection],step+123);else if(operation==2)table.retire(handles[selection]);else result=uint32_t(table.resolve(handles[selection]));
+ std::array<uint32_t,7>actual{result,table.active(),uint32_t(table.slots().size()),uint32_t(table.head()),uint32_t(table.tail()),uint32_t(table.slots().capacity()),uint32_t(table.freeRing().size())};for(auto v:actual)if(v!=word())throw std::runtime_error("native lifecycle state mismatch");for(auto s:table.slots())if(s.state!=word()||uint32_t(s.element)!=word())throw std::runtime_error("native lifecycle slot mismatch");for(auto v:table.freeRing())if(v!=word())throw std::runtime_error("native lifecycle ring mismatch");++cases;}}
+ if(f.peek()!=std::char_traits<char>::eof())throw std::runtime_error("trailing oracle");std::cout<<"native_reference_handle_dynamic_lifecycle_matches="<<cases<<std::endl;return 0;}catch(const std::exception&e){std::cerr<<e.what()<<std::endl;return 1;}}

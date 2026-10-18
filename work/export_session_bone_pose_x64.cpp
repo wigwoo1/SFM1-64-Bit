@@ -1,0 +1,6 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "clip_hierarchy.h"
+#include "session_bone_pose_candidate.h"
+#include <iostream>
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8,"x64 required");if(argc!=4)throw std::runtime_error("session Mamagen-MDL fresh-output required");if(std::filesystem::exists(argv[3]))throw std::runtime_error("refuse pose overwrite");auto graph=loadGraph(argv[1]);std::ifstream mdl(argv[2],std::ios::binary);if(!mdl)throw std::runtime_error("MDL missing");std::vector<uint8_t>bytes((std::istreambuf_iterator<char>(mdl)),{});auto bones=readGeometrySkeletonCandidate(bytes);auto locals=readSessionBonePoseCandidate(graph,2552,bones);auto palette=evaluateGeometryPosePaletteCandidate(bones,locals);size_t changed=0;for(size_t n=0;n<bones.size();++n)if(std::memcmp(locals[n].data(),bones[n].local.data(),48))++changed;std::ofstream out(argv[3],std::ios::binary);uint32_t count=uint32_t(locals.size());out.write(reinterpret_cast<const char*>(&count),4);out.write(reinterpret_cast<const char*>(locals.data()),std::streamsize(locals.size()*48));out.close();if(!out)throw std::runtime_error("pose write");std::cout<<"session bone pose bound="<<count<<" changed_from_bind="<<changed<<" palette_count="<<palette.size()<<" native_pose_parity=unverified\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

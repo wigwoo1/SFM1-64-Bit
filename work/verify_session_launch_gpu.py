@@ -1,0 +1,11 @@
+from pathlib import Path
+import subprocess,os,json,re
+exe='build/session-core/probe_vulkan_win32_surface_x64.exe';content=r'D:\SteamLibrary\steamapps\common\SourceFilmmaker\game\usermod';env={k:v for k,v in os.environ.items() if not k.startswith('SFM64_DIAGNOSTIC_')};directory=Path('outputs/session-argument-controls');directory.mkdir(exist_ok=True);env.update(SFM64_DIAGNOSTIC_PRESENT_DEVICE='0',SFM64_DIAGNOSTIC_CAPTURE_FRAMES='1',SFM64_DIAGNOSTIC_BOUNDARY_CONTROL_TEST='1',SFM64_DIAGNOSTIC_OUTPUT_DIRECTORY=str(directory.resolve()))
+run=subprocess.run([exe,'--session','work/short-timeline-session.dmx','--content-directory',content,'--control-test'],env=env,capture_output=True,text=True,timeout=60);log=run.stdout+run.stderr;Path('outputs/sfm64-session-argument-controls.txt').write_text(log,encoding='utf-8');assert run.returncode==0,log
+assert 'session_argument_loaded=1 initial_tick=870833 frame_count=3' in log
+assert [int(n) for n in re.findall(r'multi_model_scene_frame=(\d+) tick=',log)]==[0,2,0,1,2]
+for i in range(3):assert (directory/f'vulkan-retained-frame-{i}.rgba').read_bytes()==Path(f'outputs/auto-timeline-1-prefetch-0/vulkan-retained-frame-{i}.rgba').read_bytes()
+cases=[(['--session'],'missing argument value'),(['--session','work/roundtrip-11.dmx'],'session launch requires'),(['--interactive','--control-test'],'multiple window modes'),(['--unknown'],'unknown launch argument'),(['--open-session'],'session picker requires valid content directory'),(['--open-session','--session','work/roundtrip-11.dmx'],'session picker conflicts'),(['--open-session','--control-test'],'session picker conflicts')]
+for args,message in cases:
+ result=subprocess.run([exe,*args],env=env,capture_output=True,text=True,timeout=10);assert result.returncode==1 and message in result.stderr,(args,result.stderr)
+Path('outputs/sfm64-session-launch-gpu.json').write_text(json.dumps(dict(session_argument=True,initial_tick_derived=True,boundary_pixels_exact=True,invalid_arguments_rejected=len(cases),scope='hidden control test, visible interactive session not inspected'),indent=2),encoding='utf-8');print('session CLI launch passed derived initial tick and bounds, boundary pixels exact, invalid arguments rejected')

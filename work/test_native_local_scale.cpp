@@ -1,0 +1,4 @@
+#include "recovered_local_matrix_scale_candidate.h"
+#include <fstream>
+#include <iostream>
+int main(){try{static_assert(sizeof(void*)==8,"x64 required");std::ifstream f("work/native-local-scale-oracle.bin",std::ios::binary);if(!f)throw std::runtime_error("oracle missing");size_t count=0;float scale;while(f.read(reinterpret_cast<char*>(&scale),4)){GeometryMatrixCandidate input,expected;f.read(reinterpret_cast<char*>(input.data()),48);f.read(reinterpret_cast<char*>(expected.data()),48);if(!f)throw std::runtime_error("truncated oracle");auto actual=recoveredLocalMatrixScaleCandidate(input,scale);if(std::memcmp(actual.data(),expected.data(),48))throw std::runtime_error("native arithmetic mismatch");++count;}if(count!=6)throw std::runtime_error("oracle count");std::cout<<"native SSE scale oracle x64 byte-exact cases="<<count<<" full_object_path=unverified\n";return 0;}catch(std::exception&e){std::cerr<<e.what();return 1;}}

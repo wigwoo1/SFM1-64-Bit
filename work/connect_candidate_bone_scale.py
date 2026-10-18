@@ -1,0 +1,7 @@
+from pathlib import Path
+p=Path('work/session_bone_pose_candidate.h');s=p.read_text();s=s.replace('#include <set>','#include <set>\n#include "recovered_local_matrix_scale_candidate.h"')
+s=s.replace('const std::vector<GeometryBoneCandidate>&bones){','const std::vector<GeometryBoneCandidate>&bones,bool allowScaleCandidate=false){')
+a='if(namedAttribute(graph,transform,"scale"))throw std::runtime_error("session bone scale pending: "+label);'
+b='auto scaleAttribute=namedAttribute(graph,transform,"scale");float scale=1;if(scaleAttribute){if(!allowScaleCandidate)throw std::runtime_error("session bone scale pending: "+label);if(scaleAttribute->type!=3||scaleAttribute->values.size()!=1||scaleAttribute->values[0].wire.size()!=4)throw std::runtime_error("session bone scale schema: "+label);std::memcpy(&scale,scaleAttribute->values[0].wire.data(),4);if(!std::isfinite(scale)||scale<=0)throw std::runtime_error("session bone scale range: "+label);}'
+assert s.count(a)==1;s=s.replace(a,b).replace('locals.push_back(local);','if(scaleAttribute)local=recoveredLocalMatrixScaleCandidate(local,scale);locals.push_back(local);');p.write_text(s)
+p=Path('work/inspect_multimodel_session_poses.cpp');s=p.read_text();s=s.replace('readSessionBonePoseCandidate(graph,instance.id,bones);','readSessionBonePoseCandidate(graph,instance.id,bones,true);').replace('graph_state=saved_not_timeline_evaluated','scale_path=experimental graph_state=saved_not_timeline_evaluated');p.write_text(s)

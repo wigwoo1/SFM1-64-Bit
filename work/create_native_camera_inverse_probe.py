@@ -1,0 +1,7 @@
+from pathlib import Path
+s=Path('work/probe_native_dme_camera_projection_x86.cpp').read_text();s=s[:s.index(' if(argc!=2)')];s=s.replace('#include "recovered_camera_projection_candidate.h"','#include "camera_rigid_inverse_candidate.h"')
+s+=r'''
+ if(argc!=2||std::ifstream(argv[1]).good())throw std::runtime_error("fresh output required");std::ofstream out(argv[1],std::ios::binary);if(!out)throw std::runtime_error("output unavailable");using Native=void(__cdecl*)(const float*,float*);auto native=reinterpret_cast<Native>(0x10059750);unsigned count=0;
+ for(float angle:{0.f,.3f,1.f,2.f,3.f})for(auto t:{std::array<float,3>{0,0,0},std::array<float,3>{10,20,30},std::array<float,3>{-58.3431f,-19.0557f,36.7978f},std::array<float,3>{9187.86f,-6932.94f,-4944.51f}}){float c=std::cos(angle),s=std::sin(angle);std::array<std::array<float,4>,3>matrix{{{c,-s,0,t[0]},{s,c,0,t[1]},{0,0,1,t[2]}}};std::array<float,12>expected;native(matrix[0].data(),expected.data());auto candidate=cameraRigidInverseCandidate(matrix);if(std::memcmp(candidate.rows.data(),expected.data(),48))throw std::runtime_error("native inverse mismatch");out.write(reinterpret_cast<const char*>(matrix.data()),48);out.write(reinterpret_cast<const char*>(expected.data()),48);++count;}out.close();if(!out)throw std::runtime_error("write failed");std::cout<<"native_camera_inverse_cases="<<count<<" bitwise_equal=1 DLL_entrypoint_not_called=1\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
+'''
+Path('work/probe_native_camera_inverse_x86.cpp').write_text(s)

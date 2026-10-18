@@ -1,0 +1,4 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "float_layer_attribute_defaults.h"
+int main(int argc,char**argv){try{if(argc!=2)return 1;Graph g;g.header="<!-- dmx encoding binary 5 format sfm_session 20 -->\n";Element e;e.type=internString(g,"DmeFloatLogLayer");e.name=internString(g,"float log");e.id.fill(0);e.id[0]=1;e.attributes=makeFloatLayerAttributeDefaults(g);g.elements.push_back(std::move(e));saveGraph(g,argv[1]);auto reloaded=loadGraph(argv[1]);auto&a=reloaded.elements.at(0).attributes;if(a.size()!=4||!a[0].values.empty()||!a[1].values.empty()||!a[2].values.empty()||a[3].values.size()!=1||!a[3].values[0].wire.empty())throw std::runtime_error("default layer roundtrip mismatch");std::cout<<"float_layer_default_roundtrip=pass\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -1,0 +1,5 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "film_scene_render_binding_candidate.h"
+#include <iostream>
+int main(int argc,char**argv){try{if(argc!=2)throw std::runtime_error("session required");auto g=loadGraph(argv[1]);size_t count=0;for(uint32_t id=0;id<g.elements.size();++id){auto&e=g.elements[id];if(g.strings.at(e.type)!="DmeGameModel")continue;auto bones=namedAttribute(g,e,"bones");if(!bones)continue;for(auto&v:bones->values){auto&bone=g.elements.at(v.reference);auto scale=namedAttribute(g,bone,"scale");if(!scale)continue;++count;std::cout<<"model="<<id<<" transform="<<v.reference<<" name="<<g.strings.at(bone.name)<<" scale_type="<<unsigned(scale->type)<<" count="<<scale->values.size();for(auto&value:scale->values){std::cout<<" wire_bytes="<<value.wire.size();if(value.wire.size()%4==0)for(size_t n=0;n<value.wire.size();n+=4){float f;std::memcpy(&f,value.wire.data()+n,4);std::cout<<" scalar="<<f;}}std::cout<<"\n";}}std::cout<<"bone scale audit count="<<count<<" graph_modified=no\n";return 0;}catch(std::exception&e){std::cerr<<e.what();return 1;}}

@@ -1,0 +1,2 @@
+from pathlib import Path
+p=Path('work/model_render_inputs_candidate.h');s=p.read_text();old='auto image=decodeVtfMipCandidate(bytes,mip);';new='auto textureLayout=readVtfTextureLayoutCandidate(bytes);auto selectedMip=mip<uint32_t(textureLayout.mips.size())?mip:uint32_t(textureLayout.mips.size()-1);auto image=decodeVtfMipCandidate(bytes,selectedMip);';assert s.count(old)==1;s=s.replace(old,new);p.write_text(s)

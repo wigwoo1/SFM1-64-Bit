@@ -1,0 +1,18 @@
+#include "source_world_ray_trace_candidate.h"
+#include "source_bsp_displacement_collision_candidate.h"
+#include "source_stationary_brush_only_world_candidate.h"
+#include <fstream>
+#include <iterator>
+#include <iostream>
+static bool same(const SourcePreparedWorldRayStateCandidate&a,const SourcePreparedWorldRayStateCandidate&b){return a.trace.fraction==b.trace.fraction&&a.trace.leftSolid==b.trace.leftSolid&&a.trace.startSolid==b.trace.startSolid&&a.trace.allSolid==b.trace.allSolid&&a.trace.contents==b.trace.contents&&a.trace.plane==b.trace.plane&&a.displacementFlags==b.displacementFlags&&a.displacementHit==b.displacementHit;}
+int main(int argc,char**argv){try{
+ if(argc!=2)throw std::runtime_error("map required");std::ifstream f(argv[1],std::ios::binary);if(!f)throw std::runtime_error("map read");std::vector<uint8_t>b((std::istreambuf_iterator<char>(f)),{});SourceBspBrushOnlyTraceCandidate world(b,std::vector<uint32_t>(32768));const std::vector<SourceDisplacementRuntimeMeshCandidate>none;SourcePreparedWorldRayCandidate brushOnly(world,none);
+ for(size_t i=0;i<1024;++i){std::array<float,3>point{float(int(i%32)*150-4500),float(int(i/32)*150-5500),float(int(i%11)*50-500)};SourceSweptWorldTraceCandidate expected;sourceStationaryBrushOnlyWorldCandidate(world,point,0x4081,expected.state.trace);sourceWorldTracePositionsCandidate(point,{0,0,0},expected);const auto actual=sourceWorldRayTraceCandidate(brushOnly,point,{0,0,0},0x4081);if(!same(actual.state,expected.state)||actual.startPosition!=expected.startPosition||actual.endPosition!=expected.endPosition)throw std::runtime_error("stationary brush-only regression");}
+ SourceBspDisplacementCollisionCandidate loaded(b);SourcePreparedWorldRayCandidate combined(world,loaded.meshes);SourcePreparedWorldRayStateCandidate seed;seed.trace.plane={11,12,13,14};seed.trace.contents=0x1234;seed.displacementFlags=0xabcd;seed.displacementHit=7;
+ unsigned guards=0;auto rejectUnchanged=[&](const SourcePreparedWorldRayCandidate&adapter,const std::array<float,3>&point,uint32_t mask){auto state=seed;bool rejected=false;try{adapter.traceStationaryPoint(point,mask,state);}catch(const std::exception&){rejected=true;}if(!rejected||!same(state,seed))throw std::runtime_error("failed stationary query changed state");++guards;};
+ rejectUnchanged(combined,{std::numeric_limits<float>::quiet_NaN(),0,0},1);rejectUnchanged(combined,{0,std::numeric_limits<float>::infinity(),0},1);rejectUnchanged(combined,{0,0,0},0x2000);
+ auto invalidWorld=world;for(auto&leaf:invalidWorld.data.leafBrushes)leaf.clear();for(auto&contents:invalidWorld.data.leafContents)contents=0;auto invalidMeshes=loaded.meshes;if(invalidMeshes.empty())throw std::runtime_error("benchmark displacement missing");invalidMeshes[0].baseNormal[0]=std::numeric_limits<float>::infinity();SourcePreparedWorldRayCandidate invalid(invalidWorld,invalidMeshes);rejectUnchanged(invalid,invalidMeshes[0].vertices.at(0),1);
+ auto state=seed;bool rejected=false;try{combined.traceRay({0,0,0},{0,0,0},1,state);}catch(const std::runtime_error&){rejected=true;}if(!rejected||!same(state,seed))throw std::runtime_error("legacy swept API changed");
+ const auto empty=sourceWorldRayTraceCandidate(combined,{1,2,3},{0,0,0},1,true,false);if(empty.state.trace.fraction!=1||empty.startPosition!=std::array<float,3>{}||empty.endPosition!=std::array<float,3>{})throw std::runtime_error("empty-world compatibility");
+ if(guards!=4)throw std::runtime_error("guard count");std::cout<<"PASS 1024 stationary brush-only regressions, four transactional guards, swept-only refusal and empty-world result\n";return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

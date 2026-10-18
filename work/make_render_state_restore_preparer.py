@@ -1,0 +1,3 @@
+from pathlib import Path
+s=Path('work/prepare_reset_texture_native.py').read_text().replace('0x1002b1e0,0x1002b237','0x1000e490,0x1000e53c').replace('nativeResetTexture','nativeRenderStateRestore').replace('reset_texture_native_init.h','render_state_restore_native_init.h').replace('sfm64-reset-texture-native-preparation.json','sfm64-render-state-restore-native-preparation.json').replace('reset_texture_prepared_bytes','render_state_restore_prepared_bytes').replace('assert len(calls)==2','assert len(calls)==1').replace('assert len(branches)==2','assert len(branches)==3')
+Path('work/prepare_render_state_restore_native.py').write_text(s)

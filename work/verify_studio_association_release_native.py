@@ -1,0 +1,17 @@
+from pathlib import Path
+import subprocess,json,hashlib,uuid
+runtime=r'C:\Users\wigwo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+subprocess.run([runtime,'work/prepare_studio_association_native.py'],check=True)
+for arch in ['32','64']:
+ script=Path('work/build_studio_association_release_native_'+arch+'.cmd')
+ script.write_text('@echo off\ncall "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Auxiliary\\Build\\vcvars'+arch+'.bat" >nul\nif errorlevel 1 exit /b 1\ncl /nologo /std:c++17 /EHsc /W4 /O2 /fp:strict '+('/arch:SSE2 ' if arch=='32' else '')+'work\\probe_studio_association_release.cpp /Fowork\\probe_studio_association_release_'+arch+'.obj /Fework\\probe_studio_association_release_'+arch+'.exe\nexit /b %errorlevel%\n')
+ subprocess.run(['cmd','/c',str(script)],check=True)
+oracle=Path('outputs/studio-association-release-'+uuid.uuid4().hex+'.bin')
+a=subprocess.run(['work/probe_studio_association_release_32.exe',str(oracle)],check=True,capture_output=True,text=True)
+assert oracle.stat().st_size>0
+b=subprocess.run(['work/probe_studio_association_release_64.exe',str(oracle)],capture_output=True,text=True)
+if b.returncode:print(b.stderr);raise RuntimeError('x64 native record comparison failed; oracle '+str(oracle))
+assert b.stdout.strip()=='association_native_cases=640'
+sha=hashlib.sha256(Path(r'D:\SteamLibrary\steamapps\common\SourceFilmmaker\game\bin\studiorender.dll').read_bytes()).hexdigest();assert sha==json.loads(Path('outputs/sfm64-studio-model-release-dispatch.json').read_text())['sha256']
+report={'cases':640,'native':a.stdout.strip(),'x64':b.stdout.strip(),'oracle':str(oracle),'studio_sha256':sha,'installation_unchanged':True,'limitations':'Original143-byte association cleanup plus119-byte frontier classifier compared against x64 across640 snapshots: mixed four keys, lengths1..128, each key removal plus absent key. Exact normalized links/head/tail/free/count, unchanged resource/payload and classifier counts. Original frontier classifier executed with one current block and last-node frontier; all active nodes eligible. X64 explicit unsigned ordering; signed32 boundary/later blocks/invalid frontiers, callback mutation/concurrency and live renderer unverified.'}
+Path('outputs/sfm64-studio-association-release-native-validation.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))

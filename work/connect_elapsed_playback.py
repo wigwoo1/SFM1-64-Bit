@@ -1,0 +1,13 @@
+from pathlib import Path
+p=Path('work/win32_vulkan_playback_candidate.h')
+s=p.read_text()
+s=s.replace('#pragma once','#pragma once\n#include <chrono>\n#include "elapsed_frame_clock_candidate.h"\ninline uint64_t playbackNowCandidate(){return uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());}')
+s=s.replace('HWND window=nullptr;','ElapsedFrameClockCandidate clock;HWND window=nullptr;')
+s=s.replace('if(key==VK_SPACE)vulkanPlaybackState.playing=!vulkanPlaybackState.playing;', 'if(key==VK_SPACE){auto now=playbackNowCandidate();if(vulkanPlaybackState.playing&&!vulkanPlaybackState.test)vulkanPlaybackState.selected=vulkanPlaybackState.clock.sample(now,vulkanPlaybackState.count);vulkanPlaybackState.playing=!vulkanPlaybackState.playing;vulkanPlaybackState.clock.reset(now,vulkanPlaybackState.selected);}')
+s=s.replace('vulkanPlaybackState.count&&vulkanPlaybackState.playing)', 'vulkanPlaybackState.count&&vulkanPlaybackState.playing&&vulkanPlaybackState.test)')
+s=s.replace('FALSE,33,QS_ALLINPUT','FALSE,1,QS_ALLINPUT')
+s=s.replace('if(vulkanPlaybackState.playing)SendMessage(vulkanPlaybackState.window,WM_TIMER,1,0);', 'if(vulkanPlaybackState.playing)vulkanPlaybackState.selected=vulkanPlaybackState.clock.sample(playbackNowCandidate(),vulkanPlaybackState.count);')
+p.write_text(s)
+p=Path('work/vulkan_model_swapchain_probe_candidate.h');s=p.read_text()
+s=s.replace('vulkanPlaybackState.selected=0;selectNextFrame=', 'vulkanPlaybackState.selected=0;char rateText[32]{};auto rateSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_LIVE_RATE_PACKED",rateText,sizeof(rateText));if(rateSize){uint32_t rate=0;if(rateSize>=sizeof(rateText))throw std::runtime_error("playback rate length");auto result=std::from_chars(rateText,rateText+rateSize,rate);if(result.ec!=std::errc{}||result.ptr!=rateText+rateSize)throw std::runtime_error("playback rate value");vulkanPlaybackState.clock.setPackedRate(rate);}vulkanPlaybackState.clock.reset(playbackNowCandidate(),0);selectNextFrame=')
+p.write_text(s)

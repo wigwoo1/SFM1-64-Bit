@@ -1,0 +1,6 @@
+from pathlib import Path
+p=Path('work/model_render_inputs_candidate.h');s=p.read_text().replace('materialIndex,body,model,mesh;};', 'materialIndex,body,model,mesh;int32_t eyeball=-1;};')
+old='result.ranges.push_back({uint32_t(result.indices.size()),uint32_t(count),material,mesh.body,mesh.model,mesh.mesh});'
+new='''int32_t eyeball=-1;if(mesh.materialType==1){if(mesh.materialParameter<0)throw std::runtime_error("negative mesh eyeball index");int32_t localEye=0;for(size_t eye=0;eye<model.eyeballs.size();++eye){auto&record=model.eyeballs[eye];if(record.body!=mesh.body||record.model!=mesh.model)continue;if(localEye++==mesh.materialParameter){if(eye>INT32_MAX)throw std::runtime_error("eyeball index overflow");eyeball=int32_t(eye);break;}}if(eyeball<0)throw std::runtime_error("mesh eyeball record missing");}result.ranges.push_back({uint32_t(result.indices.size()),uint32_t(count),material,mesh.body,mesh.model,mesh.mesh,eyeball});'''
+assert s.count(old)==1;s=s.replace(old,new);p.write_text(s)
+p=Path('work/inspect_alternate_render_inputs.cpp');s=p.read_text().replace('for(auto&material:inputs.materials)', 'for(auto&range:inputs.ranges)if(range.eyeball>=0)std::cout<<"eye_draw_binding mesh="<<range.mesh<<" record="<<range.eyeball<<" material="<<range.materialIndex<<"\\n";for(auto&material:inputs.materials)');p.write_text(s)

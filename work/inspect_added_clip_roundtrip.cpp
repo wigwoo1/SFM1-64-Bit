@@ -1,0 +1,4 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include <iostream>
+int main(int argc,char**argv){try{if(argc!=2)throw std::runtime_error("session required");auto graph=loadGraph(argv[1]);std::cout<<"elements="<<graph.elements.size()<<"\n";for(uint32_t i=graph.elements.size()>8?uint32_t(graph.elements.size()-8):0;i<graph.elements.size();++i){const auto&e=graph.elements[i];std::cout<<i<<" "<<graph.strings.at(e.type)<<" "<<graph.strings.at(e.name)<<" attrs="<<e.attributes.size()<<"\n";for(const auto&a:e.attributes){std::cout<<" attr="<<graph.strings.at(a.name)<<" type="<<unsigned(a.type)<<" values="<<a.values.size();for(const auto&v:a.values)if(a.type==1||a.type==15)std::cout<<" ref="<<v.reference;else if((graph.strings.at(a.name)=="start"||graph.strings.at(a.name)=="duration")&&v.wire.size()>=4)std::cout<<" value="<<wireInt(v);std::cout<<"\n";}}return 0;}catch(const std::exception&e){std::cerr<<e.what()<<"\n";return 1;}}

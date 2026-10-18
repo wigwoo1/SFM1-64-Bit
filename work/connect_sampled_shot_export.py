@@ -1,0 +1,10 @@
+from pathlib import Path
+p=Path('work/export_shot_render_inputs_x64.cpp')
+s=p.read_text().replace('#include "film_shot_time_candidate.h"','#include "film_shot_time_candidate.h"\n#include "session_color_timeline_subset.h"')
+s=s.replace('if(argc!=5&&argc!=6)', 'if(argc!=5&&argc!=6&&argc!=7)')
+s=s.replace('[root-parent-tick] required', '[root-parent-tick [--sample-subset]] required')
+s=s.replace('int32_t selectedLocalTick=0;if(argc==6)', 'int32_t selectedLocalTick=0,selectedParentTick=0;size_t sampledExecuted=0,sampledChanged=0;bool sampled=argc==7;if(sampled&&std::string(argv[6])!="--sample-subset")throw std::runtime_error("unsupported export option");if(argc>=6)')
+s=s.replace('selectedLocalTick=selected.localTick;}auto binding=', 'selectedLocalTick=selected.localTick;selectedParentTick=selected.parentTick;}if(sampled){auto evaluated=evaluateSessionColorTimelineSubsetCandidate(std::move(graph),selectedParentTick,uint32_t(clip));sampledExecuted=evaluated.executed;sampledChanged=evaluated.changed;graph=std::move(evaluated.graph);}auto binding=')
+s=s.replace('if(argc==6)manifest', 'if(argc>=6)manifest')
+s=s.replace('selection_policy=candidate_half_open animation_sampled=no\\n";', 'selection_policy=candidate_half_open animation_sampled="<<(sampled?"recovered_subset":"no")<<" sampled_executed="<<sampledExecuted<<" sampled_changed="<<sampledChanged<<" native_scheduler=unfinished\\n";')
+p.write_text(s)

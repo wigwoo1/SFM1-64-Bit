@@ -1,0 +1,12 @@
+from pathlib import Path
+p=Path('work/render_frame_provider_candidate.h');s=p.read_text().replace('size_t count=0;','size_t count=0;uint32_t initialSkin=0;');p.write_text(s)
+p=Path('work/live_session_frame_provider_candidate.h');s=p.read_text().replace('#include "session_model_visibility_candidate.h"','#include "session_model_visibility_candidate.h"\n#include "session_model_skin_candidate.h"')
+s=s.replace('auto timeline=std::make_shared', 'auto firstShot=selectFilmShotCandidate(graph,root,ticks.front());auto firstBinding=readFilmSceneRenderBindingCandidate(graph,firstShot.clip);if(firstBinding.models.size()!=1)throw std::runtime_error("live renderer requires one model");auto initialSkin=sessionModelSkinCandidate(graph,firstBinding.models.front());auto timeline=std::make_shared')
+s=s.replace('provider.count=ticks.size();','provider.count=ticks.size();provider.initialSkin=initialSkin;')
+s=s.replace('content,expected](size_t frame','content,expected,initialSkin](size_t frame')
+s=s.replace('auto id=binding.models.front();', 'auto id=binding.models.front();if(sessionModelSkinCandidate(g,id)!=initialSkin)throw std::runtime_error("live model skin changed; material rebuild required");')
+p.write_text(s)
+p=Path('work/vulkan_model_draw_candidate.h');s=p.read_text().replace('prepareModelRenderInputsCandidate(model,0,', 'prepareModelRenderInputsCandidate(model,frameProvider.initialSkin,');p.write_text(s)
+p=Path('work/test_model_visibility.cpp');s=p.read_text().replace('#include "session_model_visibility_candidate.h"','#include "session_model_visibility_candidate.h"\n#include "session_model_skin_candidate.h"')
+s=s.replace('auto g=loadGraph("work/roundtrip-11.dmx");', 'auto g=loadGraph("work/roundtrip-11.dmx");if(sessionModelSkinCandidate(g,2552)!=0)throw std::runtime_error("fixture skin expected zero");for(auto&a:g.elements[2552].attributes)if(g.strings[a.name]=="skin"){int32_t value=1;std::memcpy(a.values[0].wire.data(),&value,4);}saveGraph(g,"work/invalid-skin-session-v1.dmx");for(auto&a:g.elements[2552].attributes)if(g.strings[a.name]=="skin"){int32_t value=0;std::memcpy(a.values[0].wire.data(),&value,4);}')
+p.write_text(s)

@@ -1,0 +1,10 @@
+from pathlib import Path
+source=Path('work/find_native_scale_strings.py').read_text()
+source=source.replace("(b'\\0scale\\0',b'\\0boneScale\\0',b'\\0boneTransforms\\0')","(b'\\0evaluateProceduralBones\\0',)")
+source=source.replace('sfm64-native-scale-string-locations.json','sfm64-native-procedural-setting-locations.json')
+source=source.replace("list(game.glob('bin/*.dll'))", "list(game.glob('bin/*.dll'))+list(game.glob('*.exe'))+list(game.glob('bin/*.exe'))+list(game.glob('*/bin/*.exe'))")
+source=source.replace("list(game.glob('bin/*.dll'))", "list(game.glob('bin/*.dll'))+list(game.glob('bin/tools/*.dll'))+list(game.glob('bin/tools/*.exe'))")
+source=source.replace("b'\\0evaluateProceduralBones\\0'", "b'evaluateProceduralBones\\0'")
+source=source.replace('offset+=1;start=offset+len(needle)-1','start=offset+len(needle)')
+source=source.replace("needle[1:-1].decode()", "needle[:-1].decode()")
+exec(compile(source,__file__,'exec'))

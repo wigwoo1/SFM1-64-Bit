@@ -1,0 +1,13 @@
+import os,runpy,subprocess,json,uuid,shutil
+state=runpy.run_path('work/verify_obj_png_gpu.py');base=state['state'];out=state['out'];folder=out/'session-embedded-obj';folder.mkdir(exist_ok=True);saved=folder/('session-'+str(uuid.uuid4())+'.dmx');inputs=folder/('inputs-'+str(uuid.uuid4()));inputs.mkdir();paths=[]
+for source in [base['obj'],state['red'],state['blue']]:
+ target=inputs/source.name;shutil.copyfile(source,target);paths.append(target)
+def run(args,env,output):
+ output.mkdir(exist_ok=True);env=env.copy();env['SFM64_DIAGNOSTIC_OUTPUT_DIRECTORY']=str(output.resolve());result=subprocess.run(args,env=env,capture_output=True,text=True,timeout=int(os.environ.get('SFM64_TEST_TIMEOUT_SECONDS','240')));log=result.stdout+result.stderr;(output/'log.txt').write_text(log);assert result.returncode==0,log;return log
+args=base['args'][:-2]+['--obj',str(paths[0]),'--obj-scale','0.5','--obj-texture','left',str(paths[1]),'--obj-texture','right',str(paths[2])];env=base['env'].copy();env.update(SFM64_DIAGNOSTIC_EDITOR_CONTROL_TEST='1',SFM64_DIAGNOSTIC_OBJ_SESSION_SAVE_TEST='1',SFM64_DIAGNOSTIC_EDITOR_SAVE_PATH=str(saved.resolve()));log=run(args,env,folder/'saved');assert 'editor_session_saved=' in log and 'editor_action_rejected=' not in log;assert 'SFM64 prototype * - Frame' in log and 'SFM64 prototype - Frame' in log
+expected=(folder/'saved'/'vulkan-retained-frame-1.rgba').read_bytes()
+for path in paths:path.unlink()
+reopen=base['args'][:-2];reopen[reopen.index('--session')+1]=str(saved);log=run(reopen,base['env'],folder/'reopened');assert 'session_embedded_obj_restored=1' in log and 'SFM64 prototype * - Frame' not in log;assert (folder/'reopened'/'vulkan-retained-frame-1.rgba').read_bytes()==expected
+resaved=folder/('resaved-'+str(uuid.uuid4())+'.dmx');env['SFM64_DIAGNOSTIC_EDITOR_SAVE_PATH']=str(resaved.resolve());run(reopen,env,folder/'resaved');reopen[reopen.index('--session')+1]=str(resaved);log=run(reopen,base['env'],folder/'resaved-reopened');assert 'session_embedded_obj_restored=1' in log and (folder/'resaved-reopened'/'vulkan-retained-frame-1.rgba').read_bytes()==expected
+report=dict(real_win32_save_as=True,embedded_in_dmx=True,new_process_pixels_exact=True,external_test_sources_removed=True,resave_reopen_pixels_exact=True,unsaved_title_clears_on_save=True,session=str(saved),limits='One OBJ and opaque textures. Original Valve SFM handling of custom binary field unverified; FBX, multiple imported models and full project save unfinished.')
+(folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');print('session_embedded_obj_gpu=passed '+str(report))

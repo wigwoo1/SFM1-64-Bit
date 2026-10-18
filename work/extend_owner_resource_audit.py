@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('work/recover_owner_reset_cleanup.py');s=p.read_text().replace('(0x100283e0,0x100283f1)]','(0x100283e0,0x100283f1),(0x1002aaa0,0x1002aad1),(0x1002abe0,0x1002ac61)]')
+s=s.replace("Path('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text", "report['additional_resource_helpers']={'1002aaa0':'Clear byte owner+c8 before iteration; walk20 live COM pointers owner+cc..118 ascending; for each nonnull call slot2 Release then clear pointer after callback.', '1002abe0':'Walk5 live COM pointers owner+178..188 ascending; for each nonnull call slot2 Release then clear pointer after callback.', 'limits':'Exact interface/resource kinds and callback mutation effects unverified; no native execution of these helpers yet.'}\nPath('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text")
+p.write_text(s)

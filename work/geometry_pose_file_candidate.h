@@ -1,0 +1,4 @@
+#pragma once
+#include "model_skinning_geometry.h"
+#include <fstream>
+inline std::vector<GeometryMatrixCandidate> readGeometryPoseFileCandidate(const std::string&path,size_t expected){std::ifstream file(path,std::ios::binary);if(!file)throw std::runtime_error("pose file missing");uint32_t count=0;file.read(reinterpret_cast<char*>(&count),4);if(file.gcount()!=4||count!=expected)throw std::runtime_error("pose file bone count");std::vector<GeometryMatrixCandidate>locals(count);file.read(reinterpret_cast<char*>(locals.data()),std::streamsize(locals.size()*48));if(file.gcount()!=std::streamsize(locals.size()*48)||file.peek()!=std::char_traits<char>::eof())throw std::runtime_error("pose file size");for(auto&local:locals)for(float value:local)if(!std::isfinite(value))throw std::runtime_error("pose file nonfinite");return locals;}

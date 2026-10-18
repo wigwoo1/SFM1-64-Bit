@@ -1,0 +1,10 @@
+from pathlib import Path
+p=Path('work/vulkan_model_swapchain_probe_candidate.h');s=p.read_text().replace('#include "live_session_frame_provider_candidate.h"','#include "live_session_frame_provider_candidate.h"\n#include "session_tick_grid_candidate.h"')
+s=s.replace('||!ticksSize||ticksSize>=sizeof(ticksText)', '||ticksSize>=sizeof(ticksText)')
+old='frameProvider=liveSessionFrameProviderCandidate(loadGraph(sessionPath),root,std::move(ticks),base);'
+assert old in s
+new='''if(!ticksSize){char startText[32]{},stepText[32]{},countText[32]{};auto startSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_LIVE_START",startText,sizeof(startText));auto stepSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_LIVE_STEP",stepText,sizeof(stepText));auto countSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_FRAME_COUNT",countText,sizeof(countText));if(!startSize||startSize>=sizeof(startText)||!stepSize||stepSize>=sizeof(stepText)||!countSize||countSize>=sizeof(countText))throw std::runtime_error("live tick grid missing");int32_t start=0,step=0;size_t count=0;auto a=std::from_chars(startText,startText+startSize,start);auto b=std::from_chars(stepText,stepText+stepSize,step);auto c=std::from_chars(countText,countText+countSize,count);if(a.ec!=std::errc{}||a.ptr!=startText+startSize||b.ec!=std::errc{}||b.ptr!=stepText+stepSize||c.ec!=std::errc{}||c.ptr!=countText+countSize)throw std::runtime_error("live tick grid number");ticks=sessionTickGridCandidate(start,step,count);}'''+old
+s=s.replace(old,new);p.write_text(s)
+p=Path('work/run_live_session_vulkan_probe.cmd');s=p.read_text().replace('SFM64_DIAGNOSTIC_FRAME_COUNT=3','SFM64_DIAGNOSTIC_FRAME_COUNT=40').replace('SFM64_DIAGNOSTIC_LIVE_TICKS=870833,880833,870833','SFM64_DIAGNOSTIC_LIVE_TICKS=\nset SFM64_DIAGNOSTIC_LIVE_START=870833\nset SFM64_DIAGNOSTIC_LIVE_STEP=333')
+Path('work/run_live_tick_grid_probe.cmd').write_text(s)
+Path('work/open_live_tick_grid_vulkan.cmd').write_text(s.replace('setlocal','setlocal\ncd /d "%~dp0.."',1).replace('probe_vulkan_win32_surface_x64.exe\n','probe_vulkan_win32_surface_x64.exe --interactive\n'))

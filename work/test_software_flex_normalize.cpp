@@ -1,0 +1,5 @@
+#include "software_flex_normalize_candidate.h"
+#include <fstream>
+#include <iostream>
+#include <limits>
+int main(){try{std::ifstream input("work/software-flex-normalize-input.bin",std::ios::binary);std::ofstream output("outputs/software-flex-normalize-result.bin",std::ios::binary);if(!input||!output)throw std::runtime_error("fixture unavailable");size_t count=0;std::array<float,3>v;while(input.read(reinterpret_cast<char*>(v.data()),12)){auto length=softwareFlexNormalizeCandidate(v);output.write(reinterpret_cast<const char*>(v.data()),12);output.write(reinterpret_cast<const char*>(&length),4);++count;}if(!input.eof()||!output||count!=4099)throw std::runtime_error("fixture count/output failed");v={1,std::numeric_limits<float>::infinity(),0};bool rejected=false;try{softwareFlexNormalizeCandidate(v);}catch(const std::runtime_error&){rejected=true;}if(!rejected||v[0]!=1)throw std::runtime_error("nonfinite validation failed");std::cout<<"software flex normalization candidate passed fixtures="<<count<<" nonfinite_rejected\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

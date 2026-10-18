@@ -1,0 +1,6 @@
+#include "pending_reference_fast_remove.h"
+#include <array>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+int main(int argc,char**argv){try{if(argc!=2)return 2;std::ifstream f(argv[1],std::ios::binary);unsigned cases=0;for(unsigned bucket=0;bucket<2;++bucket)for(unsigned count=0;count<=6;++count)for(unsigned index=0;index<8;++index){std::vector<std::vector<std::array<uint32_t,9>>>entries(2);for(unsigned b=0;b<2;++b)for(unsigned i=0;i<count;++i){std::array<uint32_t,9>entry{};for(unsigned w=0;w<9;++w)entry[w]=b*1000+i*20+w;entries[b].push_back(entry);}removeRecoveredPendingReferenceCandidate(entries,(bucket<<16)|index);std::array<uint32_t,110>actual{},expected{};for(unsigned b=0;b<2;++b){actual[b*55]=uint32_t(entries[b].size());for(unsigned i=0;i<entries[b].size();++i)for(unsigned w=0;w<9;++w)actual[b*55+1+i*9+w]=entries[b][i][w];}f.read(reinterpret_cast<char*>(expected.data()),sizeof(expected));if(!f||actual!=expected)throw std::runtime_error("native pending erase mismatch");++cases;}char extra;if(f.read(&extra,1))throw std::runtime_error("trailing oracle");std::cout<<"native_pending_fast_remove_matches="<<cases<<std::endl;return 0;}catch(const std::exception&e){std::cerr<<e.what()<<std::endl;return 1;}}

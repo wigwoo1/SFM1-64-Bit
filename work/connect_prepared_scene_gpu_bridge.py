@@ -1,0 +1,8 @@
+from pathlib import Path
+p=Path('work/vulkan_model_draw_candidate.h');s=p.read_text().replace('#include "vulkan_prepared_scene_candidate.h"','#include "prepared_scene_gpu_bridge_candidate.h"')
+s=s.replace('auto&materialImages=materialCache.get(renderInputs);','PreparedSceneGpuBridgeCandidate<VulkanMaterialImagesCandidate>sceneBridge(materialCache);auto&materialImages=materialCache.get(renderInputs);')
+s=s.replace('materialCache.recordUploads(command);','sceneBridge.recordMaterialUploads(command);').replace('materialCache.submitted();','sceneBridge.submitted();')
+old='recordVulkanPreparedSceneCandidate({bindPipeline,bindDescriptors,bindVertices,bindIndices,draw},load<PFN_vkCmdPushConstants>(library,"vkCmdPushConstants"),command,sceneView,camera,currentMaterialAlpha,{vertexBuffer,indexBuffer,vertices.size()*sizeof(Vertex),indices.size()*sizeof(uint32_t),pipeline,translucentPipeline,layout,std::move(sets)});'
+new='''if(blendMode==6){'''+old+'''}else{struct PreparedView{const SceneView&upload;const RenderCameraCandidate&camera;const std::vector<float>&materialAlpha;const SingleModelInputsView&materialInputs;}preparedView{sceneView,camera,currentMaterialAlpha,materialInputs};auto resources=sceneBridge.resources(preparedView,vertexBuffer,indexBuffer,vertices.size()*sizeof(Vertex),indices.size()*sizeof(uint32_t),pipeline,translucentPipeline,layout);sceneBridge.record(preparedView,{bindPipeline,bindDescriptors,bindVertices,bindIndices,draw},load<PFN_vkCmdPushConstants>(library,"vkCmdPushConstants"),command,resources);if(!iteration)std::cout<<"prepared_scene_gpu_bridge=active model_inputs=1\\n";}'''
+if s.count(old)!=1:raise RuntimeError('prepared recording marker')
+p.write_text(s.replace(old,new))

@@ -1,0 +1,24 @@
+#pragma once
+#include "native_physics_support_fixture.h"
+inline PhysicsSupportPreparationInputFixture preparationCaptureNative(const uint8_t*self,const uint8_t*metadata){
+    PhysicsSupportPreparationInputFixture f;f.metadata.present=metadata!=nullptr;f.blocked=self[0x9c]!=0;std::memcpy(f.matrix.data(),self+0x18,48);f.cache.groups=supportReadNative<uint32_t>(self,0xa0);size_t capacity=f.cache.groups*4;
+    if(metadata){f.metadata.flags=metadata[6];f.metadata.count=supportReadNative<uint16_t>(metadata,4);f.metadata.firstVertex=supportReadNative<uint16_t>(metadata,8);if(metadata[6]&4){if(metadata[7]>14)throw std::runtime_error("native preparation run extent");f.metadata.runs.assign(metadata+10,metadata+10+metadata[7]);}}
+    if(metadata&&(metadata[6]&6)&&!f.blocked){
+        if(!f.metadata.count||f.metadata.count>32768)throw std::runtime_error("native preparation vertex extent");capacity=(std::max)(capacity,(size_t(f.metadata.count)+3)/4*4);const auto ledge=supportReadNative<const uint8_t*>(self,0x10);if(!ledge)throw std::runtime_error("native preparation ledge missing");const auto points=ledge+supportReadNative<int32_t>(ledge,0);size_t count=size_t(f.metadata.firstVertex)+f.metadata.count;
+        if(metadata[6]&4){const auto triangles=supportReadNative<uint16_t>(ledge,12);count=0;for(size_t j=0;j<triangles;++j)for(size_t corner=1;corner<4;++corner)count=(std::max)(count,size_t(supportReadNative<uint32_t>(ledge,16+j*16+corner*4)&0xffff)+1);}
+        if(count>32768)throw std::runtime_error("native preparation raw points extent");for(size_t j=0;j<count;++j)f.points.push_back(supportReadNative<std::array<float,4>>(points,j*16));
+    }
+    if(capacity>32768)throw std::runtime_error("native preparation cache extent");for(size_t i=0;i<capacity;++i){std::array<float,3>p;for(unsigned axis=0;axis<3;++axis)p[axis]=supportReadNative<float>(self,0xb0+i/4*48+axis*16+i%4*4);f.cache.storage.push_back(p);}return f;
+}
+inline PhysicsSupportPreparationOutputFixture preparationCaptureOutputNative(const uint8_t*self,bool built,size_t capacity,const std::array<float,3>&direction,NativeVphysicsLibraryFixture&image){
+    PhysicsSupportPreparationOutputFixture r;r.built=built;r.cache.groups=supportReadNative<uint32_t>(self,0xa0);for(size_t i=0;i<capacity;++i){std::array<float,3>p;for(unsigned axis=0;axis<3;++axis)p[axis]=supportReadNative<float>(self,0xb0+i/4*48+axis*16+i%4*4);r.cache.storage.push_back(p);}r.selected.feature=UINT32_MAX;r.selected.point={123456,123456,123456};
+    if(built){using Support=uint32_t(__thiscall*)(const void*,const float*,float*);std::array<float,5>p{123456,0,0,0,123456};r.selected.feature=reinterpret_cast<Support>(image.address(0x26d40))(self,direction.data(),p.data()+1);std::memcpy(r.selected.point.data(),p.data()+1,12);if(p.front()!=123456||p.back()!=123456)throw std::runtime_error("prepared support output canary");}return r;
+}
+inline PhysicsSupportPreparationOutputFixture preparationInvokeNative(NativeVphysicsLibraryFixture&image,const PhysicsSupportPreparationInputFixture&f){
+    const auto&m=f.metadata;NativeSupportAlignedBytesFixture motion(0xb0+f.cache.storage.size()*12),metadata(24),ledge(32+f.points.size()*16);std::memcpy(motion.data()+0x18,f.matrix.data(),48);motion.data()[0x9c]=f.blocked;supportWriteNative(motion.data(),0xa0,f.cache.groups);supportWriteNative(motion.data(),0x10,ledge.data());supportWriteNative(ledge.data(),0,uint32_t(32));supportWriteNative(ledge.data(),12,uint16_t(1));for(size_t i=0;i<f.points.size();++i)supportWriteNative(ledge.data(),32+i*16,f.points[i]);
+    supportWriteNative(metadata.data(),4,m.count);metadata.data()[6]=m.flags;metadata.data()[7]=uint8_t(m.runs.size());supportWriteNative(metadata.data(),8,m.firstVertex);if(!m.runs.empty())std::memcpy(metadata.data()+10,m.runs.data(),m.runs.size());
+    for(size_t i=0;i<f.cache.storage.size();++i)for(unsigned axis=0;axis<3;++axis)supportWriteNative(motion.data(),0xb0+i/4*48+axis*16+i%4*4,f.cache.storage[i][axis]);
+    const std::vector<uint8_t>oldMotion(motion.data(),motion.data()+motion.size),oldLedge(ledge.data(),ledge.data()+ledge.size),oldMetadata(metadata.data(),metadata.data()+metadata.size);using Prepare=bool(__thiscall*)(void*,const void*);const bool built=reinterpret_cast<Prepare>(image.address(0x26a10))(motion.data(),m.present?metadata.data():nullptr);
+    auto result=preparationCaptureOutputNative(motion.data(),built,f.cache.storage.size(),f.direction,image);
+    if(std::memcmp(ledge.data(),oldLedge.data(),ledge.size)||std::memcmp(metadata.data(),oldMetadata.data(),metadata.size))throw std::runtime_error("preparation raw geometry/metadata mutated");for(size_t i=0;i<0xb0;++i)if(!(i>=0xa0&&i<0xa4)&&motion.data()[i]!=oldMotion[i])throw std::runtime_error("preparation unrelated motion field changed");motion.verify();ledge.verify();metadata.verify();return result;
+}

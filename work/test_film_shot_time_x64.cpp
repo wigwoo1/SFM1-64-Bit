@@ -1,0 +1,7 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "film_shot_time_candidate.h"
+#include <iostream>
+int main(int argc,char**argv){try{if(argc!=2)throw std::runtime_error("session required");auto g=loadGraph(argv[1]);size_t checks=0;auto expect=[&](int32_t tick,uint32_t clip,int32_t local){auto got=selectFilmShotCandidate(g,2237,tick);if(got.clip!=clip||got.localTick!=local)throw std::runtime_error("shot selection mismatch");++checks;};expect(870833,2470,0);expect(870834,2470,1);expect(884999,2470,14166);expect(885000,4447,0);for(auto tick:{int32_t(-1),int32_t(0),int32_t(3400000),int32_t(1174550)}){bool rejected=false;try{selectFilmShotCandidate(g,2237,tick);}catch(const std::runtime_error&){rejected=true;}if(!rejected)throw std::runtime_error("missing ambiguity or gap rejection");++checks;}
+ auto frames=hierarchyRefs(g,g.elements[2470],"timeFrame",1);auto&frame=g.elements[frames[0]];for(auto&a:frame.attributes){auto name=g.strings[a.name];if(name=="offset"){int32_t value=100;std::memcpy(a.values[0].wire.data(),&value,4);}if(name=="scale"){float value=2;std::memcpy(a.values[0].wire.data(),&value,4);}}expect(870834,2470,202);
+ std::cout<<"x64 film shot time candidate passed checks="<<checks<<" boundaries=half_open overlaps=rejected offset_scale=verified native_selection_parity=unverified animation_sampled=no\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

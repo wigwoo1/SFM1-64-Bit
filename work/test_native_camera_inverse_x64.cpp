@@ -1,0 +1,5 @@
+#include "camera_rigid_inverse_candidate.h"
+#include <fstream>
+#include <cstring>
+#include <iostream>
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8,"x64 required");if(argc!=2)throw std::runtime_error("native oracle required");std::ifstream f(argv[1],std::ios::binary);if(!f)throw std::runtime_error("oracle missing");size_t count=0;for(;;){std::array<std::array<float,4>,3>input;std::array<float,12>expected;f.read(reinterpret_cast<char*>(input.data()),48);if(f.gcount()==0&&f.eof())break;if(f.gcount()!=48)throw std::runtime_error("truncated input");f.read(reinterpret_cast<char*>(expected.data()),48);if(f.gcount()!=48)throw std::runtime_error("truncated matrix");auto actual=cameraRigidInverseCandidate(input);if(std::memcmp(actual.rows.data(),expected.data(),48))throw std::runtime_error("x64 native inverse mismatch");++count;}if(count!=20)throw std::runtime_error("oracle case count");std::cout<<"x64 native inverse comparison passed cases="<<count<<" floats="<<count*12<<" bitwise_equal=1\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

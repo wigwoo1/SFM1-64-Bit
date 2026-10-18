@@ -1,0 +1,12 @@
+#include "reference_element_removal.h"
+#include "reference_handle_retirement.h"
+#include "reference_handle_resolution.h"
+#include "attribute_mutation_gate.h"
+#include "element_mutation_state.h"
+#include "reference_update_queues.h"
+#include <array>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+struct Element{};
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8,"x64 required");if(argc!=2)throw std::runtime_error("oracle required");std::ifstream f(argv[1],std::ios::binary);for(unsigned pattern=0;pattern<1024;++pattern){Element element;uint32_t gen=pattern&512?511:7,handle=(gen+(pattern&4?1:0))<<22;if(pattern&2)handle=0xffffffffu;std::vector<RecoveredReferenceHandleSlotCandidate>slots{{gen|(pattern&8?0x80000000u:0),pattern&16?0:reinterpret_cast<uintptr_t>(&element)}};uint32_t active=1,flags=0;uint16_t attribute=pattern&128?0x20:0x2000;uint8_t owner=pattern&256?1:0;RecoveredReferenceUpdateQueueCandidate queue;std::array<uint32_t,32>actual{},expected{};auto event=[&](uint32_t code){actual[2+actual[1]++]=code;};auto phase=[&](){event(1);return pattern%4;};auto incoming=[&](uint32_t){event(2);if(pattern&32){event(3);if(!(pattern&64)){if(!(attribute&0x20)){event(1);}beginAttributeMutation(attribute,pattern%4,[&](){event(4);},[&](){markElementMutation(owner,123,[&](uint32_t h){queue.append(h);});});}event(5);}};auto resolve=[&](uint32_t h){return reinterpret_cast<Element*>(resolveRecoveredReferenceHandleCandidate(h,slots));};removeRecoveredReferenceElementModeZeroCandidate(handle,flags,phase,incoming,resolve,[&](Element&){event(4);},[&](Element&,bool){event(4);},[&](Element&){event(8);},[&](Element&){event(9);},[&](Element&){event(10);},[&](uint32_t){event(11);},[&](uint32_t h){retireRecoveredReferenceHandleCandidate(h,slots,active,[&](uint32_t){event(12);});});actual[0]=slots[0].state;actual[24]=slots[0].element!=0;actual[25]=active;actual[26]=flags;actual[27]=attribute;actual[28]=uint32_t(owner)<<16;actual[29]=uint32_t(queue.handles.size());actual[30]=queue.handles.empty()?0:queue.handles[0];if(!f.read(reinterpret_cast<char*>(expected.data()),sizeof(expected))||actual!=expected)throw std::runtime_error("oracle mismatch");}char extra;if(f.get(extra))throw std::runtime_error("extra oracle");std::cout<<"x64_mode_zero_removal_cases=1024"<<std::endl;return 0;}catch(const std::exception&e){std::cerr<<e.what()<<std::endl;return 1;}}

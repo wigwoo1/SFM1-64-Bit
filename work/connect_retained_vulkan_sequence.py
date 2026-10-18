@@ -1,0 +1,20 @@
+from pathlib import Path
+p=Path('work/vulkan_model_draw_candidate.h');s=p.read_text()
+s=s.replace('#include "vulkan_material_images_candidate.h"','#include "vulkan_material_images_candidate.h"\n#include <charconv>')
+marker='const auto&indices=renderInputs.indices;'
+assert marker in s
+s=s.replace(marker,marker+'''
+ char sequencePath[32768]{},sequenceCountText[32]{};auto sequencePathSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_FRAME_SEQUENCE",sequencePath,sizeof(sequencePath));size_t frameCount=1;
+ if(sequencePathSize){if(sequencePathSize>=sizeof(sequencePath)||blendMode||posePathSize||modelMatrixSize||cameraPathSize)throw std::runtime_error("sequence path or conflicting diagnostic inputs");auto countSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_FRAME_COUNT",sequenceCountText,sizeof(sequenceCountText));if(!countSize||countSize>=sizeof(sequenceCountText))throw std::runtime_error("sequence count missing");auto parsed=std::from_chars(sequenceCountText,sequenceCountText+countSize,frameCount);if(parsed.ec!=std::errc{}||parsed.ptr!=sequenceCountText+countSize||!frameCount||frameCount>10000)throw std::runtime_error("sequence count invalid");}
+''')
+marker='VkCommandBufferBeginInfo beginInfo{};'
+assert s.count(marker)==1
+s=s.replace(marker,'''
+ for(size_t frame=0;frame<frameCount;++frame){
+ if(sequencePathSize){auto directory=std::filesystem::path(sequencePath)/("frame-"+std::to_string(frame));auto pose=readGeometryPoseFileCandidate((directory/"model-0-pose.bin").string(),model.bones.size());auto framePalette=evaluateGeometryPosePaletteCandidate(model.bones,pose);auto frameVertices=deformGeometryBatchCandidate(model.geometry,framePalette,4);auto placement=readRenderCameraFileCandidate((directory/"model-0-placement.bin").string());if(placement.rows[12]!=0||placement.rows[13]!=0||placement.rows[14]!=0||placement.rows[15]!=1)throw std::runtime_error("sequence model affine row");std::array<std::array<float,4>,3>rigid;for(size_t r=0;r<3;++r)for(size_t c=0;c<4;++c)rigid[r][c]=placement.rows[r*4+c];cameraRigidInverseCandidate(rigid);if(frameVertices.size()!=vertices.size())throw std::runtime_error("sequence vertex count changed");for(size_t n=0;n<vertices.size();++n){auto position=placement.clip(frameVertices[n].position);vertices[n].position={position[0],position[1],position[2]};vertices[n].uv=frameVertices[n].uv;auto normal=frameVertices[n].normal;for(size_t r=0;r<3;++r)vertices[n].normal[r]=placement.rows[r*4]*normal[0]+placement.rows[r*4+1]*normal[1]+placement.rows[r*4+2]*normal[2];}camera=readRenderCameraFileCandidate((directory/"camera.bin").string());transparentOrder=translucentRangeOrderCandidate(renderInputs,vertices,[&](const Vertex&v){return renderCameraSortDistanceCandidate(camera,v.position);});void*vertexMapped=nullptr;check(map(dev,vertexMemory,0,vertices.size()*sizeof(Vertex),0,&vertexMapped));std::memcpy(vertexMapped,vertices.data(),vertices.size()*sizeof(Vertex));unmap(dev,vertexMemory);}
+ if(frame)check(load<PFN_vkResetCommandPool>(library,"vkResetCommandPool")(dev,pool,0));
+ VkCommandBufferBeginInfo beginInfo{};''')
+s=s.replace('materialImages.upload(command);','if(!frame)materialImages.upload(command);if(frame){VkMemoryBarrier reuse{};reuse.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER;reuse.srcAccessMask=VK_ACCESS_MEMORY_READ_BIT|VK_ACCESS_MEMORY_WRITE_BIT;reuse.dstAccessMask=VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT|VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;barrier(command,VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT|VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT|VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,0,1,&reuse,0,nullptr,0,nullptr);}')
+s=s.replace('std::ofstream output(blendMode?', 'std::ofstream output(sequencePathSize?("outputs/vulkan-retained-frame-"+std::to_string(frame)+".rgba"):blendMode?')
+s=s.replace('output=512x512 RGBA\\n";cleanup();','output=512x512 RGBA frame="<<frame<<"\\n";\n }if(sequencePathSize)std::cout<<"retained Vulkan sequence passed frames="<<frameCount<<" geometry_allocations=1 material_uploads=1 render_targets=1 gpu_wait=per_frame native_full_parity=unverified\\n";cleanup();')
+p.write_text(s)

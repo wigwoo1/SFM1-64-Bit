@@ -1,0 +1,21 @@
+#pragma once
+static const unsigned char trackerFactoryBytes0[]={85,139,236,86,139,117,12,87,133,246,116,6,199,6,0,0,0,0,139,125,8,86,87,255,21,72,59,24,16,131,196,8,133,192,117,28,86,87,232,53,228,10,0,255,208,131,196,8,133,192,117,12,133,246,116,6,199,6,1,0,0,0,51,192,95,94,93,195};
+static const unsigned trackerFactoryFixups0[][2]={{25,270023496}};
+static const unsigned trackerFactoryCalls0[][2]={{38,269312096}};
+static const unsigned char trackerFactoryBytes1[]={184,224,95,13,16,195};
+static const unsigned trackerFactoryFixups1[][2]={{1,269311968}};
+static const unsigned trackerFactoryCalls1[][2]={{0,0}};
+static const unsigned char trackerFactoryBytes2[]={85,139,236,86,139,53,216,251,25,16,87,133,246,116,56,139,125,8,139,70,4,139,207,138,16,58,17,117,26,132,210,116,18,138,80,1,58,81,1,117,14,131,192,2,131,193,2,132,210,117,228,51,192,235,5,27,192,131,216,255,133,192,116,26,139,118,8,133,246,117,203,139,69,12,133,192,116,6,199,0,1,0,0,0,95,51,192,94,93,195,139,69,12,133,192,116,6,199,0,0,0,0,0,139,6,95,94,93,255,224};
+static const unsigned trackerFactoryFixups2[][2]={{6,270138328}};
+static const unsigned trackerFactoryCalls2[][2]={{0,0}};
+static const unsigned char trackerFactoryBytes3[]={184,72,208,22,16,195};
+static const unsigned trackerFactoryFixups3[][2]={{1,269930568}};
+static const unsigned trackerFactoryCalls3[][2]={{0,0}};
+static const unsigned char trackerFactoryBytes4[]={194,24,0};
+static const unsigned trackerFactoryFixups4[][2]={{0,0}};
+static const unsigned trackerFactoryCalls4[][2]={{0,0}};
+static const unsigned char trackerFactoryBytes5[]={194,4,0};
+static const unsigned trackerFactoryFixups5[][2]={{0,0}};
+static const unsigned trackerFactoryCalls5[][2]={{0,0}};
+struct TrackerFactoryBody{const unsigned char* bytes;unsigned size,fileOffset;const unsigned (*fixups)[2];unsigned fixupCount;const unsigned (*calls)[2];unsigned callCount;};
+static const TrackerFactoryBody trackerFactoryBodies[]={{trackerFactoryBytes0,68,159744,trackerFactoryFixups0,1,trackerFactoryCalls0,1},{trackerFactoryBytes1,6,873568,trackerFactoryFixups1,1,trackerFactoryCalls1,0},{trackerFactoryBytes2,110,873440,trackerFactoryFixups2,1,trackerFactoryCalls2,0},{trackerFactoryBytes3,6,8368,trackerFactoryFixups3,1,trackerFactoryCalls3,0},{trackerFactoryBytes4,3,8384,trackerFactoryFixups4,0,trackerFactoryCalls4,0},{trackerFactoryBytes5,3,25984,trackerFactoryFixups5,0,trackerFactoryCalls5,0}};

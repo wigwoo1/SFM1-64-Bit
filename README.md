@@ -1,4 +1,4 @@
-# SFM1 64-Bit — experimental reconstruction
+# SFM1 64-Bit â€” experimental reconstruction
 
 An independent native Windows x64 application working toward compatibility with
 Source Filmmaker sessions, assets and editing workflows. This is unfinished
@@ -29,7 +29,8 @@ assets, sessions or runtime DLLs are included. See `RUNNING.txt` in the ZIP.
 
 ## Build the complete editor
 
-On Windows, install Visual Studio C++ Build Tools and Windows SDK, then run:
+Use a short checkout path on Windows (long Vulkan header paths can exceed the
+compiler path limit). Install Visual Studio C++ Build Tools and Windows SDK, then run:
 
 ```bat
 work\build_sfm64_editor_x64.cmd

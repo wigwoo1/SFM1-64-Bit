@@ -1,0 +1,6 @@
+from pathlib import Path
+p=Path('work/sfm_model_geometry.h');s=p.read_text().replace('int32_t material=0;', 'int32_t material=0,materialType=0,materialParameter=0;').replace('int32_t material;};using Key=', 'int32_t material,materialType,materialParameter;};using Key=')
+old='metadata.emplace(Key{bi,mi,mei},MeshSpan{first+meshFirst,meshCount,material});'
+new='int32_t materialType,materialParameter;auto typeBits=word(mesh+24),parameterBits=word(mesh+28);std::memcpy(&materialType,&typeBits,4);std::memcpy(&materialParameter,&parameterBits,4);metadata.emplace(Key{bi,mi,mei},MeshSpan{first+meshFirst,meshCount,material,materialType,materialParameter});'
+assert s.count(old)==1;s=s.replace(old,new).replace('mesh.material=span.material;', 'mesh.material=span.material;mesh.materialType=span.materialType;mesh.materialParameter=span.materialParameter;');p.write_text(s)
+p=Path('work/inspect_alternate_geometry.cpp');s=p.read_text().replace('std::cout<<"alternate asset geometry inspection passed', 'for(auto&mesh:m.meshes)if(mesh.materialType)std::cout<<"special_mesh body="<<mesh.body<<" model="<<mesh.model<<" mesh="<<mesh.mesh<<" material_slot="<<mesh.material<<" operation="<<mesh.materialType<<" parameter="<<mesh.materialParameter<<"\\n";std::cout<<"eyeball_records="<<m.eyeballs.size()<<"\\n";std::cout<<"alternate asset geometry inspection passed');p.write_text(s)

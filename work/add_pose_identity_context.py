@@ -1,0 +1,2 @@
+from pathlib import Path
+p=Path('work/session_bone_pose_candidate.h');s=p.read_text();s=s.replace('throw std::runtime_error("session/MDL bone identity");','throw std::runtime_error("session/MDL bone identity: expected="+label+" actual="+graph.strings.at(transform.name));').replace('throw std::runtime_error("session bone scale pending");','throw std::runtime_error("session bone scale pending: "+label);');p.write_text(s)

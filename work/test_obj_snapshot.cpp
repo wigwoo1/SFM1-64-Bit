@@ -1,0 +1,7 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "studio_obj_snapshot_candidate.h"
+#include <cstdlib>
+#include <iostream>
+static void check(bool b){if(!b)std::abort();}
+int main(){std::istringstream input("mtllib original.mtl\nv 0 0 0\nv 1 0 0\nv 0 1 0\nvt 0 0 .7\nvt 1 0 .8\nvt 0 1 .9\nvn 0 0 2\no Object\ng Group\ns 2\nusemtl A\nf 1/1/1 2/2/1 3/3/1\n");auto original=studioReadObjCandidate(input);RetainedObjSceneCandidate owner(original,{{"A",{1,1,{12,34,56,255}}}},.5f);auto bytes=studioEncodeObjSnapshotCandidate(owner);auto loaded=studioDecodeObjSnapshotCandidate(bytes);check(studioEncodeObjSnapshotCandidate(*loaded)==bytes&&loaded->scale()==.5f);check(loaded->sourceModel().textures==original.textures&&loaded->sourceModel().normals==original.normals&&loaded->sourceModel().materialLibraries==original.materialLibraries);const auto&p=loaded->sourceModel().polygons[0];check(p.object=="Object"&&p.group=="Group"&&p.smoothing=="2"&&p.corners[1].texture==1);size_t rejected=0;for(size_t n=0;n<bytes.size();++n){auto truncated=bytes;truncated.resize(n);try{studioDecodeObjSnapshotCandidate(truncated);std::abort();}catch(const std::exception&){++rejected;}}auto changed=loaded->withScale(2);check(studioEncodeObjSnapshotCandidate(*loaded)==bytes&&changed->scale()==2);std::cout<<"obj_snapshot_roundtrip=passed exact_bytes=1 original_metadata=1 truncations_rejected="<<rejected<<"\n";}

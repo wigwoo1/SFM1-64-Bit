@@ -1,0 +1,14 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "software_model_flex_candidate.h"
+#include <iostream>
+int main(){try{
+ VvdGeometryCandidate base;base.checksum=19;base.vertices.resize(2);base.tangents.resize(2);std::array<float,3>normal{2,0,0},tangent{0,3,0};float handedness=-1;for(size_t i=0;i<2;++i){std::memcpy(base.vertices[i].data()+28,normal.data(),12);std::memcpy(base.tangents[i].data(),tangent.data(),12);std::memcpy(base.tangents[i].data()+12,&handedness,4);}auto saved=base;
+ MdlMeshFlexCandidate flex{};flex.targets={0,1,1,2};flex.descriptor=0;flex.pair=1;MdlFlexVertexCandidate delta{};delta.speed=255;delta.side=255;delta.positionDelta={1,0,0};flex.vertices.push_back(delta);auto selected=[](uint32_t,uint32_t){return true;};VvdGeometryCandidate result;
+ softwareModelFlexIntoCandidate(base,{flex,flex},{1,0},{1,0},.25f,selected,true,result);auto expected=normal;softwareFlexNormalizeCandidate(expected);auto expectedTangent=tangent;softwareFlexNormalizeCandidate(expectedTangent);if(std::memcmp(result.vertices[0].data()+28,expected.data(),12)||std::memcmp(result.tangents[0].data(),expectedTangent.data(),12)||result.vertices[1]!=base.vertices[1]||result.tangents[1]!=base.tangents[1]||std::memcmp(result.tangents[0].data()+12,&handedness,4))throw std::runtime_error("zero-weight slot selection or once-only normalization failed");float position;std::memcpy(&position,result.vertices[0].data()+16,4);if(position!=0)throw std::runtime_error("zero-weight position changed");
+ auto previousStorage=result.vertices.data();softwareModelFlexIntoCandidate(base,{flex},{.0005f,0},{.0005f,0},.25f,selected,true,result);if(result.vertices!=base.vertices||result.tangents!=base.tangents||result.vertices.data()!=previousStorage)throw std::runtime_error("inactive entry or output reuse failed");
+ softwareModelFlexIntoCandidate(base,{flex},{1,0},{1,0},.25f,selected,false,result);if(result.tangents!=base.tangents)throw std::runtime_error("disabled tangent policy changed tangent");
+ softwareModelFlexIntoCandidate(base,{flex},{1,0},{1,0},.25f,[](uint32_t,uint32_t){return false;},true,result);if(result.vertices!=base.vertices||result.tangents!=base.tangents)throw std::runtime_error("unselected body changed");
+ flex.vertices[0].index=2;bool rejected=false;try{softwareModelFlexIntoCandidate(base,{flex},{1,0},{1,0},.25f,selected,true,result);}catch(const std::runtime_error&){rejected=true;}if(!rejected||base.vertices!=saved.vertices||base.tangents!=saved.tangents)throw std::runtime_error("invalid addressing or baseline mutation");
+ std::cout<<"software model flex passed active_zero_weight_slot duplicate_normalized_once untouched_vertices_exact inactive_threshold tangent_policy handedness_preserved output_reused invalid_address_rejected immutable_baseline\n";return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

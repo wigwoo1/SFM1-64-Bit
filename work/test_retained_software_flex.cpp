@@ -1,0 +1,12 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "retained_session_scene_candidate.h"
+#include "retained_static_flex_provider_candidate.h"
+#include "gameinfo_mounts_candidate.h"
+#include <iostream>
+int main(){try{std::filesystem::path content=R"(D:\SteamLibrary\steamapps\common\SourceFilmmaker\game\usermod)";std::ifstream file(content/"gameinfo.txt",std::ios::binary);if(!file)throw std::runtime_error("GameInfo missing");std::string info((std::istreambuf_iterator<char>(file)),{});auto mounts=gameinfoMountsCandidate(info,content,content.parent_path());RetainedSessionSceneCandidate one(loadGraph("work/roundtrip-11.dmx"),2237,mounts,1,true,true),four(loadGraph("work/roundtrip-11.dmx"),2237,mounts,4,true,true);auto a=std::make_shared<RetainedStaticFlexProviderCandidate>(mounts,true,true),b=std::make_shared<RetainedStaticFlexProviderCandidate>(mounts,true,true);
+ one.setBorrowedDeformationCandidate([a](const Graph&g,const SessionRenderModelCandidate&i,const SfmModelGeometryCandidate&m)->const VvdGeometryCandidate&{return a->sampleBorrowed(g,i,m);});four.setBorrowedDeformationCandidate([b](const Graph&g,const SessionRenderModelCandidate&i,const SfmModelGeometryCandidate&m)->const VvdGeometryCandidate&{return b->sampleBorrowed(g,i,m);});
+ auto compare=[](const PreparedSessionSceneCandidate&x,const PreparedSessionSceneCandidate&y){if(x.upload.indices!=y.upload.indices||x.camera.rows!=y.camera.rows||x.materialAlpha!=y.materialAlpha||x.upload.vertices.size()!=y.upload.vertices.size())throw std::runtime_error("software scene metadata differs");for(size_t i=0;i<x.upload.vertices.size();++i)if(std::memcmp(&x.upload.vertices[i],&y.upload.vertices[i],sizeof(SceneGpuVertexCandidate)))throw std::runtime_error("software scene workers differ");};
+ auto initial=one.sample(870833);for(int n=0;n<61;++n){int tick=870833+n*10000/60;auto serial=one.sample(tick),parallel=four.sample(tick);compare(serial,parallel);if(&serial.materialInputs[0]!=&initial.materialInputs[0])throw std::runtime_error("software scene material cache discarded");}compare(initial,one.sample(870833));if(a->metadataCount()!=1||b->metadataCount()!=1)throw std::runtime_error("software metadata cache changed");
+ std::cout<<"retained software flex passed 61 animated samples one_four_workers_exact backward_seek_exact material_identity metadata_reused static_history native_parity_unverified\n";return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

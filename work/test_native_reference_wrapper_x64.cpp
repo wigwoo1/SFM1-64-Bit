@@ -1,0 +1,6 @@
+#include "reference_target_wrapper.h"
+#include <array>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+int main(int argc,char**argv){try{if(argc!=2)return 2;std::ifstream f(argv[1],std::ios::binary);unsigned cases=0;for(unsigned operation=0;operation<2;++operation)for(unsigned bits=0;bits<256;++bits){RecoveredReferenceTargetRecordCandidate record{(bits&16)?0x400u:0u,uint8_t((bits&8)?1:0),(bits&32)?0xffffffffu:5u};uint8_t framework=0;unsigned lookups=0,resolves=0,mutations=0;mutateRecoveredReferenceTargetCandidate((bits&2)?1u:0xffffffffu,bits&1,operation!=0,framework,[&](uint32_t){++lookups;return(bits&4)?&record:nullptr;},[&](uint32_t){++resolves;return !(bits&64)||!(bits&128);},[&](auto&r,bool removal){++mutations;r.headAttribute=removal&& (bits&32)?0xffffffffu:5u;});std::array<uint32_t,6>actual{record.flags,record.headAttribute,framework,lookups,resolves,mutations},expected{};f.read(reinterpret_cast<char*>(expected.data()),sizeof(expected));if(!f||actual!=expected)throw std::runtime_error("native wrapper mismatch");++cases;}char extra;if(f.read(&extra,1))throw std::runtime_error("trailing oracle");std::cout<<"native_reference_wrapper_matches="<<cases<<std::endl;return 0;}catch(const std::exception&e){std::cerr<<e.what()<<std::endl;return 1;}}

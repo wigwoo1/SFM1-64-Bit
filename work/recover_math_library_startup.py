@@ -1,0 +1,8 @@
+from pathlib import Path
+import json,struct
+exec(Path('work/recover_command_buffer_creation.py').read_text().split('vertex=region')[0])
+regions={'initializer':region(0x100d5520,0x100d5592),'trigonometric_table':region(0x100d5440,0x100d548c),'gamma_tables':region(0x100d5020,0x100d5368),'seeded_generator':region(0x100d5eb0,0x100d5fa7)}
+assert [x['target'] for x in regions['initializer']['direct_calls']]==['0x100d5440','0x100d5020','0x100d5eb0']
+report=dict(sha256=sha,regions=regions,source_reference='https://raw.githubusercontent.com/ValveSoftware/source-sdk-2013/master/src/mathlib/mathlib_base.cpp',finding='Previous timing initializer interpretation superseded. Installed initializer guards byte10198ae0, queries CPU, publishes initialized flag, fills 256-entry float trigonometric table, invokes gamma-table builder with first4 arguments, then seeds numerical generator with31415926h. ValveSDK MathLib_Init signature is gamma/texGamma/brightness/overbright/allow3DNow/allowSSE/allowSSE2/allowMMX. Installed initializer has samefirst4 argument forwarding/table construction; SIMD setup differs and numerical seeding is an additional installed operation. Do not claim SDK source is byte-identical.',limits='Fresh installed-byte structural evidence plus primary SDK source comparison. Transcendental arithmetic/rounding, gamma output parity, numerical generator outputs, CPU capability behavior and initialization concurrency stillunverified.')
+Path('outputs/sfm64-math-library-startup-recovery.json').write_text(json.dumps(report,indent=2)+'\n')
+print('verified_math_library_startup_graph_bytes='+str(sum(x['bytes'] for x in regions.values())))

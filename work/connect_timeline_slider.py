@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('work/probe_vulkan_win32_surface_x64.cpp');s=p.read_text(encoding='utf-8');s=s.replace('WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX','WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_CLIPCHILDREN');old='vulkanPlaybackState.window=window;';assert old in s;s=s.replace(old,old+'if(vulkanPlaybackState.interactive||vulkanPlaybackState.test)createTimelineSliderCandidate(window);',1);p.write_text(s,encoding='utf-8')
+p=Path('work/win32_vulkan_playback_candidate.h');s=p.read_text(encoding='utf-8');old='auto title=playbackWindowTitleCandidate();';assert old in s;s=s.replace(old,'updateTimelineSliderCandidate(vulkanPlaybackState.count,vulkanPlaybackState.selected);'+old,1);p.write_text(s,encoding='utf-8')
+p=Path('work/build_vulkan_surface_probe.cmd');s=p.read_text(encoding='utf-8').replace(' user32.lib comdlg32.lib',' user32.lib comdlg32.lib comctl32.lib');p.write_text(s,encoding='utf-8')

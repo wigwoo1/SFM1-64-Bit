@@ -1,0 +1,6 @@
+#include "global_flex_binding_lifecycle.h"
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+static uint32_t read(std::ifstream&in){uint32_t v;if(!in.read(reinterpret_cast<char*>(&v),4))throw std::runtime_error("short oracle");return v;}
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8,"x64 required");if(argc!=2)throw std::runtime_error("oracle required");std::ifstream in(argv[1],std::ios::binary);for(unsigned registry=0;registry<2;++registry)for(unsigned matches=0;matches<2;++matches)for(unsigned model=0;model<2;++model)for(uint32_t result:{7u,0xffffffffu}){RecoveredFlexBindingCache cache{0x87654321,0x11223344};unsigned resolveCalls=0,lookupCalls=0,bindCalls=0;recoveredFlexBindingNotificationCandidate(cache,registry!=0,matches!=0,[&]{++resolveCalls;return model!=0;},[&]{++lookupCalls;return result;},[&]{++bindCalls;return 0xabcdef01u;});for(auto v:{cache.destination,cache.index,resolveCalls,lookupCalls,bindCalls})if(v!=read(in))throw std::runtime_error("lifecycle mismatch");}if(in.peek()!=EOF)throw std::runtime_error("trailing oracle");std::cout<<"x64 flex binding lifecycle:16 native comparisons passed\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

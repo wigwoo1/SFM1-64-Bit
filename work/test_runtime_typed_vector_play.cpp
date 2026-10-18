@@ -1,0 +1,19 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "clip_hierarchy.h"
+#include "channel_binding.h"
+#include "session_runtime.h"
+#include "runtime_typed_channel_play.h"
+int main(int argc,char**argv){try{if(argc!=3)return 1;SessionRuntime owned(loadGraph(argv[1]));auto&g=owned.graph;unsigned channels=0,writes=0,recreations=0;
+for(uint32_t id=0;id<g.elements.size();++id){if(g.strings.at(g.elements[id].type)!="DmeChannel")continue;ChannelBinding b(g,id);if(!b.destination.present()||b.destination.scalarType!=10||b.log==0xffffffff||b.layers.size()!=1)continue;
+const auto&log=g.elements.at(b.log);if(g.strings.at(log.type)!="DmeVector3Log"||!hierarchyRefs(g,log,"curveinfo",1).empty())continue;KeyTrack track(g,g.elements.at(b.layers[0]));if(track.times->values.empty())continue;
+auto sampler=bindGraphVectorKeySampler(g,b.log,b.layers[0]);setWireU32(runtimeAttribute(g,id,"mode")->values[0],3);b.mode=3;RuntimeCachedTypedPlayBinding live(g,id,owned.elements,owned.attributes);++channels;
+if(channels==1){for(unsigned round=0;round<3;++round){auto owner=live.destinationHandle;auto old=live.destinationAttribute;auto saved=*runtimeAttribute(g,b.destination.element,b.destination.attribute);if(!owned.removeAttribute(owner,b.destination.attribute))throw std::runtime_error("destination removal failed");SessionAttributeChanges missing;if(executeRuntimeTypedPlay(g,owned.elements,owned.attributes,live,0,&missing)||!missing.attributes.empty()||owned.attributes.resolve(g,owned.elements,old))throw std::runtime_error("stale destination accepted");g.elements[b.destination.element].attributes.push_back(saved);auto fresh=owned.attributes.bind(g,owned.elements,owner,b.destination.attribute);if(fresh==old||!executeRuntimeTypedPlay(g,owned.elements,owned.attributes,live,0)||live.destinationAttribute!=fresh)throw std::runtime_error("destination cache refresh failed");++recreations;}
+ auto*mode=runtimeAttribute(g,id,"mode");setWireU32(mode->values[0],1);if(executeRuntimeTypedPlay(g,owned.elements,owned.attributes,live,0))throw std::runtime_error("changed mode accepted");setWireU32(mode->values[0],3);
+ auto*destination=runtimeAttribute(g,b.destination.element,b.destination.attribute);auto originalType=destination->type;destination->type=3;if(executeRuntimeTypedPlay(g,owned.elements,owned.attributes,live,0))throw std::runtime_error("changed type accepted");destination->type=originalType;
+ }
+for(auto tick:{sampler.times.front(),sampler.times.back(),sampler.times.front()+(sampler.times.back()-sampler.times.front())/2}){auto expected=sampler.sample(tick);auto*a=runtimeAttribute(g,b.destination.element,b.destination.attribute);for(unsigned c=0;c<3;++c)setFloat(*a,b.destination.index,12345.f+c,c);SessionAttributeChanges changes;
+if(!executeRuntimeTypedPlay(g,owned.elements,owned.attributes,live,tick,&changes)||changes.attributes.size()!=1)throw std::runtime_error("quaternion play write rejected");if(std::memcmp(a->values.at(b.destination.index).wire.data(),expected.data(),12))throw std::runtime_error("quaternion destination mismatch");if(runtimeWriteVector(g,b.destination,expected,&changes))throw std::runtime_error("unchanged quaternion write notified");++writes;}
+}
+if(!channels)throw std::runtime_error("no quaternion channels exercised");saveGraph(g,argv[2]);auto reload=loadGraph(argv[2]);unsigned replay=0;for(uint32_t id=0;id<reload.elements.size();++id){if(reload.strings.at(reload.elements[id].type)!="DmeChannel")continue;ChannelBinding b(reload,id);b.mode=3;if(executeSessionVectorPlay(reload,b,0))++replay;}
+if(replay!=channels)throw std::runtime_error("reload playback count mismatch");std::cout<<"vector_channels="<<channels<<" cache_recreations="<<recreations<<" writes="<<writes<<" reload_plays="<<replay<<'\n';return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

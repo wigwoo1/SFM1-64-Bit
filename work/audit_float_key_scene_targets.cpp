@@ -1,0 +1,4 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "session_expression_chain_discovery.h"
+int main(int argc,char**argv){try{if(argc!=2)throw std::runtime_error("session required");auto graph=loadGraph(argv[1]);auto roots=hierarchyRefs(graph,graph.elements[0],"activeClip",1);auto discovery=discoverSessionExpressionChainsCandidate(graph,roots.at(0));for(const auto&chain:discovery.chains){ChannelBinding play(graph,chain.play),copy(graph,chain.copy);if(play.layers.size()!=1||!copy.destination.present())continue;std::cout<<"layer="<<play.layers[0]<<" expression="<<chain.expression<<" destination="<<copy.destination.element<<" type="<<graph.strings.at(graph.elements[copy.destination.element].type)<<" name="<<graph.strings.at(graph.elements[copy.destination.element].name)<<" attribute="<<copy.destination.attribute<<'\n';}return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

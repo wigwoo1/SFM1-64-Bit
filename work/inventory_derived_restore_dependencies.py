@@ -1,0 +1,3 @@
+from pathlib import Path
+import json,collections
+p=Path('outputs/sfm64-derived-owner-restore-native-preparation.json');r=json.loads(p.read_text());r['direct_target_counts']={hex(k):v for k,v in sorted(collections.Counter(c['target'] for c in r['calls']).items())};r['branch_count']=len(r['branches']);r['dependency_limits']='Preparation only: 48 direct and68 indirect calls must be fully understood/bound. Original owner pointer fields and queues cannot be copied to x64 by retaining offsets.';p.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r['direct_target_counts']));print('verified_branch_edges='+str(r['branch_count']))

@@ -1,0 +1,12 @@
+/build/
+/outputs/
+/publication/stage/
+/publication/payloads/
+/publication/state.json
+/publication/*.local.json
+*.obj
+*.pdb
+*.ilk
+*.log
+__pycache__/
+.env*

@@ -1,0 +1,4 @@
+#include "recovered_float_rate_candidate.h"
+#include <fstream>
+#include <iostream>
+int main(){try{std::ifstream input("work/native-rate-v1.bin",std::ios::binary);if(!input)throw std::runtime_error("oracle missing");size_t cases=0;float fps;uint32_t expected;while(input.read(reinterpret_cast<char*>(&fps),4)){if(!input.read(reinterpret_cast<char*>(&expected),4))throw std::runtime_error("truncated oracle");auto actual=recoveredFloatRateCandidate(fps);if(actual!=expected){std::cerr<<fps<<" actual="<<actual<<" expected="<<expected<<'\n';throw std::runtime_error("native rate mismatch");}++cases;}if(cases!=29)throw std::runtime_error("case count");std::cout<<"x64 float rate conversion native exact cases="<<cases<<" rounding=nearest\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -1,0 +1,6 @@
+#include "studio_constant_buffer_replace_candidate.h"
+#include <cassert>
+#include <vector>
+#include <cstdio>
+struct Services{void** slot;uint32_t value;bool mutate,fail;uint32_t bytes=0;std::vector<unsigned> trace;void free(void* old){assert(old==*slot&&old==reinterpret_cast<void*>(uintptr_t{0x100001234ull}));trace.push_back(1);if(mutate)value=3;}uint32_t count(unsigned id){assert(id==0);trace.push_back(2);return value;}void* allocate(uint32_t size){trace.push_back(3);bytes=size;return fail?nullptr:reinterpret_cast<void*>(uintptr_t{0x200005678ull});}};
+int main(){unsigned cases=0;for(bool present:{false,true})for(uint32_t count:{0u,1u,0xffffffffu})for(uint32_t stride:{4u,16u})for(bool mutate:{false,true})for(bool fail:{false,true}){void* slot=present?reinterpret_cast<void*>(uintptr_t{0x100001234ull}):nullptr;Services services{&slot,count,mutate,fail};studioConstantBufferReplaceCandidate(slot,0,stride,services);assert(services.trace==(present?std::vector<unsigned>{1,2,3}:std::vector<unsigned>{2,3}));const uint64_t product=uint64_t{present&&mutate?3u:count}*stride;assert(services.bytes==(product>0xffffffffu?0xffffffffu:static_cast<uint32_t>(product)));assert(slot==(fail?nullptr:reinterpret_cast<void*>(uintptr_t{0x200005678ull})));++cases;}std::printf("constant_buffer_replace_cases=%u passed\n",cases);}

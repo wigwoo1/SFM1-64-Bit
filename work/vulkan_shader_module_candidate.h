@@ -1,0 +1,6 @@
+#pragma once
+struct VkProbeShaderInfo{uint32_t type;const void*next;uint32_t flags;size_t size;const uint32_t*code;};
+using VkProbeCreateShader=int32_t(WINAPI*)(Handle,const VkProbeShaderInfo*,const void*,uint64_t*);
+inline void testVulkanShaderModuleCandidate(HMODULE library,Handle device,const std::string&path){
+ static_assert(sizeof(VkProbeShaderInfo)==40,"Vulkan shader ABI");std::ifstream file(path,std::ios::binary);if(!file)throw std::runtime_error("shader missing");std::vector<uint8_t>bytes((std::istreambuf_iterator<char>(file)),{});if(bytes.size()<20||bytes.size()%4)throw std::runtime_error("SPIR-V size");std::vector<uint32_t>words(bytes.size()/4);std::memcpy(words.data(),bytes.data(),bytes.size());if(words[0]!=0x07230203||words[1]!=0x00010000)throw std::runtime_error("SPIR-V 1.0 required");auto create=load<VkProbeCreateShader>(library,"vkCreateShaderModule");auto destroy=load<VkProbeDestroyBuffer>(library,"vkDestroyShaderModule");VkProbeShaderInfo info{};info.type=16;info.size=bytes.size();info.code=words.data();uint64_t module=0;auto result=create(device,&info,nullptr,&module);if(result)throw std::runtime_error("vkCreateShaderModule result "+std::to_string(result));destroy(device,module,nullptr);std::cout<<"Vulkan shader module created bytes="<<bytes.size()<<" source="<<path<<'\n';
+}

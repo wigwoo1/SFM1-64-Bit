@@ -1,0 +1,6 @@
+#include "recovered_frame_ticks_candidate.h"
+#include <fstream>
+#include <vector>
+#include <iostream>
+#include <cstring>
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8,"x64 required");if(argc!=2)throw std::runtime_error("oracle required");std::ifstream file(argv[1],std::ios::binary);std::vector<char>bytes((std::istreambuf_iterator<char>(file)),{});if(bytes.size()!=378*16)throw std::runtime_error("oracle size");for(size_t offset=0;offset<bytes.size();offset+=16){float frame;uint32_t rate,mode;int32_t expected;std::memcpy(&frame,bytes.data()+offset,4);std::memcpy(&rate,bytes.data()+offset+4,4);std::memcpy(&mode,bytes.data()+offset+8,4);std::memcpy(&expected,bytes.data()+offset+12,4);if(recoveredFrameTicksCandidate(frame,rate,mode)!=expected)throw std::runtime_error("native frame conversion mismatch");}auto rate=3u|(1000u<<16);if(recoveredFrameTicksCandidate(30,rate,0)!=10000||recoveredFrameTicksCandidate(39,rate,0)!=13000)throw std::runtime_error("frame drift");std::cout<<"x64 frame ticks passed native_cases=378 exact=1 nearest_floor_truncate=verified ceil=unfinished rate_constructor=unfinished\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

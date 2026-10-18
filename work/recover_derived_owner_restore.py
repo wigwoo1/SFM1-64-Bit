@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('work/recover_owner_reset_cleanup.py');s=p.read_text().replace('(0x1002b1e0,0x1002b237)]','(0x1002b1e0,0x1002b237),(0x10027240,0x10027275),(0x1001fb90,0x1001fbc8)]')
+s=s.replace("Path('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text", "assert image.word(0x100fd33c)==0x1002b3c0 and image.word(0x100fd33c+41*4)==0x1001fb90\nreport['derived_owner_restore']={'constructor_prefix':'10027240..10027275 calls base100296f0 then replaces owner vtable with100fd33c','slot0':'same cleanup1002b3c0','slot41':'1001fb90; base table slot41 points100dee9e rather than concrete restore','verified_restore_prefix':'1001fb90..1001fbc8 accesses subobjectowner+2d0 slot183(0), clearsbyte+2e88','limits':'Only prefix verified; full restore routine and derivedowner fieldlayout/resource effects unbound. Base-only owner candidate is insufficient for fullreset.'}\nPath('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text")
+p.write_text(s)

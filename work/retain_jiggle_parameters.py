@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('work/model_skinning_geometry.h');s=p.read_text().replace('#include "vvd_geometry.h"','#include "vvd_geometry.h"\n#include "jiggle_parameters_candidate.h"');s=s.replace('std::string name; int32_t parent=-1,procedure=0;','std::string name; int32_t parent=-1,procedure=0;\n bool hasJiggleParameters=false;JiggleParametersCandidate jiggleParameters;')
+a='b.procedure=integer(base+164);';b='b.procedure=integer(base+164);if(b.procedure==5){auto relative=integer(base+168);if(!relative)throw std::runtime_error("jiggle parameter offset missing");int64_t offset=int64_t(base)+relative;if(offset<0)throw std::runtime_error("jiggle parameter offset");b.jiggleParameters=readJiggleParametersCandidate(bytes,size_t(offset));b.hasJiggleParameters=true;}'
+assert s.count(a)==1;s=s.replace(a,b);p.write_text(s)

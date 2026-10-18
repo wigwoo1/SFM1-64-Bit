@@ -1,0 +1,4 @@
+#pragma once
+#include <cstddef>
+// All retained fields, including nonserialized metadata and exact numeric bytes.
+template<class GraphType>bool graphExactEqualCandidate(const GraphType&a,const GraphType&b){if(a.header!=b.header||a.strings!=b.strings||a.elements.size()!=b.elements.size())return false;for(size_t i=0;i<a.elements.size();++i){const auto&x=a.elements[i];const auto&y=b.elements[i];if(x.type!=y.type||x.name!=y.name||x.id!=y.id||x.attributes.size()!=y.attributes.size())return false;for(size_t j=0;j<x.attributes.size();++j){const auto&u=x.attributes[j];const auto&v=y.attributes[j];if(u.name!=v.name||u.type!=v.type||u.values.size()!=v.values.size())return false;for(size_t k=0;k<u.values.size();++k){const auto&p=u.values[k];const auto&q=v.values[k];if(p.wire!=q.wire||p.reference!=q.reference||p.text!=q.text||p.stringIndex!=q.stringIndex)return false;}}}return true;}

@@ -1,0 +1,8 @@
+#include "mdl_direct_flex_evaluation_candidate.h"
+#include <fstream>
+#include <iostream>
+int main(){try{
+ std::vector<MdlFlexRuleCandidate>rules{{1,{{2,0}}},{1,{{2,0}}}};auto result=evaluateDirectMdlFlexRulesCandidate(rules,2,{.25f});if(result!=std::vector<float>{0,.25f})throw std::runtime_error("direct fixture mismatch");
+ unsigned rejected=0;for(auto bad:std::vector<std::vector<MdlFlexRuleCandidate>>{{{1,{{2,2}}}},{{2,{{2,0}}}},{{1,{{4,0}}}},{{1,{{2,0}}},{1,{{2,1}}}},{{1,{}}}}){bool failed=false;try{evaluateDirectMdlFlexRulesCandidate(bad,2,{.25f,.75f});}catch(const std::runtime_error&){failed=true;}if(!failed)throw std::runtime_error("invalid direct rules accepted");++rejected;}
+ std::ifstream file(R"(D:\SteamLibrary\steamapps\common\SourceFilmmaker\game\usermod\models\anno\mamagen\mamagen.mdl)",std::ios::binary);if(!file)throw std::runtime_error("model missing");std::vector<uint8_t>bytes((std::istreambuf_iterator<char>(file)),{});auto metadata=readMdl49FlexMetadata(bytes);auto modelRules=readMdl49FlexRulesCandidate(bytes);uint32_t descriptors;std::memcpy(&descriptors,bytes.data()+260,4);std::vector<float>controllers;for(size_t i=0;i<metadata.size();++i)controllers.push_back(float(i)/64);auto weights=evaluateDirectMdlFlexRulesCandidate(modelRules,descriptors,controllers);for(const auto&r:modelRules)if(weights[r.target]!=controllers[r.operations[0].operandBits])throw std::runtime_error("installed rule mismatch");std::cout<<"direct flex evaluation passed installed_rules="<<modelRules.size()<<" descriptors="<<weights.size()<<" invalid_rejected="<<rejected<<" session_binding_native_parity=unverified\n";return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

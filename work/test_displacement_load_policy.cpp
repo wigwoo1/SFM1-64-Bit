@@ -1,0 +1,5 @@
+#include "source_displacement_load_policy_candidate.h"
+#include <iostream>
+int main(){try{
+ if(sourceDisplacementFaceLumpCandidate(0,56)!=7||sourceDisplacementFaceLumpCandidate(1,0)!=7||sourceDisplacementFaceLumpCandidate(1,-1)!=7||sourceDisplacementFaceLumpCandidate(-1,56)!=58)throw std::runtime_error("face lump branch");const auto p=sourceDisplacementReadPlanCandidate(3,10,20);if(p.vertexOffset!=200||p.vertexBytes!=1620||p.triangleOffset!=40||p.triangleBytes!=256||p.nextVertex!=91||p.nextTriangle!=148)throw std::runtime_error("read plan");unsigned rejects=0;auto reject=[&](auto f){try{f();}catch(const std::runtime_error&){++rejects;return;}throw std::runtime_error("unsafe read accepted");};reject([]{sourceDisplacementReadPlanCandidate(0,0,0);});reject([]{sourceDisplacementReadPlanCandidate(5,0,0);});reject([]{sourceDisplacementReadPlanCandidate(1,UINT32_MAX,0);});reject([]{sourceDisplacementReadPlanCandidate(1,0,UINT32_MAX);});if(rejects!=4)throw std::runtime_error("guard coverage");std::cout<<"PASS face lump branches, sequential requests and four overflow/power guards\n";return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

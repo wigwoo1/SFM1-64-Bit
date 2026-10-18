@@ -1,0 +1,10 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "clip_hierarchy.h"
+#include "channel_binding.h"
+#include "schedule_traversal.h"
+#include "channel_dependencies.h"
+#include "register_session_channel.h"
+#include "registered_operator_order.h"
+int main(int argc,char**argv){try{if(argc!=2)throw std::runtime_error("usage: test_channel_dependencies session.dmx");auto g=loadGraph(argv[1]);auto roots=hierarchyRefs(g,g.elements.at(0),"activeClip",1);ClipHierarchy h(g,roots.at(0));std::vector<uint32_t> ids;std::vector<ChannelBinding> bindings;for(auto i:h.channels){ids.push_back(i);bindings.emplace_back(g,i);}SessionRuntime runtime(g);OperatorAttributeRegistration registry;for(size_t i=0;i<ids.size();++i)registerSessionChannel(runtime,registry,ids[i],bindings[i]);std::vector<size_t> registeredRoots;for(size_t i=0;i<ids.size();++i)registeredRoots.push_back(i);auto registered=orderRegisteredOperators(registry,registeredRoots);
+ auto nodes=channelDependencies(ids,bindings);uint64_t edges=0;for(auto&n:nodes)for(auto&group:n.edgeGroups)edges+=group.size();std::vector<uint32_t> all;for(size_t i=0;i<nodes.size();++i)all.push_back(static_cast<uint32_t>(i));auto r=traverseSchedule(nodes,all);if(registered.cycle!=r.cycle||registered.identities.size()!=r.order.size())throw std::runtime_error("registered schedule size mismatch");for(size_t i=0;i<r.order.size();++i){auto expected=runtime.elements.table.resolve(runtime.elements.graphHandles.at(r.order[i]));if(registered.identities[i]!=expected)throw std::runtime_error("registered schedule order mismatch");}if(r.order.size()!=ids.size())throw std::runtime_error("missing operation");if(!r.cycle){std::map<uint32_t,size_t> position;for(size_t i=0;i<r.order.size();++i)position[r.order[i]]=i;for(auto&n:nodes)for(auto&group:n.edgeGroups)for(auto j:group)if(position[n.operation]>=position[nodes[j].operation])throw std::runtime_error("dependency order mismatch");}std::cout<<"channels="<<ids.size()<<" edges="<<edges<<" cycle="<<r.cycle<<" scope=channel_only_all_roots\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

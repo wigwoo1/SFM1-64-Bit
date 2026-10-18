@@ -1,0 +1,7 @@
+#include "reference_handle_resolution.h"
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8);if(argc!=2)return 2;std::ifstream f(argv[1],std::ios::binary);if(!f)throw std::runtime_error("missing oracle");unsigned cases=0;
+ for(unsigned index=0;index<8;++index)for(unsigned gen=0;gen<512;++gen)for(unsigned retired=0;retired<2;++retired)for(unsigned match=0;match<2;++match)for(unsigned ptr=0;ptr<2;++ptr)for(unsigned high=0;high<2;++high){std::vector<RecoveredReferenceHandleSlotCandidate>slots(5,{((gen+1-match)&511)|(retired<<31),ptr?0x87654321u:0});uint32_t actual=uint32_t(resolveRecoveredReferenceHandleCandidate((gen<<22)|index|(high<<31),slots)),expected=0;f.read(reinterpret_cast<char*>(&expected),4);if(!f||actual!=expected)throw std::runtime_error("native resolution mismatch");++cases;}
+ if(f.peek()!=std::char_traits<char>::eof())throw std::runtime_error("trailing oracle");std::vector<RecoveredReferenceHandleSlotCandidate>slots(1,{0,0x123456789abcdef0ull});if(resolveRecoveredReferenceHandleCandidate(0,slots)!=slots[0].element)throw std::runtime_error("pointer truncation");if(resolveRecoveredReferenceHandleCandidate(0xffffffffu,slots))throw std::runtime_error("invalid handle resolves");std::cout<<"native_reference_handle_resolution_matches="<<cases<<" wide_pointer_checks=1 invalid_handle_checks=1"<<std::endl;return 0;}catch(const std::exception&e){std::cerr<<e.what()<<std::endl;return 1;}}

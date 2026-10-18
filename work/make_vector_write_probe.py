@@ -1,0 +1,10 @@
+from pathlib import Path
+native=Path('work/probe_native_quaternion_write.cpp').read_text()
+native=native.replace('attribute[4]=13|','attribute[4]=10|').replace('0x1036d270','0x10372db0').replace('native_quaternion_write_cases','native_vector_write_cases')
+Path('work/probe_native_vector_write.cpp').write_text(native)
+test=Path('work/test_native_quaternion_write_x64.cpp').read_text()
+test=test.replace('uint16_t flags=uint16_t(13|','std::array<float,3>vectorValues{},vectorIncoming{};std::memcpy(vectorValues.data(),values.data(),12);std::memcpy(vectorIncoming.data(),incoming.data(),12);uint16_t flags=uint16_t(10|')
+test=test.replace('writeRecoveredFloatComponentsCandidate(values,incoming,','writeRecoveredFloatComponentsCandidate(vectorValues,vectorIncoming,')
+test=test.replace('if(f.notifyFlag&&f.ownerEnabled)emit(3,0);','std::memcpy(values.data(),vectorValues.data(),12);if(f.notifyFlag&&f.ownerEnabled)emit(3,0);')
+test=test.replace('native quaternion mismatch','native vector mismatch').replace('x64_quaternion_write_cases','x64_vector_write_cases')
+Path('work/test_native_vector_write_x64.cpp').write_text(test)

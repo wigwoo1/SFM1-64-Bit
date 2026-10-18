@@ -1,0 +1,8 @@
+#include "native_pair_query_recreation_candidate.h"
+#include <cassert>
+struct Texture{ULONG Release(){return 0;}};
+struct Query{unsigned issues=0;HRESULT Issue(DWORD flags){assert(flags==D3DISSUE_END);++issues;return S_OK;}};
+struct Device{Texture texture;Query query;unsigned textures=0,queries=0;HRESULT CreateTexture(UINT w,UINT h,UINT levels,DWORD usage,D3DFORMAT format,D3DPOOL pool,Texture** output,HANDLE* shared){assert(w==1&&h==1&&!levels&&usage==D3DUSAGE_DYNAMIC&&format==D3DFMT_A8R8G8B8&&pool==D3DPOOL_DEFAULT&&!shared);++textures;*output=&texture;return S_OK;}HRESULT CreateQuery(D3DQUERYTYPE type,Query** output){assert(type==D3DQUERYTYPE_EVENT&&textures==1);++queries;*output=&query;return S_OK;}};
+template<class D>struct Lifecycle{D** state;unsigned flushes=0;D** commandState(){return state;}void flush(D**){++flushes;}D* device(D** s){return *s;}bool diagnosticEnabled(){return false;}void diagnostic(){}void queryUnavailable(){assert(false);}};
+void compileSdk(NativePairQueryOwnerCandidateT<>& owner,Lifecycle<IDirect3DDevice9>& lifecycle){NativePairQueryServicesCandidateT<Lifecycle<IDirect3DDevice9>> services{lifecycle};studioPairQueryRecreationCandidate(owner,services);}
+int main(){Device device;Device* pointer=&device;Lifecycle<Device> lifecycle{&pointer};int32_t capability=1;Texture* texture=nullptr;std::array<Query*,2> queries{};std::array<unsigned char,2> active{};NativePairQueryOwnerCandidateT<Texture,Query> owner{capability,texture,queries,active};NativePairQueryServicesCandidateT<Lifecycle<Device>> services{lifecycle};studioPairQueryRecreationCandidate(owner,services);assert(texture==&device.texture&&device.queries==2&&device.query.issues==2&&lifecycle.flushes==3&&active[0]==1&&active[1]==1);}

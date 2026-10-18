@@ -1,0 +1,6 @@
+from pathlib import Path
+p=Path('work/recover_owner_reset_cleanup.py');s=p.read_text().replace('(0x1000e490,0x1000e53c)]','(0x1000e490,0x1000e53c),(0x10015bd0,0x1001624f)]')
+s=s.replace("Path('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text", "report['constant_storage_restore']={'region':'10015bd0..1001624f','initial_flow':'For existingowner+19ec and+2864 pointers call100039b0, reload globalcapabilities1016d130+528, multiplycount16 with overflowmappedffffffff, allocate10003990, publishpointer. Samepairedpatternforotherconstanttypes,fullsemanticmappingpending.', 'limits':'Allocationfailure/ownership/completebuffer mapping unverified. No originalexecution or x64fullhelperimplementation.'}\nPath('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text")
+p.write_text(s)
+s=Path('work/prepare_derived_owner_restore_native.py').read_text().replace('0x1001fb90,0x100211e7','0x10015bd0,0x1001624f').replace('nativeDerivedOwnerRestore','nativeConstantStorageRestore').replace('derived_owner_restore_native_init.h','constant_storage_restore_native_init.h').replace('sfm64-derived-owner-restore-native-preparation.json','sfm64-constant-storage-restore-native-preparation.json').replace('derived_owner_restore_prepared_bytes','constant_storage_restore_prepared_bytes')
+Path('work/prepare_constant_storage_restore_native.py').write_text(s)

@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('work/float_curve_sampler.h');s=p.read_text().replace('if(times.empty()||times.size()!=values.size()', 'if((times.empty()&&info.rightEdgeTime==0)||times.size()!=values.size()');p.write_text(s)
+p=Path('work/test_float_curve_sampler.cpp');s=p.read_text().replace('s.info.defaultKind=0x1010;bool rejected', '''RecoveredFloatCurveSampler empty;empty.info.defaultKind=0x606;empty.info.rightEdgeTime=10000;empty.info.useEdgeInfo=true;empty.info.leftActive=true;empty.info.rightActive=true;empty.info.leftValue=2;empty.info.rightValue=6;empty.maximum=10;if(empty.sample(5000)!=4||empty.sample(15000)!=6||empty.sample(0)!=2)throw std::runtime_error("empty configured edges failed");empty.info.rightEdgeTime=0;bool emptyRejected=false;try{empty.sample(0);}catch(const std::runtime_error&){emptyRejected=true;}if(!emptyRejected)throw std::runtime_error("unsafe empty edge path guessed");
+ s.info.defaultKind=0x1010;bool rejected''');p.write_text(s)

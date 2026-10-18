@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('work/recover_owner_reset_cleanup.py');s=p.read_text().replace('(0x1001fb90,0x100211e7)]','(0x1001fb90,0x100211e7),(0x1000e550,0x1000ea5f),(0x1000e490,0x1000e53c)]')
+s=s.replace("Path('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text", "report['restore_render_state_helpers']={'defaults_region':'1000e550..1000ea5f','setter_region':'1000e490..1000e53c','setter_flow':'Owner vtable slot36 AL true skips all. Otherwise queuedflag+658 nonzero: reserve3DWORD via10002da0 if needed, emit opcode1/state/value then cacheowner+1c98[state]=value. Directpathdevice+648 slot57 receives state/value, then same cachewrite regardlessHRESULT.', 'limits':'Default setter list/other dependencies not fully mapped, stateindex bounds/nativecallback mutation/realGPU execution unverified.'}\nPath('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text")
+p.write_text(s)

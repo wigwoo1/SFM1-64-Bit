@@ -1,0 +1,14 @@
+#define NOMINMAX
+#include <windows.h>
+#include <fstream>
+#include <vector>
+#include <array>
+#include <iostream>
+#include <cstring>
+#include <stdexcept>
+#include "recovered_camera_projection_candidate.h"
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==4,"native probe must be x86");std::ifstream f("D:\\SteamLibrary\\steamapps\\common\\SourceFilmmaker\\game\\sdktools\\python\\2.7\\win32\\Lib\\site-packages\\vs\\valve_pyd.pyd",std::ios::binary);std::vector<char>file((std::istreambuf_iterator<char>(f)),{});if(file.size()<4096)throw std::runtime_error("missing original DLL");auto dos=reinterpret_cast<const IMAGE_DOS_HEADER*>(file.data());auto nt=reinterpret_cast<const IMAGE_NT_HEADERS32*>(file.data()+dos->e_lfanew);if(nt->OptionalHeader.ImageBase!=0x10000000)throw std::runtime_error("unexpected image base");auto base=static_cast<char*>(VirtualAlloc(reinterpret_cast<void*>(0x10000000),nt->OptionalHeader.SizeOfImage,MEM_COMMIT|MEM_RESERVE,PAGE_EXECUTE_READWRITE));if(base!=reinterpret_cast<char*>(0x10000000))throw std::runtime_error("preferred image address unavailable");auto section=IMAGE_FIRST_SECTION(nt);for(unsigned i=0;i<nt->FileHeader.NumberOfSections;++i){if(section[i].PointerToRawData+section[i].SizeOfRawData>file.size())throw std::runtime_error("invalid section");std::memcpy(base+section[i].VirtualAddress,file.data()+section[i].PointerToRawData,section[i].SizeOfRawData);}FlushInstructionCache(GetCurrentProcess(),base,nt->OptionalHeader.SizeOfImage);
+
+ if(argc!=2)throw std::runtime_error("fresh oracle output required");if(std::ifstream(argv[1]).good())throw std::runtime_error("oracle exists");std::ofstream output(argv[1],std::ios::binary);if(!output)throw std::runtime_error("oracle output");using Native=void(__cdecl*)(float*,float,float,float,float);auto native=reinterpret_cast<Native>(0x101BD050);unsigned count=0,mismatches=0;double maxError=0;
+ for(float fov:{1.f,25.2f,60.f,90.f,120.f,170.f})for(float aspect:{.5f,1.f,4.f/3.f,16.f/9.f,2.f})for(auto planes:{std::array<float,2>{3,28377.9f},std::array<float,2>{.1f,100.f}}){std::array<float,16>matrix{};native(matrix.data(),planes[0],planes[1],fov,aspect);auto candidate=recoveredCameraProjectionCandidate(planes[0],planes[1],fov,aspect,false);std::array<float,4>args{planes[0],planes[1],fov,aspect};output.write(reinterpret_cast<const char*>(args.data()),16);output.write(reinterpret_cast<const char*>(matrix.data()),64);for(size_t n=0;n<16;++n){if(!std::isfinite(matrix[n]))throw std::runtime_error("native nonfinite");maxError=std::max(maxError,std::abs(double(matrix[n])-candidate.rows[n]));}if(std::memcmp(matrix.data(),candidate.rows.data(),64))++mismatches;++count;}
+ output.close();if(!output)throw std::runtime_error("oracle write");std::cout<<"native_projection_cases="<<count<<" bitwise_mismatches="<<mismatches<<" max_absolute_error="<<maxError<<" DLL_entrypoint_not_called=1\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('work/recover_owner_reset_cleanup.py');s=p.read_text().replace('(0x1002b240,0x1002b2fc)]','(0x1002b240,0x1002b2fc),(0x1002b1e0,0x1002b237)]')
+s=s.replace("Path('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text", "report['resource_c4_recreation']={'region':'1002b1e0..1002b237','flow':'Release prior owner+c4 and clear after callback, command state getter then flush then live device reload. Device slot23 receives width1,height1,levels0,usage200hex,format21decimal,pool0,outputowner+c4,sharedhandlenull. Negative HRESULT clears output after call.', 'limits':'CreateTexture signature/SDK constants compile binding pending; output ownership on failed call and actualGPU execution unverified.'}\nPath('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text")
+p.write_text(s)

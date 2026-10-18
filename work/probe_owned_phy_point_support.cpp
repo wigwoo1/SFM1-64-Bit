@@ -1,0 +1,14 @@
+#include "source_phy_point_support_binding_candidate.h"
+#include "source_physics_ray_preparation_candidate.h"
+#include "physics_support_test_fixture.h"
+#include <fstream>
+#include <iostream>
+#include <iterator>
+struct Query {std::array<float,3>start{},delta{},origin{},angles{};uint32_t mask=0;};
+static_assert(sizeof(Query)==52,"query wire");
+int main(int argc,char**argv){try{
+    static_assert(sizeof(void*)==8,"owned PHY support AMD64");if(argc!=5)throw std::runtime_error("PHY queries captures output required");std::ifstream phy(argv[1],std::ios::binary),queries(argv[2],std::ios::binary),captures(argv[3],std::ios::binary);std::ofstream out(argv[4],std::ios::binary);if(!phy||!queries||!captures||!out)throw std::runtime_error("owned PHY point support IO");const std::vector<uint8_t>b((std::istreambuf_iterator<char>(phy)),{});const auto before=b;const SourcePhyCompactGeometryCandidate geometry(b,true);if(geometry.solids.size()!=1)throw std::runtime_error("point support fixture needs one solid");const auto&solid=geometry.solids[0];const auto metadata=sourcePhysicsSupportMetadataTableCandidate(solid);std::vector<Query>rows;Query q;while(queries.read(reinterpret_cast<char*>(&q),sizeof(q)))rows.push_back(q);if(!queries.eof()||queries.gcount()||rows.empty())throw std::runtime_error("point support query extent");size_t cases=0;
+    for(;;){uint32_t query;if(!captures.read(reinterpret_cast<char*>(&query),4)){if(captures.eof()&&!captures.gcount())break;throw std::runtime_error("truncated bound query index");}uint32_t ordinal;supportGet(captures,ordinal);PhysicsSupportInputFixture native;if(!supportReadInput(captures,native))throw std::runtime_error("missing bound input");uint32_t length;supportGet(captures,length);if(length!=16u+(native.context.mode==0?2050u:0u))throw std::runtime_error("bound original output extent");captures.ignore(length);if(!captures)throw std::runtime_error("truncated bound original output");if(query>=rows.size()||ordinal>=solid.size())throw std::runtime_error("bound query/ledge index");const auto&ray=rows[query];const auto prepared=sourcePhysicsRayPreparationCandidate(ray.start,ray.delta,ray.origin,ray.angles);
+        PhysicsSupportInputFixture owned;owned.context=sourcePhyPointSupportBindingCandidate(solid[ordinal],ordinal,metadata.empty()?nullptr:&metadata[ordinal],prepared.rotation);owned.direction=native.direction;owned.cache=native.cache;supportWriteInput(out,owned);const auto result=sourcePhysicsSupportCandidate(owned.context,owned.direction,owned.cache);supportWriteOutput(out,result,owned.cache,owned.context.mode);++cases;
+    }if(!cases)throw std::runtime_error("no bound support cases");if(b!=before)throw std::runtime_error("owned PHY support file bytes changed");out.flush();if(!out)throw std::runtime_error("owned PHY support output write");std::cout<<"PASS owned PHY->metadata->prepare->support cases="<<cases<<'\n';return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

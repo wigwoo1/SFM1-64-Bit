@@ -1,0 +1,3 @@
+from pathlib import Path
+s=Path('work/prepare_owner_reset_cleanup_native.py').read_text().replace('0x1002b3c0,0x1002b4c0','0x1002b4c0,0x1002b653').replace('nativeOwnerResetCleanup','nativeOwnerPostReset').replace('owner_reset_cleanup_native_init.h','owner_post_reset_native_init.h').replace('sfm64-owner-reset-cleanup-native-preparation.json','sfm64-owner-post-reset-native-preparation.json').replace('owner_reset_cleanup_prepared_bytes','owner_post_reset_prepared_bytes').replace('assert len(calls)==5','assert len(calls)==7').replace('assert len(branches)==5','assert branches')
+Path('work/prepare_owner_post_reset_native.py').write_text(s)

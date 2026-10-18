@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('work/probe_vulkan_win32_surface_x64.cpp');s=p.read_text(encoding='utf-8');old='configureSessionLaunchCandidate(argc,argv);';assert old in s;s=s.replace(old,'if(!configureSessionLaunchCandidate(argc,argv))return 0;',1);p.write_text(s,encoding='utf-8')
+p=Path('work/build_vulkan_surface_probe.cmd');s=p.read_text(encoding='utf-8');s=s.replace(' user32.lib',' user32.lib comdlg32.lib');p.write_text(s,encoding='utf-8')
+p=Path('work/verify_session_launch_gpu.py');s=p.read_text(encoding='utf-8');s=s.replace("(['--unknown'],'unknown launch argument')","(['--unknown'],'unknown launch argument'),(['--open-session'],'session picker requires valid content directory'),(['--open-session','--session','work/roundtrip-11.dmx'],'session picker conflicts'),(['--open-session','--control-test'],'session picker conflicts')");p.write_text(s,encoding='utf-8')

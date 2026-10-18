@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('work/recover_owner_reset_cleanup.py');s=p.read_text().replace('(0x1001fb90,0x1001fbc8)]','(0x1001fb90,0x100211e7)]')
+s=s.replace("Path('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text", "restore_rows=[r for r in rows if 0x1001fb90<=int(r['address'],16)<0x100211e7]\nreport['derived_owner_restore']['full_verified_region']='1001fb90..100211e7'\nreport['derived_owner_restore']['full_verified_bytes']=0x100211e7-0x1001fb90\nreport['derived_owner_restore']['call_inventory']=[r for r in restore_rows if r['instruction'].startswith('call')]\nreport['derived_owner_restore']['limits']='Full raw instruction bytes verified; semantics/dependencies not fully recovered, no execution or x64 full restore implementation.'\nPath('outputs/sfm64-owner-reset-cleanup-recovery.json').write_text")
+p.write_text(s)

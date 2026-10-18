@@ -1,0 +1,12 @@
+#pragma once
+#include "fur_surface_attachment_candidate.h"
+#include "scene_gpu_vertex_candidate.h"
+using FurRibbonVertexCandidate=SceneGpuVertexCandidate;
+struct FurRibbonGeometryCandidate{std::vector<FurRibbonVertexCandidate>vertices;std::vector<uint32_t>indices;};
+inline FurRibbonGeometryCandidate prepareFurRibbonsCandidate(const std::vector<FurSurfaceGuideCandidate>&guides,const std::array<float,3>&camera,float width,float taper){
+ if(!std::isfinite(width)||width<=0||!std::isfinite(taper)||taper<=0||taper>1)throw std::runtime_error("invalid fur ribbon width/taper");for(float v:camera)if(!std::isfinite(v))throw std::runtime_error("nonfinite fur camera");if(guides.size()>UINT32_MAX/4)throw std::runtime_error("fur ribbon index overflow");FurRibbonGeometryCandidate result;result.vertices.reserve(guides.size()*4);result.indices.reserve(guides.size()*6);
+ auto cross=[](const std::array<double,3>&a,const std::array<double,3>&b){return std::array<double,3>{a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};auto norm=[](const std::array<double,3>&v){return std::sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);};
+ for(const auto&guide:guides){std::array<double,3>direction{},view{};for(size_t axis=0;axis<3;++axis){if(!std::isfinite(guide.root[axis])||!std::isfinite(guide.tip[axis]))throw std::runtime_error("nonfinite fur guide");direction[axis]=double(guide.tip[axis])-guide.root[axis];view[axis]=double(camera[axis])-guide.root[axis];}double length=norm(direction);if(length==0)continue;for(auto&v:direction)v/=length;auto side=cross(direction,view);double sideLength=norm(side);if(sideLength<=1e-12){std::array<double,3>axis=std::fabs(direction[0])<0.9?std::array<double,3>{1,0,0}:std::array<double,3>{0,1,0};side=cross(direction,axis);sideLength=norm(side);}for(auto&v:side)v/=sideLength;auto normal=cross(side,direction);uint32_t first=static_cast<uint32_t>(result.vertices.size());
+ for(unsigned corner=0;corner<4;++corner){bool tip=corner>=2;double sign=(corner==0||corner==3)?-1:1;FurRibbonVertexCandidate vertex{};for(size_t axis=0;axis<3;++axis){vertex.position[axis]=float((tip?guide.tip[axis]:guide.root[axis])+side[axis]*sign*width*0.5*(tip?taper:1));vertex.normal[axis]=float(normal[axis]);if(!std::isfinite(vertex.position[axis]))throw std::runtime_error("fur ribbon position overflow");}vertex.uv={(corner==0||corner==3)?0.f:1.f,tip?1.f:0.f};result.vertices.push_back(vertex);}for(uint32_t index:{0u,1u,2u,0u,2u,3u})result.indices.push_back(first+index);
+ }return result;
+}

@@ -1,0 +1,8 @@
+from pathlib import Path
+p=Path('work/test_native_reset_resource_composition.cpp');s=p.read_text().replace('void nestedWarning(uint32_t){assert(false);}', 'void nestedWarning(uint32_t value){assert(value>=2);++nestedWarnings;}').replace('void nestedDiagnostic(){}', 'void nestedDiagnostic(){++nestedDiagnostics;}').replace('void forcedDepthWarning(uint32_t,const char*){}','void forcedDepthWarning(uint32_t value,const char*){assert(value>=2);++forcedWarnings;}')
+s=s.replace('void queryUnavailable(){assert(false);}};', 'void queryUnavailable(){assert(false);}unsigned nestedWarnings=0,nestedDiagnostics=0,forcedWarnings=0;};')
+s=s.replace('for(auto* q:queued)assert(!q);}', '''for(auto* q:queued)assert(!q);
+ ResetServices<decltype(owner),decltype(lifecycle),Device> failedRetry{owner,lifecycle,pointer};assert(!studioDeviceResetCandidate(owner,descriptor,failedRetry));assert(depth==2&&device.resets==2&&failedRetry.failures==1&&failedRetry.posts==0&&lifecycle.nestedWarnings==1&&lifecycle.nestedDiagnostics==1&&device.queries==22&&device.texture.releases==1);
+ device.resetResult=S_OK;ResetServices<decltype(owner),decltype(lifecycle),Device> successfulRetry{owner,lifecycle,pointer};assert(studioDeviceResetCandidate(owner,descriptor,successfulRetry));assert(depth==0&&device.resets==3&&successfulRetry.posts==1&&!successfulRetry.failures&&lifecycle.nestedWarnings==2&&lifecycle.nestedDiagnostics==2&&lifecycle.forcedWarnings==1&&device.texture.releases==1&&device.textures==2&&device.queries==44&&queueActive==1&&texture==&device.texture&&queries[0]==&device.storage[22]&&queries[1]==&device.storage[23]);for(unsigned i=0;i<22;++i)assert(device.storage[i].releases==1);for(unsigned i=0;i<20;++i)assert(queued[i]==&device.storage[24+i]);
+ }''')
+p.write_text(s)

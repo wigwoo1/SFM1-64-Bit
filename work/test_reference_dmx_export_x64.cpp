@@ -1,0 +1,16 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "reference_owned_dmx_projection.h"
+#include <iostream>
+int main(int argc,char**argv){try{
+ static_assert(sizeof(void*)==8,"x64 required");if(argc!=3)throw std::runtime_error("input and fresh output required");
+ auto original=loadGraph(argv[1]);RecoveredOwnedDmxReferenceProjectionCandidate<Graph> p(original,[](const std::string&,auto&)->uint32_t{throw std::runtime_error("external input");});
+ auto external=[](uint32_t,const auto&)->std::string{throw std::runtime_error("external output");};
+ auto unchanged=p.exportReferences(external);validateGraph(unchanged);
+ size_t changed=0;for(const auto&item:p.attributeLocations){auto*a=p.scene.attributes.resolve(item.first);const auto&targets=a->references();std::vector<uint32_t>incoming;for(auto h:targets){(void)h;incoming.push_back(p.elementHandles[(changed*7919+17)%p.elementHandles.size()]);++changed;}bool expected=targets!=incoming;bool actual;if((a->flags&31)==1)actual=p.scene.setScalarReference(a->token,incoming.at(0),0,0xffffffffu,[](uint32_t,uint32_t){return true;});else actual=p.scene.setArrayReferenceRange(a->token,0,std::move(incoming),0,0xffffffffu,[](uint32_t,uint32_t){return true;});if(actual!=expected)throw std::runtime_error("reference edit result");}
+ auto edited=p.exportReferences(external);saveGraph(edited,argv[2]);auto loaded=loadGraph(argv[2]);validateGraph(loaded);
+ if(loaded.header!=original.header||loaded.strings!=original.strings||loaded.elements.size()!=original.elements.size())throw std::runtime_error("graph metadata");
+ for(size_t i=0;i<original.elements.size();++i){const auto&o=original.elements[i];const auto&e=edited.elements[i];const auto&r=loaded.elements[i];if(o.id!=r.id||o.type!=r.type||o.name!=r.name||o.attributes.size()!=r.attributes.size())throw std::runtime_error("element metadata");for(size_t j=0;j<o.attributes.size();++j){const auto&a=o.attributes[j];const auto&b=r.attributes[j];if(a.name!=b.name||a.type!=b.type||a.values.size()!=b.values.size())throw std::runtime_error("attribute metadata");for(size_t k=0;k<a.values.size();++k){const auto&v=a.values[k];const auto&w=b.values[k];const auto&u=unchanged.elements[i].attributes[j].values[k];if(v.reference!=u.reference||v.text!=u.text||v.wire!=u.wire||v.stringIndex!=u.stringIndex)throw std::runtime_error("unmodified export");if(a.type==1||a.type==15){if(w.reference!=e.attributes[j].values[k].reference)throw std::runtime_error("edited reference");}else if(v.wire!=w.wire||v.text!=w.text||v.reference!=w.reference||v.stringIndex!=w.stringIndex)throw std::runtime_error("nonreference preservation");}}}
+ p.scene.cleanup({},[](auto&,bool){},[](auto&){});if(p.scene.size()||p.scene.attributes.size()||p.scene.references.nodes.allocationCount())throw std::runtime_error("edited teardown");bool rejected=false;try{p.exportReferences(external);}catch(const std::runtime_error&){rejected=true;}if(!rejected)throw std::runtime_error("deleted structure accepted");
+ std::cout<<"elements="<<original.elements.size()<<" edited_references="<<changed<<" save_reload=passed nonreference_preservation=passed teardown=passed deleted_export_rejected=1\n";
+ }catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

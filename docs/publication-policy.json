@@ -1,0 +1,166 @@
+{
+  "repository": "wigwoo1/SFM1-64-Bit",
+  "excluded_reference_sources": [
+    [
+      "actual_power_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "aux_pixel_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "base_startup_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "color_conversion_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "command_buffer_creation_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "constant_copy_helper_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "constant_restore_defaults_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "constant_storage_restore_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "cpu_constructor_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "cvar_startup_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "default_render_state_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "derived_owner_restore_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "device_creation_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "device_owner_constructor_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "device_reset_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "gamma_startup_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "keyvalues_cleanup_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "material_tracker_factory_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "multisample_selector_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "native_sine_startup_domain_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "owner_post_reset_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "owner_reset_cleanup_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "pair_query_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "pixel_color_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "presentation_builder_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "profile_counter_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "query_cleanup_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "queued_query_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "render_state_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "render_state_restore_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "scalar_constant_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "seeded_generator_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "shader_binding_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "shader_transition_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "shader_vertex_layout_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "shutdown_chain_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "vertex_constant_runs_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "vertex_texture_callback_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "vertex_tracker_connector_native_init.h",
+      "embedded original instruction array"
+    ],
+    [
+      "viewport_callback_init.h",
+      "embedded original instruction array"
+    ]
+  ],
+  "policy": "Only allowlisted project source and licensed dependencies; original binaries/assets, sessions, dumps and private metadata stay local."
+}

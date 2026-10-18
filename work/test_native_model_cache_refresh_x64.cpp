@@ -1,0 +1,7 @@
+#include "model_cache_refresh.h"
+#include <vector>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+static uint32_t read(std::ifstream&in){uint32_t v;if(!in.read(reinterpret_cast<char*>(&v),4))throw std::runtime_error("short oracle");return v;}
+int main(int argc,char**argv){try{static_assert(sizeof(void*)==8,"x64 required");if(argc!=2)throw std::runtime_error("oracle required");std::ifstream in(argv[1],std::ios::binary);for(unsigned nameKind=0;nameKind<4;++nameKind)for(uint16_t old:{uint16_t(0xffff),uint16_t(0),uint16_t(7)})for(uint32_t next:{0xffffu,0u,7u,0x12340007u})for(unsigned dirty:{0u,1u}){RecoveredModelCacheState state{old,dirty!=0};std::optional<std::string>name;if(nameKind>=2)name=nameKind==2?"":"models/test.mdl";std::vector<uint32_t>events;recoveredModelCacheRefreshCandidate(state,name,[&](const std::string& n){if(n!="models/test.mdl")throw std::runtime_error("name mismatch");events.push_back(1);return next;},[&](uint16_t h){events.push_back(2);events.push_back(h);});if(state.handle!=read(in)||uint32_t(state.dirty)!=read(in)||events.size()!=read(in))throw std::runtime_error("cache state mismatch");for(auto e:events)if(e!=read(in))throw std::runtime_error("event ordering mismatch");}if(in.peek()!=EOF)throw std::runtime_error("trailing oracle");std::cout<<"x64 model cache refresh:96 native comparisons passed\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

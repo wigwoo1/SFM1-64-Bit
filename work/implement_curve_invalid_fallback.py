@@ -1,0 +1,3 @@
+from pathlib import Path
+p=Path('work/float_curve_evaluation.h');s=p.read_text().replace('default:throw std::runtime_error("native curve mode not recovered");','//10066CC0 emits diagnostic, then falls through to1049AC20.\n default:return evaluateRecoveredNormalizedCatmull(times,values,f);');p.write_text(s)
+p=Path('work/test_float_curve_sampler.cpp');s=p.read_text();a=s.index('s.info.defaultKind=0x1010;bool rejected');b=s.index('std::cout',a);s=s[:a]+'''s.info.defaultKind=0;float fallback=s.sample(20000);for(uint32_t code:{16u,17u,128u,255u}){s.info.defaultKind=static_cast<int32_t>((code<<8)|code);if(s.sample(20000)!=fallback)throw std::runtime_error("out of range fallback mismatch");}'''+s[b:];p.write_text(s)
