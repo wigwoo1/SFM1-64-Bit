@@ -10,6 +10,12 @@
 #endif
 #include "dag_world_fixture.h"
 #include "ifm_bounds_geometry_services_candidate.h"
+#ifdef IFM_DRAW_BOUNDS_COMPOSITE
+#include "ifm_draw_bounds_geometry_candidate.h"
+#ifdef IFM_LIGHTING_COMPOSITE
+#error draw and lighting fixture variants must be separate
+#endif
+#endif
 #if defined(IFM_LIGHTING_COMPOSITE) && !defined(NATIVE_IFM_BOUNDS_COMPOSITE)
 #include "session_ifm_lighting_origin_candidate.h"
 #endif
@@ -52,6 +58,18 @@ static std::vector<RecoveredMatrix3x4>paletteInput;
 static RecoveredMatrix3x4 modelWorldInput{};
 static int32_t tickInput=0;
 static uint32_t studioAddress=0;
+#ifdef IFM_DRAW_BOUNDS_COMPOSITE
+static uint8_t*drawImageBase=nullptr;
+static uint32_t drawBoundsCalled=0;
+static IfmBoundsWrapperFramesCandidate drawBoundsFrames{};
+static IfmBoundsCandidate drawInnerBounds{};
+static void __fastcall drawBoundsBridge(void*self,void*,float*lo,float*hi){
+    ++drawBoundsCalled;std::memcpy(&drawBoundsFrames,static_cast<uint8_t*>(self)+0x38,48);
+    using Bounds=void(__thiscall*)(void*,float*,float*);reinterpret_cast<Bounds>(drawImageBase+0x23f310)(self,lo,hi);
+    std::memcpy(drawInnerBounds[0].data(),lo,12);std::memcpy(drawInnerBounds[1].data(),hi,12);
+}
+static void __fastcall spatialNoop(void*,void*,uint32_t handle){if(handle!=0xffff)throw std::runtime_error("draw spatial fixture handle");}
+#endif
 #ifdef IFM_LIGHTING_COMPOSITE
 static NativeDagAttribute illuminationAttribute;
 static std::array<uint32_t,5>originInput{};
@@ -111,7 +129,13 @@ static IfmBoundsCandidate engineBoundsInput{};
 static int32_t __fastcall modelCategory(void*,void*,void*tag){if(tag!=reinterpret_cast<void*>(0x11))throw std::runtime_error("composite model tag");return categoryInput;}
 static void __fastcall engineBounds(void*,void*,void*tag,float*lo,float*hi){if(tag!=reinterpret_cast<void*>(0x11))throw std::runtime_error("composite engine bounds tag");++events[2];std::memcpy(lo,engineBoundsInput[0].data(),12);std::memcpy(hi,engineBoundsInput[1].data(),12);}
 static bool __fastcall setupBones(void*,void*,void*out,int maximum,int mask,float time){++events[3];events[4]=uint32_t(maximum);events[5]=uint32_t(mask);std::memcpy(&events[6],&time,4);if(maximum!=256||mask!=0x100)throw std::runtime_error("composite setup request");std::memcpy(out,paletteInput.data(),paletteInput.size()*48);return (fixtureFlags&256)!=0;}
-static void* __fastcall modelWorld(void*,void*){++events[7];return modelWorldInput.data();}
+static void* __fastcall modelWorld(void*self,void*){++events[7];
+#ifdef IFM_DRAW_BOUNDS_COMPOSITE
+    using World=void*(__thiscall*)(void*);return reinterpret_cast<World>(drawImageBase+0x23bc80)(self);
+#else
+    (void)self;return modelWorldInput.data();
+#endif
+}
 static int32_t* __fastcall clockTick(void*,void*,int32_t*out){*out=tickInput;return out;}
 #ifdef IFM_LIGHTING_COMPOSITE
 // Counting bridges call the unmodified original routines, never supplied points
@@ -138,7 +162,16 @@ struct OwnedCompositeProviders {
     bool hasClock(){return (f.flags&128)!=0;}
     int32_t clockTick(){return f.tick;}
     bool setupBones(std::array<RecoveredMatrix3x4,256>&palette,uint32_t maximum,uint32_t mask,float time){++events[3];events[4]=maximum;events[5]=mask;std::memcpy(&events[6],&time,4);std::copy(f.palette.begin(),f.palette.end(),palette.begin());return (f.flags&256)!=0;}
-    RecoveredMatrix3x4 modelWorld(){++events[7];return f.modelWorld;}
+    RecoveredMatrix3x4 modelWorld(){++events[7];
+#ifdef IFM_DRAW_BOUNDS_COMPOSITE
+        return f.state.rawModelResolved?hierarchy.world(f.root):GraphTransformHierarchy::identity();
+#else
+        return f.modelWorld;
+#endif
+    }
+#ifdef IFM_DRAW_BOUNDS_COMPOSITE
+    void acceptIntermediateFrames(const IfmBoundsWrapperFramesCandidate&){/* inner dispatcher does not use outer wrapper */}
+#endif
     float localScale(){const auto&n=f.nodes.at(f.root);return f.state.rawModelResolved&&f.state.gameModelTyped&&(n.flags&32)&&(n.flags&64)?n.scale:1.0f;}
     std::optional<uint32_t>resolveDag(){return f.state.rawModelResolved?std::optional<uint32_t>(f.root):std::nullopt;}
     int32_t childCount(uint32_t id){int32_t count=0;for(const auto&n:f.nodes)count+=n.parent==id;return count;}
@@ -166,7 +199,12 @@ int main(int argc,char**argv){try{
 #endif
     std::array<uintptr_t,10>engineTable{};engineTable[9]=reinterpret_cast<uintptr_t>(&modelCategory);engineTable[7]=reinterpret_cast<uintptr_t>(&engineBounds);const uintptr_t engineObject=reinterpret_cast<uintptr_t>(engineTable.data()),engineAddress=reinterpret_cast<uintptr_t>(&engineObject);std::memcpy(base+0xfd43a8,&engineAddress,4);
     std::array<uint8_t,0x34>modeObject{};const uint32_t modeAddress=reinterpret_cast<uint32_t>(modeObject.data());std::memcpy(base+0xf31774,&modeAddress,4);
-    std::array<uint8_t,0x348>clockService{};const uint32_t clockAddress=reinterpret_cast<uint32_t>(clockService.data());std::memcpy(base+0xf32568,&clockAddress,4);image.seal();
+    std::array<uint8_t,0x348>clockService{};const uint32_t clockAddress=reinterpret_cast<uint32_t>(clockService.data());std::memcpy(base+0xf32568,&clockAddress,4);
+#ifdef IFM_DRAW_BOUNDS_COMPOSITE
+    drawImageBase=base;if(base[0x2403f7]!=0xe8)throw std::runtime_error("draw bounds callsite");redirect(base,0x2403f7,reinterpret_cast<void*>(&drawBoundsBridge));base[0x2403f7]=0xe8;
+    std::array<uintptr_t,32>spatialTable{};spatialTable[31]=reinterpret_cast<uintptr_t>(&spatialNoop);const uintptr_t spatialObject=reinterpret_cast<uintptr_t>(spatialTable.data()),spatialAddress=reinterpret_cast<uintptr_t>(&spatialObject);std::memcpy(base+0xfd43f4,&spatialAddress,4);
+#endif
+    image.seal();
 #ifndef IFM_LIGHTING_COMPOSITE
     using Bounds=void(__thiscall*)(void*,float*,float*);
 #endif
@@ -212,6 +250,9 @@ int main(int argc,char**argv){try{
         if(f.origin[3]){putStudio(0x190,0x300);putStudio(0x308,f.origin[4]);}
 #endif
         std::array<uint8_t,0xa0>initialObject{};put(initialObject,4,reinterpret_cast<uint32_t>(renderTable.data()));put(initialObject,0x2c,f.state.rawModelResolved?f.root+1:UINT32_MAX);put(initialObject,0x34,f.state.modelPresent?0x11:0);std::memcpy(initialObject.data()+0x38,&f.frames,48);put(initialObject,0x6c,header[2]);if(f.flags&16)put(initialObject,0x70,studioAddress);initialObject[0x80]=f.state.renderableFlags;put(modeObject,0x30,header[3]);put(clockService,0x344,(f.flags&128)?1:0);
+#ifdef IFM_DRAW_BOUNDS_COMPOSITE
+        const uint16_t spatialHandle=0xffff;std::memcpy(initialObject.data()+0x82,&spatialHandle,2);
+#endif
         const auto beforeNodes=nativeNodes;const auto beforeReferences=references;const auto beforeChildren=children;const auto beforeStudio=studio;const auto beforeBone=firstBone;const auto beforePalette=paletteInput;
         const auto beforeWorld=modelWorldInput;const auto beforeMode=modeObject;const auto beforeClock=clockService;const auto beforeStudioWrapper=studioWrapper;const auto beforeEngineBounds=engineBoundsInput;
 #ifdef IFM_LIGHTING_COMPOSITE
@@ -227,6 +268,19 @@ int main(int argc,char**argv){try{
 #endif
         GraphTransformHierarchy hierarchy(graph);
 #endif
+#ifdef IFM_DRAW_BOUNDS_COMPOSITE
+        IfmDrawBoundsGeometryCandidate result;std::array<uint32_t,9>drawEvents{};
+#ifdef NATIVE_IFM_BOUNDS_COMPOSITE
+        auto object=initialObject;events={};drawBoundsCalled=0;drawBoundsFrames={};drawInnerBounds={};
+        using UpdateFrames=void(__thiscall*)(void*);reinterpret_cast<UpdateFrames>(base+0x2402c0)(object.data());
+        std::memcpy(&result.frames,object.data()+0x38,48);result.boundsQueried=drawBoundsCalled!=0;result.framesAtBounds=drawBoundsFrames;result.innerBounds=drawInnerBounds;drawEvents=events;
+        auto expectedObject=initialObject;std::memcpy(expectedObject.data()+0x38,&result.frames,48);if(events[1]&&(f.flags&32))put(expectedObject,0x70,studioAddress);
+        if(drawBoundsCalled>1||object!=expectedObject||children!=beforeChildren||studio!=beforeStudio||studioWrapper!=beforeStudioWrapper||firstBone!=beforeBone||modelWorldInput!=beforeWorld||engineBoundsInput!=beforeEngineBounds||modeObject!=beforeMode||clockService!=beforeClock||std::memcmp(nativeNodes.data(),beforeNodes.data(),nativeNodes.size()*sizeof(NativeDagNode))||std::memcmp(references.data(),beforeReferences.data(),references.size()*sizeof(ReverseDagReference))||std::memcmp(paletteInput.data(),beforePalette.data(),paletteInput.size()*48))throw std::runtime_error("draw bounds input/cache mutation");
+#else
+        OwnedCompositeProviders providers{f,hierarchy,(f.flags&16)!=0};result=ifmDrawBoundsGeometryCandidate(f.state,providers);drawEvents=providers.events;
+#endif
+        const uint32_t queried=result.boundsQueried?1:0;out.write(reinterpret_cast<const char*>(&result.frames),48);out.write(reinterpret_cast<const char*>(&queried),4);out.write(reinterpret_cast<const char*>(&result.framesAtBounds),48);out.write(reinterpret_cast<const char*>(result.innerBounds.data()),24);out.write(reinterpret_cast<const char*>(drawEvents.data()),36);
+#else
         for(unsigned wrapper=0;wrapper<
 #ifdef IFM_LIGHTING_COMPOSITE
             1
@@ -272,7 +326,9 @@ int main(int argc,char**argv){try{
                 out.write(reinterpret_cast<const char*>(bounds.data()),24);out.write(reinterpret_cast<const char*>(counts.data()),36);
 #endif
             }
-        }++cases;
+        }
+#endif
+        ++cases;
     }
     if(!in.eof()||in.gcount()!=0||!cases)throw std::runtime_error("composite fixture length");out.flush();if(!out)throw std::runtime_error("composite fixture output");
 #ifdef NATIVE_IFM_BOUNDS_COMPOSITE

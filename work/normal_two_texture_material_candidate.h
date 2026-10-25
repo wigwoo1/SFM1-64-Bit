@@ -8,6 +8,23 @@ inline void validateNormalTwoTextureMaterialCandidate(const ModelRenderMaterialC
  if(!material.unlitTwoTexture)return;
  if(vmtAsciiLowerCandidate(material.source.syntax.key)!="unlittwotexture"||!material.additive||material.translucent||material.vertexTransition||material.alphaCutoff!=0||material.selfIllum.enabled||alpha!=1)
   throw std::runtime_error("two-texture normal additive subset unsupported");
+ // The current diagnostic has one linear/repeat sampler and no texture-alpha
+ // variant. Admit only known opaque VTF flags (optionally SRGB, 0x40).
+ // This deliberately conservative allowlist is not native IsTranslucent.
+ if(!material.baseTextureFlags||!material.secondTextureFlags)
+  throw std::runtime_error("two-texture VTF flags required before GPU allocation");
+ if((*material.baseTextureFlags&~uint32_t(0x40))||(*material.secondTextureFlags&~uint32_t(0x40)))
+  throw std::runtime_error("two-texture VTF flags outside verified subset");
+ // Authored vertex alpha/color and depth overrides are not transported by
+ // this shader. An opaque/unit retained value must not hide those requests.
+ for(const char*key:{"$vertexalpha","$vertexcolor","$ignorez"}){
+  for(const auto&node:material.source.syntax.children)
+   if(node.block&&vmtAsciiLowerCandidate(node.key)==key)
+    throw std::runtime_error(std::string("two-texture material flag must be scalar: ")+key);
+  auto values=vmtValuesCandidate(material.source.syntax,key);
+  if(values.size()>1||(!values.empty()&&values[0]!="0"))
+   throw std::runtime_error(std::string("two-texture unsupported material flag: ")+key);
+ }
  auto imageValid=[](const VtfRgbaImageCandidate&image){return image.width&&image.height&&uint64_t(image.width)*image.height<=SIZE_MAX/4&&image.rgba.size()==uint64_t(image.width)*image.height*4;};
  if(material.source.baseTextureMissing||material.source.baseTexture2Missing||!imageValid(material.image)||!imageValid(material.secondBaseImage))throw std::runtime_error("two-texture decoded images required");
  for(const auto*transform:{&material.baseTextureTransform,&material.secondTextureTransform})for(float value:*transform)if(!std::isfinite(value))throw std::runtime_error("two-texture transform nonfinite");

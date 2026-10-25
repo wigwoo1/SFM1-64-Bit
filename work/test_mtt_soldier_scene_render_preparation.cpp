@@ -30,6 +30,7 @@ int main(int argc,char**argv){
   if(timelineFrames.size()<=120)throw std::runtime_error("mtt_soldier timeline has no frame 120");
   const auto frame120Tick=timelineFrames.tick(120);auto frame120=scene.sample(frame120Tick);
   size_t pilotMaterials=0;for(size_t group=0;group<frame120.materialInputs.size();++group)for(const auto&material:frame120.materialInputs.at(group).materials)if(material.unlitTwoTexture){
+   if(material.baseTextureFlags!=0x40u||material.secondTextureFlags!=0x40u)throw std::runtime_error("benchmark pilot VTF flags lost");
    ++pilotMaterials;if(!material.additive||material.translucent||material.vertexTransition||material.image.width!=16||material.secondBaseImage.width!=32||material.source.baseTexture2.filename()!="pilotlight_motion.vtf")throw std::runtime_error("benchmark pilot two-texture inputs mismatch");
    if(std::abs(material.baseTextureTransform[2]-.003242f)>1e-6f||std::abs(material.baseTextureTransform[6]+.015513f)>1e-6f||std::abs(material.secondTextureTransform[2]-.719841f)>1e-6f||std::abs(material.secondTextureTransform[6]-.177722f)>1e-6f)throw std::runtime_error("benchmark saved pilot transforms mismatch");
   }if(pilotMaterials!=1)throw std::runtime_error("benchmark pilot material count");
