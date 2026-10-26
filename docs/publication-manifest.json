@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "56a642d30403cdef82d15d3c79d6839336f02a83ffdcd54d112dcd1d59242772",
+      "sha256": "de594deeda522772a3478f46c736a24388f5b6bff5b89cfbe0b1aeb7a1bdc58b",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -2557,6 +2557,14 @@
       "sha256": "588710a4971e57155cc738a1d1c86f1e16a818d56b439a7bd258b442daed6b6a",
       "size": 435
     },
+    "work/build_material_dictionary.cmd": {
+      "sha256": "1f675f04346644ccbcaf36bb8cc5d2b26a467ac51cdec21c396d783b0ebdb217",
+      "size": 588
+    },
+    "work/build_material_dictionary_tree.cmd": {
+      "sha256": "2c4c21c036c0e7daee42956b6579cb08e6eb32e8a16343fea54c5e7e6c70130f",
+      "size": 1016
+    },
     "work/build_material_directive_failures.cmd": {
       "sha256": "a896b134a4613ec5f5d09359cd32992388e28fb2e1f060b8c728bfa6215db4a4",
       "size": 2243
@@ -2628,6 +2636,10 @@
     "work/build_material_numeric_value.cmd": {
       "sha256": "6eb826790e465d3f13108cc111800a43d151eb03a4cfeca54c1e9aa0a646c212",
       "size": 974
+    },
+    "work/build_material_object_lifetime.cmd": {
+      "sha256": "7bc5b06cc932eee921b172750bbb719e00a4513526e74217c3a6f9e4df257bb4",
+      "size": 596
     },
     "work/build_material_parameter_collection.cmd": {
       "sha256": "4da2779b5b6001bfb0a0d2387afa86a0b7210377d165678386343696d1f3df84",
@@ -4096,6 +4108,10 @@
     "work/build_queued_context_allocation_failure.cmd": {
       "sha256": "7a15133fcccaa73e639ab451b0f8160c6e2a2a593a7a1b372f0365c95084fb59",
       "size": 478
+    },
+    "work/build_queued_material_lifetime.cmd": {
+      "sha256": "dbf2984c6f629e928f61779b6fc9d4e6852b67a9cc0483dc87d1db670127520b",
+      "size": 886
     },
     "work/build_queued_query_recreation.cmd": {
       "sha256": "e6af7afc387ecebd5826ddbef7f931d155189e003211e5e8246f6d68d5190a67",
@@ -10049,6 +10065,10 @@
       "sha256": "afc3544e9ee38b240718dcb4017e23d4328852ff50c99b0f73dd056542838eef",
       "size": 3364
     },
+    "work/material_dictionary_tree_candidate.h": {
+      "sha256": "14e64844d81882be06e0d45fae6bb8c686808ab1804bbea743507350b8c9efe0",
+      "size": 8966
+    },
     "work/material_draw_invoke_native_bytes.h": {
       "sha256": "972583bf2ca678254aedf8df1ff2ff3b6e460063584408606fc179589c5fd36a",
       "size": 147
@@ -12001,6 +12021,14 @@
       "sha256": "de550cb14e21f959a61292c09417afb12e8e7391a63f40ce08b5018e2903ff23",
       "size": 2839
     },
+    "work/probe_material_dictionary.cpp": {
+      "sha256": "f3f66f89741c04399893bfd32d909f5d0b41c79618d54814cc5b4fd7aece2f66",
+      "size": 14327
+    },
+    "work/probe_material_dictionary_tree.cpp": {
+      "sha256": "d10b851adbb8ac4e70c5d6592385c9bc9774f9834cc9bc6076708c01a9635942",
+      "size": 8698
+    },
     "work/probe_material_fallback_failures.cpp": {
       "sha256": "2869e6420bef0c4eb267eb7e0c56a8ef7794fbd648ab3a723120e823a64903b5",
       "size": 3481
@@ -12052,6 +12080,10 @@
     "work/probe_material_numeric_value.cpp": {
       "sha256": "749142627af8a1b3453a6f8b7445eef1d1013240d659a2818ad109ad5e30b38b",
       "size": 6525
+    },
+    "work/probe_material_object_lifetime.cpp": {
+      "sha256": "80b9366f79606f7d23f00079fffafd7b33df0d607846b57dbff00ca70e069cfc",
+      "size": 11291
     },
     "work/probe_material_parameter_collection.cpp": {
       "sha256": "2ff5d6e11b137d1cf643fbcd7588bf8f5f29416faae90dc4ed8ff472aabc4372",
@@ -12972,6 +13004,10 @@
     "work/probe_quaternion_matrix.cpp": {
       "sha256": "45ff09d67fa6489e0e847bb52c0a057c3f8010716a4a06076c1e9911f8e3d7aa",
       "size": 4874
+    },
+    "work/probe_queued_material_lifetime.cpp": {
+      "sha256": "35fdb21487f78833dc4ab57359fb21f450c527250fb2875b5ac2710e3efe2299",
+      "size": 10242
     },
     "work/probe_scene_model_ambient_vulkan.cpp": {
       "sha256": "fbd83a82815321dadcf9b4ae60b7237d62ae9035afc70ba395192d05ed9a919c",
@@ -23733,6 +23769,14 @@
       "sha256": "08b7f742b48cbe373574de790dc5a6b40e2c2c89cc9221843bbb2bfcd8279085",
       "size": 4680
     },
+    "work/verify_material_dictionary.py": {
+      "sha256": "533f9c683b75e4b1e84f3e35d71108c68c3055641acb9a32ccae12f32d15897b",
+      "size": 10017
+    },
+    "work/verify_material_dictionary_tree.py": {
+      "sha256": "2643722f55ea6a98b5de9b9abaaf8b13a69515022d108aa852b7b37f4dcd8ebe",
+      "size": 15750
+    },
     "work/verify_material_directive_recovery.py": {
       "sha256": "8d964fa697717e4e523e641c35e86157ff191177e91c0133c23a2627d8f0ecd9",
       "size": 15897
@@ -23796,6 +23840,10 @@
     "work/verify_material_numeric_value.py": {
       "sha256": "757ebdd90d09d7b59f180170f163f7abb253381d145e69b602e0b71a22d4de2c",
       "size": 14510
+    },
+    "work/verify_material_object_lifetime.py": {
+      "sha256": "702de04d1db42115b05e0dedc5e6a654f4186b078fb4eb3e20f8eaa258017310",
+      "size": 10069
     },
     "work/verify_material_override_prefetch_pixels.py": {
       "sha256": "72e69903f9397009a8715725129c7f96e575af4da5f7bec0b9b541ac60a8396f",
@@ -24212,6 +24260,10 @@
     "work/verify_quaternion_matrix.py": {
       "sha256": "bdc06016fdf0066262b47265792d5d52bf3241de307f37fbcbff93977dda5f0c",
       "size": 1234
+    },
+    "work/verify_queued_material_lifetime.py": {
+      "sha256": "32c6981160d5728decd304237cf11432b2bbacf737706b9fdb3105f3490d3a9b",
+      "size": 11848
     },
     "work/verify_real_vtf_animation.py": {
       "sha256": "16ecec01c032868051a4bcad53ec2403e549720f5dd02a8d4b8bdb95ab2f2ded",
