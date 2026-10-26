@@ -4,7 +4,10 @@
 #include <set>
 // Original10006BA0 file/patch resolution before shader defaults, fallbacks,
 // parameter extraction or rendering. GAME logical source provider only.
+enum class SourceMaterialPatchFileLoadStatusCandidate{Loaded,RootUnavailable,RetainRootName};
 struct SourceMaterialPatchFilesResultCandidate {
+ SourceMaterialPatchFileLoadStatusCandidate status=SourceMaterialPatchFileLoadStatusCandidate::Loaded;
+ uint32_t diagnosticCalls=0,developerDiagnosticCalls=0;
  SourceMaterialKeyValuesDocumentCandidate document;
  SourceMaterialPatchNodeCandidate aggregate;
  std::vector<std::string>dependencies,patchFiles;
@@ -29,14 +32,27 @@ inline void sourceMaterialPatchFileAssignedTreeCandidate(SourceMaterialPatchNode
  // nodes are rebuilt through fresh block constructors, even if source hybrid.
  if(!node.children.empty()){node.kind=0;node.text.clear();node.bits=0;node.pointer=0;}for(auto&child:node.children)sourceMaterialPatchFileAssignedTreeCandidate(child);
 }
-inline SourceMaterialPatchFilesResultCandidate sourceMaterialPatchFilesCandidate(const std::string&materialName,const SourceMaterialKeyValuesSourceCandidate&provider,bool prefixAlreadyProvided=false){
+inline SourceMaterialPatchFilesResultCandidate sourceMaterialPatchFilesCandidate(const std::string&materialName,const SourceMaterialKeyValuesSourceCandidate&provider,bool prefixAlreadyProvided=false,bool recoverPartial=false){
  if(!provider||materialName.empty()||materialName[0]=='{')throw std::runtime_error("material file name/source scope");const auto requested=(prefixAlreadyProvided?std::string():std::string("materials/"))+materialName+".vmt";if(requested.size()>=260)throw std::runtime_error("material file root path extent");const auto rootPath=sourceMaterialKeyValuesPathCandidate(requested);SourceMaterialPatchFilesResultCandidate out;out.aggregate.key="patchAccumulator";size_t bytes=0,reads=0;SourceMaterialKeyValuesSourceCandidate checked=[&](const std::string&path)->std::optional<std::string>{if(++reads>256)throw std::runtime_error("material patch source read extent");auto value=provider(path);if(!value)return {};if(value->size()>(1u<<26)-bytes)throw std::runtime_error("material patch source total byte extent");bytes+=value->size();out.dependencies.push_back(path);return value;};
- auto current=sourceMaterialKeyValuesFilesCandidate(rootPath,checked);auto validate=[&](const SourceMaterialKeyValuesDocumentCandidate&doc){size_t count=0;for(const auto&node:doc.roots)sourceMaterialPatchFileTreeValidateCandidate(node,0,count);};validate(current.document);if(sourceMaterialPatchLowerCandidate(current.document.roots[0].key)!="patch"){out.document=std::move(current.document);return out;}
+ // Partial-load mode distinguishes unavailable root files from nested patch
+ // failure. Unsupported grammar/provider errors still throw transactionally.
+ auto load=[&](const std::string&path,bool range)->std::optional<SourceMaterialKeyValuesFilesResultCandidate>{
+  if(!recoverPartial)return sourceMaterialKeyValuesFilesCandidate(path,checked,range);
+  auto first=checked(path);if(!first||first->empty())return {};
+  bool pending=true;auto cached=[&](const std::string&p)->std::optional<std::string>{if(pending&&p==path){pending=false;return std::move(first);}return checked(p);};
+  return sourceMaterialKeyValuesFilesCandidate(path,cached,range,true);
+ };
+ auto initial=load(rootPath,false);if(!initial){out.status=SourceMaterialPatchFileLoadStatusCandidate::RootUnavailable;return out;}
+ auto current=std::move(*initial);out.diagnosticCalls=current.document.diagnosticCalls;out.developerDiagnosticCalls=current.document.developerDiagnosticCalls;
+ auto validate=[&](const SourceMaterialKeyValuesDocumentCandidate&doc){size_t count=0;for(const auto&node:doc.roots)sourceMaterialPatchFileTreeValidateCandidate(node,0,count);};
+ validate(current.document);if(current.document.retainsRootName){out.status=SourceMaterialPatchFileLoadStatusCandidate::RetainRootName;out.document=std::move(current.document);return out;}if(sourceMaterialPatchLowerCandidate(current.document.roots[0].key)!="patch"){out.document=std::move(current.document);return out;}
+ const auto originalDocument=current.document;
+ auto failedPatch=[&](){++out.diagnosticCalls;out.document=originalDocument;return out;};
  // Original MakeCopy drops initial peers; reused LoadFromBuffer retains older
  // peers on later single-local-root loads, before appending #include peers.
  current.document.roots.resize(1);std::set<std::string>seen;seen.insert(rootPath);bool rangeError=current.document.numericRangeError;std::string currentPath=rootPath;
  while(sourceMaterialPatchLowerCandidate(current.document.roots[0].key)=="patch"){
-  if(out.patchFiles.size()>=10)throw std::runtime_error("material patch chain remains unresolved at native limit");out.patchFiles.push_back(currentPath);const auto&patch=current.document.roots[0];sourceMaterialPatchFileAccumulateCandidate(out.aggregate,patch);size_t count=0;sourceMaterialPatchFileTreeValidateCandidate(out.aggregate,0,count);const auto*include=sourceMaterialPatchFindConstCandidate(patch,"include");if(!include)throw std::runtime_error("material patch include missing");const auto name=sourceMaterialPatchIncludeNameCandidate(*include);const auto nextPath=sourceMaterialKeyValuesPathCandidate(name);if(!seen.insert(nextPath).second)throw std::runtime_error("material patch include cycle");auto next=sourceMaterialKeyValuesFilesCandidate(nextPath,checked,rangeError);rangeError=next.document.numericRangeError;if(next.retainsExistingPeers&&current.document.roots.size()>1)next.document.roots.insert(next.document.roots.begin()+1,current.document.roots.begin()+1,current.document.roots.end());validate(next.document);current=std::move(next);currentPath=nextPath;
+  if(out.patchFiles.size()>=10)throw std::runtime_error("material patch chain remains unresolved at native limit");out.patchFiles.push_back(currentPath);const auto&patch=current.document.roots[0];sourceMaterialPatchFileAccumulateCandidate(out.aggregate,patch);size_t count=0;sourceMaterialPatchFileTreeValidateCandidate(out.aggregate,0,count);const auto*include=sourceMaterialPatchFindConstCandidate(patch,"include");if(!include){if(recoverPartial)return failedPatch();throw std::runtime_error("material patch include missing");}const auto name=sourceMaterialPatchIncludeNameCandidate(*include);const auto nextPath=sourceMaterialKeyValuesPathCandidate(name);if(!seen.insert(nextPath).second)throw std::runtime_error("material patch include cycle");auto loaded=load(nextPath,rangeError);if(!loaded)return failedPatch();auto next=std::move(*loaded);if(next.document.retainsRootName)throw std::runtime_error("retained-name patch include unverified");out.diagnosticCalls+=next.document.diagnosticCalls;out.developerDiagnosticCalls+=next.document.developerDiagnosticCalls;rangeError=next.document.numericRangeError;if(next.retainsExistingPeers&&current.document.roots.size()>1)next.document.roots.insert(next.document.roots.begin()+1,current.document.roots.begin()+1,current.document.roots.end());validate(next.document);current=std::move(next);currentPath=nextPath;
  }
  // Aggregate contains only typed0..4 writes. Preserve untouched uint64 and
  // infinity in the raw base instead of passing it through the older restricted

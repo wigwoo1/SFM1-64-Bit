@@ -19,25 +19,26 @@ inline bool materialFallbackParametersCandidate(MaterialFallbackParametersCandid
         MaterialFallbackParametersCandidate result;result.aggregate.key="patchAccumulator";
         MaterialParameterFallbackServicesCandidate services;services.ownerName=ownerName;services.errorTree=error;sourceMaterialPatchFileAssignedTreeCandidate(services.errorTree);
         std::set<std::string>requests;size_t totalBytes=0,totalReads=0;
-        services.load=[&](const std::string&name,SourceMaterialPatchNodeCandidate&loaded){
+        services.load=[&](const std::string&name,SourceMaterialPatchNodeCandidate&loaded)->MaterialParameterReloadResultCandidate{
             const auto path=sourceMaterialKeyValuesPathCandidate((prefixAlreadyProvided?std::string():std::string("materials/"))+name+".vmt");
-            if(path.size()>=260||!requests.insert(path).second)return MaterialParameterReloadStatusCandidate::Refused;
+            if(path.size()>=260||!requests.insert(path).second)return {MaterialParameterReloadStatusCandidate::Refused,0};
             auto first=provider(path);result.dependencies.push_back(path);++totalReads;
-            if(!first)return MaterialParameterReloadStatusCandidate::Missing;
+            if(!first||first->empty())return {MaterialParameterReloadStatusCandidate::Missing,0};
             bool initial=true;
             auto read=[&](const std::string&p)->std::optional<std::string>{
                 std::optional<std::string>v;
                 if(initial&&p==path){initial=false;v=std::move(first);}else{if(++totalReads>256)throw std::runtime_error("Fallback total reads");result.dependencies.push_back(p);v=provider(p);}
                 if(v){if(v->size()>(1u<<26)-totalBytes)throw std::runtime_error("Fallback total bytes");totalBytes+=v->size();}return v;
             };
-            auto file=sourceMaterialPatchFilesCandidate(name,read,prefixAlreadyProvided);
+            auto file=sourceMaterialPatchFilesCandidate(name,read,prefixAlreadyProvided,true);
+            if(file.status==SourceMaterialPatchFileLoadStatusCandidate::RootUnavailable)return {MaterialParameterReloadStatusCandidate::Missing,file.diagnosticCalls};
             // Original100069A8 clears the supplied accumulator on every
             // successful file parse, before checking whether its root is patch.
             // A missing root returns before this point and retains old state.
             result.aggregate=std::move(file.aggregate);
             result.patchFiles.insert(result.patchFiles.end(),file.patchFiles.begin(),file.patchFiles.end());
-            if(file.document.roots.size()!=1)return MaterialParameterReloadStatusCandidate::Refused;
-            loaded=std::move(file.document.roots.front());return MaterialParameterReloadStatusCandidate::Loaded;
+            if(file.document.roots.size()!=1)return {MaterialParameterReloadStatusCandidate::Refused,0};
+            loaded=std::move(file.document.roots.front());return {file.status==SourceMaterialPatchFileLoadStatusCandidate::RetainRootName?MaterialParameterReloadStatusCandidate::RetainRootName:MaterialParameterReloadStatusCandidate::Loaded,file.diagnosticCalls,file.developerDiagnosticCalls};
         };
         if(!materialParameterOrchestrationCandidate(result.material,source,environment,settings,hardwareLevel,&services,&result.root))return false;
         out=std::move(result);return true;

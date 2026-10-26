@@ -12,7 +12,8 @@ struct MaterialFallbackNativeFixture:MaterialParameterOrchestrationNativeFixture
     std::vector<std::pair<const uint8_t*,std::vector<uint8_t>>>fileCode;
     std::array<uint8_t,0x80>errorMaterial{};
     std::string ownerName="fixture/root";
-    unsigned nullFrees=0;
+    unsigned nullFrees=0,developerMessages=0;
+    static void __cdecl developerMessage(const char*,...){++self().developerMessages;}
     static MaterialFallbackNativeFixture&self(){return *static_cast<MaterialFallbackNativeFixture*>(active);}
     static void* __cdecl kv(){return &self().kvObject;}
     static void* __fastcall kvAlloc(void*,void*,int bytes){if(bytes!=36)ExitProcess(170);return allocate(nullptr,nullptr,36);}
@@ -34,6 +35,12 @@ struct MaterialFallbackNativeFixture:MaterialParameterOrchestrationNativeFixture
     }
     explicit MaterialFallbackNativeFixture(const char*material,const char*directory,const char*mount):MaterialParameterOrchestrationNativeFixture(material,directory){
         resolveWindowsImports(material);
+        // Unchanged PE import metadata identifies this cell as tier0.dll's
+        // ?DevMsg@@YAXPBDZZ (cdecl varargs). Missing #include/#base paths use
+        // this separate diagnostic service, not Warning. No code is patched.
+        uint32_t developerImport=0;std::memcpy(&developerImport,image.base+0x95190,4);
+        if(developerImport!=0xfade4)throw std::runtime_error("Original DevMsg import identity");
+        word(0x95190,reinterpret_cast<uintptr_t>(&developerMessage));
         // Original DLL static constructors for escaped and literal quoted-token
         // conversion tables. No table bytes are synthesized or patched here.
         // Without these, the raw private image consumes zero quote characters.

@@ -10,17 +10,21 @@
 struct MaterialParameterOrchestrationCandidate {
     MaterialParameterCollectionCandidate parameters;
     std::string shader;
-    uint32_t selectedNode=0;
+    uint32_t selectedNode=0,developerDiagnosticCalls=0;
     std::vector<std::string>lookups;
 };
 // Optional read-only reload services. The error tree must already have original
 // assignment normalization. Missing and unsupported loads are distinct outcomes.
 // With no services, the accepted legacy refusal policy is unchanged.
-enum class MaterialParameterReloadStatusCandidate{Loaded,Missing,Refused};
+enum class MaterialParameterReloadStatusCandidate{Loaded,Missing,Refused,RetainRootName};
+struct MaterialParameterReloadResultCandidate{
+    MaterialParameterReloadStatusCandidate status=MaterialParameterReloadStatusCandidate::Refused;
+    uint32_t diagnosticCalls=0,developerDiagnosticCalls=0;
+};
 struct MaterialParameterFallbackServicesCandidate{
     std::string ownerName;
     SourceMaterialPatchNodeCandidate errorTree;
-    std::function<MaterialParameterReloadStatusCandidate(const std::string&,SourceMaterialPatchNodeCandidate&)>load;
+    std::function<MaterialParameterReloadResultCandidate(const std::string&,SourceMaterialPatchNodeCandidate&)>load;
 };
 inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrationCandidate&out,
         const SourceMaterialPatchNodeCandidate&root,const MaterialParameterCollectionEnvironmentCandidate&environment,
@@ -30,7 +34,10 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
     Node working; // Validate before copying; own every subsequent mutation.
     std::vector<const Node*>nodes;bool valid=true;
     auto flatten=[&](auto&&self,const Node&n,size_t depth)->void{
-        if(depth>16||nodes.size()>=4096||n.key.empty()||n.key.size()>255||n.key.find('/')!=std::string::npos||n.text.size()>4095||!(n.kind<=3||n.kind==7)){valid=false;return;}
+        // Reloaded raw patch trees can retain literal slash keys. Preserve
+        // those names; lookup/patch helpers interpret paths where consumed.
+        // Legacy no-service callers keep the previously accepted refusal.
+        if(depth>16||nodes.size()>=4096||n.key.empty()||n.key.size()>255||(!services&&n.key.find('/')!=std::string::npos)||n.text.size()>4095||!(n.kind<=3||n.kind==7)){valid=false;return;}
         for(unsigned char c:n.key)if(c<32||c>126)valid=false;
         for(unsigned char c:n.text)if(!c||c>126)valid=false;
         if(sourceMaterialPatchLowerCandidate(n.key)=="$fallbackmaterial"&&(n.kind!=1||(!services&&!n.text.empty())))valid=false;
@@ -106,7 +113,8 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
                     if(!validateTree(services->errorTree))return false;
                     ++warnings;loaded=services->errorTree;status=MaterialParameterReloadStatusCandidate::Loaded;
                 }else{
-                    status=services->load(request,loaded);
+                    const auto reload=services->load(request,loaded);status=reload.status;warnings+=reload.diagnosticCalls;result.developerDiagnosticCalls+=reload.developerDiagnosticCalls;
+                    if(status==MaterialParameterReloadStatusCandidate::RetainRootName)loaded.key=working.key;
                     if(status==MaterialParameterReloadStatusCandidate::Refused)return false;
                     if(status==MaterialParameterReloadStatusCandidate::Missing){if(!validateTree(services->errorTree))return false;++warnings;loaded=services->errorTree;}
                 }

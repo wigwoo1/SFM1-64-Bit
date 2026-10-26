@@ -12,9 +12,17 @@
 struct SourceMaterialKeyValuesDocumentCandidate {
  std::vector<SourceMaterialPatchNodeCandidate>roots;
  bool numericRangeError=false;
+ uint32_t diagnosticCalls=0,developerDiagnosticCalls=0;
+ bool retainsRootName=false;
 };
 class SourceMaterialKeyValuesParserCandidate {
- const std::string&source;size_t position=0,count=0;bool rangeError=false;
+ const std::string&source;size_t position=0,count=0;bool rangeError=false,recoverPartial=false;
+ uint32_t diagnosticCalls=0;std::vector<bool>diagnosticSymbols;size_t diagnosticHighWater=0;
+ void reportPartial(){
+  // Original70460 emits header/trailer and each populated context slot below
+  // the retained high-water index, including context from returned children.
+  diagnosticCalls+=2;for(size_t i=0;i<diagnosticHighWater;++i)if(diagnosticSymbols[i])++diagnosticCalls;
+ }
  struct Token{enum Kind{End,Text,Open,Close,Equal}kind=End;std::string text;bool quoted=false;};
  Token next(){
   for(;;){while(position<source.size()&&(source[position]==' '||source[position]=='\t'||source[position]=='\r'||source[position]=='\n'||source[position]=='\f'||source[position]=='\v'))++position;if(position+1<source.size()&&source[position]=='/'&&source[position+1]=='/'){while(position<source.size()&&source[position]!='\n')++position;continue;}break;}
@@ -48,10 +56,18 @@ class SourceMaterialKeyValuesParserCandidate {
  }
  std::vector<SourceMaterialPatchNodeCandidate>body(size_t depth){
   if(depth>16)throw std::runtime_error("material KeyValues nesting extent");std::vector<SourceMaterialPatchNodeCandidate>nodes;
-  for(;;){auto key=next();if(key.kind==Token::Close)return nodes;if(key.kind!=Token::Text||key.text.empty())throw std::runtime_error("material KeyValues nonempty key/closing brace required");if(++count>65536)throw std::runtime_error("material KeyValues node extent");auto value=next();if(value.kind==Token::Equal)throw std::runtime_error("material KeyValues replacement assignment resolver required");SourceMaterialPatchNodeCandidate node;node.key=std::move(key.text);if(value.kind==Token::Open)node.children=body(depth+1);else if(value.kind==Token::Text)scalar(node,value.text);else throw std::runtime_error("material KeyValues value required");nodes.push_back(std::move(node));}
+  const auto frame=depth*2;
+  if(recoverPartial){if(diagnosticSymbols.size()<frame+2)diagnosticSymbols.resize(frame+2);diagnosticSymbols[frame]=true;diagnosticSymbols[frame+1]=false;diagnosticHighWater=std::max(diagnosticHighWater,frame+1);}
+  for(;;){auto key=next();if(key.kind==Token::Close)return nodes;
+   if(recoverPartial&&key.kind==Token::End){reportPartial();return nodes;}
+   if(key.kind!=Token::Text||key.text.empty())throw std::runtime_error("material KeyValues nonempty key/closing brace required");if(++count>65536)throw std::runtime_error("material KeyValues node extent");
+   if(recoverPartial)diagnosticSymbols[frame+1]=true;
+   auto value=next();if(value.kind==Token::Equal)throw std::runtime_error("material KeyValues replacement assignment resolver required");SourceMaterialPatchNodeCandidate node;node.key=std::move(key.text);
+   if(recoverPartial&&(value.kind==Token::End||value.kind==Token::Close)){nodes.push_back(std::move(node));reportPartial();return nodes;}
+   if(value.kind==Token::Open){if(recoverPartial)diagnosticSymbols[frame+1]=false;node.children=body(depth+1);}else if(value.kind==Token::Text)scalar(node,value.text);else throw std::runtime_error("material KeyValues value required");nodes.push_back(std::move(node));}
  }
 public:
- explicit SourceMaterialKeyValuesParserCandidate(const std::string&s,bool initialRangeError=false):source(s),rangeError(initialRangeError){if(source.size()>(1u<<24))throw std::runtime_error("material KeyValues source extent");for(unsigned char c:source)if((c<32&&c!='\t'&&c!='\r'&&c!='\n'&&c!='\f'&&c!='\v')||c>126)throw std::runtime_error("material KeyValues source encoding");}
- SourceMaterialKeyValuesDocumentCandidate parse(){SourceMaterialKeyValuesDocumentCandidate result;for(;;){auto key=next();if(key.kind==Token::End)break;if(key.kind==Token::Text&&(sourceMaterialPatchLowerCandidate(key.text)=="#base"||sourceMaterialPatchLowerCandidate(key.text)=="#include"))throw std::runtime_error("material KeyValues file directive resolver required");if(key.kind!=Token::Text||key.text.empty()||next().kind!=Token::Open)throw std::runtime_error("material KeyValues root block required");SourceMaterialPatchNodeCandidate node;node.key=std::move(key.text);if(++count>65536)throw std::runtime_error("material KeyValues node extent");node.children=body(0);result.roots.push_back(std::move(node));}if(result.roots.empty())throw std::runtime_error("empty material KeyValues source");result.numericRangeError=rangeError;return result;}
+ explicit SourceMaterialKeyValuesParserCandidate(const std::string&s,bool initialRangeError=false,bool partial=false):source(s),rangeError(initialRangeError),recoverPartial(partial){if(source.size()>(1u<<24))throw std::runtime_error("material KeyValues source extent");for(unsigned char c:source)if((c<32&&c!='\t'&&c!='\r'&&c!='\n'&&c!='\f'&&c!='\v')||c>126)throw std::runtime_error("material KeyValues source encoding");}
+ SourceMaterialKeyValuesDocumentCandidate parse(){SourceMaterialKeyValuesDocumentCandidate result;for(;;){auto key=next();if(key.kind==Token::End)break;if(key.kind==Token::Text&&(sourceMaterialPatchLowerCandidate(key.text)=="#base"||sourceMaterialPatchLowerCandidate(key.text)=="#include"))throw std::runtime_error("material KeyValues file directive resolver required");if(key.kind!=Token::Text||key.text.empty()||next().kind!=Token::Open)throw std::runtime_error("material KeyValues root block required");SourceMaterialPatchNodeCandidate node;node.key=std::move(key.text);if(++count>65536)throw std::runtime_error("material KeyValues node extent");node.children=body(0);result.roots.push_back(std::move(node));}if(result.roots.empty())throw std::runtime_error("empty material KeyValues source");result.numericRangeError=rangeError;result.diagnosticCalls=diagnosticCalls;return result;}
 };
-inline SourceMaterialKeyValuesDocumentCandidate sourceMaterialKeyValuesParseCandidate(const std::string&source,bool initialRangeError=false){return SourceMaterialKeyValuesParserCandidate(source,initialRangeError).parse();}
+inline SourceMaterialKeyValuesDocumentCandidate sourceMaterialKeyValuesParseCandidate(const std::string&source,bool initialRangeError=false,bool recoverPartial=false){return SourceMaterialKeyValuesParserCandidate(source,initialRangeError,recoverPartial).parse();}

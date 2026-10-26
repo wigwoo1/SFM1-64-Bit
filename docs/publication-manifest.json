@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "33ba3e6e33971b415198f3e14c06f02762f83cdf797b0167b06ce3fed008818c",
+      "sha256": "5232d5f2ffaa0a75515acad01eef525fea7632e9e128d6dda0a137e27297ca6c",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -904,6 +904,10 @@
     "work/build_buffer_whitespace.cmd": {
       "sha256": "81ddfa7fd8fc57f014819b02655ebae1dceaadd14e80e8cd9a791325bb06c6fe",
       "size": 351
+    },
+    "work/build_builtin_error_material_seed.cmd": {
+      "sha256": "f81ce2a175db37c87803c87afbbcf9ed114233db74b3bbfd3bdbdb5f116da23a",
+      "size": 1276
     },
     "work/build_cached_channel_copy_tests.cmd": {
       "sha256": "fa58737cb749d32c33cc853bd16ca511b501fc132dc9f2bbc7dc67e64cd14424",
@@ -2553,9 +2557,17 @@
       "sha256": "588710a4971e57155cc738a1d1c86f1e16a818d56b439a7bd258b442daed6b6a",
       "size": 435
     },
+    "work/build_material_directive_failures.cmd": {
+      "sha256": "a896b134a4613ec5f5d09359cd32992388e28fb2e1f060b8c728bfa6215db4a4",
+      "size": 2243
+    },
     "work/build_material_draw_invoke_native.cmd": {
       "sha256": "9a382345b45f3a28631b67eb654534506311b666ec28565706e7a10633e816e5",
       "size": 775
+    },
+    "work/build_material_fallback_failures.cmd": {
+      "sha256": "5240c2203778931e26147113dd824a4fbb61546d9fb103f668dbd8836f1e2131",
+      "size": 609
     },
     "work/build_material_fallback_owned.cmd": {
       "sha256": "c3d4069602df53779440410fba9a46560310f3b406401c1d02c995a29d3500d8",
@@ -2632,6 +2644,10 @@
     "work/build_material_parameter_orchestration.cmd": {
       "sha256": "778e117a21b791368bdd445caab35ce791ca7fd48d5f63e57cd2f764f6f89aed",
       "size": 1335
+    },
+    "work/build_material_partial_load.cmd": {
+      "sha256": "8bd54a7f8ff85c408ada537c05e6949a5e16a80313afc8996d43ecb7c9ce89dc",
+      "size": 2120
     },
     "work/build_material_patch_files.cmd": {
       "sha256": "55efa3c932d49f40062f891033a5a2955b777894fdd377f430406df515048ea1",
@@ -6256,6 +6272,10 @@
     "work/build_write_channel_reference.cmd": {
       "sha256": "45f41e645be3c6744a24ddc2279c4ccd27db83d2858de6da7b1399dd38e40020",
       "size": 384
+    },
+    "work/builtin_error_material_seed_candidate.h": {
+      "sha256": "7739e3bc58f11cc2cac26e9b6c78068ec2743ef6d09e8e52d4ae5f8d507e4318",
+      "size": 1101
     },
     "work/cached_key_search.h": {
       "sha256": "7bac27cbcf65d2f451acb3d0d420cf7b92e15ebefc218cc45206bf185f546648",
@@ -10026,12 +10046,12 @@
       "size": 147
     },
     "work/material_fallback_native_fixture.h": {
-      "sha256": "844acc95c5e52c6dd924dba8b0219cf0a7c6817e4a15a64ef75e98dfaaefe2bf",
-      "size": 9950
+      "sha256": "87cf921fc08a89d7890b7297ed5c1c903970848419482ee3fdcc6f6f70667e2e",
+      "size": 10544
     },
     "work/material_fallback_parameters_candidate.h": {
-      "sha256": "72ae30efa774e7758a238222d38387864817e1c258238a29d818a25f7f5ee9a6",
-      "size": 3360
+      "sha256": "e0713934791c83ebdd0637ec2fae9dbdd947370a6959b253a70638d36f21400e",
+      "size": 3826
     },
     "work/material_file_parameters_candidate.h": {
       "sha256": "deba28165e8119d488a0687ddbd2d9ecf3fc5f7a272974b0861e60c309f6a2e6",
@@ -10086,8 +10106,8 @@
       "size": 856
     },
     "work/material_parameter_orchestration_candidate.h": {
-      "sha256": "90c06bebc04da4a4002b8d3acc9c7889be0e3564a7a1035a1d5a81350f59269f",
-      "size": 10375
+      "sha256": "b3815f28d8fb18bf076f03e927923ff2d67184bde122e8bb6496368edc60beee",
+      "size": 11250
     },
     "work/material_parameter_orchestration_native_fixture.h": {
       "sha256": "d3fe609466296372c8119bbc84d78ab6099268fbb1355c0622f6e8b342d44571",
@@ -11653,6 +11673,10 @@
       "sha256": "ce83179a53ddbd82d3903de3b5348a8e8c598ded989fcd3bff9ebc5428bd1fec",
       "size": 4504
     },
+    "work/probe_builtin_error_material_seed.cpp": {
+      "sha256": "9f4c9538dc76f6fa9c2aea2a3eb3f8ff3eb50ac1169aaff630e81adbd76d68c7",
+      "size": 8397
+    },
     "work/probe_dag_world_position.cpp": {
       "sha256": "f7fcb1a78069d9f95cef2f60e305f63ead3f092c8dac661894bf1cb5f420d2ae",
       "size": 9507
@@ -11969,9 +11993,13 @@
       "sha256": "de550cb14e21f959a61292c09417afb12e8e7391a63f40ce08b5018e2903ff23",
       "size": 2839
     },
+    "work/probe_material_fallback_failures.cpp": {
+      "sha256": "2869e6420bef0c4eb267eb7e0c56a8ef7794fbd648ab3a723120e823a64903b5",
+      "size": 3481
+    },
     "work/probe_material_fallback_owned.cpp": {
-      "sha256": "c004f4d548d716435dfd0d246a202b529769b33329cf0ec66bbe2b2077953816",
-      "size": 8654
+      "sha256": "8b165966c193053a0d8138183dd3bbfcfe3fc13dd50ec255e903a3af6829efea",
+      "size": 8821
     },
     "work/probe_material_fallback_reference.cpp": {
       "sha256": "a5c2d63541a6bd8c1340779159babe3e5d399dbb1e955e3e1632946b78820caa",
@@ -16818,16 +16846,16 @@
       "size": 6667
     },
     "work/source_material_keyvalues_files_candidate.h": {
-      "sha256": "aeda924064e613e94ed68118b7d497d2c537329cdc1c35da11b222dc326d5f47",
-      "size": 7889
+      "sha256": "689322491f41421f515248840d9561e2ad8d1c247466218a9ce58f919b475175",
+      "size": 9282
     },
     "work/source_material_keyvalues_parser_candidate.h": {
-      "sha256": "e518343dd2b4006608139985178dc4c07930bdc59a74265326f2a06d2d2e6f40",
-      "size": 6675
+      "sha256": "379a68965e0171e559273ac4cdca53b8538165266cf759ee31afdff7fcb02e04",
+      "size": 7874
     },
     "work/source_material_patch_files_candidate.h": {
-      "sha256": "e5f83dff7fdf88ad660248a2cb95c75ebf8592c9a51483732628b798b2a02233",
-      "size": 8802
+      "sha256": "8792faa0df8b84d8937d47c99cfbf7803b4d0c4336efadac7f3755fa22f1dec5",
+      "size": 10560
     },
     "work/source_material_patch_policy_candidate.h": {
       "sha256": "37f4c9fdf0be593863df0aafffadff6dfb856aec43107d0d1d8915d08bf61128",
@@ -19669,6 +19697,10 @@
       "sha256": "27c7cc099c52d1d90ff1ecdd0b754bc719b0cade6b38ba67a700e4ba16bd537e",
       "size": 2136
     },
+    "work/test_material_directive_recovery.cpp": {
+      "sha256": "43e2727d2ab0dc34f5da94576d4936ddf39e1e6185a4837c790cf618aa353c64",
+      "size": 3104
+    },
     "work/test_material_draw_invoke_native.cpp": {
       "sha256": "e2b27fb978acc2e4e2cc9e9192660e4eb964e2797189eb436a8ea73431a1ae3b",
       "size": 2621
@@ -19688,6 +19720,10 @@
     "work/test_material_keyvalues_parser.cpp": {
       "sha256": "7abaef9902d8b630014aacc5ca49b2353bbce6868c8325af5dd7426ae924bd51",
       "size": 4522
+    },
+    "work/test_material_partial_load.cpp": {
+      "sha256": "5c2e0e8f9e56044ccc6692211313e1a776b17ade2d25f8168462135c3fb30b16",
+      "size": 2454
     },
     "work/test_material_patch_files.cpp": {
       "sha256": "912ec007d0752c89611b9505131de66da6b2beb3bae832dc5995ef5d369fa807",
@@ -23669,6 +23705,10 @@
       "sha256": "08b7f742b48cbe373574de790dc5a6b40e2c2c89cc9221843bbb2bfcd8279085",
       "size": 4680
     },
+    "work/verify_material_directive_recovery.py": {
+      "sha256": "8d964fa697717e4e523e641c35e86157ff191177e91c0133c23a2627d8f0ecd9",
+      "size": 15897
+    },
     "work/verify_material_draw_invoke_native.py": {
       "sha256": "5c2e9e77dd7b155febe383b51d11b1347e7bee55d0d7259c8500493bfb9b4ae8",
       "size": 2051
@@ -23676,6 +23716,10 @@
     "work/verify_material_fallback_accumulator.py": {
       "sha256": "c6dc3b67836ab6026c31520d4177bdfeeb13b0cdd67836ee0bd8225f7176b85e",
       "size": 12120
+    },
+    "work/verify_material_fallback_failures.py": {
+      "sha256": "b6dcc6b39b17b045c9b55bdbffbbe657e9dcf7dd522cab8a4d56ce0a3861661f",
+      "size": 14153
     },
     "work/verify_material_fallback_owned.py": {
       "sha256": "f917c93b4855a2bd1b6cc57058733a7cd774c5a0a829d9afde8530f890bbfd26",
@@ -23744,6 +23788,10 @@
     "work/verify_material_parameter_orchestration.py": {
       "sha256": "ea75db7db5a6436889f0d364323d48819ec3c8e291ceee9608fa16ac3b66b93c",
       "size": 16610
+    },
+    "work/verify_material_partial_load.py": {
+      "sha256": "92b9e3614081537088531c4052cdb8f81035890fd3e46b34f538170b2ebf4d8b",
+      "size": 15306
     },
     "work/verify_material_patch_files.py": {
       "sha256": "60c0adf961eb233056c4fa38456f40b8c3c2fae779223541fdcae7732c95f409",
