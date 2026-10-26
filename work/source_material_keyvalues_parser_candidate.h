@@ -1,5 +1,6 @@
 #pragma once
 #include "source_material_patch_policy_candidate.h"
+#include "material_decimal_prefix_candidate.h"
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
@@ -32,11 +33,15 @@ class SourceMaterialKeyValuesParserCandidate {
   struct RestoreErrno{int old=errno;~RestoreErrno(){errno=old;}}restore;
   errno=rangeError?ERANGE:0;char*integerEnd=nullptr;long integer=std::strtol(value.c_str(),&integerEnd,10);rangeError=errno==ERANGE;
   static_assert(sizeof(long)==4,"material parser requires32bit C long semantics");
-  const char*begin=value.c_str();const char*start=begin;while(*start==' '||*start=='\t'||*start=='\r'||*start=='\n'||*start=='\f'||*start=='\v')++start;if(*start=='+'||*start=='-')++start;
-  char*floatEnd=const_cast<char*>(begin);double number=0;
-  const bool decimal=(*start>='0'&&*start<='9')||*start=='.';
-  if(decimal&&!(start[0]=='0'&&(start[1]=='x'||start[1]=='X'))){const bool previousRange=rangeError;errno=0;number=std::strtod(begin,&floatEnd);const bool freshRange=errno==ERANGE;rangeError=previousRange||freshRange;/* Original CRT loses the sign only when the double conversion itself underflows to zero. Subnormal doubles and later float underflow retain it. */if(freshRange&&number==0)number=0.0;}
-  else if(start[0]=='0'&&(start[1]=='x'||start[1]=='X'))floatEnd=integerEnd;
+  const char*begin=value.c_str();
+  // Reuse the verified legacy conversion, including D exponents and its
+  // decimal rounding. A modern strtod has a different grammar and arithmetic.
+  const auto parsed=materialDecimalPrefixCandidate(value);
+  const char*floatEnd=begin+parsed.consumed;const double number=parsed.value;
+  // The original strtod wrapper sets sticky ERANGE on double overflow or
+  // nonzero input converted to double zero, not on a nonzero subnormal or
+  // a later float32 underflow. Literal signed zero remains signed.
+  rangeError=rangeError||parsed.rangeError;
   const bool overflow=(integer==LONG_MAX||integer==LONG_MIN)&&rangeError;const auto end=begin+value.size();
   if(floatEnd>integerEnd&&floatEnd==end){float v=static_cast<float>(number);node.kind=3;std::memcpy(&node.bits,&v,4);node.text.clear();}
   else if(integerEnd==end&&!overflow){node.kind=2;node.bits=uint32_t(integer);node.text.clear();}
