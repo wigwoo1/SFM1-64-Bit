@@ -42,6 +42,7 @@ struct QueuedMaterialLifetimeFixture:MaterialDictionaryFixture{
         if(read(queue()+8,12)||!VirtualQuery(reinterpret_cast<void*>(address),&info,sizeof(info))||info.State!=MEM_FREE)throw std::runtime_error("Original queue virtual buffer release");verifyCode();
     }
 };
+#ifndef SFM64_QUEUED_MATERIAL_LIFETIME_FIXTURE_ONLY
 static bool expectedNullFailure=false;static unsigned failureSlot=0;
 static LONG CALLBACK queuedFault(EXCEPTION_POINTERS*p){
     if(expectedNullFailure&&p->ExceptionRecord->ExceptionCode==EXCEPTION_ACCESS_VIOLATION&&p->ContextRecord->Eip==0x1000f717&&p->ExceptionRecord->NumberParameters>1&&p->ExceptionRecord->ExceptionInformation[1]==0&&QueuedMaterialLifetimeFixture::self().failedAllocations==1){std::fprintf(stderr,"EXPECTED_UNSAFE_NULL_ENQUEUE slot=%u failed_allocations=1 eip=1000f717 address=0\n",failureSlot);std::fflush(stderr);ExitProcess(238);}
@@ -76,3 +77,4 @@ int main(int argc,char**argv){try{
     f.finishLifetime();out.flush();check(bool(out),"Complete results");RemoveVectoredExceptionHandler(observer);
     std::cout<<"PASS_REFERENCE_ONLY queued_lifetime_cases="<<cases<<" functors="<<functors<<" retained_functors="<<held<<" independent_checks="<<checks<<" allocations="<<f.allocations<<" releases="<<f.releases<<"\n";return 0;
 }catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
+#endif

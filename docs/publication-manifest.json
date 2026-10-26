@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "de594deeda522772a3478f46c736a24388f5b6bff5b89cfbe0b1aeb7a1bdc58b",
+      "sha256": "067114ec06b13134d62b1250b743aba2e0d1942cf998eaf0eb48cbd5876c37af",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -2641,6 +2641,10 @@
       "sha256": "7bc5b06cc932eee921b172750bbb719e00a4513526e74217c3a6f9e4df257bb4",
       "size": 596
     },
+    "work/build_material_object_parameters.cmd": {
+      "sha256": "bfea106ef5d809c5c53b7eb41ce7cf266f3df8ba77187d4470174c63cc8814ab",
+      "size": 1570
+    },
     "work/build_material_parameter_collection.cmd": {
       "sha256": "4da2779b5b6001bfb0a0d2387afa86a0b7210377d165678386343696d1f3df84",
       "size": 1298
@@ -2708,6 +2712,10 @@
     "work/build_material_source_provider.cmd": {
       "sha256": "504d8bfb49d3d5a518edc36d78efcd858f4d576a953af51895cceb7f43684411",
       "size": 1672
+    },
+    "work/build_material_store.cmd": {
+      "sha256": "2d218dd10d591a43131943eeb369b99f37c67fc272ea7a7c21168b976d8da657",
+      "size": 1283
     },
     "work/build_material_string_value.cmd": {
       "sha256": "18b2b8340c86a7a5a97cf86e4a26890a8b633395d4ac3de42b6872f175149ab4",
@@ -10105,6 +10113,18 @@
       "sha256": "115cbe6c62ae351d5fc79d2783aa526a27abf83164d2c1a5b78a24f70db2de04",
       "size": 4110
     },
+    "work/material_object_parameter_initialization_candidate.h": {
+      "sha256": "d95d4a53b39348ff978030cc7267677f811b9bbd79495b380a5ffc6c48c333f7",
+      "size": 6159
+    },
+    "work/material_object_parameters_native_fixture.h": {
+      "sha256": "8952b0025a982cc26553b25f4c0d01b3e2e7cd1856797e9124fce32dfd28eb9f",
+      "size": 2849
+    },
+    "work/material_object_store_candidate.h": {
+      "sha256": "2b53a96b9f6461dfa49ef127c788a7e91eccd8bb53637011ed451fc90077c6c8",
+      "size": 13268
+    },
     "work/material_parameter_collection_candidate.h": {
       "sha256": "81894d513d34a2cf666702f69e22a8a9c9fb3d7cdcff3b5bd19c7caffb6534fe",
       "size": 7250
@@ -12085,6 +12105,14 @@
       "sha256": "80b9366f79606f7d23f00079fffafd7b33df0d607846b57dbff00ca70e069cfc",
       "size": 11291
     },
+    "work/probe_material_object_parameters.cpp": {
+      "sha256": "6e32cd5b98301f0b5351b47a1d5c7144083a9998ad5b71a31c0b63cef0117d82",
+      "size": 19849
+    },
+    "work/probe_material_object_parameters_discovery.cpp": {
+      "sha256": "dbe0669989f5d8fc7f64ca6f626bba8dc16451f083f00f6bc3e5e49f69b0498c",
+      "size": 1922
+    },
     "work/probe_material_parameter_collection.cpp": {
       "sha256": "2ff5d6e11b137d1cf643fbcd7588bf8f5f29416faae90dc4ed8ff472aabc4372",
       "size": 9676
@@ -12128,6 +12156,10 @@
     "work/probe_material_source_owned.cpp": {
       "sha256": "2e3e63f20a7e007e264c2e71980a7ff7479e6156883e9572f5678bf80896e1d4",
       "size": 2849
+    },
+    "work/probe_material_store.cpp": {
+      "sha256": "ffb91e01450d1626098e458072dba6f29e82d9b88e2f2862bbae240f15957735",
+      "size": 21578
     },
     "work/probe_material_string_value.cpp": {
       "sha256": "057d4c418235628b47add981dfa27de4265022db8accdda1351604d95e1f1b19",
@@ -13006,8 +13038,8 @@
       "size": 4874
     },
     "work/probe_queued_material_lifetime.cpp": {
-      "sha256": "35fdb21487f78833dc4ab57359fb21f450c527250fb2875b5ac2710e3efe2299",
-      "size": 10242
+      "sha256": "5311da8265ed34ac712e6fc2acb30c2ddf97963e37704bbc6beb996f07ac41cc",
+      "size": 10301
     },
     "work/probe_scene_model_ambient_vulkan.cpp": {
       "sha256": "fbd83a82815321dadcf9b4ae60b7237d62ae9035afc70ba395192d05ed9a919c",
@@ -23845,6 +23877,10 @@
       "sha256": "702de04d1db42115b05e0dedc5e6a654f4186b078fb4eb3e20f8eaa258017310",
       "size": 10069
     },
+    "work/verify_material_object_parameters.py": {
+      "sha256": "f8cf9f1467aa84a678971d38d5d461eef74ea575d8667bea94dbccdba085c069",
+      "size": 22395
+    },
     "work/verify_material_override_prefetch_pixels.py": {
       "sha256": "72e69903f9397009a8715725129c7f96e575af4da5f7bec0b9b541ac60a8396f",
       "size": 2599
@@ -23888,6 +23924,10 @@
     "work/verify_material_source_provider.py": {
       "sha256": "d3495eaa28de9defbc1cc81ea085db12965ab2d721f31ed827813b980ca38104",
       "size": 20224
+    },
+    "work/verify_material_store.py": {
+      "sha256": "b6e49417cb08ac132600f00197bb87f1333a0ba5ea88263b590e684458af29d0",
+      "size": 20552
     },
     "work/verify_material_string_value.py": {
       "sha256": "c2d8530c8719a6df0c49359bd68ac1f77b35f15a4c5e9e843f863b63d6d6aa99",
