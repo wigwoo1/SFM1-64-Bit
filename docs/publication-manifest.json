@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "2f1aea085195b84d9f1d94c824426cf1d56ab9001ac44ab2083294b135919336",
+      "sha256": "33ba3e6e33971b415198f3e14c06f02762f83cdf797b0167b06ce3fed008818c",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -2556,6 +2556,18 @@
     "work/build_material_draw_invoke_native.cmd": {
       "sha256": "9a382345b45f3a28631b67eb654534506311b666ec28565706e7a10633e816e5",
       "size": 775
+    },
+    "work/build_material_fallback_owned.cmd": {
+      "sha256": "c3d4069602df53779440410fba9a46560310f3b406401c1d02c995a29d3500d8",
+      "size": 835
+    },
+    "work/build_material_fallback_reference.cmd": {
+      "sha256": "e4a42a1b6da675d5c36d27606ff89e623302227d9dd34b706a1bff043d21f2df",
+      "size": 586
+    },
+    "work/build_material_file_parameters.cmd": {
+      "sha256": "987bf88ab074749c60ee670cdf7c08472f2449ff43600365376f00b7fcaf6080",
+      "size": 1908
     },
     "work/build_material_gamma_table.cmd": {
       "sha256": "c3ca49e9c52c1e7ff03b713e64e5a99d32266a4f09283b2c7daaf8f5587b110d",
@@ -10013,6 +10025,18 @@
       "sha256": "972583bf2ca678254aedf8df1ff2ff3b6e460063584408606fc179589c5fd36a",
       "size": 147
     },
+    "work/material_fallback_native_fixture.h": {
+      "sha256": "844acc95c5e52c6dd924dba8b0219cf0a7c6817e4a15a64ef75e98dfaaefe2bf",
+      "size": 9950
+    },
+    "work/material_fallback_parameters_candidate.h": {
+      "sha256": "72ae30efa774e7758a238222d38387864817e1c258238a29d818a25f7f5ee9a6",
+      "size": 3360
+    },
+    "work/material_file_parameters_candidate.h": {
+      "sha256": "deba28165e8119d488a0687ddbd2d9ecf3fc5f7a272974b0861e60c309f6a2e6",
+      "size": 1330
+    },
     "work/material_gamma_table_candidate.h": {
       "sha256": "de2bbf3b574cf31533a878ef2ff8db0106505317dc7d7d5a0f8c5f70ae50fe21",
       "size": 1213
@@ -10062,8 +10086,8 @@
       "size": 856
     },
     "work/material_parameter_orchestration_candidate.h": {
-      "sha256": "fd6caff4838a26fd73b5748238671b9c1231943188b37e93260085a38d2dcfe0",
-      "size": 7857
+      "sha256": "90c06bebc04da4a4002b8d3acc9c7889be0e3564a7a1035a1d5a81350f59269f",
+      "size": 10375
     },
     "work/material_parameter_orchestration_native_fixture.h": {
       "sha256": "d3fe609466296372c8119bbc84d78ab6099268fbb1355c0622f6e8b342d44571",
@@ -11944,6 +11968,18 @@
     "work/probe_material_decimal_prefix_status.cpp": {
       "sha256": "de550cb14e21f959a61292c09417afb12e8e7391a63f40ce08b5018e2903ff23",
       "size": 2839
+    },
+    "work/probe_material_fallback_owned.cpp": {
+      "sha256": "c004f4d548d716435dfd0d246a202b529769b33329cf0ec66bbe2b2077953816",
+      "size": 8654
+    },
+    "work/probe_material_fallback_reference.cpp": {
+      "sha256": "a5c2d63541a6bd8c1340779159babe3e5d399dbb1e955e3e1632946b78820caa",
+      "size": 6485
+    },
+    "work/probe_material_file_parameters.cpp": {
+      "sha256": "e25eff1261fe0378cefbd89b7c169cbbbd4045c758b09ae857dde3f6971fa75a",
+      "size": 8860
     },
     "work/probe_material_include_format_native.cpp": {
       "sha256": "2935beab96eaaf5a43fb205362ce0d58079a81e640458d4d5cd5f04434fcbc0e",
@@ -23636,6 +23672,22 @@
     "work/verify_material_draw_invoke_native.py": {
       "sha256": "5c2e9e77dd7b155febe383b51d11b1347e7bee55d0d7259c8500493bfb9b4ae8",
       "size": 2051
+    },
+    "work/verify_material_fallback_accumulator.py": {
+      "sha256": "c6dc3b67836ab6026c31520d4177bdfeeb13b0cdd67836ee0bd8225f7176b85e",
+      "size": 12120
+    },
+    "work/verify_material_fallback_owned.py": {
+      "sha256": "f917c93b4855a2bd1b6cc57058733a7cd774c5a0a829d9afde8530f890bbfd26",
+      "size": 14164
+    },
+    "work/verify_material_fallback_reference.py": {
+      "sha256": "2d13c9b5cbfedd1b7761033c256f65aa33f29b17e390a57b915d20a538c50459",
+      "size": 12010
+    },
+    "work/verify_material_file_parameters.py": {
+      "sha256": "8bf229ee562262c68df7a562c05abbe93b3322804588ff11816366da81d8e6d5",
+      "size": 16429
     },
     "work/verify_material_index_upload_native.py": {
       "sha256": "2e85796d8b52bb529e7c74003c82c54588fb0bc45a8689ae088c47e558b8df8c",

@@ -5,30 +5,44 @@
 #include "source_material_keyvalues_files_candidate.h"
 
 // Read-only, pre-texture parameter orchestration. Supported concrete initializer
-// schemas are explicit; known unsupported shaders and external fallback VMTs
-// refuse instead of substituting a shader or flattening file/block behavior.
+// schemas are explicit. Legacy callers refuse external fallback fields; optional
+// reload services enable the separately verified value-owned file restart path.
 struct MaterialParameterOrchestrationCandidate {
     MaterialParameterCollectionCandidate parameters;
     std::string shader;
     uint32_t selectedNode=0;
     std::vector<std::string>lookups;
 };
+// Optional read-only reload services. The error tree must already have original
+// assignment normalization. Missing and unsupported loads are distinct outcomes.
+// With no services, the accepted legacy refusal policy is unchanged.
+enum class MaterialParameterReloadStatusCandidate{Loaded,Missing,Refused};
+struct MaterialParameterFallbackServicesCandidate{
+    std::string ownerName;
+    SourceMaterialPatchNodeCandidate errorTree;
+    std::function<MaterialParameterReloadStatusCandidate(const std::string&,SourceMaterialPatchNodeCandidate&)>load;
+};
 inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrationCandidate&out,
         const SourceMaterialPatchNodeCandidate&root,const MaterialParameterCollectionEnvironmentCandidate&environment,
-        const VertexLitInitSettingsCandidate&settings,int32_t hardwareLevel){
+        const VertexLitInitSettingsCandidate&settings,int32_t hardwareLevel,
+        const MaterialParameterFallbackServicesCandidate*services=nullptr,SourceMaterialPatchNodeCandidate*finalRoot=nullptr){
     using Node=SourceMaterialPatchNodeCandidate;
+    Node working; // Validate before copying; own every subsequent mutation.
     std::vector<const Node*>nodes;bool valid=true;
     auto flatten=[&](auto&&self,const Node&n,size_t depth)->void{
         if(depth>16||nodes.size()>=4096||n.key.empty()||n.key.size()>255||n.key.find('/')!=std::string::npos||n.text.size()>4095||!(n.kind<=3||n.kind==7)){valid=false;return;}
         for(unsigned char c:n.key)if(c<32||c>126)valid=false;
         for(unsigned char c:n.text)if(!c||c>126)valid=false;
-        if(sourceMaterialPatchLowerCandidate(n.key)=="$fallbackmaterial"&&(n.kind!=1||!n.text.empty()))valid=false;
+        if(sourceMaterialPatchLowerCandidate(n.key)=="$fallbackmaterial"&&(n.kind!=1||(!services&&!n.text.empty())))valid=false;
         nodes.push_back(&n);for(const auto&child:n.children)self(self,child,depth+1);
-    };flatten(flatten,root,0);if(!valid||!settings.vertexLit)return false;
+    };
+    auto validateTree=[&](const Node&tree){nodes.clear();valid=true;flatten(flatten,tree,0);return valid;};
+    if(!validateTree(root)||!settings.vertexLit||(services&&(!services->load||services->ownerName.empty()||services->ownerName.size()>255)))return false;
+    working=root;if(!validateTree(working))return false;
     auto index=[&](const Node*p){for(size_t i=0;i<nodes.size();++i)if(nodes[i]==p)return uint32_t(i);throw std::runtime_error("Node identity");};
     auto find=[&](const Node&n,const std::string&name)->const Node*{const auto k=sourceMaterialPatchLowerCandidate(name);for(const auto&c:n.children)if(sourceMaterialPatchLowerCandidate(c.key)==k)return &c;return nullptr;};
     auto block=[&](const std::string&shader)->const Node*{
-        auto match=[&](const std::string&condition)->const Node*{if(auto*p=find(root,condition))return p;return find(root,shader+"_"+condition);};
+        auto match=[&](const std::string&condition)->const Node*{if(auto*p=find(working,condition))return p;return find(working,shader+"_"+condition);};
         const int32_t gpu=environment.condition.gpu;
         for(auto condition:std::vector<std::pair<bool,const char*>>{
             {gpu<1,"GPU<1"},{gpu<2,"GPU<2"},{gpu>=1,"GPU>=1"},{gpu>=2,"GPU>=2"},
@@ -42,8 +56,8 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
         return nullptr;
     };
     auto rows=[](const Node&node){std::vector<MaterialParameterInputCandidate>v;for(const auto&c:node.children)v.push_back({c.key,c.text,c.kind,c.bits});return v;};
-    const auto base=rows(root);const Node*overrides=nullptr,*selected=&root;bool model=false;
-    std::string name=root.key;MaterialParameterOrchestrationCandidate result;uint32_t warnings=0;
+    auto base=rows(working);const Node*overrides=nullptr,*selected=&working;bool model=false;
+    std::string name=working.key;MaterialParameterOrchestrationCandidate result;uint32_t warnings=0;
     for(unsigned pass=0;pass<16;++pass){
         result.lookups.push_back(name);std::string canonical;
         for(const auto&e:shaderFallbackEntriesCandidate())if(sourceMaterialPatchLowerCandidate(std::string(e.name))==sourceMaterialPatchLowerCandidate(name)){canonical=e.name;break;}
@@ -74,11 +88,32 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
         }))return false;
         values.values.clear();for(auto&v:completed.values)values.values.push_back(std::move(v.value));warnings+=values.warnings;
         if(canonical!="Wireframe"){
-            values.warnings=warnings;result.parameters=std::move(values);result.shader=canonical;result.selectedNode=index(selected);out=std::move(result);return true;
+            values.warnings=warnings;result.parameters=std::move(values);result.shader=canonical;result.selectedNode=index(selected);if(finalRoot)*finalRoot=std::move(working);out=std::move(result);return true;
         }
         model=(values.values[0].value.numeric.integer&0x800)!=0;
         name="Wireframe_DX9";
-        if(!newBlock){overrides=find(root,name);if(overrides)selected=overrides;}
+        if(!newBlock){overrides=find(working,name);if(overrides)selected=overrides;}
+        // Discard all intermediate parameter copies before reload services.
+        values.values.clear();input.clear();completed.values.clear();
+        if(services){
+            const Node*field=find(*selected,"$fallbackmaterial");
+            if(!field&&selected!=&working)field=find(working,"$fallbackmaterial");
+            if(field&&!field->text.empty()){
+                const auto request=field->text;
+                if(request.size()>200)return false; // Truncation not characterized.
+                Node loaded;MaterialParameterReloadStatusCandidate status;
+                if(sourceMaterialPatchLowerCandidate(request)==sourceMaterialPatchLowerCandidate(services->ownerName)){
+                    if(!validateTree(services->errorTree))return false;
+                    ++warnings;loaded=services->errorTree;status=MaterialParameterReloadStatusCandidate::Loaded;
+                }else{
+                    status=services->load(request,loaded);
+                    if(status==MaterialParameterReloadStatusCandidate::Refused)return false;
+                    if(status==MaterialParameterReloadStatusCandidate::Missing){if(!validateTree(services->errorTree))return false;++warnings;loaded=services->errorTree;}
+                }
+                working=std::move(loaded);if(!validateTree(working))return false;
+                base=rows(working);overrides=nullptr;selected=&working;name=working.key;
+            }
+        }
         // Values/resources are released before the next collection. No old
         // parameter array is reused across shader/schema changes.
     }
