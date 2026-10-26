@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "5232d5f2ffaa0a75515acad01eef525fea7632e9e128d6dda0a137e27297ca6c",
+      "sha256": "56a642d30403cdef82d15d3c79d6839336f02a83ffdcd54d112dcd1d59242772",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -6073,6 +6073,14 @@
       "sha256": "cdd4cf69ebc88d1e29cfbb8545ffdd69110e603a5c638d17c7eb601d2513a156",
       "size": 359
     },
+    "work/build_unlit_generic_concrete.cmd": {
+      "sha256": "1029b35abaef36e4cd6405fb71558dacfba548c419f66e95f10aa8bc1877a4c0",
+      "size": 1326
+    },
+    "work/build_unlit_material_integration.cmd": {
+      "sha256": "b00e8b8c5b45c369c20df1e74e6cafee431d50828f4efe6d380e1e1ee059ffd8",
+      "size": 2326
+    },
     "work/build_unlit_two_texture_d3d9.cmd": {
       "sha256": "f66df80a75d439b354298395caa058b617efc7ace8925a3387c62080ab33cbed",
       "size": 571
@@ -10106,8 +10114,8 @@
       "size": 856
     },
     "work/material_parameter_orchestration_candidate.h": {
-      "sha256": "b3815f28d8fb18bf076f03e927923ff2d67184bde122e8bb6496368edc60beee",
-      "size": 11250
+      "sha256": "ebafb83bc8d7a61d7424a07d0e7d0821b0eb2e0145c80f3ed673d6abef392578",
+      "size": 11710
     },
     "work/material_parameter_orchestration_native_fixture.h": {
       "sha256": "d3fe609466296372c8119bbc84d78ab6099268fbb1355c0622f6e8b342d44571",
@@ -11674,8 +11682,8 @@
       "size": 4504
     },
     "work/probe_builtin_error_material_seed.cpp": {
-      "sha256": "9f4c9538dc76f6fa9c2aea2a3eb3f8ff3eb50ac1169aaff630e81adbd76d68c7",
-      "size": 8397
+      "sha256": "634748ba2668137cc734e1106f0ddcd6e7452d061d5b0b0665a94bffe058019e",
+      "size": 11489
     },
     "work/probe_dag_world_position.cpp": {
       "sha256": "f7fcb1a78069d9f95cef2f60e305f63ead3f092c8dac661894bf1cb5f420d2ae",
@@ -11998,16 +12006,16 @@
       "size": 3481
     },
     "work/probe_material_fallback_owned.cpp": {
-      "sha256": "8b165966c193053a0d8138183dd3bbfcfe3fc13dd50ec255e903a3af6829efea",
-      "size": 8821
+      "sha256": "84e0e790bc59e496f634e1150b90d9ca17648ae1fcbadbfa4f054b51565023c3",
+      "size": 8827
     },
     "work/probe_material_fallback_reference.cpp": {
       "sha256": "a5c2d63541a6bd8c1340779159babe3e5d399dbb1e955e3e1632946b78820caa",
       "size": 6485
     },
     "work/probe_material_file_parameters.cpp": {
-      "sha256": "e25eff1261fe0378cefbd89b7c169cbbbd4045c758b09ae857dde3f6971fa75a",
-      "size": 8860
+      "sha256": "31ac297e5252121027698e6e9be2f6d65dbbad20a621c825ac97e3fc618e329b",
+      "size": 8935
     },
     "work/probe_material_include_format_native.cpp": {
       "sha256": "2935beab96eaaf5a43fb205362ce0d58079a81e640458d4d5cd5f04434fcbc0e",
@@ -12058,8 +12066,8 @@
       "size": 5706
     },
     "work/probe_material_parameter_orchestration.cpp": {
-      "sha256": "dca1912c126a633a7dfff7da9ed095d9e03fc1a319d8d2d3877ef79e585b368c",
-      "size": 13280
+      "sha256": "2a32b7a2ee4718809839f33f349443e00826d3c383b713304e6a5e95645594d0",
+      "size": 13286
     },
     "work/probe_material_patch_files_native.cpp": {
       "sha256": "95a90bb0945166b260b0f87034700480850d6a4420b381fc4f55fa39ea70a85e",
@@ -13160,6 +13168,10 @@
     "work/probe_time_snap.cpp": {
       "sha256": "b0109d9dff3773f5d3f5ec799c047599c5432ee0d17ca8edac0791d5f8e8ff1f",
       "size": 4346
+    },
+    "work/probe_unlit_generic_concrete.cpp": {
+      "sha256": "949fa0de95692a1c64d4ab850d7ce2e4160e8d33d51c7fa9dcb116e8aca468aa",
+      "size": 14149
     },
     "work/probe_unlit_two_texture_d3d9.cpp": {
       "sha256": "02816d830273dd1bf4788fa2854ce783cb4e1d18721ee77c184b3ba4015bd8cd",
@@ -22705,6 +22717,18 @@
       "sha256": "369fbc1e55e3a6bf1d8777ddeaaeb66fdb476024c170607ee3b25e7d18f6f828",
       "size": 305
     },
+    "work/unlit_generic_init_candidate.h": {
+      "sha256": "bd519f97a20f45fb80f4be4ca3ac11d56019162b5bbdb234ef00761b9ac62c44",
+      "size": 3289
+    },
+    "work/unlit_generic_native_fixture.h": {
+      "sha256": "eecff1e2aa6e3aa41fff738313e0aefbcc21ff5f7adafe91cbef7c0c7e04da47",
+      "size": 2700
+    },
+    "work/unlit_generic_parameter_schema_candidate.h": {
+      "sha256": "1d74ed2f8cd8faaa26f0240f6add026ec9aaffeefeadf5794d524ec3ad25b63e",
+      "size": 2467
+    },
     "work/unlit_two_texture_gpu_reference.hlsl": {
       "sha256": "b2e2741951a112c72ba00f0ddf19d9f6dda398251790a6222d4818b5bd4bcab7",
       "size": 1402
@@ -22932,6 +22956,10 @@
     "work/verify_bspline_constant.py": {
       "sha256": "83f2c25ef5ed4f520d38cfecf974ae172598fc1a4a60abe610a44fc9a6c13d83",
       "size": 205
+    },
+    "work/verify_builtin_error_material_seed.py": {
+      "sha256": "d9fbaf6599a9e0fc4d265a1f51985966c016cb4662641f09ebd9cda86efd7509",
+      "size": 14304
     },
     "work/verify_catmull_coefficient.py": {
       "sha256": "7c111f39c95b84216b3ffcc196b0d54d58b248951155dce8b9a2fd771e3088dc",
@@ -24668,6 +24696,14 @@
     "work/verify_two_texture_production_saved_reference.py": {
       "sha256": "5b4404f155e3d3599bc7717d7a6f9134b411931ba4973aa19423d04764bb3ada",
       "size": 3311
+    },
+    "work/verify_unlit_generic_concrete.py": {
+      "sha256": "ae07b5188fa905373e58eaed51846bf1086ce917f03d6b6bcdadd2cabb71dee9",
+      "size": 19204
+    },
+    "work/verify_unlit_material_integration.py": {
+      "sha256": "91d253f84b3f81cfe4c93d633db1b66ef96d4be93b797ed5d2b802d2c13a263d",
+      "size": 24105
     },
     "work/verify_unlit_two_texture_contract.py": {
       "sha256": "8da0c1a47afb341e01ae5c3aa73c0ca9e0ad788038c6a8007ac200f363402118",

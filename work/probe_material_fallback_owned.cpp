@@ -25,7 +25,7 @@ static int safety(){
     check(materialFallbackParametersCandidate(out,source,error,"owner",false,provider));check(out.material.lookups==std::vector<std::string>{"Wireframe","VertexLitGeneric"}&&out.dependencies==std::vector<std::string>{"materials/target.vmt"}&&out.material.parameters.values[5].value.numeric.vector[0]==0x3ec00000);
     std::ostringstream afterSource;tree(afterSource,source);tree(afterSource,error);check(afterSource.str()==initialSource.str()&&files==originalFiles);const auto before=snapshot(out);
     for(unsigned kind=0;kind<8;++kind){auto bad=source;files=originalFiles;std::string owner="owner";
-        if(kind==0)bad.children[0].text=std::string(201,'x');if(kind==1)bad.children[0].text="../../escape";if(kind==2)bad.children[0].kind=2;if(kind==3)bad.key="UnlitGeneric";if(kind==4)files["materials/target.vmt"]="patch{include ../../escape}";
+        if(kind==0)bad.children[0].text=std::string(201,'x');if(kind==1)bad.children[0].text="../../escape";if(kind==2)bad.children[0].kind=2;if(kind==3)bad.key="LightmappedGeneric";if(kind==4)files["materials/target.vmt"]="patch{include ../../escape}";
         if(kind==5){files["materials/target.vmt"]="Wireframe{$fallbackmaterial again}";files["materials/again.vmt"]="Wireframe{$fallbackmaterial target}";}
         if(kind==6)files["materials/target.vmt"]="VertexLitGeneric{} Extra{}";
         if(kind==7)owner.clear();const auto input=files;check(!materialFallbackParametersCandidate(out,bad,error,owner,false,provider)&&snapshot(out)==before&&files==input);++refusals;

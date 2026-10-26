@@ -42,7 +42,7 @@ static int safety(){
     check(out.source.dependencies==std::vector<std::string>{"materials/root.vmt","materials/inner.vmt","materials/base.vmt"}&&out.source.patchFiles.size()==2);
     const auto before=snapshot(out);const auto originalFiles=files;
     {files["materials/root.vmt"]="patch{include materials/base.vmt insert{\"valid/path\" 1}}";MaterialFileParametersCandidate pathResult;check(materialFileParametersCandidate(pathResult,"root",provider,{}, {},92)&&sourceMaterialPatchFindConstCandidate(pathResult.source.document.roots.front(),"valid/path")->bits==1);}
-    for(const auto&source:std::vector<std::string>{"patch{}","patch{include materials/missing.vmt}","patch{include materials/root.vmt}","patch{include ../../escape}","patch{include materials/base.vmt insert{$fallbackmaterial other}}","patch{include materials/base.vmt insert{\""+std::string(256,'x')+"\" 1}}","UnlitGeneric{}","Wireframe{bad}","#include root.vmt Wireframe{}"}){
+    for(const auto&source:std::vector<std::string>{"patch{}","patch{include materials/missing.vmt}","patch{include materials/root.vmt}","patch{include ../../escape}","patch{include materials/base.vmt insert{$fallbackmaterial other}}","patch{include materials/base.vmt insert{\""+std::string(256,'x')+"\" 1}}","LightmappedGeneric{}","Wireframe{bad}","#include root.vmt Wireframe{}"}){
         files["materials/root.vmt"]=source;const auto input=files;check(!materialFileParametersCandidate(out,"root",provider,{}, {},92)&&snapshot(out)==before&&files==input);++refusals;
     }
     files=originalFiles;for(const auto&name:std::vector<std::string>{"missing","../escape","{procedural}"}){check(!materialFileParametersCandidate(out,name,provider,{}, {},92)&&snapshot(out)==before&&files==originalFiles);++refusals;}

@@ -1,5 +1,6 @@
 #pragma once
 #include "vertexlit_concrete_init_candidate.h"
+#include "unlit_generic_init_candidate.h"
 #include "shader_fallback_decision_candidate.h"
 #include "material_parameter_flags_candidate.h"
 #include "source_material_keyvalues_files_candidate.h"
@@ -69,12 +70,13 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
         result.lookups.push_back(name);std::string canonical;
         for(const auto&e:shaderFallbackEntriesCandidate())if(sourceMaterialPatchLowerCandidate(std::string(e.name))==sourceMaterialPatchLowerCandidate(name)){canonical=e.name;break;}
         if(canonical.empty()){if(environment.percentGateReturn&255u)++warnings;name="Wireframe_DX9";result.lookups.push_back(name);canonical=name;}
-        if(canonical!="VertexLitGeneric"&&canonical!="Wireframe"&&canonical!="Wireframe_DX9")return false;
+        if(canonical!="VertexLitGeneric"&&canonical!="UnlitGeneric"&&canonical!="Wireframe"&&canonical!="Wireframe_DX9")return false;
         bool newBlock=false;if(!overrides){overrides=block(name);if(overrides){selected=overrides;newBlock=true;}}
-        const bool vertex=canonical=="VertexLitGeneric";
+        const bool vertex=canonical=="VertexLitGeneric",unlit=canonical=="UnlitGeneric";
         std::vector<std::string>names;auto types=vertexLitParameterTypesCandidate();
-        const size_t declared=vertex?125:canonical=="Wireframe"?13:15;
-        for(size_t i=0;i<(vertex?125u:13u);++i)names.emplace_back(vertexLitParameterNamesCandidate()[i]);
+        const size_t declared=vertex?125:unlit?68:canonical=="Wireframe"?13:15;
+        if(unlit){for(auto n:unlitGenericParameterNamesCandidate())names.emplace_back(n);types=unlitGenericParameterTypesCandidate();}
+        else for(size_t i=0;i<(vertex?125u:13u);++i)names.emplace_back(vertexLitParameterNamesCandidate()[i]);
         if(declared==15){names.push_back("$DISPLACEMENTMAP");names.push_back("$DISPLACEMENTWRINKLE");}
         types.resize(declared);if(declared==15){types[13]=0;types[14]=8;}
         auto env=environment;env.model=model;MaterialParameterCollectionCandidate values;const auto over=overrides?rows(*overrides):std::vector<MaterialParameterInputCandidate>{};
@@ -82,6 +84,7 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
         std::vector<MaterialParameterCompletedValueCandidate>input;for(const auto&v:values.values)input.push_back({v,0});
         MaterialParameterCompletionCandidate completed;
         if(vertex){VertexLitConcreteCompletionCandidate v;if(!vertexLitConcreteCompletionCandidate(v,input,types,settings,hardwareLevel))return false;completed=std::move(v.completed);values.warnings+=v.warnings;}
+        else if(unlit){UnlitGenericCompletionCandidate v;if(!unlitGenericCompletionCandidate(v,input,types,settings,hardwareLevel))return false;completed=std::move(v.completed);values.warnings+=v.warnings;}
         else if(!materialParameterCompletionCandidate(completed,input,types,[&](auto&v){
             if(declared==13)return true; // Original alias InitParams is RET8.
             auto integer=[&](size_t i){return v[i].value.value.numeric.integer;};
