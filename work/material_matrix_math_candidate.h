@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstring>
 #include <xmmintrin.h>
+#include "material_trig_fallback_candidate.h"
 using MaterialMatrixMathCandidate=std::array<uint32_t,16>;
 inline float materialMatrixFloatCandidate(uint32_t b){float v=0;std::memcpy(&v,&b,4);return v;}
 inline uint32_t materialMatrixBitsCandidate(float v){uint32_t b=0;std::memcpy(&b,&v,4);return b;}
@@ -34,16 +35,16 @@ inline MaterialMatrixMathCandidate materialMatrixTranslateCandidate(uint32_t x,u
 inline MaterialMatrixMathCandidate materialMatrixScaleMathCandidate(uint32_t x,uint32_t y,uint32_t z){
     MaterialMatrixMathCandidate out{};out[0]=x;out[5]=y;out[10]=z;out[15]=0x3f800000;return out;
 }
-// Rotation remains experimental until native comparison confirms its trig path.
-inline MaterialMatrixMathCandidate materialMatrixRotateCandidate(uint32_t degrees){
+// Isolated numerical contract; full parser/factory integration remains gated.
+inline MaterialMatrixMathCandidate materialMatrixRotateCandidate(uint32_t degrees,bool sse2=false){
     const float radians=static_cast<float>(double(materialMatrixFloatCandidate(degrees))*0.017453292519943295);
-    const float s=static_cast<float>(std::sin(double(radians))),c=static_cast<float>(std::cos(double(radians)));
+    const float s=materialTrigCandidate(radians,false,sse2),c=materialTrigCandidate(radians,true,sse2);
     MaterialMatrixMathCandidate out{};out[0]=out[5]=materialMatrixBitsCandidate(c);out[4]=materialMatrixBitsCandidate(s);out[1]=out[4]^0x80000000u;out[10]=out[15]=0x3f800000;return out;
 }
-inline MaterialMatrixMathCandidate materialMatrixTransformCandidate(const std::array<uint32_t,7>&p){
+inline MaterialMatrixMathCandidate materialMatrixTransformCandidate(const std::array<uint32_t,7>&p,bool sse2=false){
     auto out=materialMatrixTranslateCandidate(p[0]^0x80000000u,p[1]^0x80000000u,0);
     auto stage=materialMatrixScaleMathCandidate(p[2],p[3],0x3f800000);materialMatrixMultiplyCandidate(stage,out,out);
-    stage=materialMatrixRotateCandidate(p[4]);materialMatrixMultiplyCandidate(stage,out,out);
+    stage=materialMatrixRotateCandidate(p[4],sse2);materialMatrixMultiplyCandidate(stage,out,out);
     float cx=materialMatrixFloatCandidate(p[0]),cy=materialMatrixFloatCandidate(p[1]);float tx=materialMatrixFloatCandidate(p[5]),ty=materialMatrixFloatCandidate(p[6]);
     float x=0,y=0;_mm_store_ss(&x,_mm_add_ss(_mm_set_ss(tx),_mm_set_ss(cx)));_mm_store_ss(&y,_mm_add_ss(_mm_set_ss(ty),_mm_set_ss(cy)));
     stage=materialMatrixTranslateCandidate(materialMatrixBitsCandidate(x),materialMatrixBitsCandidate(y),0);materialMatrixMultiplyCandidate(stage,out,out);return out;

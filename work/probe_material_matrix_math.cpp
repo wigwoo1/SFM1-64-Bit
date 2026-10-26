@@ -4,6 +4,9 @@
 #include <iterator>
 #include <stdexcept>
 #include <vector>
+#ifndef SFM64_NATIVE_MATRIX_MATH
+extern "C" const unsigned char materialTrigReductionPeriodCandidate[10];
+#endif
 #ifdef SFM64_NATIVE_MATRIX_MATH
 #define NOMINMAX
 #include <windows.h>
@@ -11,6 +14,15 @@
 #include "material_construction_native_fixture.h"
 #endif
 static void need(bool b,const char*s){if(!b)throw std::runtime_error(s);}
+#ifdef SFM64_NATIVE_MATRIX_MATH
+static __declspec(noinline) float nativeTrig(float input,uintptr_t address){
+    float result=0;
+    __asm { movss xmm0,input }
+    __asm { call address }
+    __asm { movss result,xmm0 }
+    return result;
+}
+#endif
 int main(int argc,char**argv){try{
     need(argc==4&&!std::ifstream(argv[3],std::ios::binary).good(),"library queries fresh-output required");
     std::ifstream in(argv[2],std::ios::binary);std::ofstream out(argv[3],std::ios::binary);need(bool(in)&&bool(out),"Matrix math IO");
@@ -23,7 +35,16 @@ int main(int argc,char**argv){try{
 #endif
     const auto oldMxcsr=_mm_getcsr();_mm_setcsr(0x1f80);std::array<uint32_t,34>q{};size_t cases=0;
     while(in.read(reinterpret_cast<char*>(q.data()),sizeof(q))){
-        need(q[0]<=4&&q[1]<=3,"Matrix math query");MaterialMatrixMathCandidate a{},b{},result{};
+        need(q[0]<=6&&q[1]<=3,"Matrix math query");MaterialMatrixMathCandidate a{},b{},result{};
+        need(q[0]<3||q[1]<=1,"Trig CPU dispatch mode");
+#ifdef SFM64_NATIVE_MATRIX_MATH
+        // The no-loader fixture has not run CPU dispatch initialization.
+        // Compare the two controlled CRT states explicitly; neither is claimed
+        // to be the active setting of a live SFM process.
+        f.word(0x13ff40,q[0]>=3?q[1]:0);
+#else
+        const auto environmentBefore=materialTrigX87EnvironmentCandidate();
+#endif
         std::copy(q.begin()+2,q.begin()+18,a.begin());std::copy(q.begin()+18,q.end(),b.begin());
         auto multiply=[&](auto&x,auto&y,auto&z){
 #ifdef SFM64_NATIVE_MATRIX_MATH
@@ -41,7 +62,24 @@ int main(int argc,char**argv){try{
             const uintptr_t address=q[0]==1?0x1006d040:q[0]==2?0x1006d240:0x1006d190;
             reinterpret_cast<Fn>(address)(result.data(),materialMatrixFloatCandidate(a[0]),materialMatrixFloatCandidate(a[1]),materialMatrixFloatCandidate(a[2]));
 #else
-            result=q[0]==1?materialMatrixTranslateCandidate(a[0],a[1],a[2]):q[0]==2?materialMatrixScaleMathCandidate(a[0],a[1],a[2]):materialMatrixRotateCandidate(a[0]);
+            result=q[0]==1?materialMatrixTranslateCandidate(a[0],a[1],a[2]):q[0]==2?materialMatrixScaleMathCandidate(a[0],a[1],a[2]):materialMatrixRotateCandidate(a[0],q[1]!=0);
+#endif
+        }else if(q[0]==5){
+            const float radians=materialMatrixFloatCandidate(a[0]);float s=0,c=0;
+#ifdef SFM64_NATIVE_MATRIX_MATH
+            s=nativeTrig(radians,0x10081314);c=nativeTrig(radians,0x10081786);
+            result[2]=((a[0]&0x7fffffffu)<0x46000000u||(a[0]&0x7fffffffu)>=0x7f800000u)?1u:0u;
+#else
+            const bool sineSupported=materialTrigFastCandidate(radians,false,s),cosineSupported=materialTrigFastCandidate(radians,true,c);
+            need(sineSupported==cosineSupported,"Trig domain disagreement");result[2]=sineSupported?1u:0u;
+            if(!sineSupported){s=materialTrigCandidate(radians,false,q[1]!=0);c=materialTrigCandidate(radians,true,q[1]!=0);}
+#endif
+            result[0]=materialMatrixBitsCandidate(s);result[1]=materialMatrixBitsCandidate(c);result[3]=q[1];
+        }else if(q[0]==6){
+#ifdef SFM64_NATIVE_MATRIX_MATH
+            std::memcpy(result.data(),f.image.base+0xeda1a,10);
+#else
+            std::memcpy(result.data(),materialTrigReductionPeriodCandidate,10);
 #endif
         }else{
 #ifdef SFM64_NATIVE_MATRIX_MATH
@@ -53,9 +91,12 @@ int main(int argc,char**argv){try{
             const float x=materialMatrixFloatCandidate(a[5])+materialMatrixFloatCandidate(a[0]),y=materialMatrixFloatCandidate(a[6])+materialMatrixFloatCandidate(a[1]);
             translate(stage.data(),x,y,0);multiply(stage,result,result);
 #else
-            std::array<uint32_t,7>p{};std::copy(a.begin(),a.begin()+7,p.begin());result=materialMatrixTransformCandidate(p);
+            std::array<uint32_t,7>p{};std::copy(a.begin(),a.begin()+7,p.begin());result=materialMatrixTransformCandidate(p,q[1]!=0);
 #endif
         }
+#ifndef SFM64_NATIVE_MATRIX_MATH
+        need(materialTrigX87EnvironmentCandidate()==environmentBefore,"x87 control or stack depth changed");
+#endif
         out.write(reinterpret_cast<const char*>(result.data()),64);++cases;
     }
     out.flush();need(in.eof()&&in.gcount()==0&&cases&&bool(out),"Matrix math output framing");_mm_setcsr(oldMxcsr);

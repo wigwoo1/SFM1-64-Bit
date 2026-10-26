@@ -15,7 +15,15 @@ if errorlevel 1 (
 )
 call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >nul
 if errorlevel 1 exit /b 1
-cl /nologo /std:c++17 /fp:strict /EHsc /W4 /O2 work\probe_material_matrix_math.cpp /Fo:"%OUT%\owned.obj" /Fe:"%OUT%\material_matrix_math_owned_x64.exe" >"%OUT%\owned-build.log" 2>&1
+rem The owned include is allowlisted source; the generated wrapper stays private.
+>"%OUT%\material_trig_x87_wrapper.asm" echo include work\material_trig_x87_candidate.inc
+>>"%OUT%\material_trig_x87_wrapper.asm" echo END
+ml64 /nologo /c /I"%CD%" /Fo"%OUT%\trig-x87.obj" "%OUT%\material_trig_x87_wrapper.asm" >"%OUT%\asm-build.log" 2>&1
+if errorlevel 1 (
+ type "%OUT%\asm-build.log"
+ exit /b 1
+)
+cl /nologo /std:c++17 /fp:strict /EHsc /W4 /O2 work\probe_material_matrix_math.cpp "%OUT%\trig-x87.obj" /Fo:"%OUT%\owned.obj" /Fe:"%OUT%\material_matrix_math_owned_x64.exe" >"%OUT%\owned-build.log" 2>&1
 if errorlevel 1 (
  type "%OUT%\owned-build.log"
  exit /b 1
