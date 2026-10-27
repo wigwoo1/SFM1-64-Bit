@@ -25,7 +25,7 @@ public:
     using Id=uintptr_t;
     using Source=std::unique_ptr<SourceMaterialPatchNodeCandidate>;
     enum class Operation {decrement,deleteIfUnreferenced};
-    enum class Allocation {symbols,object,registry,tree,functor,append,parameters,parameterCommit,evaluation,evaluationCommit,sessionSnapshot,sessionApply,sessionRestore,sessionPublish};
+    enum class Allocation {symbols,object,registry,tree,functor,append,parameters,parameterCommit,evaluation,evaluationCommit,sessionSnapshot,sessionApply,sessionRestore,sessionPublish,sessionProxyEvaluate,sessionDrawSnapshot};
     using Permit=std::function<bool(Allocation,size_t)>;
     // Caller supplies already-resolved, retained owned IDs. Nullopt is an
     // unavailable binding (refuse); engaged0 is an explicit skipped position.
@@ -36,6 +36,20 @@ public:
         std::vector<SessionTargetView>targets; // unique IDs, first occurrence order
         std::vector<std::optional<size_t>>sourceTargets; // one per original position
         std::vector<std::vector<MaterialSessionOverrideInputCandidate>>backups; // independent per-position templates
+    };
+    // Explicit CPU bind sequence, not a frame/clock/selection scheduler. Caller
+    // supplies retained actual IDs and verified per-bind inputs; repeated IDs
+    // evaluate repeatedly. No time is inferred from session frames or wall time.
+    struct SessionDrawStep {Id material=0;MaterialProxyEvaluationInputsCandidate inputs;};
+    struct SessionDrawStepView {
+        Id material=0;
+        const MaterialObjectParameterStateCandidate*parameters=nullptr;
+        const std::vector<MaterialProxyWriteCandidate>*writes=nullptr;
+        std::array<uint32_t,7>forwardValues{};
+    };
+    struct SessionDrawView {
+        const SessionCollectionView&collection;
+        const std::vector<SessionDrawStepView>&steps;
     };
     struct Object;
     struct Forward {const Object*raw=nullptr;bool valuesInitialized=false;std::array<uint32_t,7>values{};};
@@ -273,7 +287,23 @@ public:
     // arbitrary shared backup-element aliases are not implemented by this API.
     bool withSessionCollection(const std::vector<SessionEntry>&entries,
             const std::function<bool(const SessionCollectionView&)>&observer,int phase=0,const Permit&permit={}){
-        if(shuttingDown||!observer||entries.size()>4096)return false;
+        return withSessionCollectionImpl(entries,observer,phase,permit,nullptr,nullptr);
+    }
+    // Prepare override -> ordered CPU proxy binds -> per-bind immutable value
+    // snapshots -> ordered typed backup replay. The observer must consume each
+    // step snapshot, not read the live store for earlier binds. All potentially
+    // failing preparation precedes publication. Failure restores original owned
+    // parameter pointers/forwarding; proxy-service external side effects are not
+    // a global transaction. Not renderer admission, GPU rollback or queue lifetime.
+    bool withSessionDrawSteps(const std::vector<SessionEntry>&entries,const std::vector<SessionDrawStep>&steps,
+            const std::function<bool(const SessionDrawView&)>&observer,int phase=0,const Permit&permit={}){
+        return withSessionCollectionImpl(entries,{},phase,permit,&steps,&observer);
+    }
+private:
+    bool withSessionCollectionImpl(const std::vector<SessionEntry>&entries,
+            const std::function<bool(const SessionCollectionView&)>&observer,int phase,const Permit&permit,
+            const std::vector<SessionDrawStep>*steps,const std::function<bool(const SessionDrawView&)>*drawObserver){
+        if(shuttingDown||(steps?(!drawObserver||!*drawObserver):!observer)||entries.size()>4096||(steps&&steps->size()>4096))return false;
         struct Plan {
             Id id=0;Object*object=nullptr;const MaterialObjectParameterStateCandidate*before=nullptr,*appliedPointer=nullptr;
             SourceMaterialPatchNodeCandidate*root=nullptr;SourceMaterialPatchNodeCandidate source;
@@ -281,24 +311,33 @@ public:
             std::array<uint32_t,7>oldForward{},appliedForward{},restoredForward{};
             std::unique_ptr<MaterialObjectParameterStateCandidate>applied,restored;
             std::unique_ptr<const MaterialObjectParameterStateCandidate>original,transient;
+            const MaterialProxyListCandidate*list=nullptr;
         };
         try{
-            std::vector<Plan>plans;plans.reserve(entries.size());std::map<Id,size_t>indices;SessionCollectionView view;
+            const auto drawInput=steps?*steps:std::vector<SessionDrawStep>{};
+            std::vector<Plan>plans;plans.reserve(entries.size()+drawInput.size());std::map<Id,size_t>indices;SessionCollectionView view;
             view.sourceTargets.resize(entries.size());view.backups.resize(entries.size());
             for(size_t i=0;i<entries.size();++i){
                 if(!entries[i].material)return false;const auto id=*entries[i].material;if(!id)continue;
                 auto found=indices.find(id);
                 if(found!=indices.end()){view.sourceTargets[i]=found->second;continue;}
                 auto*p=mutableObject(id);if(!p||!p->parameterState||!(p->flags&4)||p->initializationPending||p->releasePending||p->removalPending||p->evaluationPending||p->sessionPending)return false;
-                Plan plan;plan.id=id;plan.object=p;plan.before=p->parameterState.get();plan.root=p->source.get();plan.flags=p->flags;plan.count=p->parameterCount;plan.refs=p->references.load();plan.initialized=p->forwarding.valuesInitialized;plan.oldForward=p->forwarding.values;
+                Plan plan;plan.id=id;plan.object=p;plan.before=p->parameterState.get();plan.root=p->source.get();plan.flags=p->flags;plan.count=p->parameterCount;plan.refs=p->references.load();plan.initialized=p->forwarding.valuesInitialized;plan.oldForward=p->forwarding.values;plan.list=p->proxyState.get();
                 const auto index=plans.size();plans.push_back(std::move(plan));indices.emplace(id,index);view.sourceTargets[i]=index;
+            }
+            for(const auto&step:drawInput){
+                const auto id=step.material;if(!id)return false;if(indices.count(id))continue;
+                auto*p=mutableObject(id);if(!p||!p->parameterState||!(p->flags&4)||p->initializationPending||p->releasePending||p->removalPending||p->evaluationPending||p->sessionPending)return false;
+                Plan plan;plan.id=id;plan.object=p;plan.before=p->parameterState.get();plan.root=p->source.get();plan.flags=p->flags;plan.count=p->parameterCount;plan.refs=p->references.load();plan.initialized=p->forwarding.valuesInitialized;plan.oldForward=p->forwarding.values;plan.list=p->proxyState.get();
+                const auto index=plans.size();plans.push_back(std::move(plan));indices.emplace(id,index);
             }
             for(auto&plan:plans)plan.object->sessionPending=true;++sessionScopes;
             auto release=[&](MaterialObjectStoreCandidate*)noexcept{for(auto&plan:plans)if(mutableObject(plan.id)==plan.object)plan.object->sessionPending=false;--sessionScopes;};
             std::unique_ptr<MaterialObjectStoreCandidate,decltype(release)>busy(this,release);
             for(auto&plan:plans)if(plan.root)plan.source=*plan.root;
             const auto input=entries;const auto use=observer;const auto policy=permit;
-            auto valid=[&](bool published){for(const auto&plan:plans){auto*p=plan.object;if(mutableObject(plan.id)!=p||p->parameterState.get()!=(published?plan.appliedPointer:plan.before)||p->source.get()!=plan.root||p->flags!=plan.flags||p->parameterCount!=plan.count||p->references.load()!=plan.refs||(plan.root&&!materialObjectParameterTreeEqualCandidate(*plan.root,plan.source)))return false;}return true;};
+            std::function<bool(const SessionDrawView&)>drawUse;if(steps)drawUse=*drawObserver;
+            auto valid=[&](bool published){for(const auto&plan:plans){auto*p=plan.object;if(mutableObject(plan.id)!=p||p->parameterState.get()!=(published?plan.appliedPointer:plan.before)||p->source.get()!=plan.root||p->flags!=plan.flags||p->parameterCount!=plan.count||p->references.load()!=plan.refs||(steps&&p->proxyState.get()!=plan.list)||(plan.root&&!materialObjectParameterTreeEqualCandidate(*plan.root,plan.source)))return false;}return true;};
             if(!permitted(policy,Allocation::sessionSnapshot,plans.size())||!valid(false))return false;
             for(auto&plan:plans)plan.applied=std::make_unique<MaterialObjectParameterStateCandidate>(*plan.before);
             for(size_t i=0;i<input.size();++i){
@@ -307,6 +346,22 @@ public:
                 view.backups[i]=input[i].rows;
                 if(!captureMaterialParameterBackupCandidate(view.backups[i],plan.applied->material.parameters,phase)||!applyMaterialParameterOverridesCandidate(plan.applied->material.parameters,input[i].rows))return false;
             }
+            std::vector<std::unique_ptr<const MaterialObjectParameterStateCandidate>>drawStates;
+            std::vector<std::vector<MaterialProxyWriteCandidate>>drawWrites;
+            std::vector<SessionDrawStepView>drawViews;
+            drawStates.reserve(drawInput.size());drawWrites.reserve(drawInput.size());drawViews.reserve(drawInput.size());
+            for(size_t i=0;i<drawInput.size();++i){
+                auto&plan=plans[indices.at(drawInput[i].material)];
+                if(!permitted(policy,Allocation::sessionProxyEvaluate,i)||!valid(false))return false;
+                std::vector<MaterialProxyWriteCandidate>journal;
+                if(plan.list){MaterialProxyEvaluationCandidate frame(*plan.list,*plan.applied,drawInput[i].inputs);if(!plan.list->evaluate(frame))return false;journal.swap(frame.journal);}
+                std::array<uint32_t,7>forward{};
+                if(!materialObjectParameterForwardCandidate(forward,*plan.applied)||!permitted(policy,Allocation::sessionDrawSnapshot,i)||!valid(false))return false;
+                drawStates.push_back(std::make_unique<MaterialObjectParameterStateCandidate>(*plan.applied));drawWrites.push_back(std::move(journal));
+                drawViews.push_back({plan.id,drawStates.back().get(),&drawWrites.back(),forward});
+            }
+            // Replay only captured typed rows onto POST-PROXY state. Unrelated
+            // proxy writes survive success, while failure still uses originals.
             for(auto&plan:plans)plan.restored=std::make_unique<MaterialObjectParameterStateCandidate>(*plan.applied);
             for(size_t i=0;i<input.size();++i){
                 if(!view.sourceTargets[i])continue;
@@ -319,11 +374,12 @@ public:
             auto rollback=[&](MaterialObjectStoreCandidate*)noexcept{for(auto&plan:plans)if(plan.published){auto*p=plan.object;p->parameterState.swap(plan.original);if(p->proxyState)p->proxyState->retarget(p->parameterState.get());p->forwarding.values=plan.oldForward;p->forwarding.valuesInitialized=plan.initialized;}};
             std::unique_ptr<MaterialObjectStoreCandidate,decltype(rollback)>publication(this,rollback);
             for(auto&plan:plans){auto*p=plan.object;plan.original=std::move(p->parameterState);p->parameterState=std::move(plan.applied);if(p->proxyState)p->proxyState->retarget(p->parameterState.get());p->forwarding.values=plan.appliedForward;p->forwarding.valuesInitialized=true;plan.published=true;}
-            if(!use(view)||!valid(true))return false;
+            if(!(steps?drawUse(SessionDrawView{view,drawViews}):use(view))||!valid(true))return false;
             for(auto&plan:plans){auto*p=plan.object;plan.transient=std::move(p->parameterState);p->parameterState=std::move(plan.restored);if(p->proxyState)p->proxyState->retarget(p->parameterState.get());p->forwarding.values=plan.restoredForward;p->forwarding.valuesInitialized=true;plan.published=false;}
             return true;
         }catch(...){return false;}
     }
+public:
     // Null-queue flag applies immediately. Safe allocation/append failure is an
     // owned policy (the native null-allocation enqueue was unsafe).
     bool forward(Id id,Operation op,bool queued,const Permit&permit={}){

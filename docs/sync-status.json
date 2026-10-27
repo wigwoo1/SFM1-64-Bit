@@ -1,11 +1,10 @@
 {
-  "checked_utc": "2026-10-27T19:04:59.681Z",
-  "status": "Publication snapshot checked; commit and verified branch identify publication outcome",
+  "checked_utc": "2026-10-27T20:00:54.711Z",
+  "status": "Daily publication check; INCOMPLETE / EXPERIMENTAL",
   "repository": "wigwoo1/SFM1-64-Bit",
-  "compatibility": "INCOMPLETE / EXPERIMENTAL",
-  "editor_rebuild": "NOT REQUIRED: all 313 editor source dependencies unchanged",
-  "editor_runtime_test": "NOT RUN during publication",
-  "build_package": "UNCHANGED; retained previously built AMD64 editor with 15 recorded compiler warnings",
-  "source_notes": "Owned material batch, session resource binding and pilot CPU runtime source includes prior isolated verification; no full native draw/GPU compatibility claim. New draw/clock reference probe compiled locally but its corpus verification is incomplete. Historical reference tests need omitted proprietary/local inputs.",
-  "publication_tests": "Allowlist, source provenance/credential review, AMD64 PE32+, deterministic ZIP integrity and file identities; no feature tests rerun."
+  "editor_rebuilt": false,
+  "editor_dependencies_unchanged": 313,
+  "build_package_unchanged": true,
+  "interactive_tests_this_publication": "NOT RUN",
+  "research_status": "CPU draw transaction and queued selection have prior isolated test receipts. model_material_prebind_draw_candidate.h is work in progress, not compiled or verified. No claim of renderer integration or full SFM parity."
 }
