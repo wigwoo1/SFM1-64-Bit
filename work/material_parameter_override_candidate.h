@@ -1,11 +1,12 @@
 #pragma once
 #include "material_parameter_backup_candidate.h"
 
-// Value-only adapter for the already measured typed dispatch. Texture handles
-// are not represented/owned here; type5 must not be reinterpreted as SetString.
+// Typed adapter. Texture support is explicitly supplied, never SetString.
 class MaterialParameterOverrideServicesCandidate:public MaterialSessionOverrideServicesCandidate {
  MaterialParameterCollectionCandidate&parameters;
  MaterialParameterBackupServicesCandidate names;
+ MaterialTextureResolverCandidate resolver;
+ std::optional<MaterialTextureReferenceCandidate>pendingTexture;
  MaterialTypedDispatchCandidate&at(uintptr_t token){
   if(!token||token>parameters.values.size())throw std::runtime_error("material override token");return parameters.values[token-1];
  }
@@ -13,15 +14,23 @@ class MaterialParameterOverrideServicesCandidate:public MaterialSessionOverrideS
   if(!materialTypedNumericWriteCandidate(at(token),operation,args,count))throw std::runtime_error("material override value unavailable");
  }
 public:
- explicit MaterialParameterOverrideServicesCandidate(MaterialParameterCollectionCandidate&values):parameters(values),names(values){}
+ explicit MaterialParameterOverrideServicesCandidate(MaterialParameterCollectionCandidate&values,const MaterialTextureResolverCandidate&textures={}):parameters(values),names(values),resolver(textures){}
  MaterialSessionOverrideLookupCandidate find(std::string_view name)override{return names.find(name);}
  void integer(uintptr_t p,uint32_t v)override{write(p,0,{v,0,0,0});}
  void scalar(uintptr_t p,uint32_t v)override{write(p,1,{v,0,0,0});}
  void vector(uintptr_t p,const std::array<uint32_t,4>&v,uint32_t n)override{write(p,5,v,n);}
  void matrix(uintptr_t p,const std::array<uint32_t,16>&v)override{if(!materialTypedMatrixSetCandidate(at(p),v))throw std::runtime_error("material matrix override unavailable");}
- std::optional<uintptr_t>texture(const std::optional<std::string>&)override{return {};}
- void setTexture(uintptr_t,uintptr_t)override{throw std::runtime_error("material texture ownership unavailable");}
+ std::optional<uintptr_t>texture(const std::optional<std::string>&name)override{
+  pendingTexture.reset();if(!resolver)return {};auto next=resolver(name);if(!next||!next->valid())return {};
+  pendingTexture=std::move(*next);return reinterpret_cast<uintptr_t>(&*pendingTexture);
+ }
+ void setTexture(uintptr_t target,uintptr_t token)override{
+  // Token addresses this call's retained typed reference, not an engine/GPU
+  // pointer. The dispatcher consumes it immediately; it never escapes the scope.
+  if(!pendingTexture||token!=reinterpret_cast<uintptr_t>(&*pendingTexture)||!materialTypedTextureSetCandidate(at(target),*pendingTexture))throw std::runtime_error("material texture ownership unavailable");
+  pendingTexture.reset();
+ }
 };
-inline bool applyMaterialParameterOverridesCandidate(MaterialParameterCollectionCandidate&parameters,const std::vector<MaterialSessionOverrideInputCandidate>&rows){
- try{auto plan=parameters;MaterialParameterOverrideServicesCandidate service(plan);if(!dispatchMaterialSessionOverridesCandidate(rows,service))return false;parameters=std::move(plan);return true;}catch(...){return false;}
+inline bool applyMaterialParameterOverridesCandidate(MaterialParameterCollectionCandidate&parameters,const std::vector<MaterialSessionOverrideInputCandidate>&rows,const MaterialTextureResolverCandidate&textures={}){
+ try{auto plan=parameters;MaterialParameterOverrideServicesCandidate service(plan,textures);if(!dispatchMaterialSessionOverridesCandidate(rows,service))return false;parameters=std::move(plan);return true;}catch(...){return false;}
 }

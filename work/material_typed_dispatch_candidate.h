@@ -5,6 +5,7 @@
 #include "material_vector_literal_candidate.h"
 #include <optional>
 #include <algorithm>
+#include "material_texture_resource_candidate.h"
 
 // Isolated value-owned analogue of the KeyValues-to-CMaterialVar dispatcher.
 // Name symbols, pooling/allocator identity and live material ownership are not
@@ -15,7 +16,20 @@ struct MaterialTypedDispatchCandidate {
     MaterialStringValueCandidate value;
     std::optional<MaterialMatrixMathCandidate> matrix;
     std::string name;
+    MaterialTextureReferenceCandidate texture;
 };
+inline bool materialTypedTextureValidCandidate(const MaterialTypedDispatchCandidate&value)noexcept{
+    return value.created&&(value.value.numeric.typeAndMetadata&15u)==3&&value.texture.valid()&&!value.matrix&&value.value.text.empty();
+}
+inline bool materialTypedTextureSetCandidate(MaterialTypedDispatchCandidate&value,const MaterialTextureReferenceCandidate&texture){
+    const auto type=value.value.numeric.typeAndMetadata&15u;
+    if(!value.created||!texture.valid()||(type==3?!materialTypedTextureValidCandidate(value):value.texture.valid()||(!materialStringDomainCandidate(type)&&type!=7))||(type==7&&!value.matrix))return false;
+    if(type==3&&value.texture==texture)return true;
+    // Incoming ownership is retained in the plan before old storage retires.
+    auto next=value;next.texture=texture;next.matrix.reset();next.matrixIdentity=false;next.value.text.clear();
+    next.value.numeric.typeAndMetadata=(next.value.numeric.typeAndMetadata&~15u)|3u;
+    next.value.numeric.integer=0;next.value.numeric.vector.fill(0);value=std::move(next);return true;
+}
 inline bool materialTypedDispatchCandidate(MaterialTypedDispatchCandidate&out,
         uint32_t keyType,uint32_t scalar,std::string_view name,std::string_view input,
         bool numericSse2,bool trigSse2,bool poolAvailable=true) {

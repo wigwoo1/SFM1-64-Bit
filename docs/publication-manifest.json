@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "6e51996acc9c3634207e42e63bfd62029164e3908efe69d04b26ef7f3fc8669d",
+      "sha256": "ccfadf3e631936e96cc6a3a524b90e49ab826e0c76ba6339399a376121d1e4bd",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -2861,6 +2861,14 @@
       "sha256": "18b2b8340c86a7a5a97cf86e4a26890a8b633395d4ac3de42b6872f175149ab4",
       "size": 968
     },
+    "work/build_material_texture_lookup.cmd": {
+      "sha256": "61bf050623f9307e54756661cb086e40a99aede864a4170b8f005831bb2477c4",
+      "size": 1038
+    },
+    "work/build_material_texture_ownership.cmd": {
+      "sha256": "08f8e1e0aae093b78f379898282df888f45667bffb9a4c0cfa30ceb4c7e9167f",
+      "size": 1377
+    },
     "work/build_material_texture_scroll_evaluation.cmd": {
       "sha256": "59615630acf41ab72ef4849995f92034e3598862ed3f81937af3d5ad498cbc5d",
       "size": 9913
@@ -2876,6 +2884,10 @@
     "work/build_material_texture_transform_matrix.cmd": {
       "sha256": "942561195835a27a3792b03a0d6d13330c620d97f2226e3bf1ae202e8039a594",
       "size": 1666
+    },
+    "work/build_material_texture_value_lifetime.cmd": {
+      "sha256": "37d5ed9097034b4a2b5001c82b773fd17144c7792f20b023fb0666e691570a64",
+      "size": 615
     },
     "work/build_material_tracker_factory.cmd": {
       "sha256": "b515db08b28486c4a0557fd2b4c065a082a17a91949d39c1c0ef3b1aaae9d894",
@@ -10370,8 +10382,8 @@
       "size": 2393
     },
     "work/material_matrix_value_write_candidate.h": {
-      "sha256": "a980c7d120015d1cc044bd8cbd793c0b67970175773b0556faaff87fd1d09755",
-      "size": 2667
+      "sha256": "41a577889f367370c3eb2a140cbc1bbf962b7d92df2e38ef55de001a26b54dcc",
+      "size": 3206
     },
     "work/material_modelglowcolor_proxy_candidate.h": {
       "sha256": "9569bcb0e066de1f7c4e97a6ea4dec9723fa1b588381b13973c6b252d3f1ef08",
@@ -10398,12 +10410,12 @@
       "size": 2849
     },
     "work/material_object_store_candidate.h": {
-      "sha256": "b1f99d497bff33fb456ffbd7d915ea76d5a98f0c76808fbb94b21fd19abe94f2",
-      "size": 33980
+      "sha256": "e73b985a8cfa929649e3429ef7432159390663a7fe967d5ccfb1316c29335d20",
+      "size": 34482
     },
     "work/material_parameter_backup_candidate.h": {
-      "sha256": "84a4170a3edde7ed235b2eb4ac668b3d0275f195ee1a91b630b9aa2c17340600",
-      "size": 5601
+      "sha256": "2c638c6ed018db329428b7c7dff0999ebe740356a63249b18ec6c55531acb474",
+      "size": 5909
     },
     "work/material_parameter_collection_candidate.h": {
       "sha256": "81894d513d34a2cf666702f69e22a8a9c9fb3d7cdcff3b5bd19c7caffb6534fe",
@@ -10442,8 +10454,8 @@
       "size": 6936
     },
     "work/material_parameter_override_candidate.h": {
-      "sha256": "f1ae79f911d28147738de46eeff5266ad1fbc47895a9713f6f067f992eb3c752",
-      "size": 2095
+      "sha256": "4a956c20655f15aa274e81f2e907f55e60e843c6d225d78a23e9f7bcc73dde72",
+      "size": 2781
     },
     "work/material_pinned_client_ifm_proxy_factory_candidate.h": {
       "sha256": "7ce3d5b809eee6dbb4c44b0d232e8e95695fe18550d1189adc55c5b14a869e07",
@@ -10541,6 +10553,14 @@
       "sha256": "7aa68d227446f6b1c8815c4945c709f308376d13de4a3fddec7d48500e21c330",
       "size": 5795
     },
+    "work/material_texture_lookup_candidate.h": {
+      "sha256": "f4d0194c9e5bcaa9f90fe8b250b73ba0392dbd9163e0d080a3218c51db7fce11",
+      "size": 3133
+    },
+    "work/material_texture_resource_candidate.h": {
+      "sha256": "382f80724d3cf9ab72da61cf0c03e04100afca32020c6b0b3a9c6e94981fea01",
+      "size": 2773
+    },
     "work/material_texture_scroll_client_native_fixture.h": {
       "sha256": "c13501e10e5be5143098a26d8fbba05d6414c0190ed84e805b49b2e0b1b89003",
       "size": 1176
@@ -10578,8 +10598,8 @@
       "size": 1606
     },
     "work/material_typed_dispatch_candidate.h": {
-      "sha256": "cdb79d05cb5053f6f103e5a759a3256c65ac4780f85515bd8b5cc9da4a89e67a",
-      "size": 3950
+      "sha256": "15b0ba5d0e99007f385bd172f5069605520694579a38a775dc4f138cb9dfd576",
+      "size": 5113
     },
     "work/material_typed_dispatch_native_fixture.h": {
       "sha256": "97a7d65120436bfb22093ccb29b685a4b52a00f2eaef5ffdbb0f0797a96d6320",
@@ -12705,6 +12725,10 @@
       "sha256": "fbdbbc1e5920170037fe078bd6781c608156b4facb1fcab043d2b23556950a6c",
       "size": 4714
     },
+    "work/probe_material_texture_lookup.cpp": {
+      "sha256": "3f000749da3a9bc93791ab1eca9a48546aac6c0c4daad4aa3d6efb2374b269b0",
+      "size": 13834
+    },
     "work/probe_material_texture_scroll_evaluation.cpp": {
       "sha256": "8ae0479498d87e083e9ad2f0468bafaf38ce13d55ed63ec2bf4138a2cdd6274c",
       "size": 12921
@@ -12724,6 +12748,10 @@
     "work/probe_material_texture_transform_matrix.cpp": {
       "sha256": "b050487f65f364457e14c3a47ae32d5b8096e34e207b0cc1bca0aba93c544ed8",
       "size": 4877
+    },
+    "work/probe_material_texture_value_lifetime.cpp": {
+      "sha256": "983d1f71465ac0247db64b634d8f40afb281f29a4d72351c66fcdc68fcacceb5",
+      "size": 7176
     },
     "work/probe_material_typed_dispatch.cpp": {
       "sha256": "760fac39ad50bf0a026a4adb484605fe424914c6c0fc5d99aa812e2bf34ac107",
@@ -20497,6 +20525,10 @@
       "sha256": "4a815bfbc41346485836ba3b13dd430418943f21b441b26e0c7d1d5c752138fc",
       "size": 13932
     },
+    "work/test_material_texture_ownership.cpp": {
+      "sha256": "8d5ad8255dc335134c69a49f929410aa501d41f4c13809b2d9bac9ff3c290d76",
+      "size": 19258
+    },
     "work/test_material_tracker_factory_compare.cpp": {
       "sha256": "d935097cf827507bfa12ad99605f333fb91d80dd34dbb852046b43f6472d5901",
       "size": 2489
@@ -24749,6 +24781,14 @@
       "sha256": "c2d8530c8719a6df0c49359bd68ac1f77b35f15a4c5e9e843f863b63d6d6aa99",
       "size": 15799
     },
+    "work/verify_material_texture_lookup.py": {
+      "sha256": "195d8c41d8efeec88ba12c2c2124d91e0f4236184d1ccce812a8ffb94d57873b",
+      "size": 12745
+    },
+    "work/verify_material_texture_ownership.py": {
+      "sha256": "c41ed254b941a14242b58e916b20b74f0c3f813087909d44e4511d3226919f46",
+      "size": 11400
+    },
     "work/verify_material_texture_scroll_evaluation.py": {
       "sha256": "8d5df1c03be7eadac49977f1a636c01be9c0c7ad0db7c43a9118157c3b2e10e0",
       "size": 24047
@@ -24764,6 +24804,10 @@
     "work/verify_material_texture_transform_matrix.py": {
       "sha256": "3c0718534a829b67dcbb4ab00ea7cb7a5e48b752034c8ade5bca7531d9d4c6e3",
       "size": 15267
+    },
+    "work/verify_material_texture_value_lifetime.py": {
+      "sha256": "ec7d772d6d03f392dca1359e913df4e971f1413a10e6eb91c7c928b0f6de5039",
+      "size": 10179
     },
     "work/verify_material_typed_dispatch.py": {
       "sha256": "a7e2e0be816a6b30070eacbe012e2c13cf511a1047295aaddb60c181ceb8acf2",

@@ -26,7 +26,10 @@ inline bool materialParameterStringSnapshotCandidate(const MaterialTypedDispatch
  case 0:case 2:case 4:case 6:break;
  case 1:input.text=value.value.text;break;
  case 7:if(!value.matrix)return false;input.numbers=*value.matrix;break;
- case 3:case 8:input.resourceName=resource.name;input.environmentTexture=input.type==3&&resource.environmentTexture;break;
+ case 3:
+  if(materialTypedTextureValidCandidate(value)){input.environmentTexture=value.texture.isEnvironment();if(value.texture.resource())input.resourceName=value.texture.resource()->name();}
+  else{input.resourceName=resource.name;input.environmentTexture=resource.environmentTexture;}break;
+ case 8:input.resourceName=resource.name;break;
  default:return false;
  }
  return materialGetStringCandidate(input,output);
@@ -44,7 +47,7 @@ class MaterialParameterBackupServicesCandidate:public MaterialSessionBackupServi
  }
  const MaterialNumericValueCandidate&cached(uintptr_t token)const{
   const auto&value=at(token);const auto type=value.value.numeric.typeAndMetadata&15u;
-  if(!materialStringDomainCandidate(type)&&(type!=7||!value.matrix))throw std::runtime_error("material backup numeric cache unavailable");
+  if(!materialStringDomainCandidate(type)&&(type!=7||!value.matrix)&&!materialTypedTextureValidCandidate(value))throw std::runtime_error("material backup numeric cache unavailable");
   return value.value.numeric;
  }
  static std::string key(std::string_view s){s=s.substr(0,s.find('\0'));std::string result(s);for(char&c:result)if(c>='A'&&c<='Z')c=char(c+32);return result;}
@@ -74,7 +77,7 @@ public:
  std::optional<std::string>stringValue(uintptr_t p)override{
   const auto&value=at(p);MaterialParameterResourceTextCandidate resource;
   const auto type=value.value.numeric.typeAndMetadata&15u;
-  if((type==3||type==8)&&resourceText)resource=resourceText(size_t(p-1),value);
+  if((type==3||type==8)&&resourceText&&!materialTypedTextureValidCandidate(value))resource=resourceText(size_t(p-1),value);
   std::string result;if(!materialParameterStringSnapshotCandidate(value,result,resource))return {};return result;
  }
 };
