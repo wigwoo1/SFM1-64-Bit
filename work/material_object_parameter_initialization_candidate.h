@@ -15,6 +15,7 @@ struct MaterialObjectParameterOptionsCandidate {
     SourceMaterialKeyValuesSourceCandidate provider;
     MaterialParameterCollectionEnvironmentCandidate environment;
     VertexLitInitSettingsCandidate settings;
+    LightmappedInitSettingsCandidate lightmappedSettings;
     int32_t hardwareLevel=92;
 };
 enum class MaterialObjectParameterStatusCandidate {Refused,MissingRoot,Initialized,AlreadyInitialized};
@@ -56,7 +57,7 @@ inline bool materialObjectParameterPrepareCandidate(MaterialObjectParameterPlanC
     if(proxies(proxies,*root))return false;
     auto seed=builtinErrorMaterialSeedCandidate();MaterialFallbackParametersCandidate prepared;
     bool loadedFallback=false;auto fallbackProvider=[&](const std::string&path){auto value=provider(path);if(value&&!value->empty())loadedFallback=true;return value;};
-    if(!materialFallbackParametersCandidate(prepared,*root,seed.source,name,(flags&0x20)!=0,fallbackProvider,options.environment,options.settings,options.hardwareLevel))return false;
+    if(!materialFallbackParametersCandidate(prepared,*root,seed.source,name,(flags&0x20)!=0,fallbackProvider,options.environment,options.settings,options.hardwareLevel,options.lightmappedSettings))return false;
     if(proxies(proxies,prepared.root))return false;
     MaterialObjectParameterPlanCandidate plan;plan.state=std::make_unique<MaterialObjectParameterStateCandidate>();
     plan.state->material=std::move(prepared.material);plan.finalRoot=std::move(prepared.root);

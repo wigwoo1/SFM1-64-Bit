@@ -11,7 +11,15 @@ void operator delete[](void*p)noexcept{::operator delete(p);}
 void operator delete[](void*p,size_t)noexcept{::operator delete(p);}
 #include "material_object_parameter_initialization_candidate.h"
 #ifdef SFM64_NATIVE_OBJECT_PARAMETERS
+#ifdef SFM64_UNLIT_TWO_TEXTURE_PARAMETERS
+#include "unlit_two_texture_native_fixture.h"
+#elif defined(SFM64_WORLD_TRANSITION_PARAMETERS)
+#include "world_transition_native_fixture.h"
+#elif defined(SFM64_LIGHTMAPPED_PARAMETERS)
+#include "lightmapped_parameters_native_fixture.h"
+#else
 #include "material_object_parameters_native_fixture.h"
+#endif
 #else
 #include "material_object_store_candidate.h"
 #include "source_material_source_provider_candidate.h"
@@ -35,11 +43,24 @@ struct CaseInput{
     MaterialObjectParameterOptionsCandidate options;
 };
 #ifdef SFM64_NATIVE_OBJECT_PARAMETERS
-struct ObjectParameterFixture:MaterialObjectParametersNativeFixture {
-    using MaterialObjectParametersNativeFixture::MaterialObjectParametersNativeFixture;
+#ifdef SFM64_UNLIT_TWO_TEXTURE_PARAMETERS
+using ObjectParameterNativeBase=UnlitTwoTextureNativeFixture;
+#elif defined(SFM64_WORLD_TRANSITION_PARAMETERS)
+using ObjectParameterNativeBase=WorldTransitionNativeFixture;
+#elif defined(SFM64_LIGHTMAPPED_PARAMETERS)
+using ObjectParameterNativeBase=LightmappedParametersNativeFixture;
+#else
+using ObjectParameterNativeBase=MaterialObjectParametersNativeFixture;
+#endif
+struct ObjectParameterFixture:ObjectParameterNativeBase {
+    using ObjectParameterNativeBase::ObjectParameterNativeBase;
     static void __fastcall trackedHeapFree(void*a,void*b,void*p){noteFree(p);MaterialFallbackNativeFixture::heapFree(a,b,p);}
     static void __fastcall trackedKVFree(void*a,void*b,void*p){noteFree(p);MaterialFallbackNativeFixture::kvFree(a,b,p);}
-    void beginCase(const CaseInput&c){beginParameters();allocators[5]=reinterpret_cast<uintptr_t>(&trackedHeapFree);kvMethods[2]=reinterpret_cast<uintptr_t>(&trackedKVFree);configure(c.options.environment,c.options.settings,c.options.hardwareLevel);}
+    void beginCase(const CaseInput&c){beginParameters();allocators[5]=reinterpret_cast<uintptr_t>(&trackedHeapFree);kvMethods[2]=reinterpret_cast<uintptr_t>(&trackedKVFree);configure(c.options.environment,c.options.settings,c.options.hardwareLevel);
+#ifdef SFM64_LIGHTMAPPED_PARAMETERS
+        configureLightmapped(c.options.lightmappedSettings);
+#endif
+    }
 };
 struct ObjectParameterAdapter {
     ObjectParameterFixture&f;uint8_t*raw=nullptr,*error=nullptr;void*external=nullptr,*patch=nullptr;bool alive=true,synced=false;unsigned route=0;
@@ -89,7 +110,10 @@ struct ObjectParameterAdapter {
 };
 static int parameterSafety();
 #endif
-int main(int argc,char**argv){try{
+#ifndef SFM64_OBJECT_PARAMETER_MAIN
+#define SFM64_OBJECT_PARAMETER_MAIN main
+#endif
+int SFM64_OBJECT_PARAMETER_MAIN(int argc,char**argv){try{
 #ifndef SFM64_NATIVE_OBJECT_PARAMETERS
     if(argc==2&&std::string(argv[1])=="--test")return parameterSafety();static_assert(sizeof(void*)==8,"Owned initialization is x64");
 #endif
@@ -100,7 +124,11 @@ int main(int argc,char**argv){try{
     SourceMaterialSourceProviderCandidate files({{std::filesystem::path(argv[3]),"GAME"}});auto provider=files.materialSource();
 #endif
     auto oldMxcsr=_mm_getcsr();_mm_setcsr(0x1f80);auto count=word(in);gate(count&&count<10000,"Case count");put(out,count);unsigned stages=0;
-    for(unsigned index=0;index<count;++index){CaseInput c;c.route=word(in);c.repeats=word(in);c.uncache=word(in);c.queued=word(in);gate(c.route<=2&&c.repeats<=1&&c.uncache<=1&&c.queued<=1,"Case booleans");std::array<uint32_t,12>q{};gate(bool(in.read(reinterpret_cast<char*>(q.data()),sizeof(q))),"Case environment");c.name=text(in);c.root=node(in);auto&env=c.options.environment;auto&s=c.options.settings;std::memcpy(&env.condition.gpu,&q[0],4);std::memcpy(&env.condition.hdr,&q[1],4);env.condition.srgbReturn=q[2];std::memcpy(&env.condition.lowFill,&q[3],4);env.percentGateReturn=q[4];env.percentKeepReturn=q[5];std::memcpy(&env.percentOverride,&q[6],4);s.configFlagsAt34=q[7];std::memcpy(&s.matPhong,&q[8],4);std::memcpy(&s.forceVertexFog,&q[9],4);std::memcpy(&c.options.hardwareLevel,&q[10],4);s.toolsSwitchPresent=q[11]!=0;
+    for(unsigned index=0;index<count;++index){CaseInput c;c.route=word(in);c.repeats=word(in);c.uncache=word(in);c.queued=word(in);gate(c.route<=2&&c.repeats<=1&&c.uncache<=1&&c.queued<=1,"Case booleans");std::array<uint32_t,12>q{};gate(bool(in.read(reinterpret_cast<char*>(q.data()),sizeof(q))),"Case environment");c.name=text(in);c.root=node(in);
+#ifdef SFM64_LIGHTMAPPED_PARAMETERS
+        auto&l=c.options.lightmappedSettings;l.forceVertexFog=int32_t(word(in));l.disableLightwarp=int32_t(word(in));l.disableFancyBlending=int32_t(word(in));l.shaderInitSlot5=word(in);l.shaderInitSlot6=word(in);l.paintEnabled=word(in)!=0;
+#endif
+        auto&env=c.options.environment;auto&s=c.options.settings;std::memcpy(&env.condition.gpu,&q[0],4);std::memcpy(&env.condition.hdr,&q[1],4);env.condition.srgbReturn=q[2];std::memcpy(&env.condition.lowFill,&q[3],4);env.percentGateReturn=q[4];env.percentKeepReturn=q[5];std::memcpy(&env.percentOverride,&q[6],4);s.configFlagsAt34=q[7];std::memcpy(&s.matPhong,&q[8],4);std::memcpy(&s.forceVertexFog,&q[9],4);std::memcpy(&c.options.hardwareLevel,&q[10],4);s.toolsSwitchPresent=q[11]!=0;
 #ifdef SFM64_NATIVE_OBJECT_PARAMETERS
         currentCase=index;ObjectParameterAdapter a(fixture,c);
 #else
@@ -127,7 +155,7 @@ static int parameterSafety(){
     for(int64_t n=0;n<2048;++n){auto balance=heapNew-heapDelete;failAfter=n;bool ok=store.initializeParameters(id);failAfter=-1;if(ok){succeeded=true;break;}++failures;bool unchanged=snapshot()==before;check(unchanged&&heapNew-heapDelete==balance&&store.get(id)->source.get()==root&&&root->children.front()==child);}
     check(succeeded&&failures>50&&store.get(id)->parameterCount==68&&store.get(id)->parameterState&&store.get(id)->source.get()==root&&&root->children.front()==child);const auto initialized=snapshot();
     MaterialObjectParameterOptionsCandidate ignored;ignored.provider=[](const std::string&)->std::optional<std::string>{throw std::runtime_error("Must not read on initialized guard");};check(store.initializeParameters(id,ignored)&&snapshot()==initialized);check(store.uncacheParameters(id,true)&&snapshot()==initialized);check(store.uncacheParameters(id)&&!store.get(id)->parameterState&&store.get(id)->source.get()==root);
-    root->key="LightmappedGeneric";const auto unsupported=snapshot();check(!store.initializeParameters(id)&&snapshot()==unsupported);root->key="UnlitGeneric";SourceMaterialPatchNodeCandidate proxies;proxies.key="Proxies";proxies.children.push_back({"AnimatedTexture",0});root->children.push_back(proxies);const auto withProxy=snapshot();check(!store.initializeParameters(id)&&snapshot()==withProxy);root->children.pop_back();
+    root->key="Water";const auto unsupported=snapshot();check(!store.initializeParameters(id)&&snapshot()==unsupported);root->key="UnlitGeneric";SourceMaterialPatchNodeCandidate proxies;proxies.key="Proxies";proxies.children.push_back({"AnimatedTexture",0});root->children.push_back(proxies);const auto withProxy=snapshot();check(!store.initializeParameters(id)&&snapshot()==withProxy);root->children.pop_back();
     check(store.initializeParameters(id));check(store.forward(id,Store::Operation::decrement,true)&&store.forward(id,Store::Operation::deleteIfUnreferenced,true)&&store.get(id)->parameterState);store.drain();check(!store.get(id)&&store.size()==0&&!store.initializeParameters(id)&&!store.uncacheParameters(id));
     auto fallback=[](){auto n=std::make_unique<SourceMaterialPatchNodeCandidate>();n->key="Wireframe";n->children.push_back({"$fallbackmaterial",1,"target"});return n;};
     {Store callbacks;source=fallback();check(callbacks.createMaterial("callbacks/nested",source,id));bool nestedRefused=false;MaterialObjectParameterOptionsCandidate options;options.provider=[&](const std::string&)->std::optional<std::string>{nestedRefused=!callbacks.initializeParameters(id);return "UnlitGeneric{}";};check(callbacks.initializeParameters(id,options)&&nestedRefused&&callbacks.get(id)->parameterCount==68);callbacks.decrement(id);check(callbacks.deleteIfUnreferenced(id));}

@@ -11,7 +11,8 @@ struct MaterialFallbackParametersCandidate{
 inline bool materialFallbackParametersCandidate(MaterialFallbackParametersCandidate&out,
         const SourceMaterialPatchNodeCandidate&source,const SourceMaterialPatchNodeCandidate&error,
         const std::string&ownerName,bool prefixAlreadyProvided,const SourceMaterialKeyValuesSourceCandidate&provider,
-        const MaterialParameterCollectionEnvironmentCandidate&environment={},const VertexLitInitSettingsCandidate&settings={},int32_t hardwareLevel=92){
+        const MaterialParameterCollectionEnvironmentCandidate&environment={},const VertexLitInitSettingsCandidate&settings={},int32_t hardwareLevel=92,
+        const LightmappedInitSettingsCandidate&lightmappedSettings={}){
     try{
         if(!provider)return false;
         for(unsigned char c:ownerName)if(c<32||c>126)return false;
@@ -40,7 +41,7 @@ inline bool materialFallbackParametersCandidate(MaterialFallbackParametersCandid
             if(file.document.roots.size()!=1)return {MaterialParameterReloadStatusCandidate::Refused,0};
             loaded=std::move(file.document.roots.front());return {file.status==SourceMaterialPatchFileLoadStatusCandidate::RetainRootName?MaterialParameterReloadStatusCandidate::RetainRootName:MaterialParameterReloadStatusCandidate::Loaded,file.diagnosticCalls,file.developerDiagnosticCalls};
         };
-        if(!materialParameterOrchestrationCandidate(result.material,source,environment,settings,hardwareLevel,&services,&result.root))return false;
+        if(!materialParameterOrchestrationCandidate(result.material,source,environment,settings,hardwareLevel,&services,&result.root,lightmappedSettings))return false;
         out=std::move(result);return true;
     }catch(const std::runtime_error&){return false;}
 }

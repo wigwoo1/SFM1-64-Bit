@@ -1,0 +1,61 @@
+#pragma once
+#include <array>
+#include <string_view>
+#include <cstdint>
+#include <vector>
+// Functional registry names/types; no original help text, pointers or code.
+inline const std::array<std::string_view,50>&worldTransitionParameterNamesCandidate(){
+    static constexpr std::array<std::string_view,50>names{
+        "$flags",
+        "$flags_defined",
+        "$flags2",
+        "$flags_defined2",
+        "$color",
+        "$alpha",
+        "$basetexture",
+        "$frame",
+        "$basetexturetransform",
+        "$flashlighttexture",
+        "$flashlighttextureframe",
+        "$color2",
+        "$srgbtint",
+        "$ALBEDO",
+        "$SELFILLUMTINT",
+        "$DETAIL",
+        "$DETAILFRAME",
+        "$DETAILSCALE",
+        "$DETAILBLENDMODE",
+        "$DETAILBLENDFACTOR",
+        "$DETAILTINT",
+        "$ENVMAP",
+        "$ENVMAPFRAME",
+        "$ENVMAPMASK",
+        "$ENVMAPMASKFRAME",
+        "$ENVMAPMASKTRANSFORM",
+        "$ENVMAPTINT",
+        "$BUMPMAP",
+        "$BUMPFRAME",
+        "$BUMPTRANSFORM",
+        "$ENVMAPCONTRAST",
+        "$ENVMAPSATURATION",
+        "$FRESNELREFLECTION",
+        "$NODIFFUSEBUMPLIGHTING",
+        "$BUMPMAP2",
+        "$BUMPFRAME2",
+        "$BUMPTRANSFORM2",
+        "$BUMPMASK",
+        "$BASETEXTURE2",
+        "$FRAME2",
+        "$BASETEXTURENOENVMAP",
+        "$BASETEXTURE2NOENVMAP",
+        "$DETAIL_ALPHA_MASK_BASE_TEXTURE",
+        "$LIGHTWARPTEXTURE",
+        "$BLENDMODULATETEXTURE",
+        "$BLENDMASKTRANSFORM",
+        "$MASKEDBLENDING",
+        "$SSBUMP",
+        "$SEAMLESS_SCALE",
+        "$FOW",
+    };return names;
+}
+inline std::vector<uint32_t>worldTransitionParameterTypesCandidate(){return {1,1,1,1,2,7,0,1,10,0,1,2,2,0,2,0,1,7,1,7,2,0,1,0,1,10,2,0,1,10,7,7,7,1,0,1,10,0,0,1,8,8,8,0,0,10,1,1,7,0};}

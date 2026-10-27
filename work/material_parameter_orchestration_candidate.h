@@ -1,6 +1,9 @@
 #pragma once
 #include "vertexlit_concrete_init_candidate.h"
 #include "unlit_generic_init_candidate.h"
+#include "lightmapped_generic_init_candidate.h"
+#include "world_transition_init_candidate.h"
+#include "unlit_two_texture_init_candidate.h"
 #include "shader_fallback_decision_candidate.h"
 #include "material_parameter_flags_candidate.h"
 #include "source_material_keyvalues_files_candidate.h"
@@ -30,7 +33,8 @@ struct MaterialParameterFallbackServicesCandidate{
 inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrationCandidate&out,
         const SourceMaterialPatchNodeCandidate&root,const MaterialParameterCollectionEnvironmentCandidate&environment,
         const VertexLitInitSettingsCandidate&settings,int32_t hardwareLevel,
-        const MaterialParameterFallbackServicesCandidate*services=nullptr,SourceMaterialPatchNodeCandidate*finalRoot=nullptr){
+        const MaterialParameterFallbackServicesCandidate*services=nullptr,SourceMaterialPatchNodeCandidate*finalRoot=nullptr,
+        const LightmappedInitSettingsCandidate&lightmappedSettings={}){
     using Node=SourceMaterialPatchNodeCandidate;
     Node working; // Validate before copying; own every subsequent mutation.
     std::vector<const Node*>nodes;bool valid=true;
@@ -70,12 +74,16 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
         result.lookups.push_back(name);std::string canonical;
         for(const auto&e:shaderFallbackEntriesCandidate())if(sourceMaterialPatchLowerCandidate(std::string(e.name))==sourceMaterialPatchLowerCandidate(name)){canonical=e.name;break;}
         if(canonical.empty()){if(environment.percentGateReturn&255u)++warnings;name="Wireframe_DX9";result.lookups.push_back(name);canonical=name;}
-        if(canonical!="VertexLitGeneric"&&canonical!="UnlitGeneric"&&canonical!="Wireframe"&&canonical!="Wireframe_DX9")return false;
+        if(canonical!="VertexLitGeneric"&&canonical!="UnlitGeneric"&&canonical!="LightmappedGeneric"&&canonical!="Wireframe"&&canonical!="Wireframe_DX9"&&canonical!="WorldVertexTransition"&&canonical!="WorldVertexTransition_DX9"&&canonical!="UnlitTwoTexture"&&canonical!="UnlitTwoTexture_DX9")return false;
         bool newBlock=false;if(!overrides){overrides=block(name);if(overrides){selected=overrides;newBlock=true;}}
-        const bool vertex=canonical=="VertexLitGeneric",unlit=canonical=="UnlitGeneric";
+        const bool vertex=canonical=="VertexLitGeneric",unlit=canonical=="UnlitGeneric",lightmapped=canonical=="LightmappedGeneric",world=canonical=="WorldVertexTransition_DX9";
+        const bool two=canonical=="UnlitTwoTexture_DX9",alias=canonical=="Wireframe"||canonical=="WorldVertexTransition"||canonical=="UnlitTwoTexture";
         std::vector<std::string>names;auto types=vertexLitParameterTypesCandidate();
-        const size_t declared=vertex?125:unlit?68:canonical=="Wireframe"?13:15;
-        if(unlit){for(auto n:unlitGenericParameterNamesCandidate())names.emplace_back(n);types=unlitGenericParameterTypesCandidate();}
+        const size_t declared=vertex?125:(unlit||lightmapped)?68:world?50:two?20:alias?13:15;
+        if(two){for(auto n:unlitTwoTextureParameterNamesCandidate())names.emplace_back(n);types=unlitTwoTextureParameterTypesCandidate();}
+        else if(world){for(auto n:worldTransitionParameterNamesCandidate())names.emplace_back(n);types=worldTransitionParameterTypesCandidate();}
+        else if(lightmapped){for(auto n:lightmappedGenericParameterNamesCandidate())names.emplace_back(n);types=lightmappedGenericParameterTypesCandidate();}
+        else if(unlit){for(auto n:unlitGenericParameterNamesCandidate())names.emplace_back(n);types=unlitGenericParameterTypesCandidate();}
         else for(size_t i=0;i<(vertex?125u:13u);++i)names.emplace_back(vertexLitParameterNamesCandidate()[i]);
         if(declared==15){names.push_back("$DISPLACEMENTMAP");names.push_back("$DISPLACEMENTWRINKLE");}
         types.resize(declared);if(declared==15){types[13]=0;types[14]=8;}
@@ -85,6 +93,9 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
         MaterialParameterCompletionCandidate completed;
         if(vertex){VertexLitConcreteCompletionCandidate v;if(!vertexLitConcreteCompletionCandidate(v,input,types,settings,hardwareLevel))return false;completed=std::move(v.completed);values.warnings+=v.warnings;}
         else if(unlit){UnlitGenericCompletionCandidate v;if(!unlitGenericCompletionCandidate(v,input,types,settings,hardwareLevel))return false;completed=std::move(v.completed);values.warnings+=v.warnings;}
+        else if(lightmapped){LightmappedGenericCompletionCandidate v;if(!lightmappedGenericCompletionCandidate(v,input,types,settings,lightmappedSettings))return false;completed=std::move(v.completed);values.warnings+=v.warnings;}
+        else if(world){WorldTransitionCompletionCandidate v;if(!worldTransitionCompletionCandidate(v,input,types,settings,lightmappedSettings))return false;completed=std::move(v.completed);values.warnings+=v.warnings;}
+        else if(two){if(!unlitTwoTextureCompletionCandidate(completed,input,types))return false;}
         else if(!materialParameterCompletionCandidate(completed,input,types,[&](auto&v){
             if(declared==13)return true; // Original alias InitParams is RET8.
             auto integer=[&](size_t i){return v[i].value.value.numeric.integer;};
@@ -97,11 +108,11 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
             return set(2,integer(2)|0x40000)&&set(0,flags|2u|0x4000u|0x10000000u);
         }))return false;
         values.values.clear();for(auto&v:completed.values)values.values.push_back(std::move(v.value));warnings+=values.warnings;
-        if(canonical!="Wireframe"){
+        if(!alias){
             values.warnings=warnings;result.parameters=std::move(values);result.shader=canonical;result.selectedNode=index(selected);if(finalRoot)*finalRoot=std::move(working);out=std::move(result);return true;
         }
         model=(values.values[0].value.numeric.integer&0x800)!=0;
-        name="Wireframe_DX9";
+        name=canonical=="Wireframe"?"Wireframe_DX9":canonical=="WorldVertexTransition"?"WorldVertexTransition_DX9":"UnlitTwoTexture_DX9";
         if(!newBlock){overrides=find(working,name);if(overrides)selected=overrides;}
         // Discard all intermediate parameter copies before reload services.
         values.values.clear();input.clear();completed.values.clear();
