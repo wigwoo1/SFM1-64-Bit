@@ -34,8 +34,8 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "fd9ad3d623ec2ad900bb8d96abb7e4196798089e1e633bf7ddb87561f7999870",
-      "size": 165
+      "sha256": "34a5607688657d4d01485713080290306f755dde7f0035b4e763fae9421423f4",
+      "size": 787
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "7a9de250f469da8b5cf6477cc18f43a45c1d839ca6767ff33d28020e4acd2618",
@@ -2637,6 +2637,10 @@
       "sha256": "bcad5a7b52e1e7980e80b7b767e35f2aee334002c5cb4d690fbee41a46e845ae",
       "size": 971
     },
+    "work/build_material_matrix_write.cmd": {
+      "sha256": "152d2ff6529e86d2c8ddbb149c9ef7d6ac0f5b2ca32955a5e5ed19281110700a",
+      "size": 5825
+    },
     "work/build_material_nonposition_upload_native_32.cmd": {
       "sha256": "f034fda2bea04ca169ac9b22b96dff3af3c0aebd781787463a65c5ce6435832b",
       "size": 366
@@ -2693,6 +2697,10 @@
       "sha256": "3e6e24cf8255d8ada48a43d6c76e54d125cb9fb91598f1d3838463d91ed6dc73",
       "size": 346
     },
+    "work/build_material_proxy_float_input.cmd": {
+      "sha256": "d9be1274c832ea31bb7ed1556410a5f772576495a05f229743791aa6c4b29d20",
+      "size": 1311
+    },
     "work/build_material_proxy_lifetime.cmd": {
       "sha256": "2bba4f490d956f08fb0819a8a381d47a92e8d0af792d56952d78bde899c234ba",
       "size": 1589
@@ -2724,6 +2732,14 @@
     "work/build_material_selfillum_test.cmd": {
       "sha256": "7c66d5dda8888e78ada7c5f191f0087fec8f99af40c74339ad60aa2b03f1ac10",
       "size": 390
+    },
+    "work/build_material_sine_evaluation.cmd": {
+      "sha256": "dcc765b1a62f90298c8b08d03d52e0d8bd19b10a45d8a65a748729e8db73cef3",
+      "size": 4851
+    },
+    "work/build_material_sine_math.cmd": {
+      "sha256": "5b24c741cbe02ca981ea81640a4da2a0acef815de0e05e27da144d831cb871ca",
+      "size": 1362
     },
     "work/build_material_source_provider.cmd": {
       "sha256": "504d8bfb49d3d5a518edc36d78efcd858f4d576a953af51895cceb7f43684411",
@@ -8945,6 +8961,10 @@
       "sha256": "63dff0fbfe95f3cc5a8efb7334704251cd781598a66b9c7665add2cd74c81f7d",
       "size": 1565
     },
+    "work/generate_material_sine_constants.py": {
+      "sha256": "407d732918a6b12bcfc386e0cde3c399e7224f57e85aec9cda038b1b0b42d7f5",
+      "size": 2670
+    },
     "work/generate_normalize_fixtures.py": {
       "sha256": "32bd5035e0057d3177248e996c1c90b528af9912ecafb14593b7971ada4fdb2d",
       "size": 1391
@@ -10149,6 +10169,10 @@
       "sha256": "deba28165e8119d488a0687ddbd2d9ecf3fc5f7a272974b0861e60c309f6a2e6",
       "size": 1330
     },
+    "work/material_float_input_client_native_fixture.h": {
+      "sha256": "f518a573fd780899335a229809deebdab474c4eaf18bcb7705b280381168fd05",
+      "size": 1498
+    },
     "work/material_gamma_table_candidate.h": {
       "sha256": "de2bbf3b574cf31533a878ef2ff8db0106505317dc7d7d5a0f8c5f70ae50fe21",
       "size": 1213
@@ -10165,6 +10189,10 @@
       "sha256": "639b3ec3c0b5fd6d6c156118fa625d901d8ca25da30848dc244bf9882d9cac25",
       "size": 2393
     },
+    "work/material_matrix_value_write_candidate.h": {
+      "sha256": "a980c7d120015d1cc044bd8cbd793c0b67970175773b0556faaff87fd1d09755",
+      "size": 2667
+    },
     "work/material_numeric_value_candidate.h": {
       "sha256": "115cbe6c62ae351d5fc79d2783aa526a27abf83164d2c1a5b78a24f70db2de04",
       "size": 4110
@@ -10178,8 +10206,8 @@
       "size": 2849
     },
     "work/material_object_store_candidate.h": {
-      "sha256": "257ad2ae0bd9751e5384c03e149e2a6924bccb89dff2ae80905f49c72c178309",
-      "size": 17149
+      "sha256": "df5e1be947a13cc363194419721d35349a843e1f007be9adc0187bc7ab922c92",
+      "size": 17211
     },
     "work/material_parameter_collection_candidate.h": {
       "sha256": "81894d513d34a2cf666702f69e22a8a9c9fb3d7cdcff3b5bd19c7caffb6534fe",
@@ -10218,8 +10246,12 @@
       "size": 6936
     },
     "work/material_proxy_evaluation_candidate.h": {
-      "sha256": "fc2e19b05bda0248b5079c099770e5aa557b58cbbf9c07b29d50214ab6b51b78",
-      "size": 3385
+      "sha256": "d5dc427af155a6d8fae909671a9007382e1416755c103004df9f71f784697e1b",
+      "size": 4658
+    },
+    "work/material_proxy_float_input_candidate.h": {
+      "sha256": "cc87c8ee55635014f6df269fc94682a4388a2533b4932cd7bc080e0c35daa0d0",
+      "size": 3083
     },
     "work/material_proxy_lifetime_candidate.h": {
       "sha256": "18b162948d542ffc0b7b8f86e1e250349d2cdc2a0aca4ea89ffc0b5eb1822420",
@@ -10244,6 +10276,30 @@
     "work/material_selfillum_draw_push_candidate.h": {
       "sha256": "052ef3736d1501816c4e7a357a918a5955b1e958e10abc86d29400471c5bd16e",
       "size": 1758
+    },
+    "work/material_sine_client_native_fixture.h": {
+      "sha256": "f9bc6261397c846cd728dececc84937c4adb81d535a8913aff4c4c5d82fd7b58",
+      "size": 1184
+    },
+    "work/material_sine_constants_candidate.h": {
+      "sha256": "9163a47e380fc840da3b5bffce75280262b52d3a047cf24c10002096e9c50511",
+      "size": 6239
+    },
+    "work/material_sine_double_candidate.h": {
+      "sha256": "79e37d6de0182003f7cffbecf1f003de46882019444ce3f07e83d6ea317714a7",
+      "size": 2582
+    },
+    "work/material_sine_double_x87_candidate.inc": {
+      "sha256": "8ccb1b8e21864f139ff8a06ae76440e634aa1ace4394cb83adb6cf95ac81281c",
+      "size": 857
+    },
+    "work/material_sine_proxy_candidate.h": {
+      "sha256": "a3b56bbc495e1a72e2fcaf8e7833cb180be632a3773af2964aca9983f943b448",
+      "size": 2381
+    },
+    "work/material_sine_value_candidate.h": {
+      "sha256": "63850a0565eaf141a968f8449d65c96db60c0493ad7316ee59e4d0c34fdb35d9",
+      "size": 779
     },
     "work/material_string_value_candidate.h": {
       "sha256": "4a9b16d46bd01e16f034922777e94cfb0d700ea614ab16198ec46c0bf8256007",
@@ -12126,8 +12182,8 @@
       "size": 8698
     },
     "work/probe_material_equals_evaluation.cpp": {
-      "sha256": "d87375ecefc0eee05c2179373e8c366058709000bf2830dedc35fbc4b4f3c48e",
-      "size": 12652
+      "sha256": "db2e9bd7289880807ef504e21cad529a7a40a87841c33cc8dccf7aed2b0b967a",
+      "size": 13726
     },
     "work/probe_material_fallback_failures.cpp": {
       "sha256": "2869e6420bef0c4eb267eb7e0c56a8ef7794fbd648ab3a723120e823a64903b5",
@@ -12172,6 +12228,10 @@
     "work/probe_material_matrix_scan.cpp": {
       "sha256": "c464680122fdb7805ab09d16a386a025ba2109ddb8b4fc7dccde334af1095a38",
       "size": 3972
+    },
+    "work/probe_material_matrix_value_write.cpp": {
+      "sha256": "f52dfb4e16ec8f33d878b0a4dd7a5d422ec7fbb2643ab7dfe2c7e15edfc9d07f",
+      "size": 6663
     },
     "work/probe_material_nonposition_upload.cpp": {
       "sha256": "e12277458928cdb19335f655be9fe2c423f95d9dd3ccb521d330b9fd07aea09c",
@@ -12229,6 +12289,10 @@
       "sha256": "e3f8b6ee100dd9c6348710cec50f2604105cf30d7a9596f98ab7d47bf56209f4",
       "size": 2865
     },
+    "work/probe_material_proxy_float_input.cpp": {
+      "sha256": "53c141ffe22cf81afd5b69b00fc3437e0ff0e4f1f080ac0a67e2f819dd252395",
+      "size": 12060
+    },
     "work/probe_material_proxy_lifetime.cpp": {
       "sha256": "17070fe5ae03bafcc55fca4b38ab7e72ed9cccba84790aaacfd91525cd7a6377",
       "size": 24487
@@ -12236,6 +12300,14 @@
     "work/probe_material_queue_drain.cpp": {
       "sha256": "19b186d732d096b337ef600222e41445bd48195f2a206d1fac14fc36a6e7a9b8",
       "size": 3922
+    },
+    "work/probe_material_sine_evaluation.cpp": {
+      "sha256": "e8a7fa6cd78db5233becc6dc5302c41749526e87afba564097ae97fcd755edfc",
+      "size": 10489
+    },
+    "work/probe_material_sine_math.cpp": {
+      "sha256": "ce25c155e0c2b320722317626349071d769a866e5dc59544cbc84cda7f6aa2b8",
+      "size": 3939
     },
     "work/probe_material_source_native.cpp": {
       "sha256": "aa38ddcbadf33aa7f510ce1677fc8e57cbb7dcb7f7efe0c312a418a74899eaed",
@@ -19905,6 +19977,10 @@
       "sha256": "7abaef9902d8b630014aacc5ca49b2353bbce6868c8325af5dd7426ae924bd51",
       "size": 4522
     },
+    "work/test_material_matrix_write_store.cpp": {
+      "sha256": "b8d029e63a47138636932c1989ba8b215bd2832f58e53fcc745da7e83cdd3d9e",
+      "size": 6007
+    },
     "work/test_material_partial_load.cpp": {
       "sha256": "5c2e0e8f9e56044ccc6692211313e1a776b17ade2d25f8168462135c3fb30b16",
       "size": 2454
@@ -23938,8 +24014,8 @@
       "size": 2051
     },
     "work/verify_material_equals_evaluation.py": {
-      "sha256": "4e9e24058de6e053384117f01f0d4a6fda826f7eb5acb69e7fe389bc27fb4a88",
-      "size": 24023
+      "sha256": "2b1aa5e07b84b27e4267ca207adea9f79e82854c069401289b3f760f68ac302e",
+      "size": 24642
     },
     "work/verify_material_fallback_accumulator.py": {
       "sha256": "c6dc3b67836ab6026c31520d4177bdfeeb13b0cdd67836ee0bd8225f7176b85e",
@@ -24041,6 +24117,10 @@
       "sha256": "06f54d8b2b89eda84ac84754c0692e59ce5990ec03848f0c535b1bd490f4f4ce",
       "size": 2376
     },
+    "work/verify_material_proxy_float_input.py": {
+      "sha256": "b9ed8d837999cebbae4954697717ca376dfb04da16382573e2dc1eca672f68be",
+      "size": 16541
+    },
     "work/verify_material_proxy_lifetime.py": {
       "sha256": "2bbbfd87bab3ef26afc437780f1182c9267b80ae6d3786c975d665aa76126512",
       "size": 19693
@@ -24048,6 +24128,10 @@
     "work/verify_material_queue_drain_native.py": {
       "sha256": "ee94dc7e4d070d59d10ed0a8766eee062188eea59ccad08beca80a58e55a96d6",
       "size": 2216
+    },
+    "work/verify_material_sine_evaluation.py": {
+      "sha256": "ced4f10c5a00d8d36fecc80f1b9fd87ad2602d2dd7ed2c43afd36d788637cda2",
+      "size": 22769
     },
     "work/verify_material_source_provider.py": {
       "sha256": "d3495eaa28de9defbc1cc81ea085db12965ab2d721f31ed827813b980ca38104",

@@ -187,7 +187,7 @@ public:
         // Original uncache leaves the forwarding value snapshot untouched.
         return true;
     }
-    bool evaluateProxies(Id id,const Permit&permit={},MaterialProxyEvaluationAttemptCandidate*attempt=nullptr){
+    bool evaluateProxies(Id id,const Permit&permit={},MaterialProxyEvaluationAttemptCandidate*attempt=nullptr,const MaterialProxyEvaluationInputsCandidate&inputs={}){
         if(attempt){attempt->evaluated=false;attempt->writes.clear();}
         auto*p=mutableObject(id);if(!p||shuttingDown||p->initializationPending||p->releasePending||p->removalPending||p->evaluationPending||!p->parameterState||!(p->flags&4))return false;
         if(!p->proxyState){if(attempt)attempt->evaluated=true;return true;}
@@ -197,7 +197,7 @@ public:
         try{
             if(!permitted(permit,Allocation::evaluation,0))return false;
             const auto*before=p->parameterState.get();auto*list=p->proxyState.get();auto*root=p->source.get();SourceMaterialPatchNodeCandidate source;if(root)source=*root;
-            auto plan=std::make_unique<MaterialObjectParameterStateCandidate>(*before);MaterialProxyEvaluationCandidate frame(*list,*plan);
+            auto plan=std::make_unique<MaterialObjectParameterStateCandidate>(*before);MaterialProxyEvaluationCandidate frame(*list,*plan,inputs);
             if(!list->evaluate(frame))return false;
             std::array<uint32_t,7>values{};if(!materialObjectParameterForwardCandidate(values,*plan)||!permitted(permit,Allocation::evaluationCommit,0))return false;
             p=mutableObject(id);if(p!=original||p->parameterState.get()!=before||p->proxyState.get()!=list||p->source.get()!=root||(root&&!materialObjectParameterTreeEqualCandidate(*root,source)))return false;

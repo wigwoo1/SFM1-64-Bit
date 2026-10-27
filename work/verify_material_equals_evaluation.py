@@ -56,10 +56,14 @@ def corpus(prior):
     for component in [0,1,2,3]:add('declaration-order-chain','vec2',extra=[literal('$next','vec4')],proxies=[declaration('$out['+str(component)+']'),declaration('$next','$out')])
     rng=random.Random(2026102701)
     for i in range(256):
-        add('seeded-component','vec'+str(i%4+1),result='$out['+str(rng.randrange(4))+']',extra=[node('$src',kind=3,bits=fbits(rng.uniform(-4096,4096)))],srcKind='undefined',source='$src')
+        component=rng.randrange(4);bits=fbits(rng.uniform(-4096,4096))
+        add('seeded-component','vec'+str(i%4+1),result='$out['+str(component)+']',srcKind='float')
+        source=next(n for n in cases[-1]['root']['children'] if n['key']=='$src');source['bits']=bits
+        cases[-1].update(source_bits=bits,component=component)
+    require(len({c['source_bits'] for c in cases if c['label']=='seeded-component'})==256,'Distinct random values are actual bound float inputs')
     pilot=next(Path(p) for p in prior['benchmark_material_hashes'] if p.lower().endswith('/pilotlight.vmt') or p.lower().endswith('\\pilotlight.vmt'));raw=pilot.read_bytes();configs=[]
-    for block in re.findall(r'\bEquals\s*\{([^{}]*)\}',raw.decode('ascii'),re.I):
-        fields={m[0].lower():(m[1] or m[2]) for m in re.findall(r'(srcVar1|resultVar)\s+(?:"([^"]*)"|([^\s{}]+))',block,re.I)};require(set(fields)=={'srcvar1','resultvar'},'Actual pilot Equals declaration fields');configs.append(declaration(fields['resultvar'],fields['srcvar1']))
+    for block in re.findall(r'"Equals"\s*\{([^{}]*)\}',raw.decode('ascii'),re.I):
+        fields={key.lower():value for key,value in re.findall(r'"(srcVar1|resultVar)"\s+"([^"]*)"',block,re.I)};require(set(fields)=={'srcvar1','resultvar'},'Actual pilot Equals declaration fields');configs.append(declaration(fields['resultvar'],fields['srcvar1']))
     require(len(configs)==2,'Two actual pilot Equals declarations')
     for a,b in [(0.,0.),(-.02,.005),(.02,-.005)]:
         add('actual-pilot-equals-controlled-inputs','vec2',extra=[string('$temp','[0 0]'),string('$pilot',str(a)),string('$pilot2',str(b))],proxies=configs)
@@ -106,7 +110,7 @@ def main():
     image,ranges=check_ranges(CLIENT,'../outputs/material-proxy-evaluation-20261027/client-disassembly-private.txt',[
         ('Equals_registration',0x10492190,0x104921a9),('Equals_factory',0x10137430,0x10137456),('Equals_Init',0x100e5fa0,0x100e6033),('Equals_OnBind',0x101373a0,0x1013742d),('basic_result_Init',0x100e5db0,0x100e5ea9),('scalar_result_write',0x100e5eb0,0x100e5f52),('effective_output_type',0x100e6040,0x100e60cc),('GetMaterial',0x100e5f90,0x100e5f9a),('Release',0x10175ed0,0x10175ede),('destructor',0x10137780,0x101377a1),('Sine_registration_static_only',0x10492170,0x10492189),('Sine_Init_static_only',0x10136440,0x101364e4),('Sine_OnBind_static_only',0x101364f0,0x101365a7)])
     require(image.string(0x105000cc)=='Equals' and image.string(0x105000c4)=='Sine' and [image.word(0x104fff3c+4*i) for i in range(5)]==[0x100e5fa0,0x101373a0,0x10175ed0,0x100e5f90,0x10137780],'Actual client registration/vtable identity')
-    _,componentRanges=check_ranges(PRIVATE,'materialsystem-disassembly.txt',[('SetVecComponentValue',0x10019d90,0x10019f6f)])
+    _,componentRanges=check_ranges(PRIVATE,'materialsystem-disassembly.txt',[('SetVecComponentValue',0x10019d90,0x10019f6f),('GetVecValue_requested_count_no_clamp_static',0x10017cc0,0x10017d77)])
     started=time.time();p=subprocess.run(['cmd.exe','/d','/c',str(ROOT/'work/build_material_equals_evaluation.cmd')],cwd=ROOT,capture_output=True,text=True,timeout=360);(run/'build-driver.log').write_text(p.stdout+p.stderr);require(p.returncode==0,'Fresh Equals/component/prior builds')
     targets=[('equals',True,'equals-native'),('equals',False,'equals-owned'),('component',True,'component-native'),('component',False,'component-owned')]+[(stem,native,stem+('-native' if native else '-owned')) for stem in ['material_proxy_lifetime','unlit_two_texture_parameters','world_transition_parameters','lightmapped_parameters','material_object_parameters'] for native in [True,False]]+[('material_store',False,'material_store-owned')];exes=[];logs={}
     for stem,native,tag in targets:
@@ -133,6 +137,7 @@ def main():
             if c['mode']==0 and c['outKind'] in ['string','matrix']:require(not frame['writes'],'Actual string/matrix Equals no-op');checks+=1
             if c['label']=='actual-pilot-equals-controlled-inputs':require(len(frame['writes'])==2 and all(w[1]==8 for w in frame['writes']) and [w[2] for w in frame['writes']]==[0,1],'Actual pilot declarations use two component writes');checks+=1
             if c['label']=='declaration-order-chain':require(len(frame['writes'])==2 and values['$next']['words'][3]==values['$out']['words'][3],'Later proxy reads staged earlier write');checks+=1
+            if c['label']=='seeded-component':require(len(frame['writes'])==1 and frame['writes'][0][1:4]==[8,c['component'],c['source_bits']] and values['$out']['words'][3+c['component']]==c['source_bits'],'Random bound input reaches the requested component');checks+=1
     nativeCounts=re.search(r'native_proxy_allocations=(\d+) releases=(\d+)',nativeExecution);cpuCounts=re.search(r'native_allocations=(\d+) releases=(\d+)',cpuExecution);require(nativeCounts and nativeCounts[1]==nativeCounts[2] and cpuCounts and cpuCounts[1]==cpuCounts[2],'Original client proxy/material CPU cleanup balanced')
     regressions=[]
     for native in [True,False]:

@@ -90,6 +90,13 @@ static int equalsSafety(){
     for(auto stage:{Store::Allocation::evaluation,Store::Allocation::evaluationCommit}){check(!store.evaluateProxies(id,[&](Store::Allocation a,size_t){return a!=stage;}));check(snapshot()==before&&store.get(id)->parameterState.get()==state&&f->binding.valid()&&!store.get(id)->evaluationPending);}
     f->hook=[&](auto&,auto){check(f->binding.read()->value.numeric.vector[0]==0x3e800000);check(!store.removeAndDelete(id)&&!store.uncacheParameters(id)&&!store.evaluateProxies(id));return false;};check(!store.evaluateProxies(id)&&snapshot()==before);
     f->hook=[](auto&,auto)->bool{throw 17;};check(!store.evaluateProxies(id)&&snapshot()==before&&!store.get(id)->evaluationPending);f->hook={};
+    {
+        Store other;auto otherFactory=std::make_shared<Factory>();Store::Source otherSource=std::make_unique<SourceMaterialPatchNodeCandidate>(equalsSafetyRoot());uintptr_t otherId=0;
+        MaterialObjectParameterOptionsCandidate otherOptions;otherOptions.proxyFactory=otherFactory;check(other.createMaterial("equals/other",otherSource,otherId)&&other.initializeParameters(otherId,otherOptions));const auto foreign=otherFactory->binding;
+        f->hook=[&](auto&frame,auto){check(foreign.valid()&&!frame.read(foreign)&&!frame.setFloat(foreign,0x3f800000));return false;};check(!store.evaluateProxies(id)&&snapshot()==before&&foreign.read()->value.numeric.vector[0]==0x3e800000);f->hook={};check(other.removeAndDelete(otherId)&&!foreign.valid());
+    }
+    check(!store.evaluateProxies(id,[&](Store::Allocation a,size_t){if(a==Store::Allocation::evaluationCommit)root->children.front().bits=0x3f000000;return true;}));
+    check(snapshot()==before&&store.get(id)->parameterState.get()==state&&f->binding.valid()&&!store.get(id)->evaluationPending);*root=rootBefore;
     unsigned failures=0;bool success=false;
     for(int64_t n=0;n<2048;++n){const auto balance=heapNew-heapDelete;failAfter=n;const bool ok=store.evaluateProxies(id);failAfter=-1;if(ok){success=true;break;}++failures;check(heapNew-heapDelete==balance&&snapshot()==before&&store.get(id)->parameterState.get()==state&&materialObjectParameterTreeEqualCandidate(*root,rootBefore)&&!store.get(id)->evaluationPending&&f->binding.valid());}
     check(success&&failures>0&&f->binding.read()->value.numeric.vector[0]==0x3f400000&&materialObjectParameterTreeEqualCandidate(*root,rootBefore));auto committed=snapshot();check(store.evaluateProxies(id)&&snapshot()==committed);auto binding=f->binding;check(store.uncacheParameters(id)&&!binding.valid()&&!store.evaluateProxies(id));check(store.initializeParameters(id,options)&&!binding.valid()&&f->binding.valid());check(store.removeAndDelete(id)&&!f->binding.valid());
