@@ -11,8 +11,9 @@ struct MaterialSessionBackupServicesCandidate {
  virtual uint32_t scalar(uintptr_t)=0;
  virtual std::array<uint32_t,4>vector(uintptr_t,uint32_t)=0;
  virtual std::array<uint32_t,16>matrix(uintptr_t)=0;
- // Unavailable/null texture is unknown, not an invented empty resource name.
- virtual std::optional<std::string>textureName(uintptr_t)=0;
+ // IMaterialVar slot6 returns string representation, NOT GetTexture(slot15).
+ // Nullopt means the string service is unavailable; never invent an empty name.
+ virtual std::optional<std::string>stringValue(uintptr_t)=0;
 };
 inline bool materialSessionBackupEqualFloatCandidate(uint32_t a,uint32_t b){
  if((a&0x7fffffffu)>0x7f800000u||(b&0x7fffffffu)>0x7f800000u)return false;
@@ -36,13 +37,14 @@ inline bool captureMaterialSessionBackupCandidate(std::vector<MaterialSessionOve
   case 2:next.words[0]=service.integer(found.variable);different=next.words[0]!=r.words[0];break;
   case 3:next.words[0]=materialSessionBackupQuietCandidate(service.scalar(found.variable));different=!materialSessionBackupEqualFloatCandidate(next.words[0],r.words[0]);break;
   case 4:next.words[0]=(r.words[0]&0xffffff00u)|(service.integer(found.variable)!=0);different=next.words[0]!=r.words[0];break;
-  case 5:{auto text=service.textureName(found.variable);if(!text)return false;if(text->size()>4095)return false;text->resize(text->find('\0')==std::string::npos?text->size():text->find('\0'));next.textureName=std::move(text);different=next.textureName!=r.textureName;break;}
+  case 5:{auto text=service.stringValue(found.variable);if(!text)return false;if(text->size()>4095)return false;text->resize(text->find('\0')==std::string::npos?text->size():text->find('\0'));next.textureName=std::move(text);auto before=r.textureName;if(before)before->resize(before->find('\0')==std::string::npos?before->size():before->find('\0'));different=next.textureName!=before;break;}
   case 8:{
    const auto v=service.vector(found.variable,3);uint32_t packed=0;
    for(unsigned i=0;i<3;++i){float value;std::memcpy(&value,&v[i],4);const auto scaled=_mm_mul_ss(_mm_set_ss(value),_mm_set_ss(255.f));packed|=(uint32_t(_mm_cvttss_si32(scaled))&255u)<<(8*i);}next.words[0]=packed;different=packed!=r.words[0];break;
   }
   case 9:case 10:case 11:{count=type==9?2:type==10?3:4;const auto v=service.vector(found.variable,count);for(unsigned i=0;i<count;++i){different|=!materialSessionBackupEqualFloatCandidate(r.words[i],v[i]);next.words[i]=materialSessionBackupQuietCandidate(v[i]);}break;}
-  case 14:{const auto v=service.matrix(found.variable);count=16;for(unsigned i=0;i<count;++i){different|=!materialSessionBackupEqualFloatCandidate(r.words[i],v[i]);next.words[i]=materialSessionBackupQuietCandidate(v[i]);}break;}
+  // Matrix equality is bytewise (104968E0), unlike scalar/vector float equality.
+  case 14:{const auto v=service.matrix(found.variable);count=16;for(unsigned i=0;i<count;++i){different|=r.words[i]!=v[i];next.words[i]=materialSessionBackupQuietCandidate(v[i]);}break;}
   default:continue;
   }
   if(different&&attributeMutationPermitted(uint16_t(r.typeFlags),phase)){next.typeFlags|=0x4080u;r=std::move(next);}
