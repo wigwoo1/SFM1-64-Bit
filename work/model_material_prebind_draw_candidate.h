@@ -15,12 +15,12 @@ class ModelMaterialResourceBindingCandidate {
  std::string name;
 public:
  ModelMaterialResourceBindingCandidate()=default;
- static std::optional<ModelMaterialResourceBindingCandidate>checked(const MaterialObjectStoreCandidate&store,MaterialObjectStoreCandidate::Id id)noexcept{
+ static std::optional<ModelMaterialResourceBindingCandidate>checked(MaterialObjectStoreCandidate&store,MaterialObjectStoreCandidate::Id id)noexcept{
   try{const auto*p=store.get(id);if(!p||p->references.load()<=0||!p->parameterState||!(p->flags&4)||p->initializationPending||p->releasePending||p->removalPending||p->evaluationPending||p->sessionPending||store.find(p->name,false)!=id)return {};
    ModelMaterialResourceBindingCandidate out;out.owner=&store;out.id=id;out.name=p->name;return out;
   }catch(...){return {};}
  }
- const MaterialObjectStoreCandidate::Object*read(const MaterialObjectStoreCandidate&store)const{
+ const MaterialObjectStoreCandidate::Object*read(MaterialObjectStoreCandidate&store)const{
   if(owner!=&store)return nullptr;const auto*p=store.get(id);
   if(!p||p->name!=name||p->references.load()<=0||!p->parameterState||!(p->flags&4)||p->initializationPending||p->releasePending||p->removalPending||p->evaluationPending||p->sessionPending||store.find(name,false)!=id||(p->proxyState&&!p->proxyState->complete()))return nullptr;
   return p;

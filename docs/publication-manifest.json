@@ -34,8 +34,8 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "61d15fc59c27ed10955c27c2e10eb2a6f97516bc9ad07646e804b1479a2976a6",
-      "size": 547
+      "sha256": "183d85aae9289c6b3451d6595def29aaa7e1664b31a209ebfabc4f867f44308b",
+      "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "3c7c39acca441b462e89ea52a4fa90a3c098eb8a533f04d67253041cde77f2ac",
@@ -2673,6 +2673,14 @@
       "sha256": "647b164ccafac18a515e25c045074dd1c5ba0c278dd1392c7ef7d4945dd730a0",
       "size": 5912
     },
+    "work/build_material_modelglowcolor.cmd": {
+      "sha256": "f33f1915f2d0fb76c97891b51a418f96dddb51940b79683d33643e4f7887be18",
+      "size": 1572
+    },
+    "work/build_material_multiply.cmd": {
+      "sha256": "146ae32e1278278509e4f9310986e63d007f2cfd5851ace6747c7290e28bd2e6",
+      "size": 1518
+    },
     "work/build_material_nonposition_upload_native_32.cmd": {
       "sha256": "f034fda2bea04ca169ac9b22b96dff3af3c0aebd781787463a65c5ce6435832b",
       "size": 366
@@ -2885,6 +2893,10 @@
       "sha256": "b3b2e5cfc2a295fb2d260ac3265fb7d4732ffac9d29281329f599941a13474d7",
       "size": 1300
     },
+    "work/build_material_yellowlevel.cmd": {
+      "sha256": "6c88258bbda6297645d3fbfa5853635eacaecc9474410f631a55641b7465667b",
+      "size": 1531
+    },
     "work/build_materialsystem_connect_cvarfirst.cmd": {
       "sha256": "d43b3f4378b57268df2a350c3a45741df128c8bac70c16c9870cb9dec2fd71d2",
       "size": 1086
@@ -2980,6 +2992,10 @@
     "work/build_model_lighting_point.cmd": {
       "sha256": "925a3025410eaf5dd750203d760040d500fa7f380e9885c27525dbdc30455ad2",
       "size": 916
+    },
+    "work/build_model_material_prebind_draw.cmd": {
+      "sha256": "3d9f785332315de4653b1bcfaa55e3d9344b7a3bb24bfa5c3fd165277bbf8ded",
+      "size": 1021
     },
     "work/build_model_proxy_data_route.cmd": {
       "sha256": "ccad3d5c2c081f52d223831296912e825dbdf8a06d7456a1a9c0cc5f1eb684ae",
@@ -10337,6 +10353,18 @@
       "sha256": "a980c7d120015d1cc044bd8cbd793c0b67970175773b0556faaff87fd1d09755",
       "size": 2667
     },
+    "work/material_modelglowcolor_proxy_candidate.h": {
+      "sha256": "9569bcb0e066de1f7c4e97a6ea4dec9723fa1b588381b13973c6b252d3f1ef08",
+      "size": 593
+    },
+    "work/material_multiply_proxy_candidate.h": {
+      "sha256": "cb9d59c61f24024635f946c44d32032e61948987b2c7cae7f044da78de548f77",
+      "size": 4792
+    },
+    "work/material_multiply_scalar_x87_candidate.inc": {
+      "sha256": "65aed40a02c5e5b06ce1c711511582ee39ddfa3c398707be1627b6f8d3e656c9",
+      "size": 675
+    },
     "work/material_numeric_value_candidate.h": {
       "sha256": "115cbe6c62ae351d5fc79d2783aa526a27abf83164d2c1a5b78a24f70db2de04",
       "size": 4110
@@ -10561,6 +10589,10 @@
       "sha256": "430a29acee1a2739aca9cb12781fa9a0667117d9bc8b28557b79a424a3e9ba7d",
       "size": 1196
     },
+    "work/material_yellowlevel_proxy_candidate.h": {
+      "sha256": "3aeb9248b86f899cf723908fbc55c58bd70ebadff1adc007367da7477f560afd",
+      "size": 1623
+    },
     "work/math_startup_native_init.h": {
       "sha256": "90f3bcfdad757063d63583a3f2bac1938fa23db9858c1c7d10066d2c9e2b8fc2",
       "size": 1031
@@ -10634,8 +10666,8 @@
       "size": 2462
     },
     "work/model_material_prebind_draw_candidate.h": {
-      "sha256": "b951bae3f543e1488f1e5904e7ba40c56ccd220e49f4ac98feb069bce94e2296",
-      "size": 6437
+      "sha256": "9a682bf76d4a9b4ec3b2fad9d4bf82082cdca3efa14e50f22e30a242a86bb4ef",
+      "size": 6425
     },
     "work/model_post_action_listener_bindings_candidate.h": {
       "sha256": "375031b06dba90a7aa9e0fa6c0687e262ca61f171147b8ef18c1985f620ba2be",
@@ -12493,6 +12525,14 @@
       "sha256": "479a3f6dc58c64b76e2394943deadd71c3f5bfafc628ce1fedc35c8a31abe4a9",
       "size": 7066
     },
+    "work/probe_material_modelglowcolor.cpp": {
+      "sha256": "a56b371b1c1c9a5e0c382195d60896aac811e0217f9a0ddb00bce0e2e30e4b38",
+      "size": 14249
+    },
+    "work/probe_material_multiply.cpp": {
+      "sha256": "0e6b6324f3acb5c19cf6cae4b53058bb715e5dbf578be49f2fb7f9e859edac3e",
+      "size": 13665
+    },
     "work/probe_material_nonposition_upload.cpp": {
       "sha256": "e12277458928cdb19335f655be9fe2c423f95d9dd3ccb521d330b9fd07aea09c",
       "size": 5539
@@ -12668,6 +12708,10 @@
     "work/probe_material_weapon_invis_contract.cpp": {
       "sha256": "eb41b911da1be0454b9bc67f1e39b485f2ad5b2b01e6182e9214dce6c31a0296",
       "size": 4074
+    },
+    "work/probe_material_yellowlevel.cpp": {
+      "sha256": "74a51066c5c706c11a64045e58093cbd791cd670df27ae5b6efae2da2be40af5",
+      "size": 13675
     },
     "work/probe_materialsystem_connect_cvarfirst.cpp": {
       "sha256": "851c5758f6acda2c3f0a19d53fb5abad24c109add1269391f5c099a33dcd1b2c",
@@ -20485,6 +20529,10 @@
       "sha256": "6f08ebcae0121d38b10a23f0f13872aa75ce2b9a6acde2007a0799831905404b",
       "size": 2209
     },
+    "work/test_model_material_prebind_draw.cpp": {
+      "sha256": "5d63bb1cfb12e31e01f04f548d761ce9ae78c1be383aabd8029465abda112b73",
+      "size": 18624
+    },
     "work/test_model_materials.py": {
       "sha256": "f19597f3b9993dd79543f45752ced892b7766c2362d68a3426fe162e1049a720",
       "size": 1156
@@ -24509,6 +24557,14 @@
       "sha256": "cbeab618db8b6b5d1f76b0ff42965568403ea79ca075f096591dcdbbf39ced5e",
       "size": 16716
     },
+    "work/verify_material_modelglowcolor.py": {
+      "sha256": "d72ce58715580812556397d32bda373adc118e490e1470dfdf1d47d7cd981b1e",
+      "size": 17002
+    },
+    "work/verify_material_multiply.py": {
+      "sha256": "71ff331e2b118ff9aca7671c15e3f583adad12df6edd26b9533cd4e77872ec28",
+      "size": 16437
+    },
     "work/verify_material_nonposition_upload_native.py": {
       "sha256": "b3781d4919105aaaf1b2d99ad5467954a2f49e71a65c7c48e5df11c4d22ef112",
       "size": 2375
@@ -24673,6 +24729,10 @@
       "sha256": "dda7170559230d13967ce65344ff827fc767ac4b5b4d9e460613685ee5ab7b06",
       "size": 16533
     },
+    "work/verify_material_yellowlevel.py": {
+      "sha256": "3fa31eb896058ed7c598fe92e914993c94e945577690ee5737283366ce51f8d6",
+      "size": 17290
+    },
     "work/verify_matrix_compose.py": {
       "sha256": "97674ab80e7c47d388e89906142676b6aab803e19fcca0cbecac397de9eed261",
       "size": 1212
@@ -24704,6 +24764,10 @@
     "work/verify_model_lighting_point.py": {
       "sha256": "24d2b1a17a34514f5f7f9473b3eeff140543fe6ac7c93e89fd9342310ac7195a",
       "size": 5531
+    },
+    "work/verify_model_material_prebind_draw.py": {
+      "sha256": "4f696b97c13053c9b9550bab52a53cdbb65b448ea0bea6fa4d542469e0916699",
+      "size": 9837
     },
     "work/verify_model_panel_construction.py": {
       "sha256": "ca3e058fb7e53c80799f60c8249c2b526370a84b0424534f53122209bdbd61d4",
