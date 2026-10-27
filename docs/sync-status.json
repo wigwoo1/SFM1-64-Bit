@@ -1,11 +1,11 @@
 {
-  "checked_utc": "2026-10-27T18:00:22.752558+00:00",
+  "checked_utc": "2026-10-27T19:04:59.681Z",
+  "status": "Publication snapshot checked; commit and verified branch identify publication outcome",
   "repository": "wigwoo1/SFM1-64-Bit",
-  "status": "ALLOWLISTED EXPERIMENTAL SOURCE SNAPSHOT; publication verified by commit receipt",
-  "editor_rebuilt": false,
-  "reason": "All 313 editor source dependencies and executable are unchanged from the preceding verified publication.",
-  "compiler_warning_count": 15,
-  "runtime_test_this_publication": "NOT RUN",
-  "compatibility": "INCOMPLETE",
-  "source_validation": "Prior isolated typed/cached material backup and single-material store tests have local passing receipts. New multi-material store collection code and its test are work in progress, uncompiled and UNVERIFIED in this snapshot; not connected to the editor. No full SFM compatibility claim."
+  "compatibility": "INCOMPLETE / EXPERIMENTAL",
+  "editor_rebuild": "NOT REQUIRED: all 313 editor source dependencies unchanged",
+  "editor_runtime_test": "NOT RUN during publication",
+  "build_package": "UNCHANGED; retained previously built AMD64 editor with 15 recorded compiler warnings",
+  "source_notes": "Owned material batch, session resource binding and pilot CPU runtime source includes prior isolated verification; no full native draw/GPU compatibility claim. New draw/clock reference probe compiled locally but its corpus verification is incomplete. Historical reference tests need omitted proprietary/local inputs.",
+  "publication_tests": "Allowlist, source provenance/credential review, AMD64 PE32+, deterministic ZIP integrity and file identities; no feature tests rerun."
 }

@@ -34,8 +34,8 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "f25ad39dae0e2cd483a2e15b977366a855e7b0094a05540605a76dac6814fcfb",
-      "size": 762
+      "sha256": "114c25c1a1c5f4a692b6978f757e89f3c458c7d4ee086d734fea3f438cf94571",
+      "size": 977
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "3c7c39acca441b462e89ea52a4fa90a3c098eb8a533f04d67253041cde77f2ac",
@@ -2589,6 +2589,10 @@
       "sha256": "a896b134a4613ec5f5d09359cd32992388e28fb2e1f060b8c728bfa6215db4a4",
       "size": 2243
     },
+    "work/build_material_draw_clock.cmd": {
+      "sha256": "ad3a861201772b49e7c1ab50ba895d0b5362a9b08170a431250cae0472ee68cd",
+      "size": 914
+    },
     "work/build_material_draw_invoke_native.cmd": {
       "sha256": "9a382345b45f3a28631b67eb654534506311b666ec28565706e7a10633e816e5",
       "size": 775
@@ -2721,6 +2725,10 @@
       "sha256": "104a05a577b5d1604de0aa9df1be505e9e97d4116fca3bb074eedaf0e96e4fcc",
       "size": 1147
     },
+    "work/build_material_pilot_runtime.cmd": {
+      "sha256": "629bae0b42e368e59567f0886bd2d3d41acaaf8aac04de6115ac78dd3356a7f4",
+      "size": 2805
+    },
     "work/build_material_position_upload_native_32.cmd": {
       "sha256": "7fb8a2c4a8d42d4a469208409c5bf9c0247634c8019ff9c7df5aae299e111bb9",
       "size": 357
@@ -2804,6 +2812,14 @@
     "work/build_material_store.cmd": {
       "sha256": "2d218dd10d591a43131943eeb369b99f37c67fc272ea7a7c21168b976d8da657",
       "size": 1283
+    },
+    "work/build_material_store_bindings.cmd": {
+      "sha256": "6a46b1fc3486c510b3d43dcc17873ef5568e2158dcf0d4c0ffff6a9580a09437",
+      "size": 3093
+    },
+    "work/build_material_store_session_batch.cmd": {
+      "sha256": "19ffcee6b5e1bd84efb72703dc043df315f1fa2d9a5812192deafc31a56a83a5",
+      "size": 2803
     },
     "work/build_material_store_session_scope.cmd": {
       "sha256": "82d84a5a57cbf8ec2e1fba48df04e6b386fd36d9a6cd812e2695ee7577b1bc6d",
@@ -10326,8 +10342,8 @@
       "size": 2849
     },
     "work/material_object_store_candidate.h": {
-      "sha256": "7f53fbcf02c7ef7b933060915afaac9855c7f5c24db83f6bf7aca656ae5e3081",
-      "size": 28919
+      "sha256": "297b0af9117f14d4f563e09e6f58e60d86ffc6a37064a83781c9d81a3a85ba75",
+      "size": 29252
     },
     "work/material_parameter_backup_candidate.h": {
       "sha256": "84a4170a3edde7ed235b2eb4ac668b3d0275f195ee1a91b630b9aa2c17340600",
@@ -10417,9 +10433,17 @@
       "sha256": "945cb3bc2e693b2c53f4cde588142f77e80b6e675d3363a8dfae629528dc3e68",
       "size": 2757
     },
+    "work/material_session_file_runtime_candidate.h": {
+      "sha256": "d843357d51f25ca8f0d89f470c75fd68f97769ceaa72c733aab3aa05a3a22f18",
+      "size": 2684
+    },
     "work/material_session_override_dispatch_candidate.h": {
       "sha256": "26465c63b53eb6a88962e8bdb7c1311da1d8e2d7e7d40d7ae3f48b980c0bfae1",
       "size": 3530
+    },
+    "work/material_session_store_bindings_candidate.h": {
+      "sha256": "1f5d36f6b85baee126b5cc146f3d8a5339d3333edfd45a53ae7fba7f1267b651",
+      "size": 7376
     },
     "work/material_sine_client_native_fixture.h": {
       "sha256": "f9bc6261397c846cd728dececc84937c4adb81d535a8913aff4c4c5d82fd7b58",
@@ -12385,6 +12409,10 @@
       "sha256": "d10b851adbb8ac4e70c5d6592385c9bc9774f9834cc9bc6076708c01a9635942",
       "size": 8698
     },
+    "work/probe_material_draw_clock.cpp": {
+      "sha256": "d7755aedc7c4bb78e40bd3f9de0f1b11613421a39be3914b61e6b4200ef22380",
+      "size": 5383
+    },
     "work/probe_material_element_binding.cpp": {
       "sha256": "36890fe3064f17064b2063f294d7d3f0cceb999a46437a1e48d6260e35ad4d9d",
       "size": 16185
@@ -12568,6 +12596,14 @@
     "work/probe_material_store.cpp": {
       "sha256": "ffb91e01450d1626098e458072dba6f29e82d9b88e2f2862bbae240f15957735",
       "size": 21578
+    },
+    "work/probe_material_store_batch_benchmark.cpp": {
+      "sha256": "ab808b33374bbab7e5ec849112051f9dd26bb7c9de802b41b68feb67bd2e6522",
+      "size": 3177
+    },
+    "work/probe_material_store_bindings_benchmark.cpp": {
+      "sha256": "4cbbe1aca2029400cd8f027948fd04d310124652f088280e2907dc2f0b6090c7",
+      "size": 7711
     },
     "work/probe_material_string_value.cpp": {
       "sha256": "057d4c418235628b47add981dfa27de4265022db8accdda1351604d95e1f1b19",
@@ -20301,6 +20337,10 @@
       "sha256": "846b43cd8ffb3d288c484fddf70a084cb9b8de7a4cf69956ccb070aed410764f",
       "size": 4161
     },
+    "work/test_material_pilot_runtime.cpp": {
+      "sha256": "873cb5bd203d44f66bcb81be9b85853a7d5663f0b069ba6959dbf3fe8b6cea3d",
+      "size": 12614
+    },
     "work/test_material_queue_allocation_failure.cpp": {
       "sha256": "9e1655987e8a65a446c54ffc387ce62873db1f8eb7d9e549e306b342ad149896",
       "size": 1214
@@ -20337,9 +20377,13 @@
       "sha256": "7eecf6eb3eae9666935ff92d0898573633a89c0db9772a05d6ad670d51f0df3b",
       "size": 5480
     },
+    "work/test_material_store_bindings.cpp": {
+      "sha256": "9034933e196d14f1c661fa94b5f8943c18a63bed6d22516e1f27e0235bd3d9d5",
+      "size": 11272
+    },
     "work/test_material_store_session_batch.cpp": {
-      "sha256": "727d800a9546dc28cc536c8c9469c94c49b9d9ab267030682662df6f7dc7fa51",
-      "size": 11329
+      "sha256": "c834d618f972c5c1ae6e1d87761a3650f8e390efd384e19395b3018d8ce6862a",
+      "size": 11381
     },
     "work/test_material_store_session_scope.cpp": {
       "sha256": "4a815bfbc41346485836ba3b13dd430418943f21b441b26e0c7d1d5c752138fc",
@@ -24485,6 +24529,10 @@
       "sha256": "66829af74bd32e04d414c19f44ffefaa309e88af6dde64abdad6a423ed9a7098",
       "size": 13793
     },
+    "work/verify_material_pilot_runtime.py": {
+      "sha256": "005cc99dcc70cab74c28271fe1263fb9f6b49df88f25267510b82fe907203f94",
+      "size": 10256
+    },
     "work/verify_material_position_upload_native.py": {
       "sha256": "06f54d8b2b89eda84ac84754c0692e59ce5990ec03848f0c535b1bd490f4f4ce",
       "size": 2376
@@ -24536,6 +24584,14 @@
     "work/verify_material_store.py": {
       "sha256": "b6e49417cb08ac132600f00197bb87f1333a0ba5ea88263b590e684458af29d0",
       "size": 20552
+    },
+    "work/verify_material_store_bindings.py": {
+      "sha256": "71b384f463562ddce04760cbfed288670d43e6a41ed64493d52871bcfa9ad1dc",
+      "size": 11681
+    },
+    "work/verify_material_store_session_batch.py": {
+      "sha256": "5d4dd4459f0eb5d91de4f568dbcb64ddcd432c94a135f281dab9b876668f64a3",
+      "size": 12772
     },
     "work/verify_material_store_session_scope.py": {
       "sha256": "d54259147c0afd364e6f20c1ae4b6b3b63eb38243d3937e9136d947ede8650fc",

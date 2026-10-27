@@ -117,6 +117,9 @@ public:
         return sourceMaterialPatchLowerCandidate(std::move(s));
     }
     bool createRaw(const std::string&name,const std::string&group,Source&source,Id&out,const Permit&p={}){return create(name,group,source,out,false,false,false,p);}
+    // Filename-backed category0 cache object, initially unreferenced. Unlike
+    // createOrReuse, this cannot accidentally reuse a supplied-source category1.
+    bool createFileMaterial(const std::string&name,const std::string&group,Id&out,const Permit&p={}){Source absent;return create(name,group,absent,out,true,false,false,p);}
     bool createMaterial(const std::string&name,Source&source,Id&out,const Permit&p={}){return create(name,"Other textures",source,out,true,true,false,p);}
     bool createOrReuse(const std::string&name,const std::string&group,Source&source,Id&out,const Permit&p={}){return create(name,group,source,out,true,false,true,p);}
     const Object*get(Id id)const{auto i=objects.find(id);return i==objects.end()?nullptr:i->second.get();}
