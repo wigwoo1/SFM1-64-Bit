@@ -57,16 +57,52 @@ struct UncachedFindFixture:CachedFindFixture{
   for(auto offset:{0x1058c8u,0x105868u})std::memset(image.base+offset,0,0x28);word(0x1058c8,0xa8);word(0x1058d4,reinterpret_cast<uintptr_t>(materials[0].data()));word(0x105868,0x2c0);word(0x105874,reinterpret_cast<uintptr_t>(states[0].data()));requests.clear();reads=closes=buffers=bufferFrees=0;need(!depth,"initial context");
  }
  uint32_t lookup(const std::string&name){using Find=void*(__thiscall*)(void*,const char*,const char*,bool,const char*);auto p=reinterpret_cast<Find>(0x10016f60)(system.data(),name.c_str(),"fixture group",false,nullptr);if(p==reinterpret_cast<void*>(0x12345678))return 0;for(unsigned i=0;i<4;++i)if(p==materials[i].data()+0x80){need(wordAt(materials[i].data(),0)==0x10095d74&&wordAt(materials[i].data(),0x1c)==0,"actual new raw/zero references");return i+1;}throw std::runtime_error("native lookup result");}
- void finishRequest(std::ostream&o){put(o,uint32_t(requests.size()));for(const auto&r:requests)for(const auto&s:r)text(o,s);for(auto n:{reads,closes,buffers,bufferFrees})put(o,n);for(auto&record:materials)if(wordAt(record.data())==0x10095d74){const auto name=reinterpret_cast<const char*(__thiscall*)(void*)>(0x10004190)(record.data());text(o,name);reinterpret_cast<void*(__thiscall*)(void*,unsigned)>(0x10006d20)(record.data(),1);}put(o,UINT32_MAX);finishCase();need(!depth&&buffers==bufferFrees,"request/context/heap cleanup");}
+ void finishRequest(std::ostream&o){put(o,uint32_t(requests.size()));for(const auto&r:requests)for(const auto&s:r)text(o,s);for(auto n:{reads,closes,buffers,bufferFrees})put(o,n);for(auto&record:materials)if(wordAt(record.data())==0x10095d74){const auto name=reinterpret_cast<const char*(__thiscall*)(void*)>(0x10004190)(record.data());text(o,name);reinterpret_cast<void*(__thiscall*)(void*,unsigned)>(0x10006d20)(record.data(),1);}put(o,UINT32_MAX);finishCase();need(!depth&&buffers==bufferFrees,"request/context/heap cleanup");need(!wordAt(image.base+0x1058c8,0x10)&&!wordAt(image.base+0x105868,0x10),"real raw/state pools empty after destruction");}
 };
+// Characterize the original formatter in fixture-owned storage with a readable
+// guard. Never read a C string from a full native260-byte destination.
+static int formatBoundary(const char*image,const char*destination){
+ need(!std::ifstream(destination).good(),"fresh format output");UncachedFindFixture f(image);std::ofstream out(destination,std::ios::binary);need(bool(out),"format output");put(out,18);
+ for(bool brace:{false,true})for(unsigned size:{244u,245u,246u,247u,254u,255u,256u,257u,4095u}){
+  std::string name(size,'a');if(brace)name[0]='{';std::array<char,272>storage;storage.fill('Z');
+  using Format=int(__cdecl*)(char*,int,const char*,...);
+  const auto returned=reinterpret_cast<Format>(0x1006e590)(storage.data(),260,reinterpret_cast<const char*>(brace?0x10095fc4:0x10095fcc),name.c_str());
+  put(out,size);put(out,brace?1:0);put(out,uint32_t(returned));out.write(storage.data(),storage.size());f.image.verify();
+ }
+ out.flush();need(bool(out),"format output complete");f.finishAll();std::cout<<"PASS native_format_boundary_cases=18 allocations="<<f.allocations<<" releases="<<f.releases<<'\n';return 0;
+}
 #endif
-int main(int argc,char**argv){try{need(argc==4,"image query fresh-output");need(!std::ifstream(argv[3]).good(),"fresh output");std::ifstream in(argv[2],std::ios::binary);std::ofstream out(argv[3],std::ios::binary);need(bool(in)&&bool(out),"IO");
+int main(int argc,char**argv){try{
+#ifdef SFM64_NATIVE_FIND_CACHED
+ if(argc==4&&std::string(argv[2])=="--format-boundary"){SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX);AddVectoredExceptionHandler(1,&faultFind);return formatBoundary(argv[1],argv[3]);}
+#endif
+#ifndef SFM64_NATIVE_FIND_CACHED
+ if(argc==2&&std::string(argv[1])=="--self-test"){
+  MaterialFindFileRequestCandidate out;out.key="keep-key";out.file="keep-file";out.pathID="keep-id";out.mode="keep-mode";
+  auto preserved=[&](){return out.key=="keep-key"&&out.file=="keep-file"&&out.pathID=="keep-id"&&out.mode=="keep-mode";};
+  need(!materialFindFileRequestCandidate(std::string(4096,'x'),out)&&preserved(),"oversized input unchanged");
+  need(!materialFindFileRequestCandidate(std::string(246,'x'),out)&&preserved(),"exact-full native buffer refused unchanged");
+  need(!materialFindFileRequestCandidate(std::string(247,'x'),out)&&preserved(),"native truncation refused unchanged");
+  need(!materialFindFileRequestCandidate("{"+std::string(255,'x'),out)&&preserved(),"brace exact-full buffer refused unchanged");
+  need(materialFindFileRequestCandidate(std::string(245,'A'),out)&&out.file.size()==259&&out.key==std::string(245,'a'),"last safely terminated ordinary filename");
+  need(materialFindFileRequestCandidate("{"+std::string(254,'A'),out)&&out.file.size()==259&&out.pathID.empty(),"last safely terminated brace filename");
+  need(materialFindFileRequestCandidate("/MODELS\\A.VMT",out)&&out.key=="/models/a"&&out.file=="materials//models/a.vmt"&&out.pathID=="GAME","leading slash resource identity");
+  need(materialFindFileRequestCandidate(std::string("A.VMT\0tail",10),out)&&out.key=="a"&&out.file=="materials/a.vmt","NUL boundary");
+  need(materialFindFileRequestCandidate("{F/X}.VMT",out)&&out.key=="{f/x}"&&out.file=="{f/x}.vmt"&&out.pathID.empty(),"brace null path-ID");
+  need(materialFindFileRequestCandidate("",out)&&out.key.empty()&&out.file=="materials/.vmt"&&out.pathID=="GAME","empty lookup request");
+  std::cout<<"PASS uncached_find_safety_checks=10\n";return 0;
+ }
+#endif
+ need(argc==4,"image query fresh-output");need(!std::ifstream(argv[3]).good(),"fresh output");std::ifstream in(argv[2],std::ios::binary);std::ofstream out(argv[3],std::ios::binary);need(bool(in)&&bool(out),"IO");
 #ifdef SFM64_NATIVE_FIND_CACHED
  SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX);AddVectoredExceptionHandler(1,&faultFind);UncachedFindFixture f(argv[1]);
 #else
  need(!std::ifstream(argv[1]).good(),"owned engine absent");
 #endif
- const auto cases=readWord(in);put(out,cases);for(unsigned i=0;i<cases;++i){const auto name=text(in),second=text(in);const auto available=readWord(in);need(available<2,"availability");
+ const auto cases=readWord(in);need(cases&&cases<20000,"case extent");put(out,cases);for(unsigned i=0;i<cases;++i){const auto name=text(in),second=text(in);const auto available=readWord(in);need(available<2,"availability");
+  // Admission only; the reference's actual request/result comes from original
+  // instructions and explicit filesystem callbacks, never from this helper.
+  MaterialFindFileRequestCandidate admission;need(materialFindFileRequestCandidate(name,admission)&&materialFindFileRequestCandidate(second,admission),"safe terminated request scope");
 #ifdef SFM64_NATIVE_FIND_CACHED
   f.available=available!=0;f.begin();put(out,f.lookup(name));put(out,f.lookup(second));f.finishRequest(out);
 #else

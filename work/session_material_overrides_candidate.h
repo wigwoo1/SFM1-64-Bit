@@ -1,13 +1,14 @@
 #pragma once
 #include "clip_hierarchy.h"
+#include "material_find_cache_key_candidate.h"
 #include <map>
 struct SessionMaterialParameterCandidate {uint8_t type;std::vector<Value>values;};
 struct SessionMaterialOverrideCandidate {uint32_t element;std::string material;std::map<std::string,SessionMaterialParameterCandidate>parameters;};
 inline std::string normalizeSessionMaterialNameCandidate(std::string name){
- for(char&c:name){if(c=='\\')c='/';else if(c>='A'&&c<='Z')c=char(c-'A'+'a');}
- if(name.size()>4&&name.substr(name.size()-4)==".vmt")name.resize(name.size()-4);
- if(name.empty()||name.front()=='/'||name.find(':')!=std::string::npos)throw std::runtime_error("session material identity");
- size_t first=0;while(first<=name.size()){auto end=name.find('/',first);auto part=name.substr(first,end==std::string::npos?end:end-first);if(part.empty()||part=="."||part=="..")throw std::runtime_error("session material identity component");if(end==std::string::npos)break;first=end+1;}return name;
+ // Resource identity follows FindMaterial, not host filesystem path rules.
+ // Preserve leading/repeated slashes and dot components as distinct keys.
+ // Actual asset resolution must still validate paths at its existing boundary.
+ std::string key;if(!materialFindCacheKeyCandidate(name,key))throw std::runtime_error("session material identity exceeds supported length");return key;
 }
 inline std::vector<SessionMaterialOverrideCandidate>readSessionMaterialOverridesCandidate(const Graph&g,uint32_t model){
  const auto&e=g.elements.at(model);if(g.strings.at(e.type)!="DmeGameModel")throw std::runtime_error("material overrides require model");

@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-10-27T13:13:13.003438+00:00",
-  "executable_sha256": "76c344ae390bc0f35f0525825baa6766fc650f1d3b91e6c832bedadab20e2303",
+  "compiled_utc": "2026-10-27T16:48:08.945053+00:00",
+  "executable_sha256": "390538f5d7e17c65297b952540646c9d347b26e7684787becd9ed4cd5eb8c0ce",
   "editor_source_dependencies": {
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
     "work/animation_keys.h": "0ba29f76618039904fb15c9ea4ddf86ac3c8f9ec28d9efc9d6de25900d4542cb",
@@ -99,6 +99,7 @@
     "work/material_blend_candidate.h": "45a9619896db5ed3d5c9c41f5217fea5157d2ed105866649945807c650bf6ff6",
     "work/material_color_space_candidate.h": "ec28ccd3a9e9242f8a8f9b4359567ada4d54994b34ada46fe4571202890af9bf",
     "work/material_constant_color_candidate.h": "9dae9ccc6911139efc420d126e0b15eec7a1bb78bc5d33e8a463dfa70aaf2cbe",
+    "work/material_find_cache_key_candidate.h": "676eeaa2615ead94f13d05f30b81954d8a853b756b3a2ee84aa9fbf5b750c9e9",
     "work/material_gamma_table_candidate.h": "de2bbf3b574cf31533a878ef2ff8db0106505317dc7d7d5a0f8c5f70ae50fe21",
     "work/material_sdk_tint_gamma_candidate.h": "afaeeb1c58a7e8af5944302d76c17fa2743cb0b46867fa044f2664b0fb11dfab",
     "work/material_selfillum_candidate.h": "a051ba6b43be2165b5faaf9b03e6e19f1f8f8425a0a011a2ad1e14880ad6d347",
@@ -218,7 +219,7 @@
     "work/session_log_layer_bounds.h": "0ff38eda368363a08b1f9648188bea70f9a726164aa4e928a5bdd7c74c7e69f9",
     "work/session_material_alpha_candidate.h": "a6841b27aef01f8b37c2502b48fcff788252428db8500a74a0dcf1bbf6cf304e",
     "work/session_material_binding_candidate.h": "0c584f9d7ac2b9da0f4c74eb39703ea549753e1b1b07d27bb7e3d31e1e8681d6",
-    "work/session_material_overrides_candidate.h": "2fcde5b1fbf3f7f874282b790e65a6933380669342edf74da3fbb7429456377f",
+    "work/session_material_overrides_candidate.h": "63f694fb5756575c9dd724497b0504720b64e46402cf386cd182f810d39c8a4e",
     "work/session_model_body_candidate.h": "7c036e159809fa4f46b04c01fc5b54773e576dff10830fa33309f9fa4a8ebaaa",
     "work/session_model_placement_candidate.h": "2cc880adcfc8def290e52552e0e994783c7915bfb71c9f6688acfb28cc1f1359",
     "work/session_model_procedural_candidate.h": "aece5ae839b620cc0e9e194f62c6fa1f59329ffd872be83700d2f0a97433369b",
