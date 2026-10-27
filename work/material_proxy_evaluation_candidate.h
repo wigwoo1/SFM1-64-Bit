@@ -17,6 +17,10 @@ struct MaterialProxyEvaluationAttemptCandidate {
 // Explicit per-evaluation clock snapshot. Absence is not time zero or wall time.
 struct MaterialProxyEvaluationInputsCandidate {
     std::optional<uint32_t>currentTimeBits;
+    // Explicit snapshot of the material system's shared mutable missing-var
+    // float cache. Absence is unknown, not four invented zeroes. The owner
+    // supplies one consistent snapshot across materials for this evaluation.
+    std::optional<std::array<uint32_t,4>>sharedMissingVariableCacheBits;
 };
 // A per-call write plan. Reads see earlier writes in declaration order, while
 // public binding reads still see the committed state. Only the store can
@@ -40,6 +44,7 @@ class MaterialProxyEvaluationCandidate {
     }
 public:
     std::optional<uint32_t>currentTime()const noexcept{return inputs.currentTimeBits;}
+    std::optional<std::array<uint32_t,4>>sharedMissingVariableCache()const noexcept{return inputs.sharedMissingVariableCacheBits;}
     MaterialProxyEvaluationCandidate(const MaterialProxyEvaluationCandidate&)=delete;
     MaterialProxyEvaluationCandidate&operator=(const MaterialProxyEvaluationCandidate&)=delete;
     MaterialProxyEvaluationCandidate(MaterialProxyEvaluationCandidate&&)=delete;

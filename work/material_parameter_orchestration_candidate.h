@@ -42,7 +42,7 @@ inline bool materialParameterOrchestrationCandidate(MaterialParameterOrchestrati
         // Reloaded raw patch trees can retain literal slash keys. Preserve
         // those names; lookup/patch helpers interpret paths where consumed.
         // Legacy no-service callers keep the previously accepted refusal.
-        if(depth>16||nodes.size()>=4096||n.key.empty()||n.key.size()>255||(!services&&n.key.find('/')!=std::string::npos)||n.text.size()>4095||!(n.kind<=3||n.kind==7)){valid=false;return;}
+        if(depth>16||nodes.size()>=4096||n.key.empty()||n.key.size()>1023||(!services&&n.key.find('/')!=std::string::npos)||n.text.size()>4095||!(n.kind<=3||n.kind==7)){valid=false;return;}
         for(unsigned char c:n.key)if(c<32||c>126)valid=false;
         for(unsigned char c:n.text)if(!c||c>126)valid=false;
         if(sourceMaterialPatchLowerCandidate(n.key)=="$fallbackmaterial"&&(n.kind!=1||(!services&&!n.text.empty())))valid=false;

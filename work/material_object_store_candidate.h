@@ -135,7 +135,7 @@ public:
             if(!permitted(permit,Allocation::parameters,0))return false;
             if(mutableObject(id)!=p)return false;
             const auto name=p->name;const auto flags=p->flags;auto*root=p->source?p->source.get():options.externalSource;
-            if(root){size_t nodes=0;sourceMaterialPatchFileTreeValidateCandidate(*root,0,nodes);if(nodes>4096)return false;}
+            if(root){size_t nodes=0;sourceMaterialPatchFileTreeValidateCandidate(*root,0,nodes,1023);if(nodes>4096)return false;}
             SourceMaterialPatchNodeCandidate snapshot;if(root)snapshot=*root;
             auto*patch=(!p->source&&options.externalSource)?options.externalPatch:nullptr;
             SourceMaterialPatchNodeCandidate patchSnapshot;if(patch)patchSnapshot=*patch;

@@ -40,7 +40,7 @@ inline bool materialObjectParameterTreeEqualCandidate(const SourceMaterialPatchN
 }
 inline bool materialObjectParameterForwardCandidate(std::array<uint32_t,7>&out,const MaterialObjectParameterStateCandidate&state){
     const auto&v=state.material.parameters.values;if(v.size()<=12||v.size()>255)return false;
-    for(size_t i:{4u,5u,11u})if(!materialStringDomainCandidate(v[i].value.numeric.typeAndMetadata))return false;
+    for(size_t i:{4u,5u,11u})if(!materialStringDomainCandidate(v[i].value.numeric.typeAndMetadata)&&!((v[i].value.numeric.typeAndMetadata&15u)==7&&v[i].matrix))return false;
     std::array<uint32_t,7>result{};result[0]=v[5].value.numeric.vector[0];
     auto multiply=[](uint32_t a,uint32_t b){float x,y;std::memcpy(&x,&a,4);std::memcpy(&y,&b,4);volatile float product=x*y;uint32_t result;float f=product;std::memcpy(&result,&f,4);return result;};
     for(size_t i=0;i<3;++i){const auto color=v[4].value.numeric.vector[i];result[1+i]=color;auto tint=multiply(color,v[11].value.numeric.vector[i]);if((state.srgbReturn&255u)&&(v[12].value.numeric.typeAndMetadata&15)==2)tint=multiply(tint,v[12].value.numeric.vector[i]);result[4+i]=tint;}
@@ -79,7 +79,8 @@ inline bool materialObjectParameterPrepareCandidate(MaterialObjectParameterPlanC
     plan.state->srgbReturn=options.environment.condition.srgbReturn;
     // Original GetFloat17C20/GetVec17CC0 copy the cached float projection,
     // including string variables whose constructor/setter already parsed it.
-    // Resource/matrix getter behavior remains outside this checked family.
+    // Matrix cached getters were separately checked against original methods;
+    // resource ownership/notification behavior is still outside this family.
     if(!materialObjectParameterForwardCandidate(plan.forwardValues,*plan.state))return false;
     plan.attempt={MaterialObjectParameterStatusCandidate::Initialized,plan.state->material.parameters.warnings,plan.state->material.developerDiagnosticCalls};out=std::move(plan);return true;
 }

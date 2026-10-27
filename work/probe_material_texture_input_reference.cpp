@@ -1,0 +1,23 @@
+#define SFM64_NATIVE_OBJECT_PARAMETERS
+#define SFM64_UNLIT_TWO_TEXTURE_PARAMETERS
+#define SFM64_OBJECT_PARAMETER_MAIN textureInputPriorParameterMain
+#include "probe_material_object_parameters.cpp"
+#undef SFM64_OBJECT_PARAMETER_MAIN
+// Original-only prerequisite: exact cached getters and shared missing-variable
+// lifetime. Never interpret an absent FindVar result as a fresh zero variable.
+int main(int argc,char**argv){try{
+    gate(argc==6&&!std::ifstream(argv[5]).good(),"private-material libraries mount query fresh-output");std::ifstream in(argv[4],std::ios::binary);std::ofstream out(argv[5],std::ios::binary);gate(bool(in)&&bool(out),"Texture input IO");SetErrorMode(SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);UnlitTwoTextureNativeFixture f(argv[1],argv[2],argv[3]);auto observer=AddVectoredExceptionHandler(1,&lifetimeFault);f.beginParameters();f.enabled=false;f.configure({}, {},92);f.configureLightmapped({});auto seed=builtinErrorMaterialSeedCandidate();auto*error=f.createActual(seed.name.c_str(),f.build(seed.source),false);f.word(0x1059ec,reinterpret_cast<uintptr_t>(error));
+    SourceMaterialPatchNodeCandidate root;root.key="UnlitTwoTexture";root.children={{"$alpha",1,".375"},{"$temp",1,"[.25 .5]"}};auto*a=f.createActual("texture/input-a",f.build(root));auto*b=f.createActual("texture/input-b",f.build(root));gate(f.initializeActual(a)&&f.initializeActual(b),"Actual material initialization");
+    using Find=void*(__thiscall*)(void*,const char*,bool*,bool);auto find=[&](void*m,const char*name,bool&found){return reinterpret_cast<Find>(0x10004520)(m,name,&found,false);};bool found=true;auto*dummy=find(a,"$not-present",found);gate(dummy&&!found&&f.read(dummy,32)==0,"Original missing variable is ownerless nonnull");const auto initialType=f.read(dummy,28)&0xffff;gate((initialType&15)==4,"Initial missing variable is integer");put(out,initialType);put(out,f.read(dummy,8));for(size_t i=0;i<4;++i)put(out,f.read(dummy,12+4*i));
+    unsigned scenarios=0;
+    for(uint32_t op=0;op<4;++op){
+        const uint32_t value=op==0?0x3f400000:op==1?0xc0000000:op==2?17u:0u;
+        if(op==2){using Set=void(__thiscall*)(void*,uint32_t);reinterpret_cast<Set>(0x10019460)(dummy,value);}
+        else{using Set=void(__thiscall*)(void*,uint32_t);reinterpret_cast<Set>(0x10019350)(dummy,value);}
+        found=true;auto*again=find(b,"$another-missing",found);gate(!found&&again==dummy,"Shared missing cache persists across material/name");put(out,f.read(again,28)&0xffff);put(out,f.read(again,8));for(size_t i=0;i<4;++i)put(out,f.read(again,12+4*i));++scenarios;
+    }
+    found=false;auto*bound=find(a,"$TEMP",found);gate(found&&bound!=dummy&&f.read(bound,32)==reinterpret_cast<uintptr_t>(a),"Case-insensitive named lookup remains material-owned");f.uncacheActual(a);gate(f.initializeActual(a),"Original material reinitialization");found=true;gate(find(a,"$third-missing",found)==dummy&&!found,"Dummy survives uncache/reinitialize");
+    const auto mx=_mm_getcsr();_mm_setcsr(0x1f80);unsigned cw=0,control=0;_controlfp_s(&cw,0,0);_controlfp_s(&control,_RC_NEAR|_PC_53,_MCW_RC|_MCW_PC);std::array<uint32_t,6>q{};unsigned cases=0;
+    while(in.read(reinterpret_cast<char*>(q.data()),sizeof(q))){gate(q[5]>=1&&q[5]<=4,"Checked getter count");const auto before=q;std::array<uint8_t,40>raw{};std::memcpy(raw.data()+28,&q[0],4);std::memcpy(raw.data()+12,q.data()+1,16);const auto rawBefore=raw;using Get=void(__thiscall*)(void*,uint32_t*,int);std::array<uint32_t,4>values{{0xdeadbeef,0xdeadbeef,0xdeadbeef,0xdeadbeef}};reinterpret_cast<Get>(0x10017cc0)(raw.data(),values.data(),int(q[5]));using Float=float(__thiscall*)(void*);float scalar=reinterpret_cast<Float>(0x10017c20)(raw.data());uint32_t scalarBits;std::memcpy(&scalarBits,&scalar,4);put(out,scalarBits);for(auto v:values)put(out,v);using Count=int(__thiscall*)(void*);put(out,uint32_t(reinterpret_cast<Count>(0x10017d80)(raw.data())));gate(raw==rawBefore&&q==before,"Getters preserve raw cache/input");++cases;f.verifyCode();}
+    gate(in.eof()&&in.gcount()==0&&cases,"Getter query framing");_mm_setcsr(mx);_controlfp_s(&control,cw,_MCW_RC|_MCW_PC);f.enabled=false;for(auto*p:{a,b}){f.forward(f.id(p),13);f.forward(f.id(p),51);}f.destroyActual(error);using Destroy=void*(__thiscall*)(void*,unsigned);reinterpret_cast<Destroy>(0x10018e60)(dummy,1);f.word(0x10568c,0);f.stop();f.finishLifetime();RemoveVectoredExceptionHandler(observer);out.flush();gate(bool(out),"Complete original getter trace");std::cout<<"native_allocations="<<f.allocations<<" releases="<<f.releases<<'\n';std::cout<<"PASS texture_input_cases="<<cases<<" shared_missing_scenarios="<<scenarios<<'\n';return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

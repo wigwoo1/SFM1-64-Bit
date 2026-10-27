@@ -2,6 +2,7 @@
 #include "material_proxy_float_input_candidate.h"
 #include "material_equals_proxy_candidate.h"
 #include "material_sine_value_candidate.h"
+#include "material_texture_transform_proxy_candidate.h"
 
 class MaterialSineProxyCandidate:public MaterialProxyInstanceCandidate {
     MaterialProxyBindingCandidate result;
@@ -28,6 +29,7 @@ struct MaterialFunctionProxyFactoryCandidate:MaterialProxyFactoryCandidate {
     MaterialProxyInstanceCandidate*create(const std::string&name)override{
         if(name=="Sine")return new MaterialSineProxyCandidate;
         if(name=="Equals")return new MaterialEqualsProxyCandidate;
+        if(name=="TextureTransform")return new MaterialTextureTransformProxyCandidate;
         return nullptr;
     }
     void destroy(MaterialProxyInstanceCandidate*p)noexcept override{delete p;}
