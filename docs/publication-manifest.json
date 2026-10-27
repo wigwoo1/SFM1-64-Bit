@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "c0a491ef15834eecd3cb7d12b78c7ec66632171f0266040058b932c09bf26102",
+      "sha256": "837628b150e6b22958beeba551ba0207df9ebf0367a8d62778be02e9f42066be",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -2904,6 +2904,10 @@
     "work/build_model_lighting_point.cmd": {
       "sha256": "925a3025410eaf5dd750203d760040d500fa7f380e9885c27525dbdc30455ad2",
       "size": 916
+    },
+    "work/build_model_proxy_data_route.cmd": {
+      "sha256": "f63f57d90f138935f3bc8176cff4919da1efef7911bff8e3157d0c309691278c",
+      "size": 899
     },
     "work/build_model_render_assignment_native_32.cmd": {
       "sha256": "ae3bcc392f0763d070db33a36783961cae26b9cdaeee83caa6bbb4d888ed98d0",
@@ -12492,6 +12496,10 @@
     "work/probe_model_lighting_point.cpp": {
       "sha256": "009863436f710fd878b4f5b479df60c1d36c6e1c278c9a77dc7277f91bb2be94",
       "size": 4444
+    },
+    "work/probe_model_proxy_data_route.cpp": {
+      "sha256": "638f393393a08aa98777b004feeaa0f936310f0f3d53d385e858cb2c584977aa",
+      "size": 7011
     },
     "work/probe_native_alpha_instructions.cpp": {
       "sha256": "f41e64521bcd32aa4e1d08e68aa34290b2eb8b179d1168fb02bd76461198ab00",
@@ -24328,6 +24336,10 @@
     "work/verify_model_presentation_device0.py": {
       "sha256": "459fbe69003088106a5ad4228a9a23edfac7f1d861eff0bf92410fd0c395ae8b",
       "size": 899
+    },
+    "work/verify_model_proxy_data_route.py": {
+      "sha256": "da3a8d75922535d83ca7374ebb6079d045e19aa29473250e4dafae27b4c4d976",
+      "size": 13520
     },
     "work/verify_model_seek_presentation.py": {
       "sha256": "1d8a2e0c9346de24982525e016a9a4b6b27ba26ef7eb7974baa0ddf6597b67c3",
