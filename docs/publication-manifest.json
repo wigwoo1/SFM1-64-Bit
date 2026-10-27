@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "f5c6d2d90627d0a19b7b00d3704ae5a533675b53ed35601c6ff3d087faca465a",
+      "sha256": "c0a491ef15834eecd3cb7d12b78c7ec66632171f0266040058b932c09bf26102",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -2344,6 +2344,10 @@
     "work/build_ifm_lighting_origin.cmd": {
       "sha256": "53ece3d13f72091a2ff49d1b22b912fed3883cd777e936613dd23f1c03c284bf",
       "size": 966
+    },
+    "work/build_ifm_puppet_proxy_context.cmd": {
+      "sha256": "70af8c459f2ccf27c544a700a25befdcde74197cd902eee449abcafa7e9c9aa4",
+      "size": 597
     },
     "work/build_ifm_rate_probe.cmd": {
       "sha256": "a097d5dd2e23981ef29671c4066cc749743b4fe0049c1a4503462545f6adc9bc",
@@ -12188,6 +12192,10 @@
     "work/probe_ifm_lighting_origin.cpp": {
       "sha256": "6a3f815b1ad9e338a077535e492453ff727ca9e4f50b65c253ab9f65a35abc4a",
       "size": 8663
+    },
+    "work/probe_ifm_puppet_proxy_context.cpp": {
+      "sha256": "b880a636b13a8de176ae864ac09350d9c3daf2ba6af29d19239f6ce89dfec3a4",
+      "size": 3136
     },
     "work/probe_ifm_rate.cpp": {
       "sha256": "4354e1455e4a3955cbeb2494d4a01d283abde9f3ec6013c36f5a0626f3f035a1",
@@ -23880,6 +23888,10 @@
     "work/verify_ifm_lighting_origin.py": {
       "sha256": "5815eebd55f013f929cff21d06af3107afe269c9af70527d964e833385c2fdeb",
       "size": 8028
+    },
+    "work/verify_ifm_puppet_proxy_context.py": {
+      "sha256": "228adcc1eaf7066c69ec4301133bb7bd0209f030fd13f653c884fafe84a161a0",
+      "size": 13177
     },
     "work/verify_ifm_puppet_time_interface.py": {
       "sha256": "7158b918294ad40a4a1517e01887ad7fdecfbc174a878ddc6bc53cc018b64400",
