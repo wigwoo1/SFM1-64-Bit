@@ -34,8 +34,8 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "92eddc6301ff18a3355a0ad1ed586d3b6415775a57772cceff255e78245cecd4",
-      "size": 165
+      "sha256": "5a3ab9820df0288b978c83de5e8f059f2cb3444493e9687eedfe089b42830171",
+      "size": 521
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "f3c5bcbe25760f8b5d84496acc59c7ee8dca690bcaee99d0b29fcb5fd28c767a",
@@ -2741,6 +2741,10 @@
       "sha256": "7c66d5dda8888e78ada7c5f191f0087fec8f99af40c74339ad60aa2b03f1ac10",
       "size": 390
     },
+    "work/build_material_session_override_dispatch.cmd": {
+      "sha256": "24e36f953200193c337cee20e59aee1713e9df06274b57178f3fb492bc8b180b",
+      "size": 1345
+    },
     "work/build_material_sine_evaluation.cmd": {
       "sha256": "4f31ee4510718b9d7de8ac023054f70c5322c936ffba8fe9162259f042c83207",
       "size": 4938
@@ -4576,6 +4580,10 @@
     "work/build_scene_material_override_audit.cmd": {
       "sha256": "5099e1d537c8f1fba48e34f12d41570bb1d0c1db388d1a92566ab1fced43657b",
       "size": 489
+    },
+    "work/build_scene_material_parameter_bridge.cmd": {
+      "sha256": "38084c88884bff07485ede31a8057023068cc119cdd303d0e65205e52273568e",
+      "size": 1029
     },
     "work/build_scene_model_ambient_x64.cmd": {
       "sha256": "826d41007989bf247c9da698f33d95e25795b4cadd596d676b3959ea7dac29c9",
@@ -10321,6 +10329,14 @@
       "sha256": "052ef3736d1501816c4e7a357a918a5955b1e958e10abc86d29400471c5bd16e",
       "size": 1758
     },
+    "work/material_session_backup_candidate.h": {
+      "sha256": "fa9f4d2752efbf9ee4ca16a7e901025f91ab285800babe5c51f6e3e67ef5a504",
+      "size": 4040
+    },
+    "work/material_session_override_dispatch_candidate.h": {
+      "sha256": "26465c63b53eb6a88962e8bdb7c1311da1d8e2d7e7d40d7ae3f48b980c0bfae1",
+      "size": 3530
+    },
     "work/material_sine_client_native_fixture.h": {
       "sha256": "f9bc6261397c846cd728dececc84937c4adb81d535a8913aff4c4c5d82fd7b58",
       "size": 1184
@@ -12397,6 +12413,10 @@
       "sha256": "19b186d732d096b337ef600222e41445bd48195f2a206d1fac14fc36a6e7a9b8",
       "size": 3922
     },
+    "work/probe_material_session_override_dispatch.cpp": {
+      "sha256": "127d3d8c49261c045b921e23043c6d34afc062c300a1c8f5f54f4bf27668692d",
+      "size": 11691
+    },
     "work/probe_material_sine_evaluation.cpp": {
       "sha256": "e8a7fa6cd78db5233becc6dc5302c41749526e87afba564097ae97fcd755edfc",
       "size": 10489
@@ -13328,6 +13348,10 @@
     "work/probe_queued_material_lifetime.cpp": {
       "sha256": "5311da8265ed34ac712e6fc2acb30c2ddf97963e37704bbc6beb996f07ac41cc",
       "size": 10301
+    },
+    "work/probe_scene_material_parameter_bridge.cpp": {
+      "sha256": "6ef8fd69cd6cfd1a15bee58b95cb1c14349eeffd0a56abefc2737d27230f1c51",
+      "size": 11187
     },
     "work/probe_scene_model_ambient_vulkan.cpp": {
       "sha256": "fbd83a82815321dadcf9b4ae60b7237d62ae9035afc70ba395192d05ed9a919c",
@@ -16736,6 +16760,10 @@
     "work/session_material_binding_candidate.h": {
       "sha256": "0c584f9d7ac2b9da0f4c74eb39703ea549753e1b1b07d27bb7e3d31e1e8681d6",
       "size": 1026
+    },
+    "work/session_material_override_dispatch_candidate.h": {
+      "sha256": "94e3fbbb6d918c63cbd59262a390c8ba5e6e26dcfe87754b4a0702bfb4dec06d",
+      "size": 1509
     },
     "work/session_material_overrides_candidate.h": {
       "sha256": "2fcde5b1fbf3f7f874282b790e65a6933380669342edf74da3fbb7429456377f",
@@ -20148,6 +20176,10 @@
     "work/test_material_selfillum.cpp": {
       "sha256": "a580f3c1c547769bb2f5a8c2598383b27e2c092b72fae275e26dde3345469375",
       "size": 2612
+    },
+    "work/test_material_session_override_dispatch.cpp": {
+      "sha256": "0170ca5b251745f40796bcb15b97025f4135c2f4538fc58a6fa2bcb3b7c90828",
+      "size": 5278
     },
     "work/test_material_source_provider.cpp": {
       "sha256": "7eecf6eb3eae9666935ff92d0898573633a89c0db9772a05d6ad670d51f0df3b",
@@ -24281,6 +24313,10 @@
       "sha256": "ee94dc7e4d070d59d10ed0a8766eee062188eea59ccad08beca80a58e55a96d6",
       "size": 2216
     },
+    "work/verify_material_session_override_dispatch.py": {
+      "sha256": "d4830b8a6a8733af825bb4bcf50583c6f9a8233c870c73042cee19cb4f7a25af",
+      "size": 13422
+    },
     "work/verify_material_sine_evaluation.py": {
       "sha256": "ced4f10c5a00d8d36fecc80f1b9fd87ad2602d2dd7ed2c43afd36d788637cda2",
       "size": 22769
@@ -24752,6 +24788,10 @@
     "work/verify_scene_bgra_textures.py": {
       "sha256": "e7d610ae2a7dcb2065dd17dd467fcf271052e56925d9ddeb1005b5ea0cda3f27",
       "size": 1099
+    },
+    "work/verify_scene_material_parameter_bridge.py": {
+      "sha256": "b049934968365546a6f58abdeaafef26a9422772fda3aa8af64e3aa667c15b1e",
+      "size": 10848
     },
     "work/verify_scene_model_ambient_x64.py": {
       "sha256": "a29fa336bfa0a62d8ac6f3b506358f88a2948c6c6bff50a5bba67bb176e3197c",
