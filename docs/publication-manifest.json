@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "9444f488859173dd41615792a2d479c8aa30c3474401fc4e43811aaa325238f0",
+      "sha256": "f5c6d2d90627d0a19b7b00d3704ae5a533675b53ed35601c6ff3d087faca465a",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -2638,8 +2638,8 @@
       "size": 971
     },
     "work/build_material_matrix_write.cmd": {
-      "sha256": "152d2ff6529e86d2c8ddbb149c9ef7d6ac0f5b2ca32955a5e5ed19281110700a",
-      "size": 5825
+      "sha256": "647b164ccafac18a515e25c045074dd1c5ba0c278dd1392c7ef7d4945dd730a0",
+      "size": 5912
     },
     "work/build_material_nonposition_upload_native_32.cmd": {
       "sha256": "f034fda2bea04ca169ac9b22b96dff3af3c0aebd781787463a65c5ce6435832b",
@@ -2734,8 +2734,8 @@
       "size": 390
     },
     "work/build_material_sine_evaluation.cmd": {
-      "sha256": "dcc765b1a62f90298c8b08d03d52e0d8bd19b10a45d8a65a748729e8db73cef3",
-      "size": 4851
+      "sha256": "4f31ee4510718b9d7de8ac023054f70c5322c936ffba8fe9162259f042c83207",
+      "size": 4938
     },
     "work/build_material_sine_math.cmd": {
       "sha256": "5b24c741cbe02ca981ea81640a4da2a0acef815de0e05e27da144d831cb871ca",
@@ -2753,9 +2753,17 @@
       "sha256": "18b2b8340c86a7a5a97cf86e4a26890a8b633395d4ac3de42b6872f175149ab4",
       "size": 968
     },
+    "work/build_material_texture_scroll_evaluation.cmd": {
+      "sha256": "59615630acf41ab72ef4849995f92034e3598862ed3f81937af3d5ad498cbc5d",
+      "size": 9913
+    },
+    "work/build_material_texture_scroll_math.cmd": {
+      "sha256": "d500784702557e79277a6478887e91f6d2bdf943ce92109a19b2e9dd5252d00c",
+      "size": 2125
+    },
     "work/build_material_texture_transform_evaluation.cmd": {
-      "sha256": "c8c1b081386a5cc512bed368042222f8e5ffbe02e551b196fbc522f8f0844dc1",
-      "size": 7532
+      "sha256": "730c7394048cf84611bc500ddfabfad5f2d131813713f4e36b8f466badab1fd7",
+      "size": 7619
     },
     "work/build_material_texture_transform_matrix.cmd": {
       "sha256": "942561195835a27a3792b03a0d6d13330c620d97f2226e3bf1ae202e8039a594",
@@ -2792,6 +2800,10 @@
     "work/build_material_vector_literal.cmd": {
       "sha256": "2cf99e7d3aad16f018f89ec07bd30ab0109a8f8b9d375ebd234bba53cf848da7",
       "size": 974
+    },
+    "work/build_material_weapon_invis_contract.cmd": {
+      "sha256": "b3b2e5cfc2a295fb2d260ac3265fb7d4732ffac9d29281329f599941a13474d7",
+      "size": 1300
     },
     "work/build_materialsystem_connect_cvarfirst.cmd": {
       "sha256": "d43b3f4378b57268df2a350c3a45741df128c8bac70c16c9870cb9dec2fd71d2",
@@ -10125,6 +10137,14 @@
       "sha256": "aa07c1cb606ecae955a10764345b5d338a22ac799b7e3fda63e27f1ce420c7dd",
       "size": 2947
     },
+    "work/material_cosine_double_candidate.h": {
+      "sha256": "6a1e6e058b0bb59dcaac549709c0273cc3de03c9dad012217959bd35c68fc252",
+      "size": 2738
+    },
+    "work/material_cosine_double_x87_candidate.inc": {
+      "sha256": "2d9bc6bf81d86a67142339cbd68d69e403388ad598ca83c0b3caf858437a5e03",
+      "size": 904
+    },
     "work/material_decimal_digits_candidate.h": {
       "sha256": "240f8533c4642dc14004aae5a22cd3b0b7faeab316d950be0b0bb5da9eea4a0f",
       "size": 1231
@@ -10254,8 +10274,8 @@
       "size": 6936
     },
     "work/material_proxy_evaluation_candidate.h": {
-      "sha256": "24e3a5133478c9b3ba56fa93a9c724948bdc2f312651d01ff9ac0bba2f4f77e3",
-      "size": 5093
+      "sha256": "09f6d969694d8feb4695fec320f0154ff6661dea8b18217bb5cf4c75ad4ebe04",
+      "size": 5565
     },
     "work/material_proxy_float_input_candidate.h": {
       "sha256": "cc87c8ee55635014f6df269fc94682a4388a2533b4932cd7bc080e0c35daa0d0",
@@ -10302,8 +10322,8 @@
       "size": 857
     },
     "work/material_sine_proxy_candidate.h": {
-      "sha256": "ee870ed2cb81a641cfdaf09d5db1ae5ab7fd678f1870a64164afe734159f0038",
-      "size": 2524
+      "sha256": "78562aaff9a1c767d0fdd310eb03e687c5a17b533a2125ed92bfa80ff18ea466",
+      "size": 2658
     },
     "work/material_sine_value_candidate.h": {
       "sha256": "63850a0565eaf141a968f8449d65c96db60c0493ad7316ee59e4d0c34fdb35d9",
@@ -10312,6 +10332,18 @@
     "work/material_string_value_candidate.h": {
       "sha256": "4a9b16d46bd01e16f034922777e94cfb0d700ea614ab16198ec46c0bf8256007",
       "size": 3626
+    },
+    "work/material_texture_scroll_client_native_fixture.h": {
+      "sha256": "c13501e10e5be5143098a26d8fbba05d6414c0190ed84e805b49b2e0b1b89003",
+      "size": 1176
+    },
+    "work/material_texture_scroll_proxy_candidate.h": {
+      "sha256": "b7569fa633e224717232b4d0be5ce0673dfccb2f163e828324327f9e6f3e701f",
+      "size": 3626
+    },
+    "work/material_texture_scroll_value_candidate.h": {
+      "sha256": "8d9e6b1551f83d7e1af9de0974910e5d739f4f5d8a993e875126bae43c84fbcd",
+      "size": 2512
     },
     "work/material_texture_transform_client_native_fixture.h": {
       "sha256": "8a6cf81da7e79eea395b36d4525db6bc730e8713eab78fa80dc983d6f2062227",
@@ -10364,6 +10396,14 @@
     "work/material_vector_literal_candidate.h": {
       "sha256": "c0b22242354bd7b65343e0177bbd37ae6fbb1c50bd721c04571e765536566285",
       "size": 1810
+    },
+    "work/material_weapon_invis_client_native_fixture.h": {
+      "sha256": "39bfc801b6186727516289f5348858fc092b9bf9fd0d77b36db417918e6220ba",
+      "size": 4438
+    },
+    "work/material_weapon_invis_value_candidate.h": {
+      "sha256": "430a29acee1a2739aca9cb12781fa9a0667117d9bc8b28557b79a424a3e9ba7d",
+      "size": 1196
     },
     "work/math_startup_native_init.h": {
       "sha256": "90f3bcfdad757063d63583a3f2bac1938fa23db9858c1c7d10066d2c9e2b8fc2",
@@ -12189,6 +12229,10 @@
       "sha256": "64a9f737dcf1c7fb3e7aa516649320fdc1032d5a54b23e1cbf07325855e9a8a8",
       "size": 3822
     },
+    "work/probe_material_cosine_double.cpp": {
+      "sha256": "96a471411377a848ab97be6b4dc6b80f98f3d78c9b8911c9d7b3d73f8aa9873a",
+      "size": 2021
+    },
     "work/probe_material_decimal_prefix_status.cpp": {
       "sha256": "de550cb14e21f959a61292c09417afb12e8e7391a63f40ce08b5018e2903ff23",
       "size": 2839
@@ -12349,6 +12393,18 @@
       "sha256": "fbdbbc1e5920170037fe078bd6781c608156b4facb1fcab043d2b23556950a6c",
       "size": 4714
     },
+    "work/probe_material_texture_scroll_evaluation.cpp": {
+      "sha256": "8ae0479498d87e083e9ad2f0468bafaf38ce13d55ed63ec2bf4138a2cdd6274c",
+      "size": 12921
+    },
+    "work/probe_material_texture_scroll_initialization.cpp": {
+      "sha256": "d2b156dfe94e4b141e020ac61d16cde23c03df5383bd5c2b408c379b201a9437",
+      "size": 3326
+    },
+    "work/probe_material_texture_scroll_math.cpp": {
+      "sha256": "e63e2e112015640c28801ada0d6ebe0efe6ac03452d224a6c9969dab1a026771",
+      "size": 3733
+    },
     "work/probe_material_texture_transform_evaluation.cpp": {
       "sha256": "5b8ef44ddd9aeef316f9610a7b25eec0acca77565ce5f29f8974cddabc0ce8a1",
       "size": 13390
@@ -12372,6 +12428,10 @@
     "work/probe_material_vector_literal.cpp": {
       "sha256": "6ba7bd4e67c7cb602c68af2bc1bd11d5af2488546d20ab995bf33b26bd0393ca",
       "size": 3326
+    },
+    "work/probe_material_weapon_invis_contract.cpp": {
+      "sha256": "eb41b911da1be0454b9bc67f1e39b485f2ad5b2b01e6182e9214dce6c31a0296",
+      "size": 4074
     },
     "work/probe_materialsystem_connect_cvarfirst.cpp": {
       "sha256": "851c5758f6acda2c3f0a19d53fb5abad24c109add1269391f5c099a33dcd1b2c",
@@ -24181,6 +24241,14 @@
       "sha256": "c2d8530c8719a6df0c49359bd68ac1f77b35f15a4c5e9e843f863b63d6d6aa99",
       "size": 15799
     },
+    "work/verify_material_texture_scroll_evaluation.py": {
+      "sha256": "8d5df1c03be7eadac49977f1a636c01be9c0c7ad0db7c43a9118157c3b2e10e0",
+      "size": 24047
+    },
+    "work/verify_material_texture_scroll_math.py": {
+      "sha256": "6e2ebd76fc41f37b520012d08c038c4c34ca9bd296e4e2e4288339e9dfca47b2",
+      "size": 14967
+    },
     "work/verify_material_texture_transform_evaluation.py": {
       "sha256": "ebd60378cfaaa5abb3fe5ae8ddaf88a5131ccad737d0e7300dce7f093e31a3d7",
       "size": 23228
@@ -24204,6 +24272,10 @@
     "work/verify_material_vector_literal.py": {
       "sha256": "1134437a451c4eaac60bba5ad5ced442a6d0bdfded3470baefd0dcee523782ff",
       "size": 7220
+    },
+    "work/verify_material_weapon_invis_contract.py": {
+      "sha256": "dda7170559230d13967ce65344ff827fc767ac4b5b4d9e460613685ee5ab7b06",
+      "size": 16533
     },
     "work/verify_matrix_compose.py": {
       "sha256": "97674ab80e7c47d388e89906142676b6aab803e19fcca0cbecac397de9eed261",

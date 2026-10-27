@@ -3,6 +3,7 @@
 #include "material_equals_proxy_candidate.h"
 #include "material_sine_value_candidate.h"
 #include "material_texture_transform_proxy_candidate.h"
+#include "material_texture_scroll_proxy_candidate.h"
 
 class MaterialSineProxyCandidate:public MaterialProxyInstanceCandidate {
     MaterialProxyBindingCandidate result;
@@ -30,6 +31,7 @@ struct MaterialFunctionProxyFactoryCandidate:MaterialProxyFactoryCandidate {
         if(name=="Sine")return new MaterialSineProxyCandidate;
         if(name=="Equals")return new MaterialEqualsProxyCandidate;
         if(name=="TextureTransform")return new MaterialTextureTransformProxyCandidate;
+        if(name=="TextureScroll")return new MaterialTextureScrollProxyCandidate;
         return nullptr;
     }
     void destroy(MaterialProxyInstanceCandidate*p)noexcept override{delete p;}

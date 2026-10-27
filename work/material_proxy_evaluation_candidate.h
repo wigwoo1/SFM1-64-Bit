@@ -21,6 +21,9 @@ struct MaterialProxyEvaluationInputsCandidate {
     // float cache. Absence is unknown, not four invented zeroes. The owner
     // supplies one consistent snapshot across materials for this evaluation.
     std::optional<std::array<uint32_t,4>>sharedMissingVariableCacheBits;
+    // Cached GetVec component count from the SAME shared-variable snapshot.
+    // Required only for component-suffixed missing FloatInput bindings.
+    std::optional<uint32_t>sharedMissingVariableComponentCount;
 };
 // A per-call write plan. Reads see earlier writes in declaration order, while
 // public binding reads still see the committed state. Only the store can
@@ -45,6 +48,7 @@ class MaterialProxyEvaluationCandidate {
 public:
     std::optional<uint32_t>currentTime()const noexcept{return inputs.currentTimeBits;}
     std::optional<std::array<uint32_t,4>>sharedMissingVariableCache()const noexcept{return inputs.sharedMissingVariableCacheBits;}
+    std::optional<uint32_t>sharedMissingVariableCount()const noexcept{return inputs.sharedMissingVariableComponentCount;}
     MaterialProxyEvaluationCandidate(const MaterialProxyEvaluationCandidate&)=delete;
     MaterialProxyEvaluationCandidate&operator=(const MaterialProxyEvaluationCandidate&)=delete;
     MaterialProxyEvaluationCandidate(MaterialProxyEvaluationCandidate&&)=delete;
@@ -54,6 +58,7 @@ public:
     }
     bool setFloat(const MaterialProxyBindingCandidate&b,uint32_t bits){return write(b,1,{bits,0,0,0},0);}
     bool setInt(const MaterialProxyBindingCandidate&b,uint32_t value){return write(b,0,{value,0,0,0},0);}
+    bool setVector3(const MaterialProxyBindingCandidate&b,std::array<uint32_t,3>bits){return write(b,3,{bits[0],bits[1],bits[2],0},0);}
     bool setVector(const MaterialProxyBindingCandidate&b,std::array<uint32_t,4>bits,uint32_t count){if(count<1||count>4)return false;for(size_t i=count;i<4;++i)bits[i]=0;return write(b,5,bits,count);}
     bool setComponent(const MaterialProxyBindingCandidate&b,uint32_t index,uint32_t bits){return write(b,8,{bits,0,0,0},index);}
     bool setMatrix(const MaterialProxyBindingCandidate&b,const MaterialMatrixMathCandidate&matrix){

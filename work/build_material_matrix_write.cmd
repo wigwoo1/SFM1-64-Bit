@@ -28,6 +28,7 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\
 if errorlevel 1 exit /b 1
 >"%OUT%\trig-wrapper.asm" echo include work\material_trig_x87_candidate.inc
 >>"%OUT%\trig-wrapper.asm" echo include work\material_sine_double_x87_candidate.inc
+>>"%OUT%\trig-wrapper.asm" echo include work\material_cosine_double_x87_candidate.inc
 >>"%OUT%\trig-wrapper.asm" echo END
 ml64 /nologo /c /I"%CD%" /Fo"%OUT%\trig.obj" "%OUT%\trig-wrapper.asm" >"%OUT%\asm-build.log" 2>&1
 if errorlevel 1 exit /b 1
