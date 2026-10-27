@@ -30,10 +30,22 @@ def corpus():
         material.append((0,forward+2*shrink,count,0,token,0,0,0,0))
     for forward,token in itertools.product(range(2),[0,1,4,0x7fffffff,0x80000000,0xffff0000,0xffffffff,0xf1234567]):material.append((0,forward+4,1,0,token,0,0,0,0))
     for _ in range(512):material.append((0,rng.randrange(2),rng.randrange(256),0,rng.getrandbits(32),0,0,0,0))
-    return dict(studio=studio,material=material)
+    immediate=[(0,0,2,0,0x12345678,0,0,0,0),(0,0,7,128,0xf1234567,0,0,0,0),(0,0,7,128,0,0,2,0,0),(1,0,2,0,1,0,0,0,0)]
+    for mask in range(256):immediate.append((0,0,7,mask,0x12345678,0,0,0,0))
+    for selected,missing,alias,force_zero,render_pass,token in itertools.product(range(8),range(2),range(2),range(2),range(4),[0,1,0x80000000,0xffffffff]):
+        immediate.append((missing,alias,selected,0xa5,token,0x400 if force_zero else 0,render_pass,0,0))
+    for _ in range(512):immediate.append((rng.randrange(2),rng.randrange(2),rng.randrange(8),rng.getrandbits(8),rng.getrandbits(32),rng.choice([0,0x400]),rng.randrange(4),0,0))
+    return dict(studio=studio,material=material,immediate=immediate)
 
 def expected(kind,q):
     route,flags,count,mask,token,skin,lod,body,extra=q
+    if kind=='immediate':
+        if route:return 0,[(6,0,0xfefefefe),(7,0,lod)]
+        selected=0 if skin&0x400 else count
+        mid=0 if flags&1 and selected==2 else selected
+        translucent=(mask>>mid)&1
+        accepted=translucent==((lod>>1)&1)
+        return (mid+1 if accepted else 0),[(3,mid,0x3f800000),(4,mid,0),(5,mid,0),(2,mid,token),(6,0,1),(7,0,lod if accepted else lod|1)]
     if kind=='material':
         final=0 if count and flags&2 else 3 if count and flags&4 else count
         calls=1 if count and flags&2 else final
@@ -74,13 +86,32 @@ def main():
     studio=Path(r'F:\SteamLibrary\steamapps\common\SourceFilmmaker\game\bin\studiorender.dll')
     engine=Path(r'F:\SteamLibrary\steamapps\common\SourceFilmmaker\game\bin\engine.dll')
     material=ROOT/'outputs/material-service-provider-scan-20261024/copied-bin/materialsystem.dll'
-    for p in [studio,engine]:need(sha(p)==prior['original_hashes'][str(p)],'Pinned library '+str(p))
-    need(sha(material)==prior['private_library_hashes'][str(material)],'Pinned private material library')
+    # The parent did not consume studiorender.dll. Authenticate this additional
+    # input against an earlier immutable receipt rather than adopting today's
+    # bytes as their own baseline. The private material copy has identical bytes
+    # to the parent's copy, but lives at a different path.
+    studio_receipt=ROOT/'outputs/sfm64-studio-factory-object-validation.json'
+    need(sha(studio_receipt)=='869015de82964b25a7b23c8859578724a56a0e22851d6d3033f70e35b4aacfe7','Historical studio receipt')
+    studio_hash=json.loads(studio_receipt.read_text())['binary_sha256']
+    need(studio_hash=='dc7eef7620f2a687c3cdd4182f2f17f0d78890e2748abcbe923b459b5fa340f7' and sha(studio)==studio_hash,'Pinned studio library')
+    need(sha(engine)==prior['original_hashes'][str(engine)],'Pinned engine library')
+    material_hashes={h for n,h in prior['private_library_hashes'].items() if Path(n).name.lower()=='materialsystem.dll'}
+    need(material_hashes=={'c78e414891b4d87e3922610a8bf937bca3efbaab95bced488522045998bc87f8'} and sha(material) in material_hashes,'Pinned identical private material copy')
+    originals={**prior['original_hashes'],str(studio):studio_hash}
+    privates={**prior['private_library_hashes'],str(material):sha(material)}
+    fixtures={**prior['fixture_hashes'],str(studio_receipt):sha(studio_receipt)}
+    protected=[sources,originals,privates,prior['benchmark_material_hashes'],fixtures]
+    for group in protected:need(all(sha(n)==h for n,h in group.items()),'Expanded protected input before')
     run=Path(tempfile.mkdtemp(prefix='verification-',dir=OUT));print('Verification directory: '+str(run),flush=True)
     si,sranges=check_ranges(studio,'studiorender-disassembly.txt',[
         ('studio_proxy_prebind_loop',0x10053cd0,0x10053e5f),('bodypart_model_selector',0x10001d40,0x10001d90),
         ('draw_entry_to_queued_prebind_static',0x1005745f,0x100574af),
-        ('immediate_draw_client_data_argument_static',0x10050430,0x1005045d)])
+        ('immediate_draw_client_data_argument_static',0x10050430,0x1005045d),
+        ('draw_entry_immediate_call_static',0x10057539,0x10057555),
+        ('immediate_body_dispatch_static',0x10011bb0,0x10011d15),
+        ('immediate_selected_body_loop_static',0x10011b20,0x10011baf),
+        ('immediate_mesh_material_loop_static',0x10011980,0x10011b1d),
+        ('immediate_material_selection_and_context_bind',0x100019b0,0x10001d3d)])
     mi,mranges=check_ranges(material,'materialsystem-disassembly.txt',[
         ('material_proxy_dispatch',0x10004980,0x10004aba),('forward_proxy_dispatch',0x10007700,0x10007711),
         ('context_bind_proxy_data_argument_static',0x10023fed,0x10024014)])
@@ -91,9 +122,9 @@ def main():
     need(si.word(0x100710dc+28*4)==0x10057340,'VStudioRender slot28')
     need(mi.word(0x10095d74+53*4)==0x10004980 and mi.word(0x10095a9c+53*4)==0x10007700,'Actual material and forward dispatch slots')
     need(ei.word(0x1040e9b8)==0x103614b4 and ei.string(0x103614b4)=='VStudioRender026' and ei.word(0x1040e9bc)==0x106941d4,'Engine interface table binding')
-    start=time.time();build=subprocess.run(['cmd.exe','/d','/c',str(ROOT/'work/build_model_proxy_data_route.cmd')],cwd=ROOT,capture_output=True,text=True,timeout=180);(run/'build-driver.log').write_text(build.stdout+build.stderr);need(build.returncode==0,'Fresh two reference builds')
+    start=time.time();build=subprocess.run(['cmd.exe','/d','/c',str(ROOT/'work/build_model_proxy_data_route.cmd')],cwd=ROOT,capture_output=True,text=True,timeout=180);(run/'build-driver.log').write_text(build.stdout+build.stderr);need(build.returncode==0,'Fresh three reference builds')
     executables=[];logs={}
-    for kind in ['material','studio']:
+    for kind in ['material','studio','immediate']:
         exe=OUT/(kind+'_route_reference_x86.exe');raw=exe.read_bytes();pe=struct.unpack_from('<I',raw,60)[0]
         need(exe.stat().st_mtime>=start-2 and struct.unpack_from('<H',raw,pe+4)[0]==0x14c and struct.unpack_from('<H',raw,pe+24)[0]==0x10b and b'asInvoker' in raw,'Fresh x86 reference architecture')
         imports=subprocess.run([str(DUMP),'/imports',str(exe)],capture_output=True,text=True,check=True).stdout;modules=re.findall(r'^\s+([\w.\-]+\.dll)\s*$',imports,re.I|re.M);need(modules==['KERNEL32.dll'],'Direct import scope')
@@ -103,7 +134,7 @@ def main():
     counts={};checks=0;data=corpus()
     for kind,rows in data.items():
         query=run/(kind+'-query.bin');query.write_bytes(b''.join(struct.pack('<9I',*q) for q in rows));need(query.read_bytes()[:4*36]==(OUT/(kind+'-explore-query.bin')).read_bytes(),'Retained initial queries '+kind)
-        dest=run/(kind+'-output.bin');trace=execute(OUT/(kind+'_route_reference_x86.exe'),[studio if kind=='studio' else material,query,dest],kind)
+        dest=run/(kind+'-output.bin');trace=execute(OUT/(kind+'_route_reference_x86.exe'),[material if kind=='material' else studio,query,dest],kind)
         records=decode(dest.read_bytes());need(len(records)==len(rows),'All routing cases recorded');events=0
         for i,(q,record) in enumerate(zip(rows,records)):
             final,want=expected(kind,q)
@@ -113,6 +144,7 @@ def main():
         need(trace=='PASS routing_cases='+str(len(rows))+' events='+str(events)+'\n','Actual trace cardinalities')
         exploration=(OUT/(kind+'-explore-output.bin')).read_bytes();need(dest.read_bytes()[:len(exploration)]==exploration,'Retained original observations '+kind)
         counts[kind]=dict(cases=len(rows),events=events,query_sha256=sha(query),output_sha256=sha(dest),bytes=dest.stat().st_size)
+    need(counts['studio']['output_sha256']=='938f39c9b0cde195b46f879f23298b02c602adc89da2f6bfa8384979bba05c35' and counts['material']['output_sha256']=='8d7f7cbfa0901c64442d04a1e921dbb26bce315e675b4fa5b26f22c109e421eb','All2360 preceding route observations preserved')
     # Preserve the accepted owned value proof and actual puppet-interface
     # observation without rebuilding unchanged programs or claiming co-mapping.
     context=Path(prior['executables'][0]['path']);puppet=run/'puppet-interface.bin'
@@ -121,7 +153,7 @@ def main():
     buildinfo=json.loads((ROOT/'publication/stage/docs/build-status.json').read_text());need(len(buildinfo['editor_source_dependencies'])==310 and all(sha(ROOT/n)==h for n,h in buildinfo['editor_source_dependencies'].items()) and sha(ROOT/'outputs/sfm64-editor-x64/sfm64_session_ui.exe')==prior['editor_sha256'],'Editor unchanged')
     for group in [sources,*protected]:need(all(sha(n)==h for n,h in group.items()),'Protected final input identities')
     need(all(sha(e['path'])==e['sha256'] for e in old_exes) and not (run/'absent-original.dll').exists(),'Prior executable and absent-library identities')
-    result=dict(status='PASS',goal_status='ACTIVE / INCOMPLETE',utc=datetime.now(timezone.utc).isoformat(),previous_goal_turn='progress',scope='Actual studio prebind material selection/raw proxy-data forwarding and actual material/queue-friendly per-proxy dispatch boundaries with observers; renderer-to-client composition incomplete',routing=counts,independent_case_checks=checks,original_static_ranges=dict(studio=sranges,material=mranges,engine=eranges),sources=sources,new_sources=NEW,prior_sources_unchanged=len(prior['sources']),original_hashes=prior['original_hashes'],private_library_hashes=prior['private_library_hashes'],benchmark_material_hashes=prior['benchmark_material_hashes'],fixture_hashes=prior['fixture_hashes'],executables=executables,reused_executables=old_exes,build_logs=logs,prior_puppet_cases=32,prior_weapon_cases=15664,prior_owned_executable=weapon['executables'][1],prior_receipt=str(parent),prior_receipt_sha256=sha(parent),editor_dependencies_unchanged=310,editor_sha256=prior['editor_sha256'],editor_rebuilt=False,editor_runtime_test='NOT RUN',limits=['Studio method10053CD0 is the explicit prebind path observed on the queued branch; immediate actual mesh/material Bind path still needs full routing proof','Studio/material/client/IFM are separate preferred-base original children; boundary spies are not combined original renderer/material/proxy execution','CMaterial dispatch is measured with explicit normal debug mode0 and system guard false; debug modes/guarded value notifications remain unverified','Controlled studio metadata covers two bodies, two skin families/LODs, duplicate texture indices, aliased material pointers and override mode0/1; not a general model format/renderer proof','Raw opaque tokens are forwarded without dereference in spies; their real lifetime/authenticated puppet origin still needs a production adapter proof','No existing source changes, proxy registration, editor integration, fullpilot acceptance, original writes or live SFM'])
+    result=dict(status='PASS',goal_status='ACTIVE / INCOMPLETE',utc=datetime.now(timezone.utc).isoformat(),previous_goal_turn='progress',scope='Actual queued prebind and immediate material-selection/context-Bind leaf with observers; actual material dispatch; intervening immediate draw loops statically traced, combined renderer-to-client execution incomplete',routing=counts,independent_case_checks=checks,original_static_ranges=dict(studio=sranges,material=mranges,engine=eranges),sources=sources,new_sources=NEW,prior_sources_unchanged=len(prior['sources']),original_hashes=originals,private_library_hashes=privates,benchmark_material_hashes=prior['benchmark_material_hashes'],fixture_hashes=fixtures,executables=executables,reused_executables=old_exes,build_logs=logs,prior_puppet_cases=32,prior_weapon_cases=15664,prior_owned_executable=weapon['executables'][1],prior_receipt=str(parent),prior_receipt_sha256=sha(parent),editor_dependencies_unchanged=310,editor_sha256=prior['editor_sha256'],editor_rebuilt=False,editor_runtime_test='NOT RUN',limits=['Queued prebind10053CD0 and immediate selection100019B0 execute fully with boundary observers; intervening immediate draw loops are statically traced only, not executed as one draw chain','Studio/material/client/IFM are separate preferred-base original children; boundary spies are not combined original renderer/material/proxy execution','CMaterial dispatch is measured with explicit normal debug mode0 and system guard false; debug modes/guarded value notifications remain unverified','Controlled studio metadata covers two bodies, two skin families/LODs, duplicate texture indices, aliased material pointers and override mode0/1; not a general model format/renderer proof','Immediate selection covers the normal material/no-override branch with alpha1, predicate19 false, hardware/multipass flag combinations and null materials; diagnostic/forced/override/special flex branches are unverified. Raw tokens are not dereferenced and require authenticated owned lifetime before integration','No existing source changes, proxy registration, editor integration, fullpilot acceptance, original writes or live SFM'])
     receipt=run/'results.json';receipt.write_text(json.dumps(result,indent=2)+'\n');replay=OUT/('replay-'+run.name.removeprefix('verification-'));replay.mkdir()
     included=[Path(n) for n in sources]+[Path(e['path']) for e in executables]+[Path(n) for n in logs]+[receipt]+list(run.glob('*.log'))+list(run.glob('*.bin'))
     for p in included:

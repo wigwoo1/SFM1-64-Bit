@@ -28,6 +28,12 @@ static void __fastcall bindProxy(void*p,void*,void*data){
     if(id==1&&(query.flags&2u))material[0x23]=0;
     if(id==1&&(query.flags&4u))material[0x23]=3;
 }
+#elif defined(SFM64_IMMEDIATE_ROUTE)
+struct Material{uintptr_t table;uint32_t id,translucent;};
+static bool __fastcall alphaClass(void*p,void*,uint32_t alpha){auto&m=*static_cast<Material*>(p);events.push_back({3,m.id,alpha});return m.translucent!=0;}
+static bool __fastcall materialPredicate(void*p,void*){auto&m=*static_cast<Material*>(p);events.push_back({4,m.id,0});return false;}
+static void __fastcall materialMode(void*p,void*,uint32_t value){auto&m=*static_cast<Material*>(p);events.push_back({5,m.id,value});}
+static void __fastcall contextBind(void*,void*,void*p,void*data){auto&m=*static_cast<Material*>(p);events.push_back({2,m.id,uint32_t(reinterpret_cast<uintptr_t>(data))});}
 #else
 struct Material{uintptr_t table;uint32_t id,hasProxy;};
 static bool __fastcall hasProxy(void*p,void*){auto&m=*static_cast<Material*>(p);events.push_back({0,m.id,m.hasProxy});return m.hasProxy!=0;}
@@ -52,6 +58,25 @@ int main(int argc,char**argv){try{
         auto*object=query.flags&1u?static_cast<void*>(forward.data()):static_cast<void*>(material.data());auto*table=*static_cast<uintptr_t**>(object);
         need(table[53]==(query.flags&1u?0x10007700u:0x10004980u),"Actual material/forward slot53");
         using Call=void(__thiscall*)(void*,void*);reinterpret_cast<Call>(table[53])(object,reinterpret_cast<void*>(uintptr_t(query.token)));finalCount=material[0x23];
+#elif defined(SFM64_IMMEDIATE_ROUTE)
+        need(query.count<8&&query.route<=1&&query.lod<=3&&(query.skin==0||query.skin==0x400),"Checked immediate metadata");
+        // Execute the whole original material-selection/bind routine. Boundary
+        // observers replace interfaces, never original instructions. The large
+        // renderer field offset is real; allocate it on the heap, not the stack.
+        std::vector<uint8_t>renderer(0x7c0914,0);std::array<uint8_t,0x258>config{};std::array<uint8_t,0x128>header{};
+        auto put=[](uint8_t*p,size_t offset,uint32_t value){std::memcpy(p+offset,&value,4);};
+        put(renderer.data(),4,uint32_t(reinterpret_cast<uintptr_t>(config.data())));put(renderer.data(),0xb0,uint32_t(reinterpret_cast<uintptr_t>(header.data())));renderer[0x7c0910]=uint8_t(query.lod);
+        field(config,0x248,0x3f800000); // Explicit alpha 1; not a recovered default.
+        std::array<uintptr_t,48>methods{};methods[47]=reinterpret_cast<uintptr_t>(&alphaClass);methods[19]=reinterpret_cast<uintptr_t>(&materialPredicate);methods[43]=reinterpret_cast<uintptr_t>(&materialMode);
+        std::array<Material,8>materials{};std::array<Material*,8>list{};
+        for(uint32_t i=0;i<8;++i){materials[i]={reinterpret_cast<uintptr_t>(methods.data()),i,(query.mask>>i)&1u};list[i]=&materials[(query.flags&1u)&&i==2?0:i];}
+        const auto selected=query.skin&0x400u?0:query.count;if(query.route)list[selected]=nullptr;
+        std::array<uintptr_t,10>contextMethods{};contextMethods[9]=reinterpret_cast<uintptr_t>(&contextBind);uintptr_t context=reinterpret_cast<uintptr_t>(contextMethods.data());uint32_t outputMode=0xfefefefe;
+        const auto beforeConfig=config;const auto beforeHeader=header;const auto beforeMaterials=materials;const auto beforeList=list;
+        using Call=Material*(__thiscall*)(void*,void*,uint32_t,void*,uint32_t,void*,uint32_t,uint32_t*);
+        auto*returned=reinterpret_cast<Call>(0x100019b0)(renderer.data(),&context,query.count,list.data(),query.skin,reinterpret_cast<void*>(uintptr_t(query.token)),0,&outputMode);
+        finalCount=returned?returned->id+1:0;events.push_back({6,0,outputMode});events.push_back({7,0,renderer[0x7c0910]});
+        need(config==beforeConfig&&header==beforeHeader&&list==beforeList&&std::memcmp(materials.data(),beforeMaterials.data(),sizeof(materials))==0,"Read-only immediate metadata");
 #else
         need(query.count<=2&&query.route<=2&&query.lod<=1,"Checked studio metadata");
         std::array<uint8_t,0x258>context{};std::array<uint8_t,0x2000>header{};std::array<uint8_t,16>hardware{};std::array<uint8_t,56>lods{};std::array<uint8_t,32>info{};

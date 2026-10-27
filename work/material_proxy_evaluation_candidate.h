@@ -2,6 +2,7 @@
 #include "material_proxy_lifetime_candidate.h"
 #include "material_vector_component_candidate.h"
 #include "material_matrix_value_write_candidate.h"
+#include "model_proxy_context_value_candidate.h"
 
 struct MaterialProxyWriteCandidate {
     uint32_t index=0,operation=0,count=0;
@@ -24,6 +25,9 @@ struct MaterialProxyEvaluationInputsCandidate {
     // Cached GetVec component count from the SAME shared-variable snapshot.
     // Required only for component-suffixed missing FloatInput bindings.
     std::optional<uint32_t>sharedMissingVariableComponentCount;
+    // Explicit per-draw, identity-checked source. Absence/default is unknown.
+    // No Graph/parser dependency or original renderable pointer crosses here.
+    std::optional<MaterialModelProxyBindContextCandidate>modelContext;
 };
 // A per-call write plan. Reads see earlier writes in declaration order, while
 // public binding reads still see the committed state. Only the store can
@@ -49,6 +53,10 @@ public:
     std::optional<uint32_t>currentTime()const noexcept{return inputs.currentTimeBits;}
     std::optional<std::array<uint32_t,4>>sharedMissingVariableCache()const noexcept{return inputs.sharedMissingVariableCacheBits;}
     std::optional<uint32_t>sharedMissingVariableCount()const noexcept{return inputs.sharedMissingVariableComponentCount;}
+    bool verifiedPuppetWithoutGameEntity()const noexcept{return inputs.modelContext&&inputs.modelContext->verifiedPuppetWithoutEntity();}
+    std::optional<uint32_t>modelContextModel()const noexcept{
+        if(!verifiedPuppetWithoutGameEntity())return {};return inputs.modelContext->source().model();
+    }
     MaterialProxyEvaluationCandidate(const MaterialProxyEvaluationCandidate&)=delete;
     MaterialProxyEvaluationCandidate&operator=(const MaterialProxyEvaluationCandidate&)=delete;
     MaterialProxyEvaluationCandidate(MaterialProxyEvaluationCandidate&&)=delete;

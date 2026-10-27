@@ -7,8 +7,10 @@
 #include "session_model_body_candidate.h"
 #include "session_model_procedural_candidate.h"
 #include "session_render_light_candidate.h"
+#include "session_model_proxy_context_candidate.h"
 struct SessionRenderModelCandidate {
  uint32_t id,skin,body;bool visible;SessionModelPlacementCandidate placement;bool evaluateProcedural=true;
+ SessionModelProxyContextCandidate proxyContext;
 };
 struct SessionRenderSceneCandidate {
  uint32_t shot,camera;RenderCameraCandidate viewProjection;
@@ -25,7 +27,11 @@ inline SessionRenderSceneCandidate readSessionRenderSceneCandidate(const Graph&g
  SessionRenderSceneCandidate scene{shot,binding.camera,sessionCameraViewProjectionCandidate(graph,binding.camera,width,height,true),{},width,height};
  scene.lightIds=binding.lights;
  GraphTransformHierarchy hierarchy(graph,binding.scene);scene.models.reserve(binding.models.size());
- for(auto id:binding.models)scene.models.push_back({id,sessionModelSkinCandidate(graph,id),sessionModelBodyCandidate(graph,id),sessionModelVisibilityCandidate(graph,id),readSessionModelPlacementCandidate(graph,id,hierarchy),sessionModelEvaluateProceduralCandidate(graph,id)});
+ for(auto id:binding.models){
+  SessionRenderModelCandidate model{id,sessionModelSkinCandidate(graph,id),sessionModelBodyCandidate(graph,id),sessionModelVisibilityCandidate(graph,id),readSessionModelPlacementCandidate(graph,id,hierarchy),sessionModelEvaluateProceduralCandidate(graph,id)};
+  model.proxyContext=readSessionModelProxyContextCandidate(graph,id);
+  scene.models.push_back(std::move(model));
+ }
  for(auto id:binding.lights)scene.lights.push_back(readSessionRenderLightCandidate(graph,id,hierarchy));
  return scene;
 }

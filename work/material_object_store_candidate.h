@@ -195,9 +195,12 @@ public:
         auto reset=[&](Object*){auto*current=mutableObject(id);if(current==original)current->evaluationPending=false;};
         std::unique_ptr<Object,decltype(reset)>guard(original,reset);
         try{
+            // Freeze per-draw inputs before any caller-owned policy/service
+            // callback can mutate its source. The frame owns another copy.
+            const auto inputSnapshot=inputs;
             if(!permitted(permit,Allocation::evaluation,0))return false;
             const auto*before=p->parameterState.get();auto*list=p->proxyState.get();auto*root=p->source.get();SourceMaterialPatchNodeCandidate source;if(root)source=*root;
-            auto plan=std::make_unique<MaterialObjectParameterStateCandidate>(*before);MaterialProxyEvaluationCandidate frame(*list,*plan,inputs);
+            auto plan=std::make_unique<MaterialObjectParameterStateCandidate>(*before);MaterialProxyEvaluationCandidate frame(*list,*plan,inputSnapshot);
             if(!list->evaluate(frame))return false;
             std::array<uint32_t,7>values{};if(!materialObjectParameterForwardCandidate(values,*plan)||!permitted(permit,Allocation::evaluationCommit,0))return false;
             p=mutableObject(id);if(p!=original||p->parameterState.get()!=before||p->proxyState.get()!=list||p->source.get()!=root||(root&&!materialObjectParameterTreeEqualCandidate(*root,source)))return false;
