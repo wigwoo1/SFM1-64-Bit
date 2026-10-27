@@ -51,16 +51,21 @@ struct MaterialProxyInstanceCandidate {
 };
 // Explicit opt-in service boundary, not a registry of implemented SFM proxies.
 // Destroy must be noexcept and use the same factory that created the instance.
+enum class MaterialProxyMissingKindCandidate {Unavailable,OriginalFactoryMiss};
 struct MaterialProxyFactoryCandidate {
     virtual MaterialProxyInstanceCandidate*create(const std::string&)=0;
     virtual void destroy(MaterialProxyInstanceCandidate*)noexcept=0;
+    // Consulted only after Create returns null. Defaults stay strict. A factory
+    // may identify a measured original-service miss under its explicit profile;
+    // this is never permission to omit an owned-unimplemented registered effect.
+    virtual MaterialProxyMissingKindCandidate classifyMissing(const std::string&)const{return MaterialProxyMissingKindCandidate::Unavailable;}
     virtual ~MaterialProxyFactoryCandidate()=default;
 };
 class MaterialProxyListCandidate {
     std::shared_ptr<MaterialProxyFactoryCandidate>factory;
     std::shared_ptr<MaterialProxyBindingCandidate::State>state;
     std::vector<MaterialProxyInstanceCandidate*>instances;
-    uint32_t failures=0;
+    uint32_t failures=0,originalMisses=0;
     bool overflow=false;
     friend class MaterialObjectStoreCandidate;
     friend class MaterialProxyEvaluationCandidate;
@@ -73,7 +78,8 @@ public:
     MaterialProxyListCandidate&operator=(const MaterialProxyListCandidate&)=delete;
     ~MaterialProxyListCandidate(){retire();for(auto i=instances.rbegin();i!=instances.rend();++i)factory->destroy(*i);}
     size_t size()const noexcept{return instances.size();}
-    uint32_t warningCount()const noexcept{return failures;}
+    uint32_t warningCount()const noexcept{return failures+originalMisses;}
+    uint32_t originalMissCount()const noexcept{return originalMisses;}
     bool complete()const noexcept{return !failures&&!overflow;}
 private:
     static std::unique_ptr<MaterialProxyListCandidate>prepare(
@@ -95,7 +101,11 @@ private:
         const MaterialProxyContextCandidate context(result->state);
         for(const auto&declaration:proxies->children){
             auto*p=result->factory->create(declaration.key);
-            if(!p){++result->failures;continue;}
+            if(!p){
+                if(result->factory->classifyMissing(declaration.key)==MaterialProxyMissingKindCandidate::OriginalFactoryMiss)++result->originalMisses;
+                else ++result->failures;
+                continue;
+            }
             // Capacity was reserved before callbacks. An exception from Init
             // leaves this instance owned by the reverse-order rollback list.
             result->instances.push_back(p);

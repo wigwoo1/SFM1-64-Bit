@@ -182,9 +182,12 @@ public:
                 auto*selected=materialProxySelectedNodeCandidate(plan.finalRoot,plan.state->material.selectedNode);if(!selected)return false;
                 try{proxies=MaterialProxyListCandidate::prepare(*plan.state,id,name,*selected,plan.finalRoot,input.proxyFactory);}
                 catch(...){return false;} // A service exception rolls back its staged list.
-                if(proxies&&!proxies->complete()){
-                    plan.attempt.status=MaterialObjectParameterStatusCandidate::Refused;plan.attempt.warnings+=proxies->warningCount();
-                    if(attempt)*attempt=plan.attempt;return false;
+                if(proxies){
+                    plan.attempt.warnings+=proxies->warningCount();
+                    if(!proxies->complete()){
+                        plan.attempt.status=MaterialObjectParameterStatusCandidate::Refused;
+                        if(attempt)*attempt=plan.attempt;return false;
+                    }
                 }
             }
             if(!permitted(permit,Allocation::parameterCommit,0))return false;
