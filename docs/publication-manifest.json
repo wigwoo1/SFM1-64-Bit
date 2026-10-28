@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "a41ee696349a12e161a47d9c4e45659bc9c97d81f4a0696bcc795e9729126f67",
+      "sha256": "e9a925d20dd1e61aa261d6054146f5670631921610879f6f778105c83d482fea",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -777,6 +777,10 @@
       "sha256": "6a5933e4f9bef94ba6e601f038f3627042e2e53bfd3d5a61d5165149f99e7ca3",
       "size": 360
     },
+    "work/build_base_shader_entry_reference.cmd": {
+      "sha256": "b22d4bb80d08a431b00759c3c12a05e95728ee2e67e84169f20d7cd97891646d",
+      "size": 1204
+    },
     "work/build_base_startup_native.cmd": {
       "sha256": "e23605720dae04c6929d5e658f036edf34edd6fd6584bee2da3c5e74765354ca",
       "size": 478
@@ -1052,6 +1056,10 @@
     "work/build_composed_device_manager_shutdown.cmd": {
       "sha256": "93719e4294f51622774c796a94c08b526d460088d954cfbbd0a20344cd2a2dfe",
       "size": 475
+    },
+    "work/build_concrete_vertexlit_draw_reference.cmd": {
+      "sha256": "bbc43cc0999ead45ea098915b1a7473967e867643fd589300f2033aaac8f30ca",
+      "size": 1501
     },
     "work/build_constant_buffer_replace_candidate.cmd": {
       "sha256": "c6e213e66680a5bca1f07f3a621c34ca3c1506871902269ae4b63d567c24e276",
@@ -2065,6 +2073,10 @@
       "sha256": "e92587d5d978730cda1852191e3f48998323c1db55f4d63b29d3de228cf82594",
       "size": 859
     },
+    "work/build_generic_blend_resource_reference.cmd": {
+      "sha256": "2137e8c2c7dde0384722430b4d511bc746e9f7ee2e4eebc93426b4b54cbc958d",
+      "size": 1504
+    },
     "work/build_generic_light_array.cmd": {
       "sha256": "2c9f63b436c00f48874e75ebbb0c51aac55b6a1dd3a740367230d3049870aa1f",
       "size": 638
@@ -2084,6 +2096,10 @@
     "work/build_generic_lighting_draw.cmd": {
       "sha256": "96bb5200ec3de146209cd0cf5e09dfd738d6309d3310a038705c8ac3a31f0630",
       "size": 491
+    },
+    "work/build_generic_material_draw_dispatch.cmd": {
+      "sha256": "8b89abd76f2d5695b46478fe16bca5c83e58fcb7e8610aa9baa5cd6696bde88a",
+      "size": 1494
     },
     "work/build_generic_pixel_static.cmd": {
       "sha256": "9677b54e9e66da3a285c108f06843799e71513a5127271a166a22a6cc3ffb3c6",
@@ -2836,6 +2852,10 @@
     "work/build_material_session_override_dispatch.cmd": {
       "sha256": "24e36f953200193c337cee20e59aee1713e9df06274b57178f3fb492bc8b180b",
       "size": 1345
+    },
+    "work/build_material_shader_composition.cmd": {
+      "sha256": "b1d71402143d641028e70237cb103ecb0cdca99efd943567d9e92b33c4b02f51",
+      "size": 1211
     },
     "work/build_material_sine_evaluation.cmd": {
       "sha256": "4f31ee4510718b9d7de8ac023054f70c5322c936ffba8fe9162259f042c83207",
@@ -5101,6 +5121,10 @@
       "sha256": "5bf7f2e5c29be51961938d8a859e47f922acae9421cca9abc3d825f3197f0cc9",
       "size": 353
     },
+    "work/build_shader_system_normal_draw.cmd": {
+      "sha256": "449f39ab5776c7d8215c38158b96cb7cc7ceabb4987226a7fb3cbcf67e034148",
+      "size": 1141
+    },
     "work/build_shader_transition_native_x86.cmd": {
       "sha256": "a7e995671f9d810988b324538bfbe9aafbc5ee6f78973b66122e263d57705a7c",
       "size": 392
@@ -6488,6 +6512,10 @@
     "work/build_vertexlit_shared_init.cmd": {
       "sha256": "6b1fd0112ad7652c76d6b7f359e0a7102a2f216374e71401ba44acd5c6f2d5fe",
       "size": 976
+    },
+    "work/build_vertexlit_shared_mapping_correction.cmd": {
+      "sha256": "f57dc1b5ffcb8523f86af8a5d9f7a0b7b221b3de0f8e554843e60c2195082b37",
+      "size": 1157
     },
     "work/build_viewport_callback_native.cmd": {
       "sha256": "1f7d62e134cbe2be37b90c5046e6ee924d7e20f46d333750ff019149065c7ddf",
@@ -9248,6 +9276,14 @@
     "work/generic_lighting_upload_bundle_candidate.h": {
       "sha256": "0ed6b424a853de4a81f487b1bf90c2834c428aff12249d3af6aa8683cc546ce5",
       "size": 1843
+    },
+    "work/generic_material_blend_class_candidate.h": {
+      "sha256": "5891845d9438a1cc8db632c577dff19f6556f25b8c177c9b7b2c658ef0949a90",
+      "size": 1518
+    },
+    "work/generic_material_draw_dispatch_candidate.h": {
+      "sha256": "07c5635dd294f4ee398ef823afeaa91f4b54b98d2e0cd1628d5f6fc11737cf7b",
+      "size": 1722
     },
     "work/generic_packed_normal_candidate.h": {
       "sha256": "3fe48b4a98c9d82382d27d6e9c6e9ffbdcfaa895218242779b40dd8c33aef50c",
@@ -12165,6 +12201,10 @@
       "sha256": "4370ba610afe6335baa305d5de5a205246f61acfb8ddb288475cf708a5f13a1b",
       "size": 1995
     },
+    "work/private_x86_boundary_observer_fixture.h": {
+      "sha256": "3c4a7d06e70d14cc07e4e47eccf5088f6010e34dd80ab44c0bc64fdb2d368efd",
+      "size": 2702
+    },
     "work/probe_adminserver_service_factories.cpp": {
       "sha256": "cec13263d9baf35107d33862adeb4cd5a2a4a6a51574b5d4232307b0f07cb79a",
       "size": 5743
@@ -12176,6 +12216,10 @@
     "work/probe_attribute_mark_reset_parity.cpp": {
       "sha256": "4c355c47b6ff76e3145093800f1cc5cad7112055dfa8ac92567969042da341e0",
       "size": 5202
+    },
+    "work/probe_base_shader_entry_reference.cpp": {
+      "sha256": "2e49dedb02166aa8ec3af7d813120b5f7e650217d80cdb9e060a4993318efbb9",
+      "size": 10299
     },
     "work/probe_bounds_plane_side.cpp": {
       "sha256": "37d7a9a87e28761a6838656770b1a375d4187a6735d6080adc3c160fcfeabdbc",
@@ -12220,6 +12264,10 @@
     "work/probe_builtin_error_material_seed.cpp": {
       "sha256": "634748ba2668137cc734e1106f0ddcd6e7452d061d5b0b0665a94bffe058019e",
       "size": 11489
+    },
+    "work/probe_concrete_vertexlit_draw_reference.cpp": {
+      "sha256": "d17c20d63db6289ac9838b6afc4966ad3798ae2de53fc4ba2e7072b6a6792ba0",
+      "size": 9269
     },
     "work/probe_dag_world_position.cpp": {
       "sha256": "f7fcb1a78069d9f95cef2f60e305f63ead3f092c8dac661894bf1cb5f420d2ae",
@@ -12433,6 +12481,10 @@
       "sha256": "4908be2bd05006d09f51a1dc87abf6faf4d3aa141fac78ffe83f80a3c5cea677",
       "size": 4751
     },
+    "work/probe_generic_blend_resource_reference.cpp": {
+      "sha256": "e8cc455516e3d3cb4d8bb2b7566da86e7b26bb2592f0bb70fd5c5410007b83d3",
+      "size": 10153
+    },
     "work/probe_generic_light_array.cpp": {
       "sha256": "648943a5346418544b99c44872ca4fe8fdcfa0fa73a8b2145aa673e3c1008bd1",
       "size": 5856
@@ -12448,6 +12500,10 @@
     "work/probe_generic_light_state.cpp": {
       "sha256": "923dd3180e2a8964b5eb0ab56257a3fab730ed59254eb1e82e46406f6099ab1c",
       "size": 6817
+    },
+    "work/probe_generic_material_draw_dispatch.cpp": {
+      "sha256": "883324e3fb5be26eb47a0f86228ac80a979a92741b212442ce52a216195acada",
+      "size": 13386
     },
     "work/probe_generic_pack_normal.cpp": {
       "sha256": "2b0b12ed7ae8c62d9cb54057f9ecdcf92d7c379f377739998a076f8006524653",
@@ -12764,6 +12820,10 @@
     "work/probe_material_session_scope_reference.cpp": {
       "sha256": "50736d5139bf5ef50c1d7c21fab6a66383f7e5ee4a0250c1afbe638cd9d807f7",
       "size": 2694
+    },
+    "work/probe_material_shader_composition.cpp": {
+      "sha256": "48ff66c34cb525c32b22d25636b794bba247865365364ac9988ac95e93b9406b",
+      "size": 20967
     },
     "work/probe_material_sine_evaluation.cpp": {
       "sha256": "e8a7fa6cd78db5233becc6dc5302c41749526e87afba564097ae97fcd755edfc",
@@ -13701,6 +13761,10 @@
       "sha256": "7168bd3bb08008754e1cd848e62912c1da8fd539bb7bb416c5c4bca6040cf18f",
       "size": 12211
     },
+    "work/probe_private_boundary_observer_self_test.cpp": {
+      "sha256": "e68a6d727f6b91d7f9918460340cfda226aeabbcc48c16d355f3d833bc5ad111",
+      "size": 1385
+    },
     "work/probe_quaternion_angles.cpp": {
       "sha256": "9afd6b03343d4c6b3c7decb43775830e51c98e492978049ef9279a6f66533d7a",
       "size": 4531
@@ -13764,6 +13828,10 @@
     "work/probe_shader_skin_material_predicate.cpp": {
       "sha256": "4b28cef9cc0f2eaa3b8609fe38cdfbd1e7f2de3c3f49d87fec24cfd1dd78b3d4",
       "size": 3501
+    },
+    "work/probe_shader_system_normal_draw.cpp": {
+      "sha256": "3059f4668209cc7523698157b45f2a4713bf0c94193b3c6f68a2d2762d54113a",
+      "size": 14875
     },
     "work/probe_shaderapi_public_interfaces.cpp": {
       "sha256": "8a1f190fddb989cdfa700a5e083ff7927387fd6d1dfcfb61478f88f33eac6c88",
@@ -17456,6 +17524,10 @@
     "work/shader_snapshot_selection_native_bytes.h": {
       "sha256": "a1e44453f03cc33dfcb52ead50609bdabe205e19711b3ca34b0853fd97969786",
       "size": 1255
+    },
+    "work/shader_system_normal_draw_candidate.h": {
+      "sha256": "5fc255984877d23d01a63c3f40d4f8a64c24b7908bb8a792b01bc7912aaf8969",
+      "size": 1874
     },
     "work/show_live_session_seconds.py": {
       "sha256": "2b2d16bd158cea910b61ff6c16cb90534632fc3cd07fa17e1bc0e9469e1367ef",
@@ -23805,6 +23877,10 @@
       "sha256": "cf0fd260db8c0e035e9df54a0198c61abead9bdc1cff68a778787b61126735c4",
       "size": 2786
     },
+    "work/verify_base_shader_entry_reference.py": {
+      "sha256": "fbdaae98919896707fd6bed9ded2ab9b282861f0c071f923cd3ccaa1a0a139d4",
+      "size": 12998
+    },
     "work/verify_benchmark_draw_binding.py": {
       "sha256": "1f2b413e1a04218d8510d33b06f51b2573edda09e899a925d9b38f57138c8c05",
       "size": 12527
@@ -23900,6 +23976,10 @@
     "work/verify_client_exp_normal.py": {
       "sha256": "e88feb301123a15a4432e09964f44e496b287ad56adce7b69ac02060a22babdc",
       "size": 1498
+    },
+    "work/verify_concrete_vertexlit_draw_reference.py": {
+      "sha256": "71c87927fa75b1bc28e172c979ae6fe7ebe273b47d9d8b8dcf553834383ed344",
+      "size": 16216
     },
     "work/verify_controlled_world_geometry.py": {
       "sha256": "f686a7c8123ad4e5ff51cdafafdfb31e947871897ed5b78c18f5d873c5c8137b",
@@ -24293,6 +24373,10 @@
       "sha256": "81abf2e17489d243dc761343b31ce9f7a7f0e25b37180b89ede8cb7c6707ebbd",
       "size": 12108
     },
+    "work/verify_generic_blend_resource_reference.py": {
+      "sha256": "958336455dcb0611cde231ecd1992066097fd3e38482a6eb99ebf266f33ed4d1",
+      "size": 15797
+    },
     "work/verify_generic_light_array.py": {
       "sha256": "e7440957c2cb6f9f98f21caa93e9d0ae71e271ef32066cbe6e75ac88811cc2f8",
       "size": 1364
@@ -24312,6 +24396,10 @@
     "work/verify_generic_lighting_draw.py": {
       "sha256": "93a0ead0311866956074a8804ba9f51de317a16251e0b1a2a952da790becbb8f",
       "size": 6121
+    },
+    "work/verify_generic_material_draw_dispatch.py": {
+      "sha256": "0aa5d6ea72984e369ecac504d14753919135d93fcaff7802093b1e310701f9de",
+      "size": 15258
     },
     "work/verify_generic_pixel_static.py": {
       "sha256": "456491e27c75b1a68ec49ee10005d0eca65f8a6ae7c8f9f5884f156858ca3fa2",
@@ -24900,6 +24988,10 @@
     "work/verify_material_session_override_dispatch.py": {
       "sha256": "d4830b8a6a8733af825bb4bcf50583c6f9a8233c870c73042cee19cb4f7a25af",
       "size": 13422
+    },
+    "work/verify_material_shader_composition.py": {
+      "sha256": "758dd0a9ee0726b6dd6ae8ec9f6348a80151d1ba4f756d65976c333b84c6dc06",
+      "size": 17336
     },
     "work/verify_material_sine_evaluation.py": {
       "sha256": "ced4f10c5a00d8d36fecc80f1b9fd87ad2602d2dd7ed2c43afd36d788637cda2",
@@ -25541,6 +25633,10 @@
       "sha256": "e6217330f595d55ab0e41ca5855795766a4377a34c4af6cfa6496e43c0ddc1ea",
       "size": 8819
     },
+    "work/verify_shader_system_normal_draw.py": {
+      "sha256": "4d19b43383c55f043b6e72a9c78806d67b0291d5c3438d6879c2791cd131079e",
+      "size": 14006
+    },
     "work/verify_shader_vertex_layout_native.py": {
       "sha256": "779d930349ddb5870e31cf096b74ef85103be92d280d8c2ff0bdaeaf24d6c264",
       "size": 1877
@@ -25930,8 +26026,12 @@
       "size": 15774
     },
     "work/verify_vertexlit_shared_init.py": {
-      "sha256": "e334db53ca5437619565d4ad66f82e6c118cc7e385c6679ef7a0378af2b616fd",
-      "size": 12830
+      "sha256": "f2633c63d3edb5e267d89e76b84775a20552b829a78d00e13b54737ba03e8ff3",
+      "size": 13090
+    },
+    "work/verify_vertexlit_shared_mapping_correction.py": {
+      "sha256": "6d43a0d30d7342bbb05c94444a8c18396a1a2d3ed8a32c0ef44523f33c6b9255",
+      "size": 12238
     },
     "work/verify_view_menu_actions.py": {
       "sha256": "ff8eed7141158eba3a8a079a929c5da20c6b650be6be7619375c968a0b788413",

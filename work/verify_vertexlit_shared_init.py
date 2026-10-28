@@ -47,10 +47,11 @@ def main():
     for row in helper['instructions']:
         text=row['instruction'];load=re.fullmatch(r'mov\s+(ecx|edx),dword ptr ds:\[([0-9A-F]+)h\]',text)
         if load:registers[load[1]]=globals_to_indices[int(load[2],16)]
-        store=re.fullmatch(r'mov\s+dword ptr \[eax(?:\+([0-9A-F]+)h)?\],(ecx|edx)',text)
-        literal=re.fullmatch(r'mov\s+dword ptr \[eax(?:\+([0-9A-F]+)h)?\],([0-9A-F]+)(h)?',text)
+        store=re.fullmatch(r'mov\s+dword ptr \[eax(?:\+([0-9A-F]+)h?)?\],(ecx|edx)',text)
+        literal=re.fullmatch(r'mov\s+dword ptr \[eax(?:\+([0-9A-F]+)h?)?\],([0-9A-F]+)(h)?',text)
         if store:offset=int(store[1] or '0',16);mapping[offset//4]=registers[store[2]]
         elif literal:offset=int(literal[1] or '0',16);mapping[offset//4]=int(literal[2],16 if literal[3] else 10)
+    require(mapping[1:3]==[14,15],'COMPRESS/STRETCH stores with offsets4/8 must be mapped')
     require(mapping[0]==6 and mapping[0x64//4]==9,'Base/flashlight literal mapping')
     for offset in [0x5c,0x14c,0xe8,0xec,0xfc,0x118,0xa4,0x13c]:
         require(mapping[offset//4]==0xffffffff,'Unimplemented other-family info field is declared')
