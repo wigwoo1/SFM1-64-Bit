@@ -42,3 +42,15 @@ is versioned at downloads/sfm64-experimental-windows-x64.zip instead.
 Files omitted by policy may be required by historical research-oracle tests.
 Do not claim the public snapshot includes those proprietary fixtures or that
 all tests can run from a clean clone. Do not grant a blanket project license.
+
+## Unaccepted research snapshot (2026-10-28)
+
+`work/vertexlit_generic_post_blend_candidate.h` and the associated
+`probe_vertexlit_generic_preparation.cpp`, `build_vertexlit_generic_preparation.cmd`
+and `verify_vertexlit_generic_preparation.py` are unfinished research drafts.
+Their isolated builds compiled without warnings, but full trace comparisons
+failed. Neither native/x64 agreement nor independent prediction agreement has
+been established for this extension. It is not integrated into the editor.
+The existing editor download is unchanged. Do not describe these source files
+as a verified renderer improvement; retain this notice until a reviewed passing
+verification replaces the failed milestone.

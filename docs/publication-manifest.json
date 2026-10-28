@@ -34,16 +34,16 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "e9a925d20dd1e61aa261d6054146f5670631921610879f6f778105c83d482fea",
-      "size": 165
+      "sha256": "99f83b651501f7ce2012e8afa9c7642b3b4721f586c0e66c9a57323b340bdf52",
+      "size": 367
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "3c7c39acca441b462e89ea52a4fa90a3c098eb8a533f04d67253041cde77f2ac",
       "size": 912865
     },
     "publication/README.md": {
-      "sha256": "ed93e24db80a7cedb81b3f806a957587163443a4836721bb670fe371594032c4",
-      "size": 2991
+      "sha256": "e12b74faee0255e36dd7de6a6c6279071615bb2840f3124e9fb8ed717bf7fa62",
+      "size": 3699
     },
     "publication/prepare_public_snapshot.py": {
       "sha256": "164a22911ccd0134c93f81c4ac7bfd228c9f3af8484e0f7c9af6d99d7a943c01",
@@ -6508,6 +6508,10 @@
     "work/build_vertexlit_concrete.cmd": {
       "sha256": "30859bf43ebc419176b777149fa284b8e19af8ba733d8c0cd3198a051186ecef",
       "size": 1279
+    },
+    "work/build_vertexlit_generic_preparation.cmd": {
+      "sha256": "18de09c3d5f23ab7261b31f49a4b4ef8c3a1a36c54987f69cba40676f6d29cd5",
+      "size": 1494
     },
     "work/build_vertexlit_shared_init.cmd": {
       "sha256": "6b1fd0112ad7652c76d6b7f359e0a7102a2f216374e71401ba44acd5c6f2d5fe",
@@ -14044,6 +14048,10 @@
     "work/probe_vertexlit_concrete.cpp": {
       "sha256": "90b4bfd2730b0973f5a3e5a2440e141108f57de2925ac0f534e4cee5bfc9e359",
       "size": 12623
+    },
+    "work/probe_vertexlit_generic_preparation.cpp": {
+      "sha256": "b5cd6cbef97d966112223c3afec063236a98fc201257198f73d9c28fb679e331",
+      "size": 11887
     },
     "work/probe_vertexlit_shared_init.cpp": {
       "sha256": "09c3f08ef426a7796e6b11cf79690580558960c171345294e7ff33b04dca4ef8",
@@ -26025,6 +26033,10 @@
       "sha256": "590ebeaca6ff8849b48931a883b76a24a88e1f0a23c7e74493c2a0229870b15a",
       "size": 15774
     },
+    "work/verify_vertexlit_generic_preparation.py": {
+      "sha256": "1677d6782e3cbacf461f16dfbe34fadd5783ae147c1f6dccd5bbe4d72d5e20f7",
+      "size": 15671
+    },
     "work/verify_vertexlit_shared_init.py": {
       "sha256": "f2633c63d3edb5e267d89e76b84775a20552b829a78d00e13b54737ba03e8ff3",
       "size": 13090
@@ -26132,6 +26144,10 @@
     "work/vertexlit_concrete_native_fixture.h": {
       "sha256": "55423a4f22d06800559628d699974ce7eb73eaffb5789b7fa7a5634ce5af7bfc",
       "size": 7123
+    },
+    "work/vertexlit_generic_post_blend_candidate.h": {
+      "sha256": "f85d30195df940bd2623a1eab76bab391f89cf2e4e3814f09c0e3ee9ab6d7ebd",
+      "size": 1031
     },
     "work/vertexlit_parameter_schema_candidate.h": {
       "sha256": "bf18ee669e8b4b7b29a81ee2b1c0800e883b30a8d0ee77635bbfdd46c2ca1033",
