@@ -39,9 +39,9 @@ inline bool withModelMaterialPrebindDrawCandidate(MaterialObjectStoreCandidate&s
  const Graph&graph,const SessionRenderModelCandidate&model,const std::string&assetKey,
  const SfmModelGeometryCandidate&geometry,const std::vector<ModelMaterialResourceBindingCandidate>&bindings,
  const std::vector<MaterialObjectStoreCandidate::SessionEntry>&overrides,const MaterialProxyEvaluationInputsCandidate&inputs,
- const std::function<bool(const ModelMaterialPrebindDrawViewCandidate&)>&observer,int phase=0,const MaterialObjectStoreCandidate::Permit&permit={})noexcept {
+ const std::function<bool(const ModelMaterialPrebindDrawViewCandidate&)>&observer,int phase=0,const MaterialObjectStoreCandidate::Permit&permit={},const MaterialTextureResolverCandidate&textures={})noexcept {
  try{
-  if(!observer)return false;const auto instance=model;const auto asset=assetKey;const auto use=observer;
+  if(!observer)return false;const auto instance=model;const auto asset=assetKey;const auto use=observer;const auto textureLookup=textures;
   if(asset!=instance.placement.asset||instance.skin>INT32_MAX||instance.body>INT32_MAX)return false;
   auto context=sessionModelMaterialProxyContextCandidate(graph,instance);if(!context||!context->verifiedPuppetWithoutEntity())return false;
   auto validModel=[&](){auto current=sessionModelMaterialProxyContextCandidate(graph,instance);return current&&current->source().matches(instance.id,context->source().guid(),asset)&&sessionModelSkinCandidate(graph,instance.id)==instance.skin&&sessionModelBodyCandidate(graph,instance.id)==instance.body;};
@@ -63,6 +63,6 @@ inline bool withModelMaterialPrebindDrawCandidate(MaterialObjectStoreCandidate&s
   // A no-proxy material still needs a value snapshot and pending-scope guard.
   // Its empty list executes no proxy, so this is not an invented native OnBind.
   for(const auto&visit:selection.visits)steps.push_back({visit.material,frameInputs});
-  return store.withSessionDrawSteps(overrides,steps,[&](const auto&draw){if(!validModel())return false;bool ok=use(ModelMaterialPrebindDrawViewCandidate{selection,draw});return ok&&validModel();},phase,permit);
+  return store.withSessionDrawSteps(overrides,steps,[&](const auto&draw){if(!validModel())return false;bool ok=use(ModelMaterialPrebindDrawViewCandidate{selection,draw});return ok&&validModel();},phase,permit,textureLookup);
  }catch(...){return false;}
 }

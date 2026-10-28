@@ -83,10 +83,10 @@ public:
   if(busy)return false;auto i=elements.find(element);if(i==elements.end())return false;auto id=i->second.binding.resource;
   if(id&&(!releasable(id)||!store.decrement(id)))return false;if(id)++counts.releases;elements.erase(i);return true;
  }
- bool withCollection(const std::vector<Source>&source,const std::function<bool(const Store::SessionCollectionView&)>&observer,int phase=0,const Store::Permit&permit={},Attempt*attempt=nullptr){
+ bool withCollection(const std::vector<Source>&source,const std::function<bool(const Store::SessionCollectionView&)>&observer,int phase=0,const Store::Permit&permit={},Attempt*attempt=nullptr,const MaterialTextureResolverCandidate&textures={}){
   if(attempt)*attempt={};if(busy||!observer||source.size()>4096)return false;
   try{
-   auto pending=guard();auto input=source;const auto use=observer;const auto policy=permit;
+   auto pending=guard();auto input=source;const auto use=observer;const auto policy=permit;const auto textureLookup=textures;
    std::vector<Store::SessionEntry>entries(input.size());for(size_t i=0;i<input.size();++i)entries[i].rows=std::move(input[i].rows);
    for(size_t i=0;i<input.size();++i){
     // An explicit element handle0 is the known unresolved/skipped handle. A
@@ -95,7 +95,7 @@ public:
     if(!id){if(attempt)attempt->status=Status::UnavailableBinding;return false;}
     entries[i].material=id;if(attempt)++attempt->acquiredPositions;
    }
-   const bool ok=store.withSessionCollection(entries,use,phase,policy);
+   const bool ok=store.withSessionCollection(entries,use,phase,policy,textureLookup);
    if(attempt)attempt->status=ok?Status::Observed:Status::ValuesRefused;return ok;
   }catch(...){return false;}
  }
