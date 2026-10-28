@@ -5,7 +5,10 @@ struct StudioMaterialDrawStateCandidate {
  uintptr_t shader=0;StudioMaterialDrawParameterCandidate** parameters=nullptr;
  uintptr_t shaderState=0,encodedContext=0;
 };
-// Logical equivalent of10004ae0. Encoding cookie widened with encoded pointer.
+// Logical adapter for10004ae0. Original token/cookie XOR is32bit; uintptr_t
+// transport here is an owned extension, not proof the original token is a
+// pointer. Native shader-state storage is embedded at material+30; the relation
+// to this caller-supplied shaderState address needs ownership/integration proof.
 // Native callbacks may change state: reread fields after shader slot0 callback.
 template<class Ops>void studioMaterialDrawCandidate(StudioMaterialDrawStateCandidate& state,uint32_t compression,uint32_t alpha,uint32_t mode,Ops& ops){
  if(!state.shader){ops.missingShader();return;}
