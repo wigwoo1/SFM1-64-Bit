@@ -43,14 +43,23 @@ Files omitted by policy may be required by historical research-oracle tests.
 Do not claim the public snapshot includes those proprietary fixtures or that
 all tests can run from a clean clone. Do not grant a blanket project license.
 
-## Unaccepted research snapshot (2026-10-28)
+## Bounded research correction verified (2026-10-28)
 
 `work/vertexlit_generic_post_blend_candidate.h` and the associated
 `probe_vertexlit_generic_preparation.cpp`, `build_vertexlit_generic_preparation.cmd`
-and `verify_vertexlit_generic_preparation.py` are unfinished research drafts.
-Their isolated builds compiled without warnings, but full trace comparisons
-failed. Neither native/x64 agreement nor independent prediction agreement has
-been established for this extension. It is not integrated into the editor.
-The existing editor download is unchanged. Do not describe these source files
-as a verified renderer improvement; retain this notice until a reviewed passing
-verification replaces the failed milestone.
+and `verify_vertexlit_generic_preparation.py` now have a passing bounded offline
+comparison. The incorrect expected-result variable and missing flashlight gate
+were corrected. Four fresh warning-free builds passed; 6,204 cases match the
+original x86 prefix, owned x64 helper, and independent prediction, with both
+executables repeated. The preceding 5,088-case regression and observer self-test
+also pass. Evidence is recorded locally in
+`outputs/vertexlit-generic-preparation-correction-20261028/verification-63dui0b0/results.json`.
+Historical failed receipts are retained separately.
+
+This verifies 15 selected material locals and three route arguments at the
+boundary before static/dynamic rendering, for the documented installed schema.
+It does not verify GPU submission, rendered images, full generic-renderer
+cleanup, cached contexts, or other shader routes. The helper is not integrated
+into the editor; all 313 editor dependencies and its executable are unchanged.
+Do not describe this as a verified visual improvement or a completed renderer.
+Private reference inputs and traces remain excluded from public publication.

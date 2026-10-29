@@ -6,7 +6,7 @@ from verify_material_texture_file_resolver import closure
 from verify_ifm_draw_packet import check_ranges
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT/'outputs/vertexlit-generic-preparation-20261028'
+OUT = ROOT/'outputs/vertexlit-generic-preparation-correction-20261028'
 STD = Path(r'F:\SteamLibrary\steamapps\common\SourceFilmmaker\game\bin\stdshader_dx9.dll')
 DUMP = Path(r'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\dumpbin.exe')
 
@@ -34,12 +34,42 @@ def corpus():
         add(1,base=base,detail=detail,env=env,snapshot=snap,flags=flags,flags2=0x400000 if len(rows)&8 else 0,a0=ret,a1=0x100,a2=0x101,mutation=mutation)
     for _ in range(512):
         add(rng.randrange(2),rng.choice([-1,-2,6,17,22]),rng.choice([-1,-2,6,17,22]),rng.getrandbits(32),rng.getrandbits(32),rng.getrandbits(32),rng.getrandbits(32),rng.choice([3,4,19,255]),rng.choice([3,4,19]),rng.choice([3,4,19]),*[rng.getrandbits(32) for _ in range(3)],rng.randrange(32))
+    # Preserve all 5088 historical queries, but make material values explicit;
+    # classifier call arguments must never overwrite these inputs.
+    for row in rows:
+        serial, material_integer = row[0], row[4]
+        scalar = [0x7fc00001,0x80000000,0xbf800000,0x3f800000,0x7f800000][serial%5]
+        row.extend([material_integer]*4+[scalar,scalar,4,4,serial&1,0])
+    seed=[0,1,6,17,1,0,0x40,0,3,4,4,0x101,0x100,0,0,
+          1,0,0,0,0,0x3f800000,4,4,0,0]
+    def extended(**fields):
+        row=seed.copy();row[0]=len(rows)
+        indices=dict(flags=6,flags2=7,mutation=14,integer98=15,mode=16,d4=17,d8=18,
+                     scalar33=19,scalar105=20,envmap=21,mask=22,shadow=23,api=24)
+        for key,value in fields.items():row[indices[key]]=value
+        rows.append(row)
+    # Four independent integers: both feature gates can be true in mode zero.
+    for i98,mode,d4,d8,mutation in itertools.product([0,1,2,0xffffffff],
+            [0,1,2,3,0xffffffff,0x80000000,0x7fffffff],[0,1,0xffffffff],[0,1,0xffffffff],[0,11]):
+        extended(integer98=i98,mode=mode,d4=d4,d8=d8,mutation=mutation)
+    # Both flashlight-query sources, including disagreement between API and flags.
+    # Each combination is observed from the ORIGINAL router's actual arguments.
+    for shadow,flag,api,base_mask,envmap,mask,mutation in itertools.product(
+            range(2),range(2),range(2),range(2),[3,4,19],[3,4,19],[0,11]):
+        extended(shadow=shadow,flags2=flag*0x400,api=api,flags=base_mask*0x40,
+                 envmap=envmap,mask=mask,mutation=mutation)
+    floats=[0,0x80000000,0x3f800000,0xbf800000,0x7f800000,0xff800000,0x7fc00001,1,0x80000001]
+    for f33,f105,flash,base_mask in itertools.product(floats,floats,range(2),range(2)):
+        extended(scalar33=f33,scalar105=f105,api=flash,flags=base_mask*0x40)
     return rows
 
 def prediction(rows):
     output=bytearray();event_count=prefixes=0;classes=[0]*4;queries=0
+    field_values=[set() for _ in range(18)];route_cases={}
     for row in rows:
-        serial,integrated,first,second,arg,snap,f0,f2,t0,t1,t2,a0,a1,a2,mutation=row
+        serial,integrated,first,second,arg,snap,f0,f2,t0,t1,t2,a0,a1,a2,mutation=row[:15]
+        i98,mode,d4,d8,f33,f105,envmap,mask,shadow,api_flash=row[15:]
+        flashlight=((f2>>10)&1) if shadow else api_flash
         flags=[f0,f0^0x180];secondary=[f2,f2^0x400000];current=0;events=[];types={6:t0,17:t1,22:t2};returns=[a0,a1,a2]
         def signed(v):return struct.unpack('<i',struct.pack('<I',v))[0]
         def event(kind,a,b,c):events.append([kind,a,b,c,current,*flags,snap])
@@ -67,15 +97,29 @@ def prediction(rows):
         result=(2 if flags[current]&0x80 else 0)+int(alpha);classes[result]+=1
         header=[serial,result,current,snap,*flags,integrated,len(events)];output+=struct.pack('<8I',*header)
         if integrated:
-            value=signed(arg)
+            value=signed(mode)
             # Retained input list0; callback replacement list1 has different values.
-            scalar=[float('nan'),-0.0,-1.0,1.0,float('inf')][serial%5]
-            state=[result,int(result not in (1,3) and not f0&0x100),0,int(arg!=1),0,0,int(arg!=0),max(0,min(2,value)),int(arg!=0 and value==0),int(arg!=0 and value==0),0,int(bool(flags[0]&0x40)),int(scalar!=0),int(not flags[0]&0x40 and scalar>0)]
-            output+=struct.pack('<14I',*state)
+            scalar33,scalar105=[struct.unpack('<f',struct.pack('<I',v))[0] for v in (f33,f105)]
+            base_mask=not flashlight and bool(flags[0]&0x40)
+            mask_texture=base_mask and mask&15==3
+            state=[result,int(result not in (1,3) and not f0&0x100 and not flashlight),
+                   int(not flashlight and envmap&15==3),int(i98!=1),0,0,
+                   int(mode!=0),max(0,min(2,value)),int(d4!=0 and value==0),
+                   int(d8!=0 and value==0),0,int(base_mask),int(scalar33!=0),
+                   int(not base_mask and not mask_texture and scalar105>0),
+                   int(mask_texture),1,flashlight,0]
+            output+=struct.pack('<18I',*state)
+            for seen,v in zip(field_values,state):seen.add(v)
+            route=f'shadow={shadow},flag={(f2>>10)&1},api={api_flash},flash={flashlight}'
+            route_cases[route]=route_cases.get(route,0)+1
         for e in events:output+=struct.pack('<8I',*e)
         event_count+=len(events);prefixes+=integrated
     need(all(classes) and queries and prefixes,'four classes/resource callbacks/connected generic prefix covered')
-    return bytes(output),dict(cases=len(rows),events=event_count,generic_prefix_cases=prefixes,classes=classes,texture_alpha_callbacks=queries)
+    for i in [1,2,3,6,8,9,11,12,13,14,16]:
+        need(field_values[i]=={0,1},'both outcomes for field '+str(i))
+    need(field_values[7]=={0,1,2} and len(route_cases)==8,'clamp and all flashlight query combinations')
+    return bytes(output),dict(cases=len(rows),historical_cases=5088,events=event_count,generic_prefix_cases=prefixes,classes=classes,texture_alpha_callbacks=queries,
+                             observed_field_values=[sorted(s) for s in field_values],flashlight_routes=route_cases)
 
 def main():
     OUT.mkdir(exist_ok=True)
@@ -118,7 +162,7 @@ def main():
     mapping_source=parent.parent/'mapping.bin'
     need(sha(mapping_source)==prior['mapping_sha256'],'accepted actual-built mapping artifact')
     mapping=run/'mapping.bin';mapping.write_bytes(mapping_source.read_bytes());protected[str(mapping_source)]=sha(mapping_source)
-    rows=corpus();query=run/'queries.bin';query.write_bytes(b''.join(struct.pack('<15I',*r) for r in rows))
+    rows=corpus();query=run/'queries.bin';query.write_bytes(b''.join(struct.pack('<25I',*r) for r in rows))
     expected,coverage=prediction(rows);(run/'analytical.bin').write_bytes(expected)
     started=time.time()
     built=subprocess.run(['cmd.exe','/d','/c',str(ROOT/'work/build_vertexlit_generic_preparation.cmd')],cwd=ROOT,capture_output=True,text=True,timeout=180)
@@ -170,9 +214,9 @@ def main():
         editor=prior['editor'],editor_sha256=prior['editor_sha256'],editor_dependencies=prior['editor_dependencies'],editor_rebuilt=False,
         findings=[
           'Whole original generic preparation55320..557B0 executes in connected concrete14/router cases, including complete blend and texture-alpha methods. Checkpoint557B0 precedes both static shadow setup and dynamic render bodies; neither body executes. Final function cleanup remains bypassed by a declared private-thread checkpoint.',
-          'Fourteen defined original local values agree with independent prediction and owned x64 post-blend preparation for installed VertexLitGeneric, vertexLit1/flashlight0, detail mode0, null context, valid registered schema. Shared shadow presence is alternated; no shadow object method is called.',
+          'Fifteen original local values plus three captured route arguments agree with independent prediction and owned x64 post-blend preparation for installed VertexLitGeneric, vertexLit1, both flashlight states, flashlightMode0, detail mode0, null context, valid registered schema. Both shared-shadow flag and API flashlight-query paths are covered; no shadow object method is called.',
           'The retained input list supplies post-blend feature values despite callback changes to the shared list. Signed mode clamps to0..2; boolean uses nonzero; float !=zero includes NaN whereas >zero excludes it. Quiet NaN, infinity, negative, signedzero and positive controls are covered under masked FP exceptions.',
-          'Owned helper covers only the stated post-blend route, not the full original generic function. Unlit/flashlight routes, absent-schema variants, hardware-dependent detail modes and cached-context reuse remain unverified.',
+          'Owned helper covers only the stated post-blend route, not the full original generic function. Unlit routes, nonzero flashlight modes, absent-schema variants, hardware-dependent detail modes and cached-context reuse remain unverified. Four integers and two float inputs are independently varied; envmap and mask texture type gates are exercised. DC is absent in this installed schema and remains zero.',
           'Fresh builds and observer self-test, repeated full traces, and freshly compiled5088-case preceding blend regression pass. Original inputs, prior artifacts,313 editor dependencies and executable unchanged. No original process access, original writes, dependency changes, publication or GPU/image-fidelity claim.'])
     receipt=run/'results.json';receipt.write_text(json.dumps(outcome,indent=2)+'\n')
     (OUT/'latest-verification.json').write_text(json.dumps(dict(receipt=str(receipt),receipt_sha256=sha(receipt)),indent=2)+'\n')

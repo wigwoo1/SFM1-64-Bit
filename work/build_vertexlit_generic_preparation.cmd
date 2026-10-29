@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0.."
 if errorlevel 1 exit /b 1
-set "OUT=%CD%\outputs\vertexlit-generic-preparation-20261028"
+set "OUT=%CD%\outputs\vertexlit-generic-preparation-correction-20261028"
 if not exist "%OUT%" mkdir "%OUT%"
 set "TEMP=%OUT%"
 set "TMP=%OUT%"

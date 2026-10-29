@@ -34,16 +34,16 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "99f83b651501f7ce2012e8afa9c7642b3b4721f586c0e66c9a57323b340bdf52",
-      "size": 367
+      "sha256": "e3c50697fc8d539215606965fbe68ca3cdfa29544733b8095dc4064b915ef275",
+      "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "3c7c39acca441b462e89ea52a4fa90a3c098eb8a533f04d67253041cde77f2ac",
       "size": 912865
     },
     "publication/README.md": {
-      "sha256": "e12b74faee0255e36dd7de6a6c6279071615bb2840f3124e9fb8ed717bf7fa62",
-      "size": 3699
+      "sha256": "340c584285c06d92791cfd40daf1ac5962fd97798d07a005d9e028a3e4fe290b",
+      "size": 4327
     },
     "publication/prepare_public_snapshot.py": {
       "sha256": "164a22911ccd0134c93f81c4ac7bfd228c9f3af8484e0f7c9af6d99d7a943c01",
@@ -5073,6 +5073,14 @@
       "sha256": "7da0613f92fdaad659817cba88f4fdce023bb563e87ea1d636fc502d8dbdc7ce",
       "size": 1285
     },
+    "work/build_shader_instance_cache_lifetime.cmd": {
+      "sha256": "44bd9a576e540c0b3906ac2b9941600f8fcaa2dc923280f8ce46c0d0ce5b5dc4",
+      "size": 1375
+    },
+    "work/build_shader_instance_command_cache_x64.cmd": {
+      "sha256": "57b6529634b3e9888df26d9c8fcbf898de206dbd6d53c37e5c006b6c487daa6c",
+      "size": 769
+    },
     "work/build_shader_instance_matrix.cmd": {
       "sha256": "e04779889336f37bf79eedf8c2519c98bd8d1bdf492f44760c579c9d5ed9baf7",
       "size": 742
@@ -6509,9 +6517,13 @@
       "sha256": "30859bf43ebc419176b777149fa284b8e19af8ba733d8c0cd3198a051186ecef",
       "size": 1279
     },
+    "work/build_vertexlit_generic_initial_commands.cmd": {
+      "sha256": "4e7d2607afe5a3f89ad1fc22c2001cb5db109f9985d39a7fe352ed451c9697a1",
+      "size": 1303
+    },
     "work/build_vertexlit_generic_preparation.cmd": {
-      "sha256": "18de09c3d5f23ab7261b31f49a4b4ef8c3a1a36c54987f69cba40676f6d29cd5",
-      "size": 1494
+      "sha256": "8fefd232aaec6b67d49d40e0e172454379deb06e204a315e196cd8552f580dbc",
+      "size": 1505
     },
     "work/build_vertexlit_shared_init.cmd": {
       "sha256": "6b1fd0112ad7652c76d6b7f359e0a7102a2f216374e71401ba44acd5c6f2d5fe",
@@ -13821,6 +13833,14 @@
       "sha256": "2bea027a442b010f94cc024787e747f4a1ce68fc33fe146f4afffb340ef83a63",
       "size": 7496
     },
+    "work/probe_shader_instance_cache_lifetime.cpp": {
+      "sha256": "d1ff46c3c460f405b1fe8d1e2194b6015463dfb56329aabfedaaf457e3668c07",
+      "size": 6941
+    },
+    "work/probe_shader_instance_command_cache.cpp": {
+      "sha256": "6ba2a62f3b5023cf1e68ece6af971910d0c5f2f5f424184284fecbba77007245",
+      "size": 13603
+    },
     "work/probe_shader_material_flush_composition.cpp": {
       "sha256": "c61bd7711c99405dc1280a734b8ede340ba2a73ea0ba27c4726f9b32a171f359",
       "size": 11397
@@ -13832,6 +13852,10 @@
     "work/probe_shader_skin_material_predicate.cpp": {
       "sha256": "4b28cef9cc0f2eaa3b8609fe38cdfbd1e7f2de3c3f49d87fec24cfd1dd78b3d4",
       "size": 3501
+    },
+    "work/probe_shader_snapshot_instance_release.cpp": {
+      "sha256": "05fc0042151b144ccf44214e53c01c518862811a68b0e90ae582f64f62442083",
+      "size": 4490
     },
     "work/probe_shader_system_normal_draw.cpp": {
       "sha256": "3059f4668209cc7523698157b45f2a4713bf0c94193b3c6f68a2d2762d54113a",
@@ -14049,9 +14073,13 @@
       "sha256": "90b4bfd2730b0973f5a3e5a2440e141108f57de2925ac0f534e4cee5bfc9e359",
       "size": 12623
     },
+    "work/probe_vertexlit_generic_initial_commands.cpp": {
+      "sha256": "cb5bf8e76f98a53d9e79f72d147ebd038ca3efae6673e35eaa8dead845909894",
+      "size": 15839
+    },
     "work/probe_vertexlit_generic_preparation.cpp": {
-      "sha256": "b5cd6cbef97d966112223c3afec063236a98fc201257198f73d9c28fb679e331",
-      "size": 11887
+      "sha256": "a1c9430231bd8fa2389703712866abee24b26358c4db3697f65afd72e00a1982",
+      "size": 12890
     },
     "work/probe_vertexlit_shared_init.cpp": {
       "sha256": "09c3f08ef426a7796e6b11cf79690580558960c171345294e7ff33b04dca4ef8",
@@ -17512,6 +17540,10 @@
     "work/shader_fallback_native_fixture.h": {
       "sha256": "7b6bb96c6492b7689d68888cdabc8f15aee82cc3f1ce1aa541765745051257a0",
       "size": 3475
+    },
+    "work/shader_instance_command_cache_candidate.h": {
+      "sha256": "8cf77a03b8e88d74eab94c1959c268b00a1d1e109807e6f209fc4e8dbee163a3",
+      "size": 2934
     },
     "work/shader_instance_matrix_native_bytes.h": {
       "sha256": "b157638c5c0503136cb84099cf37c3fe740fa1d6c626084d565ba43e4f31b9a2",
@@ -25629,6 +25661,14 @@
       "sha256": "06857ac891df027ac541e70e1776920d39607ea307234a6ef5fed09231acb782",
       "size": 14854
     },
+    "work/verify_shader_instance_cache_lifetime.py": {
+      "sha256": "09c67ce486fa1165895054fb320dc85911d08a2884f7eff6fd85ed289f30ce62",
+      "size": 14959
+    },
+    "work/verify_shader_instance_command_cache.py": {
+      "sha256": "92a37890fd86be9a1826673e71a575275c1ddfa746719f37d957cb1d68eb5f90",
+      "size": 13432
+    },
     "work/verify_shader_material_flush_composition.py": {
       "sha256": "da206dc46d03fb7ed53e6c3563382ec30ee1da26c904eb470ba01240b288d8f8",
       "size": 12406
@@ -26033,9 +26073,13 @@
       "sha256": "590ebeaca6ff8849b48931a883b76a24a88e1f0a23c7e74493c2a0229870b15a",
       "size": 15774
     },
+    "work/verify_vertexlit_generic_initial_commands.py": {
+      "sha256": "64620bdac06d716558b296c30baf74d69bfff10f0a4c543ef96cd5283b1b103e",
+      "size": 11796
+    },
     "work/verify_vertexlit_generic_preparation.py": {
-      "sha256": "1677d6782e3cbacf461f16dfbe34fadd5783ae147c1f6dccd5bbe4d72d5e20f7",
-      "size": 15671
+      "sha256": "f677a3945cb74649a3194a203c3fbbd1ee646a68294234bf91438854ae12b084",
+      "size": 18911
     },
     "work/verify_vertexlit_shared_init.py": {
       "sha256": "f2633c63d3edb5e267d89e76b84775a20552b829a78d00e13b54737ba03e8ff3",
@@ -26145,9 +26189,13 @@
       "sha256": "55423a4f22d06800559628d699974ce7eb73eaffb5789b7fa7a5634ce5af7bfc",
       "size": 7123
     },
+    "work/vertexlit_generic_initial_commands_candidate.h": {
+      "sha256": "3e9e59744f3a35e7aab0cf906e9e82f46f3f844e35ee322df9f429f98f6f8261",
+      "size": 852
+    },
     "work/vertexlit_generic_post_blend_candidate.h": {
-      "sha256": "f85d30195df940bd2623a1eab76bab391f89cf2e4e3814f09c0e3ee9ab6d7ebd",
-      "size": 1031
+      "sha256": "08e75f0ce1a34d38de1f33cc2182c0042f8bd9f6b69fe8ed9b9c41444f982043",
+      "size": 1278
     },
     "work/vertexlit_parameter_schema_candidate.h": {
       "sha256": "bf18ee669e8b4b7b29a81ee2b1c0800e883b30a8d0ee77635bbfdd46c2ca1033",

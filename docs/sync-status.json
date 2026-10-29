@@ -1,6 +1,5 @@
 {
-  "checked_utc": "2026-10-28T13:58:19.641598+00:00",
+  "checked_utc": "2026-10-29T13:08:54.370497+00:00",
   "status": "PUBLICATION PREPARED; inspect commit for remote result",
-  "repository": "wigwoo1/SFM1-64-Bit",
-  "source_validation_note": "VertexLit generic preparation extension is an unaccepted research draft: isolated builds passed, trace comparisons failed; not integrated into the unchanged editor."
+  "repository": "wigwoo1/SFM1-64-Bit"
 }
