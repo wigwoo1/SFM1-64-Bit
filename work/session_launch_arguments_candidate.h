@@ -26,6 +26,8 @@ inline bool configureSessionLaunchCandidate(int argc,char**argv){
  auto set=[](const char*name,const std::string&value){if(!SetEnvironmentVariableA(name,value.c_str()))throw std::runtime_error("session launch configuration failed");};
  if(expressionWorkers)set("SFM64_DIAGNOSTIC_EXPRESSION_WORKERS",std::to_string(*expressionWorkers));
  if(geometryWorkers)set("SFM64_DIAGNOSTIC_GEOMETRY_WORKERS",std::to_string(*geometryWorkers));
+ if(!GetEnvironmentVariableA("SFM64_DIAGNOSTIC_SCENE_PREVIEW",nullptr,0))set("SFM64_DIAGNOSTIC_SCENE_PREVIEW","1");
+ if(!GetEnvironmentVariableA("SFM64_DIAGNOSTIC_CAPTURE_FRAMES",nullptr,0)&&!GetEnvironmentVariableA("SFM64_DIAGNOSTIC_SCENE_OUTPUT",nullptr,0))set("SFM64_DIAGNOSTIC_CAPTURE_FRAMES","0");
  set("SFM64_DIAGNOSTIC_START_FRAME",std::to_string(initialFrame));set("SFM64_DIAGNOSTIC_FROZEN_SCENE_SESSION",session);set("SFM64_DIAGNOSTIC_FROZEN_SCENE_TICK",tick);set("SFM64_DIAGNOSTIC_CONTENT_DIRECTORY",content);set("SFM64_DIAGNOSTIC_SESSION_TIMELINE","1");set("SFM64_DIAGNOSTIC_TIMELINE_BLANKS","1");
  if(!saveFurSettings.empty()){saveFurSettingsCandidate(graph,*fur,saveFurSettings);std::cout<<"fur_settings_saved=1\n";}if(!mode)vulkanPlaybackState.interactive=true;
  std::cout<<"session_argument_loaded=1 initial_tick="<<tick<<" frame_count="<<frames.size()<<" native_renderer=unfinished\n";

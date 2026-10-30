@@ -30,7 +30,9 @@ assets, sessions or runtime DLLs are included. See `RUNNING.txt` in the ZIP.
 ## Build the complete editor
 
 Use a short checkout path on Windows (long Vulkan header paths can exceed the
-compiler path limit). Install Visual Studio C++ Build Tools and Windows SDK, then run:
+compiler path limit). Install Visual Studio C++ Build Tools, Windows SDK, and
+the DirectX Shader Compiler (DXC). Set `SFM64_DXC_EXE` to DXC if it is not in
+the development-machine location named by the build script, then run:
 
 ```bat
 work\build_sfm64_editor_x64.cmd
@@ -40,6 +42,10 @@ The script names a particular local Visual Studio installation; adjust that path
 for your installation. Licensed Vulkan headers and the LZMA decoder source subset
 are included under `work/dependencies/`. The output is
 `outputs/sfm64-editor-x64/sfm64_session_ui.exe`.
+The build also compiles the explicitly listed project-authored Vulkan shaders
+into a `shaders/` directory beside that executable. Keep that directory with
+the executable when copying or extracting the build. The editor resolves it
+from its own location, independent of the current working directory.
 `build-session-core.cmd` builds the session core, not the complete editor.
 
 Many historical tests require local SFM or fixture/evidence files and still

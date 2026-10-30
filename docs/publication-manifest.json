@@ -6,8 +6,8 @@
       "size": 154
     },
     "README.md": {
-      "sha256": "e388ca91fdd920cdae0f58cfa865be2a7eaafcf18be2b66cf93070fc511170fb",
-      "size": 3347
+      "sha256": "caccc6ffb560ef7ec349ff3255d45c0725bf06af2c9ec1e7870cd481a34db958",
+      "size": 3786
     },
     "THIRD_PARTY_NOTICES.md": {
       "sha256": "b9963f2e97bb70e28ca74dc6e4148e2e094a6492a046a383445701339fc949aa",
@@ -26,28 +26,32 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "f6aa7f9262e0128706b5ac74e6921dd8ea0a573a682bab663c77cd2f2fcef491",
-      "size": 37211
+      "sha256": "fb0d9c8de4c3bd220c73e79cec47f7a0952f590b4f558b444f425d43c125639f",
+      "size": 41460
     },
     "docs/publication-policy.json": {
       "sha256": "d1268f82fc0f8e19707d04c202e598525498e29574ea552885da40ae41586a4a",
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "e3c50697fc8d539215606965fbe68ca3cdfa29544733b8095dc4064b915ef275",
+      "sha256": "89d3d682d88898800e6820d73600ec534c796d9aa38fc38e49a15dcbeb33a07f",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "3c7c39acca441b462e89ea52a4fa90a3c098eb8a533f04d67253041cde77f2ac",
-      "size": 912865
+      "sha256": "e02bdbda30c6e75d805f4baf26048bebd2fc524e8bcb3270f1229e21648e8994",
+      "size": 933017
     },
     "publication/README.md": {
-      "sha256": "340c584285c06d92791cfd40daf1ac5962fd97798d07a005d9e028a3e4fe290b",
-      "size": 4327
+      "sha256": "de53a72d5e486956c41a3d633296e4d562d9902f4a5405bf9ef76d1fc8b96e19",
+      "size": 6068
+    },
+    "publication/editor_runtime_package.py": {
+      "sha256": "52fe1d89907b56d93e0d3626aee9d404c14d837b208f08638a0ccb49870809b8",
+      "size": 2761
     },
     "publication/prepare_public_snapshot.py": {
-      "sha256": "164a22911ccd0134c93f81c4ac7bfd228c9f3af8484e0f7c9af6d99d7a943c01",
-      "size": 11737
+      "sha256": "5469fa34d6467e2ce8a9ce0cfeb8fbf18416539dc765220fdd9de03656f992bf",
+      "size": 12625
     },
     "test-session-core.ps1": {
       "sha256": "18c0edf7caae2f72532e643a056faba0a971c702e9bc7f14d1c9074882771c2e",
@@ -1632,6 +1636,10 @@
     "work/build_editor_save_copy_safety.cmd": {
       "sha256": "ee1069f075b29488a4bb9d6f8a9e2d604df7ee8381f0691e742e35641b9a3d3c",
       "size": 717
+    },
+    "work/build_editor_shader_resources.cmd": {
+      "sha256": "aebe8e6a5ee83bf7f0b1e1678e506cc4f9869573c360a66afaede8d2799aa3bb",
+      "size": 693
     },
     "work/build_editor_transaction_test.cmd": {
       "sha256": "632d2512a4c9060fbeab5be874ced2c578a3feb8447cc9c7a0a1b25793d26228",
@@ -5018,8 +5026,8 @@
       "size": 352
     },
     "work/build_sfm64_editor_x64.cmd": {
-      "sha256": "5777a105bc5bbc120481677a08312df6499561849c385f3f4a26c16553880acc",
-      "size": 1791
+      "sha256": "7beddbe430a71d24778be011f230bb8746d0c41f15a213d7809fb869ad747208",
+      "size": 2089
     },
     "work/build_sfm64_session_ui.cmd": {
       "sha256": "748e11e642397d4ffa38aec020f171645e4626a86d8d58b96da99949508600e2",
@@ -8128,6 +8136,14 @@
     "work/editor_rate_object_candidate.h": {
       "sha256": "f658a43ce555849d9e80f3ed8255c2555b425cc2e186976711d8b1f2dce6e88f",
       "size": 479
+    },
+    "work/editor_shader_manifest.txt": {
+      "sha256": "7227be943304dc69228f61d9dc5c4a7534c80ffb9f8748b953ac14cb467a64a9",
+      "size": 658
+    },
+    "work/editor_shader_resources_candidate.h": {
+      "sha256": "985bc0ece999d393fca387213021d3cdc1f67b7b26baf833a6067b65deec0e47",
+      "size": 1413
     },
     "work/elapsed_frame_clock_candidate.h": {
       "sha256": "f8ebaf54f0c779999490a80c9b81522317d7aa1452108319b3496ebbcfdcbdf4",
@@ -14110,8 +14126,8 @@
       "size": 5063
     },
     "work/probe_vulkan_win32_surface_x64.cpp": {
-      "sha256": "ee0c68cdc770acfceeff7d271ad4000e589e334c040c70cd9506bf8649861407",
-      "size": 8725
+      "sha256": "192a66d0746f5ae41f77e04563c4c8961e96712b6dd2cecbbd56e415d448b307",
+      "size": 8816
     },
     "work/probe_world_light_entity_filter.cpp": {
       "sha256": "1609d6c4454a84a17461fe1198d9cb7bb2bdbdf0c62fc5da5e07f34a683711ee",
@@ -17234,8 +17250,8 @@
       "size": 2715
     },
     "work/session_launch_arguments_candidate.h": {
-      "sha256": "1264e718a87a3dd00595dbbc9dcc12eed703e16d78de18af97bf2c937e1da7fc",
-      "size": 11677
+      "sha256": "21c1239436de930c3a4e6f3a1f2daf16a6e410cf224896208361b980be848ffd",
+      "size": 11982
     },
     "work/session_local_flex_controllers_candidate.h": {
       "sha256": "875ef1ce4b63bb343a31eb3d5c3066b7360edd060c6992f0a997ae17f25d07cc",
@@ -17302,8 +17318,8 @@
       "size": 541
     },
     "work/session_movie_dimensions_candidate.h": {
-      "sha256": "d694d7841defb1a8f628bb2eb432d47e216caf0c304bf35c59db5dd64decf690",
-      "size": 1703
+      "sha256": "6cf704a90b64e2ebc8185c46effa061e4c686e989db88ded780b4e7b2cafeb2b",
+      "size": 2199
     },
     "work/session_mutation_dispatch.h": {
       "sha256": "8de1470253b5c9f990f25a5c840fbb306fef80079d726194a9e17af2fb0874db",
@@ -17324,6 +17340,10 @@
     "work/session_point_constraint_runtime.h": {
       "sha256": "883e695be79bc9893728aa9536baadc64d30af7eb21fda487fddf6cb8fc06563",
       "size": 1997
+    },
+    "work/session_preview_dimensions_candidate.h": {
+      "sha256": "13f0b84751ce0672af6ba67f01b34dc36717d74f5f8e9ccccbc2ef2c4ea0289e",
+      "size": 927
     },
     "work/session_quaternion_runtime.h": {
       "sha256": "96c94867eabfc91eb7be693442cd6e06556c1139f95d484c49fe6019a28fbd1f",
@@ -19789,6 +19809,10 @@
       "sha256": "09b9bf09441fa6365083ba9773cd8aec1517a81b43c6ea905cb9d14b46a9749c",
       "size": 2183
     },
+    "work/test_editor_shader_resources.cpp": {
+      "sha256": "585ae12c9fb7dfa58546a12a33029f4fae25f4c494b820b3ec6019f0657e66a7",
+      "size": 1484
+    },
     "work/test_editor_transaction.cpp": {
       "sha256": "83f63226aa368e7ea31b83f0b98840a6c405ccc8b85f0a95834b3db601994a3d",
       "size": 5345
@@ -20594,8 +20618,8 @@
       "size": 889
     },
     "work/test_live_movie_output_extent_x64.cpp": {
-      "sha256": "8387a9f20afd27cff8b06e355ee78f9b078301240c58c81d01ebe9361be803ca",
-      "size": 4455
+      "sha256": "8718c573721ee732ee2545edd28d6249866347844e870929e66d2f3586308416",
+      "size": 8326
     },
     "work/test_live_multimodel_scene.cpp": {
       "sha256": "983394d3b991f5f6f4ec30e05ec202fc610d1f22e65a3c11b0e9d2fb13a3502f",
@@ -24229,6 +24253,10 @@
       "sha256": "633cd1d4567671420ac04914627fb9ce95a3ab97e5346762d7283ee13fa24b85",
       "size": 4165
     },
+    "work/verify_editor_shader_deployment.py": {
+      "sha256": "6b2541db209a0a481865ab3c99532a5352eaa370e8487bdcda799a7da4cbb7e6",
+      "size": 9860
+    },
     "work/verify_elapsed_accumulator_native.py": {
       "sha256": "bfd60a75661f88c0799f0a851d5965cdbe2d86f0059a4dc67d1b65c94a47da93",
       "size": 1394
@@ -25637,6 +25665,10 @@
       "sha256": "876d82139bcaa6840bb89900f1b0428b9f50bb0d9038a87b81e6ce86fbe01ee0",
       "size": 13281
     },
+    "work/verify_session_preview_aspect.py": {
+      "sha256": "f9c10646403a22a370fc936e8e7392035bf263a1b1cdce5958426afcf5a29f53",
+      "size": 8344
+    },
     "work/verify_session_rate_grid_vulkan.py": {
       "sha256": "7a653330e3b56dd2cca4d54b3ef2ee191e0feb2e147a44da85e7441c34990471",
       "size": 1244
@@ -26242,16 +26274,16 @@
       "size": 4110
     },
     "work/vulkan_graphics_pipeline_candidate.h": {
-      "sha256": "6dcc061d0fd08cdc0b7a8689bad517a17567328ad05b239f2205fe2c0481a891",
-      "size": 14633
+      "sha256": "e9fce471b45dd451b24d6779f1434e887932fc3a7519ce8e869e61fbb1454817",
+      "size": 14716
     },
     "work/vulkan_light_pipeline_device_test_candidate.h": {
-      "sha256": "0541ae8ff774d1a7e45ae040f245894fb046d9eae38e0057429fdc72d9cce2b5",
-      "size": 4449
+      "sha256": "6314037e627a542f2f466155454f61984f2f6ba1e59bf2fb0af1dd3574462ef6",
+      "size": 4532
     },
     "work/vulkan_light_shader_readback_candidate.h": {
-      "sha256": "fcd5b6078991e4f517c06b7c707fabafefc431df1afa4ccd10f2e2ab33f88239",
-      "size": 7532
+      "sha256": "f3c9e6f7e6353f77a5f0fa9aeb4222fe46cffbea69e5947a026fb304b10f4091",
+      "size": 7615
     },
     "work/vulkan_material_descriptor_counts_candidate.h": {
       "sha256": "5ef40915a5b23ba1f2214dad94c0da33eef80a8d1e742fca3f30cb3143040d39",
@@ -26290,20 +26322,20 @@
       "size": 2898
     },
     "work/vulkan_scene_output_extent_candidate.h": {
-      "sha256": "fe37ece6758e1f555a119643648284c65007d4ca869797b5af1f1087139b08c5",
-      "size": 2182
+      "sha256": "95f3b276c3b1231a1d1b348d323639fd1cf3d4667e52696f36d343ede93ba8fc",
+      "size": 2842
     },
     "work/vulkan_shader_module_candidate.h": {
       "sha256": "b680008f9f4b134fd602786bd7a11d3facfbf666cd71a5df5fc56b74a3e1fba9",
       "size": 1314
     },
     "work/vulkan_shadow_depth_raster_candidate.h": {
-      "sha256": "98ad4e5385964da2e2ccda8c0478da1af185fd840592f282dca5943b35d8d773",
-      "size": 11398
+      "sha256": "4ad342c0faf70e2b55735316e9e5469faa42451ed8dc2c2298941d8d8a842579",
+      "size": 11481
     },
     "work/vulkan_shadow_depth_shader_candidate.h": {
-      "sha256": "0c0e2317dedbf696898b288e5dd61a1cbe2febf251e53e7433a281b9fef6d181",
-      "size": 9038
+      "sha256": "2cc37bf05b699917ca9b90f4f41f24462e24c172a036455f8900b30afbc07df1",
+      "size": 9121
     },
     "work/vulkan_shadow_maps_candidate.h": {
       "sha256": "4c4fd14ec5e49ef0534d08f6deed2fcce33f8edfee595d6ddca239759a41bec7",

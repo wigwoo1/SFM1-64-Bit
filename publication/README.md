@@ -39,6 +39,16 @@ functions.exec to tools without printing the full source/binary data to chat.
 GitHub releases are not exposed by the current connector; the current build ZIP
 is versioned at downloads/sfm64-experimental-windows-x64.zip instead.
 
+The runtime ZIP must include the owned `shaders/` directory beside the editor.
+`work/editor_shader_manifest.txt` explicitly lists the project-authored HLSL
+sources and compiler profiles. The complete editor build compiles them with
+DXC. `editor_runtime_package.py` validates those SPIR-V artifacts and packages
+only their listed names and the fixed editor/documentation files. It never
+copies Valve shader caches or the shader compiler. The snapshot dependency
+hashes include these HLSL sources, local includes, and build manifest/scripts,
+so a shader source change requires a rebuild. A missing shader or mismatch
+between the renderer references and manifest must stop publication.
+
 Files omitted by policy may be required by historical research-oracle tests.
 Do not claim the public snapshot includes those proprietary fixtures or that
 all tests can run from a clean clone. Do not grant a blanket project license.
@@ -63,3 +73,22 @@ cleanup, cached contexts, or other shader routes. The helper is not integrated
 into the editor; all 313 editor dependencies and its executable are unchanged.
 Do not describe this as a verified visual improvement or a completed renderer.
 Private reference inputs and traces remain excluded from public publication.
+
+## Prepared runtime package checked (2026-10-30)
+
+The complete editor was rebuilt with all 15 project-authored Vulkan shaders.
+The prepared 20-file ZIP was extracted into a separate directory and executed
+from an empty working directory. Two noninteractive control-test sequences
+passed ten GPU frames: normal startup required no diagnostic environment or
+output directory; explicit capture matched the prior verified candidate's
+frames 0, 119, and 120 byte for byte. The same 15 compiler warnings remain.
+The packager itself does not execute runtime tests; this check follows it.
+
+Tested editor SHA-256:
+`d01549900fe244c4fc8c039f75b9b63725e3b0117194881ff96aec606f644db1`.
+Tested ZIP SHA-256:
+`e02bdbda30c6e75d805f4baf26048bebd2fc524e8bcb3270f1229e21648e8994`.
+Original session/gameinfo hashes remained unchanged. Runtime logs and benchmark
+captures stay local and are excluded from publication. This establishes this
+package's startup and measured pixel regression, not full Source shading,
+interactive workflow acceptance, or complete SFM compatibility.

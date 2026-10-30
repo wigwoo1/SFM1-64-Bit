@@ -4,10 +4,17 @@ cd /d "%~dp0.."
 if errorlevel 1 exit /b 1
 
 set "OUT=%CD%\outputs\sfm64-editor-x64"
+if not "%~1"=="" set "OUT=%~f1"
 set "TEMP=%OUT%\temp"
 set "TMP=%OUT%\temp"
 if not exist "%OUT%" mkdir "%OUT%"
 if not exist "%TEMP%" mkdir "%TEMP%"
+
+call "%CD%\work\build_editor_shader_resources.cmd" "%OUT%\shaders" > "%OUT%\shader-build.log" 2>&1
+if errorlevel 1 (
+  type "%OUT%\shader-build.log"
+  exit /b 1
+)
 
 call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >nul
 if errorlevel 1 exit /b 1
@@ -34,5 +41,6 @@ certutil -hashfile "%OUT%\sfm64_session_ui.exe" SHA256 >> "%OUT%\build-manifest.
 if errorlevel 1 exit /b 1
 certutil -hashfile "work\probe_vulkan_win32_surface_x64.cpp" SHA256 >> "%OUT%\build-manifest.txt"
 if errorlevel 1 exit /b 1
+for %%S in ("%OUT%\shaders\*.spv") do certutil -hashfile "%%~fS" SHA256 >> "%OUT%\build-manifest.txt"
 type "%OUT%\build-manifest.txt"
 exit /b 0

@@ -1,0 +1,16 @@
+# Profile and project-authored source stem. Only these SPIR-V files ship.
+vs_6_0 sfm64-diagnostic-model
+vs_6_0 sfm64-world-normal-candidate
+vs_6_0 sfm64-eye-projection-candidate
+vs_6_0 sfm64-projected-light-vertex-candidate
+vs_6_0 sfm64-shadow-depth-vertex
+vs_6_0 sfm64-shadow-scene-vertex
+ps_6_0 sfm64-material-alpha-candidate
+ps_6_0 sfm64-material-selfillum-candidate
+ps_6_0 sfm64-normal-view-candidate
+ps_6_0 sfm64-eye-composition-candidate
+ps_6_0 sfm64-projected-light-fragment-candidate
+ps_6_0 sfm64-projected-light-shadow-fragment-candidate
+ps_6_0 sfm64-unlit-two-texture-candidate
+cs_6_0 sfm64-light-buffer-readback
+cs_6_0 sfm64-shadow-depth-readback

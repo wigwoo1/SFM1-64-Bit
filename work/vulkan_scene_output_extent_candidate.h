@@ -1,13 +1,19 @@
 #pragma once
 #include "session_render_root_candidate.h"
 #include "session_movie_dimensions_candidate.h"
+#include "session_preview_dimensions_candidate.h"
 #include <charconv>
 
 inline VkExtent2D vulkanSceneOutputExtentCandidate() {
     char mode[32]{};
     auto size = GetEnvironmentVariableA("SFM64_DIAGNOSTIC_SCENE_OUTPUT", mode, sizeof(mode));
-    if (!size) return {512, 512};
-    if (size >= sizeof(mode) || std::string(mode) != "movie")
+    char preview[8]{};
+    const auto previewSize = GetEnvironmentVariableA("SFM64_DIAGNOSTIC_SCENE_PREVIEW", preview, sizeof(preview));
+    if (previewSize && (previewSize != 1 || (preview[0] != '0' && preview[0] != '1')))
+        throw std::runtime_error("scene preview mode invalid");
+    const bool sessionPreview = previewSize && preview[0] == '1';
+    if (!size && !sessionPreview) return {512, 512};
+    if (size && (size >= sizeof(mode) || std::string(mode) != "movie"))
         throw std::runtime_error("scene output mode invalid");
 
     // Read the selected provider's session without activating another provider.
@@ -38,6 +44,11 @@ inline VkExtent2D vulkanSceneOutputExtentCandidate() {
         root = value;
     }
     auto graph = loadGraph(path);
-    auto dimensions = sessionMovieDimensionsCandidate(graph, sessionRenderRootCandidate(graph, root));
-    return {dimensions.width, dimensions.height};
+    const auto dimensions = readSessionMovieDimensionsCandidate(graph, sessionRenderRootCandidate(graph, root), size != 0);
+    if (!dimensions) return {512, 512};
+    if (!size) {
+        const auto extent = sessionPreviewDimensionsCandidate(dimensions->width, dimensions->height);
+        return {extent[0], extent[1]};
+    }
+    return {dimensions->width, dimensions->height};
 }

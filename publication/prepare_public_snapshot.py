@@ -2,6 +2,7 @@
 import hashlib,json,re,shutil,struct,zipfile
 from pathlib import Path
 from datetime import datetime,timezone
+from editor_runtime_package import shader_manifest,owned_shader_payload,write_editor_package
 ROOT=Path(__file__).resolve().parent.parent
 PUB=ROOT/'publication'; STAGE=PUB/'stage'; REPO='wigwoo1/SFM1-64-Bit'
 EXT={'.cpp','.h','.hpp','.c','.py','.cmd','.ps1','.inc','.hlsl','.hlsli'}
@@ -19,6 +20,7 @@ def main():
   if RAW.search(s):excluded.append((p.name,'embedded original instruction array'));continue
   if any(r.search(s) for r in SECRET):raise RuntimeError('Possible credential in '+p.name)
   selected[p.relative_to(ROOT).as_posix()]=p
+ selected['work/editor_shader_manifest.txt']=ROOT/'work/editor_shader_manifest.txt'
  for p in ROOT.iterdir():
   if p.is_file() and p.suffix.lower() in {'.cmd','.ps1'}:selected[p.name]=p
  vendor=ROOT/'work/dependencies/vulkan-headers-6802bb4733b6/Vulkan-Headers-6802bb4733b63ed5efd3adb308a6c885ef180ea1'
@@ -66,7 +68,9 @@ assets, sessions or runtime DLLs are included. See `RUNNING.txt` in the ZIP.
 ## Build the complete editor
 
 Use a short checkout path on Windows (long Vulkan header paths can exceed the
-compiler path limit). Install Visual Studio C++ Build Tools and Windows SDK, then run:
+compiler path limit). Install Visual Studio C++ Build Tools, Windows SDK, and
+the DirectX Shader Compiler (DXC). Set `SFM64_DXC_EXE` to DXC if it is not in
+the development-machine location named by the build script, then run:
 
 ```bat
 work\build_sfm64_editor_x64.cmd
@@ -76,6 +80,10 @@ The script names a particular local Visual Studio installation; adjust that path
 for your installation. Licensed Vulkan headers and the LZMA decoder source subset
 are included under `work/dependencies/`. The output is
 `outputs/sfm64-editor-x64/sfm64_session_ui.exe`.
+The build also compiles the explicitly listed project-authored Vulkan shaders
+into a `shaders/` directory beside that executable. Keep that directory with
+the executable when copying or extracting the build. The editor resolves it
+from its own location, independent of the current working directory.
 `build-session-core.cmd` builds the session core, not the complete editor.
 
 Many historical tests require local SFM or fixture/evidence files and still
@@ -132,11 +140,19 @@ original instruction arrays are excluded from this publication.
     if child not in selected:raise RuntimeError('Editor include excluded '+child)
     visit(child)
  visit('work/probe_vulkan_win32_surface_x64.cpp')
- info=dict(target='AMD64 PE32+',source='work/probe_vulkan_win32_surface_x64.cpp',compiled_utc=datetime.fromtimestamp(build.stat().st_mtime,timezone.utc).isoformat(),executable_sha256=sha(build),editor_source_dependencies={k:sha(STAGE/k) for k in sorted(graph)},compiler_warnings=warnings,runtime_test_this_publication='NOT RUN',compatibility='INCOMPLETE')
+ shader_rows=shader_manifest(ROOT)
+ referenced={name for path in graph for name in re.findall(r'"(?:build/session-core/)?(sfm64-[a-z0-9-]+\.spv)"',(ROOT/path).read_text(errors='replace'))}
+ if referenced!={stem+'.spv' for _,stem in shader_rows}:raise RuntimeError('Editor shader manifest does not cover renderer references')
+ for name in ['work/editor_shader_manifest.txt','work/build_editor_shader_resources.cmd','work/build_sfm64_editor_x64.cmd']:visit(name)
+ for _,stem in shader_rows:visit('work/'+stem+'.hlsl')
+ shaders=owned_shader_payload(ROOT,build.parent)
+ info=dict(target='AMD64 PE32+',source='work/probe_vulkan_win32_surface_x64.cpp',compiled_utc=datetime.fromtimestamp(build.stat().st_mtime,timezone.utc).isoformat(),executable_sha256=sha(build),editor_source_dependencies={k:sha(STAGE/k) for k in sorted(graph)},runtime_shader_sha256={k:hashlib.sha256(v).hexdigest() for k,v in shaders.items()},compiler_warnings=warnings,runtime_test_this_publication='NOT RUN',compatibility='INCOMPLETE')
  runtime=r'''SFM1 64-Bit experimental development build
 
 Requires Windows x64, a Vulkan driver, and your own SFM installation.
 No SFM content or Valve runtime DLLs are included.
+Keep the included shaders/ directory beside sfm64_session_ui.exe. These are
+compiled from project-authored HLSL sources, not copied Valve shader binaries.
 
 In a command prompt in this extracted folder, replace both example paths:
 
@@ -147,14 +163,8 @@ Full SFM compatibility and visual fidelity remain incomplete/unverified.
 BUILD.json records compile time, architecture, warnings and source hashes.
 This publication did not repeat interactive runtime/render testing.
 '''.replace('\\"','"')
- payload={'sfm64_session_ui.exe':raw,'RUNNING.txt':runtime.encode(),'BUILD.json':json.dumps(info,indent=2).encode(),'THIRD_PARTY_NOTICES.md':(STAGE/'THIRD_PARTY_NOTICES.md').read_bytes()}
- payload['SHA256SUMS.txt']=''.join(hashlib.sha256(v).hexdigest()+'  '+k+'\n' for k,v in payload.items()).encode()
  package=STAGE/'downloads/sfm64-experimental-windows-x64.zip';package.parent.mkdir(parents=True,exist_ok=True)
- with zipfile.ZipFile(package,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
-  for name,data in sorted(payload.items()):
-   zi=zipfile.ZipInfo(name,(2026,10,18,0,0,0));zi.compress_type=zipfile.ZIP_DEFLATED;z.writestr(zi,data)
- with zipfile.ZipFile(package) as z:
-  if z.testzip() is not None or z.read('sfm64_session_ui.exe')!=raw:raise RuntimeError('ZIP integrity')
+ write_editor_package(package,raw,shaders,json.dumps(info,indent=2).encode(),runtime.encode(),(STAGE/'THIRD_PARTY_NOTICES.md').read_bytes())
  write('docs/build-status.json',json.dumps(info,indent=2)+'\n')
  write('docs/publication-policy.json',json.dumps(dict(repository=REPO,excluded_reference_sources=excluded,policy='Only allowlisted project source and licensed dependencies; original binaries/assets, sessions, dumps and private metadata stay local.'),indent=2)+'\n')
  write('docs/sync-status.json',json.dumps(dict(checked_utc=datetime.now(timezone.utc).isoformat(),status='PUBLICATION PREPARED; inspect commit for remote result',repository=REPO),indent=2)+'\n')
