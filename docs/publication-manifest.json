@@ -26,20 +26,20 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "fb0d9c8de4c3bd220c73e79cec47f7a0952f590b4f558b444f425d43c125639f",
-      "size": 41460
+      "sha256": "f4529ff79043fe1dbeeb858341ffe2568234dba6dff7bfb6de6d4db3eacd4b45",
+      "size": 41578
     },
     "docs/publication-policy.json": {
       "sha256": "d1268f82fc0f8e19707d04c202e598525498e29574ea552885da40ae41586a4a",
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "89d3d682d88898800e6820d73600ec534c796d9aa38fc38e49a15dcbeb33a07f",
+      "sha256": "2e0de12d5f21129696be224588b44c72f50ca458c377c68e2bb24df73d6592a0",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "e02bdbda30c6e75d805f4baf26048bebd2fc524e8bcb3270f1229e21648e8994",
-      "size": 933017
+      "sha256": "b25288d066d382704a314956d0f365f39317bcfed7ad42034d1630b09cb4aa46",
+      "size": 933069
     },
     "publication/README.md": {
       "sha256": "de53a72d5e486956c41a3d633296e4d562d9902f4a5405bf9ef76d1fc8b96e19",
@@ -289,6 +289,10 @@
       "sha256": "8e8e58b97db2df505ad9892cf5b3490cba30621a4d09764a6e8ec6dbee93f989",
       "size": 1406
     },
+    "work/audit_default_lighting_handoff.cpp": {
+      "sha256": "13003f3db6210a1fe9ac579995d2246bde23644405b429eb860712c3e73dc1c9",
+      "size": 8319
+    },
     "work/audit_device_command_pool_references.py": {
       "sha256": "674c49b01b3734b5b6e8eef47dbf88177f94d741d3a106f7bd1008b3e7ad3397",
       "size": 1987
@@ -460,6 +464,10 @@
     "work/audit_queue_pool_references.py": {
       "sha256": "435945f9a412877d3f0bbc4ae34ddc356b09409ec8286bbf30470d7a995dd6ef",
       "size": 1585
+    },
+    "work/audit_reference_lighting_policy.cpp": {
+      "sha256": "d817a3df7d4d44797fe8c3168976cb349cd2abad890800748e381297b2fd58dc",
+      "size": 3677
     },
     "work/audit_restore_queue_counter_references.py": {
       "sha256": "3eaef637ea07128d9b6f5e907f4a6b3949742539f71c5cedf7d76656452d1f2e",
@@ -11605,9 +11613,29 @@
       "sha256": "ebb635cf8040b8b861b0428aee4702aab896579d7c10648cf02f420232b02bd3",
       "size": 2024
     },
+    "work/phong_ambient_pixel_candidate.hlsli": {
+      "sha256": "8a1208dd4a4946867e34da815bc47b5002b1a8b0636f82c4df99b39d8b986407",
+      "size": 1978
+    },
+    "work/phong_ambient_pixel_compute.hlsl": {
+      "sha256": "ab38e1de68c13d27463b9fda1b925fb439886132101d51402e71447253bf1e85",
+      "size": 380
+    },
+    "work/phong_ambient_pixel_fixture.h": {
+      "sha256": "4af63d4d7570df5f2da7f65f8ed1702acc4e5f803db7af085726f9f7d9c4c6bf",
+      "size": 2081
+    },
+    "work/phong_ambient_pixel_graphics.hlsl": {
+      "sha256": "16f59be490ef302df026f388e291a9117e036860a522905ef4a7707e1aa195cf",
+      "size": 1373
+    },
     "work/phong_material_init_candidate.h": {
       "sha256": "4dd53d04894ce4206fe40dabbd9f5aa921f70d9f24a5a3da692f018f8390a5e9",
       "size": 3656
+    },
+    "work/phong_pixel_variant_candidate.h": {
+      "sha256": "a2cc9c9747c3e432a90fd57555a1d9d3cc4747ef40a2243f37a88193a2879ddd",
+      "size": 3269
     },
     "work/phong_shader_vertex_skin_candidate.h": {
       "sha256": "7cb5571cbfc1dcb37895436182f2306c5dd3c97d745ba8150dd498bfef3c4a27",
@@ -13649,9 +13677,29 @@
       "sha256": "70ef6944a0cbd14596b0e93a4ac6535bea1eb9e436623bd543e84018367d69e5",
       "size": 5983
     },
+    "work/probe_phong_ambient_pixel_d3d9.cpp": {
+      "sha256": "e240170c1a08c951f9da1e6d10a9ee48775437db9212ddac014c487f05740312",
+      "size": 10024
+    },
+    "work/probe_phong_ambient_pixel_graphics.cpp": {
+      "sha256": "e16106c1d994076ec61a4c0aac5eda5881fb2dbe1186000d0b1fcb5d3097fa48",
+      "size": 24755
+    },
+    "work/probe_phong_ambient_pixel_vulkan.cpp": {
+      "sha256": "ebf6cceb08f6ff20a2e647e307e6b10bd240f9d093a5aa4a675af45d0b0b7736",
+      "size": 11672
+    },
+    "work/probe_phong_ambient_receiver.cpp": {
+      "sha256": "d3697e85e9d1a338177e1ad7e53938583a62739f1bca913ecbf7f2e7765c33d3",
+      "size": 6327
+    },
     "work/probe_phong_material_init.cpp": {
       "sha256": "f5eb843e0d7a7de6b0dc0f00bda5c8968badffdf9c0f4cdc4ef0d57f09bf2f11",
       "size": 10886
+    },
+    "work/probe_phong_pixel_variant.cpp": {
+      "sha256": "ea1af98ac1c2592d99ae7ebdf8b974ca3eb31340ab06de24388cbd52a3753b4b",
+      "size": 8500
     },
     "work/probe_phong_vertex_defaults.cpp": {
       "sha256": "6b1f782d5bf009cca7f5fa2d7a8b19ef10fd1156e26cb2d9b0bf77603f3f7d99",
@@ -14140,6 +14188,10 @@
     "work/probe_world_transition_discovery.cpp": {
       "sha256": "1eb48cd7f5aa32fb56a863f15d73d77e97b2bfb851dfe29161032f4833155360",
       "size": 1520
+    },
+    "work/probe_world_transition_gpu.cpp": {
+      "sha256": "e9242a3e8502be3257b36d58d8de7067cc0915d309065407494fd7b5c24afacb",
+      "size": 19855
     },
     "work/probe_world_transition_parameters.cpp": {
       "sha256": "a6b948b0e8e8ab1ca6564ca8e981359876cfaecbdce685f027fa3a7490c8465a",
@@ -24117,6 +24169,10 @@
       "sha256": "98777000e1d5d037921ce5c616f21814046452f4237116e318f6b79fe3f4298a",
       "size": 8318
     },
+    "work/verify_default_lighting_handoff.py": {
+      "sha256": "222ff676fa4bdff6600174cb4f58619590f69f498d5ca5c863a9e76b030a5557",
+      "size": 7351
+    },
     "work/verify_delayed_flex_blend.py": {
       "sha256": "eae20ffbf8a0e554667a50c66c622fccc7b10e331d8e03846ad5add216864085",
       "size": 1397
@@ -25397,9 +25453,21 @@
       "sha256": "0a75bbf96ddaad1d0c0aa3358cf33a5f29437f8a247053a4e095532cc78e968d",
       "size": 1357
     },
+    "work/verify_phong_ambient_pixel.py": {
+      "sha256": "f6f0a00a01c6e222707c0d10bbe913a28911b224f0a1f1081b47ca33a642d76e",
+      "size": 16172
+    },
+    "work/verify_phong_ambient_receiver.py": {
+      "sha256": "e8c25b92ec540afe2bd96d737f9a4c14c2a83521eef6b5bbcb1233f3fd4319c4",
+      "size": 10574
+    },
     "work/verify_phong_material_init.py": {
       "sha256": "2aab0a9fbb5fa871012164f6606e8f3ed3b66ac48f06b1854950a32d5f78a3e7",
       "size": 12350
+    },
+    "work/verify_phong_pixel_variant.py": {
+      "sha256": "532e02a993c42a87d2f29d69d2cedf00fa7d596a867e56e850c3411d7dd54225",
+      "size": 13569
     },
     "work/verify_phong_shader_vertex_skin.py": {
       "sha256": "6462b8e006d72a1013ba94e2530594a1a5119b514bf800a5966bfcba39c33229",
@@ -25520,6 +25588,10 @@
     "work/verify_real_vtf_animation.py": {
       "sha256": "16ecec01c032868051a4bcad53ec2403e549720f5dd02a8d4b8bdb95ab2f2ded",
       "size": 2288
+    },
+    "work/verify_reference_lighting_policy.py": {
+      "sha256": "9a90e8e04be1f34cf028f81aa1be828ed71c94ce0eeb82f443c913cf5dd0f8a8",
+      "size": 7805
     },
     "work/verify_reload_playback_rate_gpu.py": {
       "sha256": "098921c8884bf1cde718b41d9a2e5bbc1e734511c32b1c4a2d4521d8dca2da8d",
@@ -26201,6 +26273,10 @@
       "sha256": "418838d8ebad0392ad3369098c9ab85039f1908062ef535e2ca89c0e6f0d6c64",
       "size": 9786
     },
+    "work/verify_world_transition_gpu.py": {
+      "sha256": "cec743b04b54c3f98c6d59efce48b6ab0f36c20cc89df9b9f7f4ef99f74c1b3e",
+      "size": 9967
+    },
     "work/verify_world_transition_parameters.py": {
       "sha256": "05f29ee8f09e50f86cd29721a30e54bc6219291793788c1c2e9f98ff2eae1490",
       "size": 22107
@@ -26274,8 +26350,8 @@
       "size": 4110
     },
     "work/vulkan_graphics_pipeline_candidate.h": {
-      "sha256": "e9fce471b45dd451b24d6779f1434e887932fc3a7519ce8e869e61fbb1454817",
-      "size": 14716
+      "sha256": "3478beb88c14ea10ec0cc01e6a965cb859b9a5491bb415a8d65ed83a3f92da9d",
+      "size": 14591
     },
     "work/vulkan_light_pipeline_device_test_candidate.h": {
       "sha256": "6314037e627a542f2f466155454f61984f2f6ba1e59bf2fb0af1dd3574462ef6",
@@ -26324,6 +26400,10 @@
     "work/vulkan_scene_output_extent_candidate.h": {
       "sha256": "95f3b276c3b1231a1d1b348d323639fd1cf3d4667e52696f36d343ede93ba8fc",
       "size": 2842
+    },
+    "work/vulkan_scene_vertex_input_candidate.h": {
+      "sha256": "9e07eaa73f8f54f1c3936fce46accd72897b23a7247dd8ec0531487d93da39b9",
+      "size": 950
     },
     "work/vulkan_shader_module_candidate.h": {
       "sha256": "b680008f9f4b134fd602786bd7a11d3facfbf666cd71a5df5fc56b74a3e1fba9",

@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-10-30T08:22:36.791167+00:00",
-  "executable_sha256": "d01549900fe244c4fc8c039f75b9b63725e3b0117194881ff96aec606f644db1",
+  "compiled_utc": "2026-10-30T13:03:18.990333+00:00",
+  "executable_sha256": "831094c2b3b4f30b8e7507aca4012205602b3132f6635be6446586f334096d59",
   "editor_source_dependencies": {
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
     "work/animation_keys.h": "0ba29f76618039904fb15c9ea4ddf86ac3c8f9ec28d9efc9d6de25900d4542cb",
@@ -310,7 +310,7 @@
     "work/vtf_block_decode.h": "1d236484acaaa8bfeb9f944b512d8c60ece64ed745dac5b5b876007660cb99e3",
     "work/vtf_texture_layout.h": "254b7d355e2b2c032bd6ec4cd370f24f9cd27ac2865eebe658f787cf1c73aab0",
     "work/vulkan_gobo_upload_readback_candidate.h": "cdc29454e2ce4b6ba4f9d8562df2b97e507cd262d5309672813acde9ab5a738f",
-    "work/vulkan_graphics_pipeline_candidate.h": "e9fce471b45dd451b24d6779f1434e887932fc3a7519ce8e869e61fbb1454817",
+    "work/vulkan_graphics_pipeline_candidate.h": "3478beb88c14ea10ec0cc01e6a965cb859b9a5491bb415a8d65ed83a3f92da9d",
     "work/vulkan_light_pipeline_device_test_candidate.h": "6314037e627a542f2f466155454f61984f2f6ba1e59bf2fb0af1dd3574462ef6",
     "work/vulkan_light_shader_readback_candidate.h": "f3c9e6f7e6353f77a5f0fa9aeb4222fe46cffbea69e5947a026fb304b10f4091",
     "work/vulkan_material_descriptor_counts_candidate.h": "5ef40915a5b23ba1f2214dad94c0da33eef80a8d1e742fca3f30cb3143040d39",
@@ -323,6 +323,7 @@
     "work/vulkan_projected_light_descriptors_candidate.h": "46653bd38ebb8c627898b772bbaf229102c1971a69492e3948423424763961b9",
     "work/vulkan_scene_commands_candidate.h": "f364fc5c96f1ff2a5b147498dbb254ba80f8b8cbc8fb6c7c5cfe383834bba309",
     "work/vulkan_scene_output_extent_candidate.h": "95f3b276c3b1231a1d1b348d323639fd1cf3d4667e52696f36d343ede93ba8fc",
+    "work/vulkan_scene_vertex_input_candidate.h": "9e07eaa73f8f54f1c3936fce46accd72897b23a7247dd8ec0531487d93da39b9",
     "work/vulkan_shadow_depth_raster_candidate.h": "4ad342c0faf70e2b55735316e9e5469faa42451ed8dc2c2298941d8d8a842579",
     "work/vulkan_shadow_depth_shader_candidate.h": "2cc37bf05b699917ca9b90f4f41f24462e24c172a036455f8900b30afbc07df1",
     "work/vulkan_shadow_maps_candidate.h": "4c4fd14ec5e49ef0534d08f6deed2fcce33f8edfee595d6ddca239759a41bec7",
