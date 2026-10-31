@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "2e0de12d5f21129696be224588b44c72f50ca458c377c68e2bb24df73d6592a0",
+      "sha256": "5cb209e99a5aef614154b3a553acc12b1c9a847db4b306ffdc6d94226732b3c9",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -11629,6 +11629,10 @@
       "sha256": "16f59be490ef302df026f388e291a9117e036860a522905ef4a7707e1aa195cf",
       "size": 1373
     },
+    "work/phong_material_features_candidate.h": {
+      "sha256": "2f99b9311157a1fc36841e81cad73210cfbf4467b6d055391f17188f05c46efb",
+      "size": 2217
+    },
     "work/phong_material_init_candidate.h": {
       "sha256": "4dd53d04894ce4206fe40dabbd9f5aa921f70d9f24a5a3da692f018f8390a5e9",
       "size": 3656
@@ -13692,6 +13696,10 @@
     "work/probe_phong_ambient_receiver.cpp": {
       "sha256": "d3697e85e9d1a338177e1ad7e53938583a62739f1bca913ecbf7f2e7765c33d3",
       "size": 6327
+    },
+    "work/probe_phong_material_features.cpp": {
+      "sha256": "20c3d936d6c3dc058b2b748828d6218212c8c13bce6cece3dd1be35d763cbf51",
+      "size": 4550
     },
     "work/probe_phong_material_init.cpp": {
       "sha256": "f5eb843e0d7a7de6b0dc0f00bda5c8968badffdf9c0f4cdc4ef0d57f09bf2f11",
@@ -25460,6 +25468,10 @@
     "work/verify_phong_ambient_receiver.py": {
       "sha256": "e8c25b92ec540afe2bd96d737f9a4c14c2a83521eef6b5bbcb1233f3fd4319c4",
       "size": 10574
+    },
+    "work/verify_phong_material_features.py": {
+      "sha256": "f26195da33e8f0e091103d5f5d594e6dad84c6ed7fb779460a312261b5db5233",
+      "size": 12858
     },
     "work/verify_phong_material_init.py": {
       "sha256": "2aab0a9fbb5fa871012164f6606e8f3ed3b66ac48f06b1854950a32d5f78a3e7",
