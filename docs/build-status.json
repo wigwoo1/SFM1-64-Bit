@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-10-30T13:03:18.990333+00:00",
-  "executable_sha256": "831094c2b3b4f30b8e7507aca4012205602b3132f6635be6446586f334096d59",
+  "compiled_utc": "2026-11-01T05:11:28.324125+00:00",
+  "executable_sha256": "f2a468ef9e3c957e3f1886c14fe98455f534acbe46e2f40b9e96be79c1302e6f",
   "editor_source_dependencies": {
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
     "work/animation_keys.h": "0ba29f76618039904fb15c9ea4ddf86ac3c8f9ec28d9efc9d6de25900d4542cb",
@@ -307,7 +307,7 @@
     "work/viewport_camera_guide_geometry_candidate.h": "f9f6841b517e19a5a6ae9d9030ed249314af508c00c59aab229a607c988b7681",
     "work/viewport_fit_candidate.h": "8a9d47c13b443375dc9b65d966a40c9bc48ee7119b600ed1267fab07f3232bae",
     "work/vmt_keyvalues_candidate.h": "1f48fc6ddb67f69b58fc1e67e80de4a34b96bfd62e18090ce06788c55e8fbfe5",
-    "work/vtf_block_decode.h": "1d236484acaaa8bfeb9f944b512d8c60ece64ed745dac5b5b876007660cb99e3",
+    "work/vtf_block_decode.h": "995dd3114294ac106ea3ad2881e8d12e5cde409b5118c27fb07162f05940a046",
     "work/vtf_texture_layout.h": "254b7d355e2b2c032bd6ec4cd370f24f9cd27ac2865eebe658f787cf1c73aab0",
     "work/vulkan_gobo_upload_readback_candidate.h": "cdc29454e2ce4b6ba4f9d8562df2b97e507cd262d5309672813acde9ab5a738f",
     "work/vulkan_graphics_pipeline_candidate.h": "3478beb88c14ea10ec0cc01e6a965cb859b9a5491bb415a8d65ed83a3f92da9d",
