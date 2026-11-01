@@ -34,8 +34,8 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "3b304e120c0ffbf2e3bdb21b8d7627d48160f536cc55dd23e70956c7b4475b62",
-      "size": 203
+      "sha256": "a81c2c561e82283e93e6ca98f66bfe70c9200a5eba58049f5a26d36a99649303",
+      "size": 320
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "38f1ba8869f0746016f4b0fdbee21776ac3dfd2a21c0ebb481b42861302500c5",
@@ -14033,6 +14033,10 @@
       "sha256": "ab430140974c3d03f2340cebe2c1d51a1d8e95b6dd2d3d2b2e55e89505ac0645",
       "size": 12957
     },
+    "work/probe_source_texture_sampling_x86.cpp": {
+      "sha256": "7ffa09d4d9ed5e3e72fe21eea50cdae47eff0e82941dddd75f0fb32ac6b67931",
+      "size": 6349
+    },
     "work/probe_source_world_light_overflow.cpp": {
       "sha256": "f166e3d027588eecd9d5d69f5ae43f0a3839e190d1d5db4e2eed72c243d413b4",
       "size": 7781
@@ -14212,6 +14216,10 @@
     "work/probe_texture_manager_miss.cpp": {
       "sha256": "88a6888b5f9c9e5d5bbc9d391cd24099d580678e83cd21e312f4fa78f5835ab5",
       "size": 9956
+    },
+    "work/probe_texture_sampling_d3d9_x64.cpp": {
+      "sha256": "c9a4a0b319b94fb679d395c5c4e5c604cf7d4e235e632afb26b71d8e96741088",
+      "size": 13129
     },
     "work/probe_texture_upload.cpp": {
       "sha256": "2f9806e973f9f8e49be54996f9d70dfd22908b5b0f40beb06b0a97cd41e3e293",
@@ -26085,6 +26093,10 @@
       "sha256": "1b8460db2d07d12aea45e3422225870e1624964fc045a233def51d0e0da53d4b",
       "size": 12246
     },
+    "work/verify_source_texture_sampling.py": {
+      "sha256": "b3c487101eb322bb2d889364acb7f5d3d677ef89ad2eb9c63228a76c00e17986",
+      "size": 10220
+    },
     "work/verify_source_world_light_overflow.py": {
       "sha256": "552edd95ba2f409d019c1360f65ced3feb47626b162ecadc46c532fdcfc4bc60",
       "size": 12801
@@ -26272,6 +26284,10 @@
     "work/verify_texture_manager_miss.py": {
       "sha256": "9e5684f030e6f4e6fb509cf49c9148727b09cf7dc7896f67aa6f797a03097690",
       "size": 10987
+    },
+    "work/verify_texture_sampling_cross_api.py": {
+      "sha256": "4d641b8694ab39ae7c41a7d228847b4f1d109abcdefbe1d5ea6615fdfa933bf7",
+      "size": 20989
     },
     "work/verify_tick_accumulator_native.py": {
       "sha256": "c471a6b2c350617113b493c86e18a6a15f1c82fcbab3921e8de9b10d3edad260",

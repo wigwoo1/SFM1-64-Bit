@@ -1,5 +1,6 @@
 {
-  "checked_utc": "2026-11-01T08:45:20.882724+00:00",
-  "status": "Publication prepared and locally verified; see repository commit for remote publication",
-  "repository": "wigwoo1/SFM1-64-Bit"
+  "checked_utc": "2026-11-01T09:33:38.251108+00:00",
+  "status": "Publication prepared; editor dependencies unchanged and last verified build retained. See commit for publication result.",
+  "repository": "wigwoo1/SFM1-64-Bit",
+  "compatibility": "INCOMPLETE; bounded research tests do not establish Source parity."
 }
