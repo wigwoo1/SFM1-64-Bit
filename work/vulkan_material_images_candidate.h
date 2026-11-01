@@ -82,7 +82,11 @@ struct VulkanMaterialImagesCandidate {
  template<class Material>
  void createFrom(size_t materialCount,Material material,VkDescriptorSetLayout layout,bool withSelfIllumMask=false,bool baseSrgb=false,bool useMaterialColorSpace=false,VkImageUsageFlags extraUsage=0){
    if(pool||sampler||!entries.empty()||!maskEntries.empty()||!secondEntries.empty())throw std::runtime_error("material images already created");
-  const auto descriptorCounts=vulkanMaterialDescriptorCountsCandidate(materialCount,withSelfIllumMask);
+  // The editor supplies the full base/sampler/mask/second layout even when the
+  // mask is not used by a shader. Allocation consumes the layout's descriptors,
+  // not just the descriptors we write. Budget all three image bindings; pools
+  // may safely overprovision callers with the smaller optional-mask layout.
+  const auto descriptorCounts=vulkanMaterialDescriptorCountsCandidate(materialCount,true);
   for(size_t n=0;n<materialCount;++n){const auto&image=material(n).image;if(!image.width||!image.height||uint64_t(image.width)*image.height>SIZE_MAX/4||image.rgba.size()!=uint64_t(image.width)*image.height*4)throw std::runtime_error("material image dimensions or bytes");}
   // Binding2 requires the caller to supply a compatible three-binding layout.
   if(withSelfIllumMask)for(size_t n=0;n<materialCount;++n){const auto&m=material(n);if(m.selfIllum.enabled&&!m.selfIllum.mask.empty()){const auto&image=m.selfIllumMaskImage;if(!image.width||!image.height||uint64_t(image.width)*image.height>SIZE_MAX/4||image.rgba.size()!=uint64_t(image.width)*image.height*4)throw std::runtime_error("selfillum mask dimensions or bytes");}}

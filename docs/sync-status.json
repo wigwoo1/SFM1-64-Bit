@@ -1,7 +1,5 @@
 {
-  "checked_utc": "2026-11-01T07:37:37.356123+00:00",
-  "status": "CHECKED; see containing Git commit for publication result",
-  "repository": "wigwoo1/SFM1-64-Bit",
-  "build": "Fresh complete AMD64 PE32+ build; 15 existing compiler warnings; five-frame bounded smoke passed. Compatibility remains incomplete.",
-  "source_note": "New prepared GPU texture binding remains experimental; normal editor routing and full Source parity are incomplete. Research utilities reviewed for publication, not all rerun."
+  "checked_utc": "2026-11-01T08:45:20.882724+00:00",
+  "status": "Publication prepared and locally verified; see repository commit for remote publication",
+  "repository": "wigwoo1/SFM1-64-Bit"
 }

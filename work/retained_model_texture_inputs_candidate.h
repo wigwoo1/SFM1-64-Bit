@@ -33,14 +33,14 @@ inline std::shared_ptr<const ModelRenderInputsCandidate>prepareRetainedModelText
   }
   auto next=std::make_shared<ModelRenderInputsCandidate>(source);
   for(const auto&selection:input){const auto&resource=*selection.texture.resource();const auto&layout=resource.layout();const auto mip=selection.mip<layout.mips.size()?selection.mip:uint32_t(layout.mips.size()-1);
-   auto decoded=decodeVtfMipCandidate(resource.bytes(),mip,selection.frame);auto&material=next->materials[selection.material];const bool base=selection.channel==RetainedModelTextureChannelCandidate::Base;
+   auto decoded=decodeVtfMipCandidate(resource.bytes(),mip,selection.frame);auto prepared=prepareModelTextureSnapshotCandidate(resource.name(),resource.bytes(),selection.mip,selection.frame);auto&material=next->materials[selection.material];const bool base=selection.channel==RetainedModelTextureChannelCandidate::Base;
    std::string prefix=base?"$basetexture ":material.unlitTwoTexture?"$texture2 ":"$basetexture2 ";auto&diagnostics=material.source.missingTextureReferences;
    diagnostics.erase(std::remove_if(diagnostics.begin(),diagnostics.end(),[&](const auto&text){return text.compare(0,prefix.size(),prefix)==0;}),diagnostics.end());
    // Authored VMT syntax and shader metadata stay authored. Effective image and
    // VTF flags change; an empty host path avoids claiming a retained logical
    // resource still came from the baseline material's filesystem location.
-   if(base){material.image=std::move(decoded);material.baseTextureFlags=layout.flags;material.source.baseTexture.clear();material.source.baseTextureMissing=false;}
-   else{material.secondBaseImage=std::move(decoded);material.secondTextureFlags=layout.flags;material.source.baseTexture2.clear();material.source.baseTexture2Missing=false;}
+   if(base){material.preparedBase=std::move(prepared);material.image=std::move(decoded);material.baseTextureFlags=layout.flags;material.source.baseTexture.clear();material.source.baseTextureMissing=false;}
+   else{material.preparedSecond=std::move(prepared);material.secondBaseImage=std::move(decoded);material.secondTextureFlags=layout.flags;material.source.baseTexture2.clear();material.source.baseTexture2Missing=false;}
   }
   return next;
  }catch(...){return {};}

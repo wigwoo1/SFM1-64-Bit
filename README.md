@@ -72,3 +72,13 @@ Source Filmmaker and Source are Valve trademarks. This project is unaffiliated.
 No blanket open-source license is granted in this snapshot. Third-party notices
 remain with included Vulkan headers and LZMA decoder source. Public visibility
 does not grant rights to redistribute Valve software or assets.
+
+## Current experimental texture build
+
+This build connects retained texture frames and mip resources to normal model
+draws. The complete x64 editor compiled with 15 existing warnings. An extracted
+package passed ten hidden GPU control frames; captures at frames 0, 119 and 120
+matched the preceding tested candidate exactly. Interactive acceptance was not
+repeated. Direct BC sampling has measured pixel differences from the earlier
+decoded texture route; original Source visual parity remains unverified. The
+local canonical editor was preserved. This download is an experimental candidate.
