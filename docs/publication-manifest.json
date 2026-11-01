@@ -34,7 +34,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "5cb209e99a5aef614154b3a553acc12b1c9a847db4b306ffdc6d94226732b3c9",
+      "sha256": "908010a7ef926a439e7c8f9e97762034c9e80792f7fef2b06233c002a53618ac",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -10649,6 +10649,10 @@
       "sha256": "ab88b8d3d35f2a8722e681d2ccabc8062235a64b2b5abeed08f26639a94e809b",
       "size": 7475
     },
+    "work/material_shader_texture_init_candidate.h": {
+      "sha256": "9b023a37a908a8fa32660de749174e9d18ef5ca9d3ab31eb2d7a1a1184365b48",
+      "size": 5735
+    },
     "work/material_sine_client_native_fixture.h": {
       "sha256": "f9bc6261397c846cd728dececc84937c4adb81d535a8913aff4c4c5d82fd7b58",
       "size": 1184
@@ -11644,6 +11648,10 @@
     "work/phong_shader_vertex_skin_candidate.h": {
       "sha256": "7cb5571cbfc1dcb37895436182f2306c5dd3c97d745ba8150dd498bfef3c4a27",
       "size": 4299
+    },
+    "work/phong_texture_init_candidate.h": {
+      "sha256": "f85572fc9056392ef68d40e750094832cf670e83899d22ef666aab2156877d06",
+      "size": 3432
     },
     "work/phong_vertex_variant_candidate.h": {
       "sha256": "841686c72b1e387e5820cb238a58c66699b85cb72ac89c3a15b42020140b7fac",
@@ -13709,6 +13717,10 @@
       "sha256": "ea1af98ac1c2592d99ae7ebdf8b974ca3eb31340ab06de24388cbd52a3753b4b",
       "size": 8500
     },
+    "work/probe_phong_texture_init.cpp": {
+      "sha256": "6543cf1ece8259629519b62ca104e0718ebab39dc9c6a51f2210a95567c022d2",
+      "size": 9324
+    },
     "work/probe_phong_vertex_defaults.cpp": {
       "sha256": "6b1f782d5bf009cca7f5fa2d7a8b19ef10fd1156e26cb2d9b0bf77603f3f7d99",
       "size": 3986
@@ -13933,6 +13945,10 @@
       "sha256": "3059f4668209cc7523698157b45f2a4713bf0c94193b3c6f68a2d2762d54113a",
       "size": 14875
     },
+    "work/probe_shader_texture_services.cpp": {
+      "sha256": "0fa92982a95dbd1707f45de72a07f9a3e170174cd0d27541f031d355b500b247",
+      "size": 15741
+    },
     "work/probe_shaderapi_public_interfaces.cpp": {
       "sha256": "8a1f190fddb989cdfa700a5e083ff7927387fd6d1dfcfb61478f88f33eac6c88",
       "size": 5104
@@ -14097,9 +14113,17 @@
       "sha256": "10ca85d02f7f0f431c68f6578bd6bc85699476d26078bd22ef3780ee30d0107e",
       "size": 26339
     },
+    "work/probe_texture_file_header.cpp": {
+      "sha256": "7b1000db739255ed34a81b04961e250d1a4386e5b3f47b11ae385e0bfbaad69f",
+      "size": 7855
+    },
     "work/probe_texture_frame.cpp": {
       "sha256": "eb455d691e408c1c0e7d589a688d188c3b5e9baa30a04f5ddf35d34c9788a24e",
       "size": 5419
+    },
+    "work/probe_texture_manager_miss.cpp": {
+      "sha256": "88a6888b5f9c9e5d5bbc9d391cd24099d580678e83cd21e312f4fa78f5835ab5",
+      "size": 9956
     },
     "work/probe_tf_game_service_factories.cpp": {
       "sha256": "846281c0547e000a514c459d1832540ba00eccbe565c8e163e52bdc5a6e821f3",
@@ -14172,6 +14196,10 @@
     "work/probe_vstdlib_interfaces.cpp": {
       "sha256": "518fa48eca8f19290c2b197b31d6b59149d26e7dfa163372436438b347fedefb",
       "size": 1526
+    },
+    "work/probe_vtf_effective_flags.cpp": {
+      "sha256": "0733b86f6156e7d38fa4bff6c3102b58cee8484d15ce05aa870bc732fde5fb53",
+      "size": 1218
     },
     "work/probe_vulkan_animated_texture_x64.cpp": {
       "sha256": "aa5d3a396f212360f25dcdf2345578abdd9185b93ee0ab75c31ff88ce3aa309d",
@@ -25485,6 +25513,10 @@
       "sha256": "6462b8e006d72a1013ba94e2530594a1a5119b514bf800a5966bfcba39c33229",
       "size": 22388
     },
+    "work/verify_phong_texture_init.py": {
+      "sha256": "a55a460dafb8d4f7499636735f0ee521493a09318b402f37a73003ea78a77fd4",
+      "size": 12780
+    },
     "work/verify_phong_vertex_gpu.py": {
       "sha256": "34b2c49ec5ece82e5086a70aeb951ae7cafc7ee139864e25effbac558a6259bd",
       "size": 11614
@@ -25801,6 +25833,10 @@
       "sha256": "4d19b43383c55f043b6e72a9c78806d67b0291d5c3438d6879c2791cd131079e",
       "size": 14006
     },
+    "work/verify_shader_texture_services.py": {
+      "sha256": "5f26ac50dbe1124bfa1131fb96ad5398c835fdcbcfa7fe9524edb6ee06396899",
+      "size": 11996
+    },
     "work/verify_shader_vertex_layout_native.py": {
       "sha256": "779d930349ddb5870e31cf096b74ef85103be92d280d8c2ff0bdaeaf24d6c264",
       "size": 1877
@@ -26037,9 +26073,17 @@
       "sha256": "73bc44c069ec3db8cf3baa95b44acb9989bdf9541477700533cdae60703d1685",
       "size": 5829
     },
+    "work/verify_texture_file_header.py": {
+      "sha256": "8aa2450cbc226e11ef84441ca886f6f238ba4f1a1726a6e1c9d90fafee827f4e",
+      "size": 14013
+    },
     "work/verify_texture_frame.py": {
       "sha256": "3515bad28e47ef84873350177c5719f543f6c594016ada8ed7c635bca27c5f98",
       "size": 1255
+    },
+    "work/verify_texture_manager_miss.py": {
+      "sha256": "9e5684f030e6f4e6fb509cf49c9148727b09cf7dc7896f67aa6f797a03097690",
+      "size": 10987
     },
     "work/verify_tick_accumulator_native.py": {
       "sha256": "c471a6b2c350617113b493c86e18a6a15f1c82fcbab3921e8de9b10d3edad260",
@@ -26344,6 +26388,10 @@
     "work/vtf_block_decode.h": {
       "sha256": "1d236484acaaa8bfeb9f944b512d8c60ece64ed745dac5b5b876007660cb99e3",
       "size": 3156
+    },
+    "work/vtf_effective_flags_candidate.h": {
+      "sha256": "2969f943b9ed622408676ba46bea44373c5ef61caac4d28b8ac731bdd3ebac4e",
+      "size": 461
     },
     "work/vtf_texture_layout.h": {
       "sha256": "254b7d355e2b2c032bd6ec4cd370f24f9cd27ac2865eebe658f787cf1c73aab0",
