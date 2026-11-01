@@ -1,5 +1,5 @@
 """Allowlisted public source/build snapshot; original files are never written."""
-import hashlib,json,re,shutil,struct,zipfile
+import argparse,hashlib,json,re,shutil,struct,zipfile
 from pathlib import Path
 from datetime import datetime,timezone
 from editor_runtime_package import shader_manifest,owned_shader_payload,write_editor_package
@@ -12,6 +12,11 @@ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def write(name,s):
  p=STAGE/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(s,encoding='utf-8',newline='\n')
 def main():
+ parser=argparse.ArgumentParser(description=__doc__)
+ parser.add_argument('--build-directory',type=Path,default=ROOT/'outputs/sfm64-editor-x64',help='Isolated complete-editor build to package; default is the canonical build')
+ args=parser.parse_args()
+ build_directory=args.build_directory.resolve()
+ if not build_directory.is_relative_to((ROOT/'outputs').resolve()):raise RuntimeError('Build directory must be inside workspace outputs')
  STAGE.mkdir(parents=True,exist_ok=True);selected={};excluded=[]
  for p in sorted((ROOT/'work').iterdir()):
   if not p.is_file() or p.suffix.lower() not in EXT:continue
@@ -127,9 +132,9 @@ Upstream: https://github.com/ip7z/7zip
 Valve binaries, assets, sessions, disassembly dumps and generated embedded
 original instruction arrays are excluded from this publication.
 ''')
- build=ROOT/'outputs/sfm64-editor-x64/sfm64_session_ui.exe';raw=build.read_bytes();pe=struct.unpack_from('<I',raw,60)[0]
+ build=build_directory/'sfm64_session_ui.exe';raw=build.read_bytes();pe=struct.unpack_from('<I',raw,60)[0]
  if struct.unpack_from('<H',raw,pe+4)[0]!=0x8664 or struct.unpack_from('<H',raw,pe+24)[0]!=0x20b:raise RuntimeError('Editor must be AMD64 PE32+')
- log=(ROOT/'outputs/sfm64-editor-x64/build.log').read_text(errors='replace');warnings=re.findall(r'warning (C\d+): ([^\r\n]+)',log)
+ log=(build_directory/'build.log').read_text(errors='replace');warnings=re.findall(r'warning (C\d+): ([^\r\n]+)',log)
  graph=set()
  def visit(name):
   if name in graph:return

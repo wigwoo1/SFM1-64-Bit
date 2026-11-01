@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-11-01T05:11:28.324125+00:00",
-  "executable_sha256": "f2a468ef9e3c957e3f1886c14fe98455f534acbe46e2f40b9e96be79c1302e6f",
+  "compiled_utc": "2026-11-01T07:33:02.881668+00:00",
+  "executable_sha256": "62edd1965aab5e03e7a65b1276147daf6ec953a0d668edab9573a7522217daef",
   "editor_source_dependencies": {
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
     "work/animation_keys.h": "0ba29f76618039904fb15c9ea4ddf86ac3c8f9ec28d9efc9d6de25900d4542cb",
@@ -108,6 +108,11 @@
     "work/material_sdk_tint_gamma_candidate.h": "afaeeb1c58a7e8af5944302d76c17fa2743cb0b46867fa044f2664b0fb11dfab",
     "work/material_selfillum_candidate.h": "a051ba6b43be2165b5faaf9b03e6e19f1f8f8425a0a011a2ad1e14880ad6d347",
     "work/material_selfillum_draw_push_candidate.h": "052ef3736d1501816c4e7a357a918a5955b1e958e10abc86d29400471c5bd16e",
+    "work/material_texture_converted_image_candidate.h": "36cab78e26b34337f05168b9172aa38b331e9b586c5af0661876be89bd812a77",
+    "work/material_texture_cpu_image_candidate.h": "1620b94009d6b8dee6fcbc25c1b259ce11f5c215b8faeb91ae45fc0cc5bf2619",
+    "work/material_texture_lookup_candidate.h": "f4d0194c9e5bcaa9f90fe8b250b73ba0392dbd9163e0d080a3218c51db7fce11",
+    "work/material_texture_resource_candidate.h": "382f80724d3cf9ab72da61cf0c03e04100afca32020c6b0b3a9c6e94981fea01",
+    "work/material_texture_upload_plan_candidate.h": "467e88232a20c7b24eca1dd9cf19ec3347ec0a842ae0cc5ec4dd2f0595a8d059",
     "work/material_uv_transform_candidate.h": "356e77ac6833f83f1930da3ddcbb8d6a48d08d4eff7d4524447f0afc1b287348",
     "work/matrix_quaternion.h": "8476010644c94b6c819e161f6ae6482a748eb11fab984629c92f7036d48a8518",
     "work/mdl_direct_flex_evaluation_candidate.h": "2fb675cc8fe8e4f124665b24238cef1e16468a858c5e78313af4ba10818538ba",
@@ -289,6 +294,8 @@
     "work/studio_png_texture_candidate.h": "27ee38010179c4c0caa721d9b426203af64ca39e6e727546b6d91d193ce8163c",
     "work/studio_seeded_generator_candidate.h": "3d4b8349dc989d3b5266e2d99a56e284e5a8a3ae4cceb3b797f9850f3d7a95c5",
     "work/studio_trigonometric_table_candidate.h": "0542aca3f1077a11bea143baa8a1815621a81ba25a405fc0eb4499dab1a6e357",
+    "work/texture_format_policy_candidate.h": "5f6a63e869d94d3f9e04835b13c814d349bbb7936a210f3346de60bd6569d173",
+    "work/texture_image_plan_candidate.h": "96335d46d9329ea520ae50a4c7c9b346ffcacecf201976440b23d6592473cbf2",
     "work/time_scale.h": "43cb4098797dacd0cc1a042ccb98662b15b52c99367e4a3febf680372abfb7b8",
     "work/time_selection.h": "cd4e07ed429dfec04a7e71b180e8f037b06a15d71348f79a84174d35fa79ad5a",
     "work/transform_local_to_world.h": "bd46cbe5c1e87204e12254ea36f7232207d5334408ef6c294a1ba6479ce38748",
@@ -308,13 +315,14 @@
     "work/viewport_fit_candidate.h": "8a9d47c13b443375dc9b65d966a40c9bc48ee7119b600ed1267fab07f3232bae",
     "work/vmt_keyvalues_candidate.h": "1f48fc6ddb67f69b58fc1e67e80de4a34b96bfd62e18090ce06788c55e8fbfe5",
     "work/vtf_block_decode.h": "995dd3114294ac106ea3ad2881e8d12e5cde409b5118c27fb07162f05940a046",
+    "work/vtf_effective_flags_candidate.h": "2969f943b9ed622408676ba46bea44373c5ef61caac4d28b8ac731bdd3ebac4e",
     "work/vtf_texture_layout.h": "254b7d355e2b2c032bd6ec4cd370f24f9cd27ac2865eebe658f787cf1c73aab0",
     "work/vulkan_gobo_upload_readback_candidate.h": "cdc29454e2ce4b6ba4f9d8562df2b97e507cd262d5309672813acde9ab5a738f",
     "work/vulkan_graphics_pipeline_candidate.h": "3478beb88c14ea10ec0cc01e6a965cb859b9a5491bb415a8d65ed83a3f92da9d",
     "work/vulkan_light_pipeline_device_test_candidate.h": "6314037e627a542f2f466155454f61984f2f6ba1e59bf2fb0af1dd3574462ef6",
     "work/vulkan_light_shader_readback_candidate.h": "f3c9e6f7e6353f77a5f0fa9aeb4222fe46cffbea69e5947a026fb304b10f4091",
     "work/vulkan_material_descriptor_counts_candidate.h": "5ef40915a5b23ba1f2214dad94c0da33eef80a8d1e742fca3f30cb3143040d39",
-    "work/vulkan_material_images_candidate.h": "6ccf2838a46f9f2d7deea737b62d884efa76b3982cac28eaafe66e3979161136",
+    "work/vulkan_material_images_candidate.h": "5a35d90fd4a332da8bb6876fb473e50b0f910a22f12d76dc138dd25bffd0b461",
     "work/vulkan_model_draw_candidate.h": "728299c1b04c233b2ea6a28a2ed82421a0d544d5006b6d3a0e5897aa71bd16be",
     "work/vulkan_model_swapchain_probe_candidate.h": "0b589c7a16533237678c5115c240776209147313f60503000c9b9fe025852ca3",
     "work/vulkan_offscreen_target_candidate.h": "b0d56f9732c709b350b0c4f0391937922eeaac34700436d61c1422a2d203cdf2",
@@ -419,6 +427,6 @@
       "'destroyImage': local variable is initialized but not referenced"
     ]
   ],
-  "runtime_test_this_publication": "NOT RUN",
+  "runtime_test_this_publication": "PASS: five hidden GPU control-test frames from a disposable session copy; clean startup, no capture. Interactive workflows and visual equivalence NOT VERIFIED.",
   "compatibility": "INCOMPLETE"
 }

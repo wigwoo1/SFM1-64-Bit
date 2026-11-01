@@ -26,32 +26,32 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "7ddd98a581771e5887984b01a1b7b4f1c0708a3e0555f39bf7f70de510bf33e4",
-      "size": 41578
+      "sha256": "13c6d60346b7bbc09b699729e30ba50a07fb5a2e8c60558c587fa0f3252b4016",
+      "size": 42666
     },
     "docs/publication-policy.json": {
       "sha256": "d1268f82fc0f8e19707d04c202e598525498e29574ea552885da40ae41586a4a",
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "7c2cd751a79c1229835a95bea570ff51a737e695fdc9af66c0ea50e480c30674",
-      "size": 548
+      "sha256": "bb0061e98321d7039c24b7218b0c0ec51965fd3ba897b2f8246d3e203ba5486c",
+      "size": 510
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "49c7f100836798ecb40cc00a1f3ce1f65f4e17556d134ee06996f0d84baf5b3e",
-      "size": 933062
+      "sha256": "21d51807ff5a35de7e7bbd4ca55f597b3fdceb3364766c5737e10b607cfb211d",
+      "size": 933926
     },
     "publication/README.md": {
-      "sha256": "de53a72d5e486956c41a3d633296e4d562d9902f4a5405bf9ef76d1fc8b96e19",
-      "size": 6068
+      "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
+      "size": 6614
     },
     "publication/editor_runtime_package.py": {
       "sha256": "52fe1d89907b56d93e0d3626aee9d404c14d837b208f08638a0ccb49870809b8",
       "size": 2761
     },
     "publication/prepare_public_snapshot.py": {
-      "sha256": "5469fa34d6467e2ce8a9ce0cfeb8fbf18416539dc765220fdd9de03656f992bf",
-      "size": 12625
+      "sha256": "1e63a4382b0dfb64b5e52092a705e7e41d8888fc28347976a99ef62a57027029",
+      "size": 13049
     },
     "test-session-core.ps1": {
       "sha256": "18c0edf7caae2f72532e643a056faba0a971c702e9bc7f14d1c9074882771c2e",
@@ -10733,6 +10733,10 @@
       "sha256": "6062e1fa5b225d64fe4226d4036031c77b4b007ca75b39643d274e0cff630f54",
       "size": 3092
     },
+    "work/material_texture_upload_plan_candidate.h": {
+      "sha256": "467e88232a20c7b24eca1dd9cf19ec3347ec0a842ae0cc5ec4dd2f0595a8d059",
+      "size": 3317
+    },
     "work/material_trig_fallback_candidate.h": {
       "sha256": "46b30fdb09f78aba9a12b5691d1db82c15f93c0478fb1e12c0e02ee55d475f25",
       "size": 4977
@@ -12985,6 +12989,10 @@
       "sha256": "b050487f65f364457e14c3a47ae32d5b8096e34e207b0cc1bca0aba93c544ed8",
       "size": 4877
     },
+    "work/probe_material_texture_upload_plan.cpp": {
+      "sha256": "be9b3cc87c751b68b261078dfcbfe634f17287710d4b34d0014d723a6713bce5",
+      "size": 8016
+    },
     "work/probe_material_texture_value_lifetime.cpp": {
       "sha256": "983d1f71465ac0247db64b634d8f40afb281f29a4d72351c66fcdc68fcacceb5",
       "size": 7176
@@ -14149,6 +14157,10 @@
       "sha256": "36576659e7c187837082d03aee4bd9403b7da943334f1b79593b03d58cc0cec5",
       "size": 4725
     },
+    "work/probe_texture_allocation_request.cpp": {
+      "sha256": "9339cfd8e86bdac67da46eb3a1ec53caf3c14ec152fdb6415f7d70b24d28180b",
+      "size": 5241
+    },
     "work/probe_texture_block_primitives.cpp": {
       "sha256": "59ec8bd6a5710f199d3c98b1e19aa059be07960201c10126b2c7115a9bb59984",
       "size": 2554
@@ -14188,6 +14200,10 @@
     "work/probe_texture_manager_miss.cpp": {
       "sha256": "88a6888b5f9c9e5d5bbc9d391cd24099d580678e83cd21e312f4fa78f5835ab5",
       "size": 9956
+    },
+    "work/probe_texture_upload.cpp": {
+      "sha256": "2f9806e973f9f8e49be54996f9d70dfd22908b5b0f40beb06b0a97cd41e3e293",
+      "size": 6301
     },
     "work/probe_tf_game_service_factories.cpp": {
       "sha256": "846281c0547e000a514c459d1832540ba00eccbe565c8e163e52bdc5a6e821f3",
@@ -14276,6 +14292,14 @@
     "work/probe_vulkan_graphics_x64.cpp": {
       "sha256": "dad0b377b2a5b01a38f919dd5cd9bfe9277be187cd8e2f9dff3e0f3f9445447d",
       "size": 5063
+    },
+    "work/probe_vulkan_prepared_texture_binding.cpp": {
+      "sha256": "a9574672c28a56a9971469f9a67820d03668e37038474f593f588a98182564a8",
+      "size": 20326
+    },
+    "work/probe_vulkan_texture_plan_x64.cpp": {
+      "sha256": "b50adfdba5134aa50dc134d32950d669f26f0d652f7a8df0881db2e8ef81b8fe",
+      "size": 20741
     },
     "work/probe_vulkan_win32_surface_x64.cpp": {
       "sha256": "192a66d0746f5ae41f77e04563c4c8961e96712b6dd2cecbbd56e415d448b307",
@@ -23733,6 +23757,18 @@
       "sha256": "4d09de319f8e2dc4c18fdf88509d741d83895af1a73396681832c7c7d8cb838d",
       "size": 1540
     },
+    "work/texture-binding-sample-probe.hlsl": {
+      "sha256": "8a021fb49795be7e9478ae1755d70d0f8c1155c8569f33f5c84c6b0e046aca0a",
+      "size": 381
+    },
+    "work/texture_allocation_request_candidate.h": {
+      "sha256": "a0d9e03022e702603d6152d846ee11d497c161b2141547aac59209b7d5936bc8",
+      "size": 3573
+    },
+    "work/texture_file_final_native_fixture.h": {
+      "sha256": "3eaaba3b22608d366c047cf78477a58248264a6615e9daba7bc7f9919560f5a6",
+      "size": 7977
+    },
     "work/texture_format_policy_candidate.h": {
       "sha256": "5f6a63e869d94d3f9e04835b13c814d349bbb7936a210f3346de60bd6569d173",
       "size": 2601
@@ -25273,6 +25309,10 @@
       "sha256": "ed41a855c37545333e812429ce952267d25a3b661d8026aa36d3d63b520f64ed",
       "size": 10149
     },
+    "work/verify_material_texture_gpu_bridge.py": {
+      "sha256": "e3918829b8ad9564a53561dd299dd202074c74b4dd18ef54958673b76772e91c",
+      "size": 10538
+    },
     "work/verify_material_texture_lookup.py": {
       "sha256": "195d8c41d8efeec88ba12c2c2124d91e0f4236184d1ccce812a8ffb94d57873b",
       "size": 12745
@@ -25296,6 +25336,10 @@
     "work/verify_material_texture_transform_matrix.py": {
       "sha256": "3c0718534a829b67dcbb4ab00ea7cb7a5e48b752034c8ade5bca7531d9d4c6e3",
       "size": 15267
+    },
+    "work/verify_material_texture_upload_plan.py": {
+      "sha256": "c933dbe674d601580cfdd55e0082bd5ccfb6624c05121185a319f557e97b9ec5",
+      "size": 11763
     },
     "work/verify_material_texture_value_lifetime.py": {
       "sha256": "ec7d772d6d03f392dca1359e913df4e971f1413a10e6eb91c7c928b0f6de5039",
@@ -26165,6 +26209,10 @@
       "sha256": "73bc44c069ec3db8cf3baa95b44acb9989bdf9541477700533cdae60703d1685",
       "size": 5829
     },
+    "work/verify_texture_allocation_request.py": {
+      "sha256": "8980fc9c377d69fe6bb21a4e6b89893f97a71b14ce051d8e0f78e2fdaf582032",
+      "size": 11619
+    },
     "work/verify_texture_block_formats.py": {
       "sha256": "7699100eac28e4b9d878ac7daf41db2f204bce82aa4c634367d094181d98119d",
       "size": 17261
@@ -26192,6 +26240,10 @@
     "work/verify_texture_frame.py": {
       "sha256": "3515bad28e47ef84873350177c5719f543f6c594016ada8ed7c635bca27c5f98",
       "size": 1255
+    },
+    "work/verify_texture_gpu_editor_regression.py": {
+      "sha256": "b62eef82bdf404e7c02831e488861d3bb0db7c23825be67e35356511847911b6",
+      "size": 6510
     },
     "work/verify_texture_manager_miss.py": {
       "sha256": "9e5684f030e6f4e6fb509cf49c9148727b09cf7dc7896f67aa6f797a03097690",
@@ -26421,6 +26473,10 @@
       "sha256": "c46bf321e4d6b366057c66b3e4e7eccdaaac2a219641aab9e3f093dc1aa3c6c3",
       "size": 1510
     },
+    "work/verify_vulkan_prepared_texture_binding.py": {
+      "sha256": "ffddce39de4ee3c247d1288a677dfad2517b2a152213f066fab436ad09d972cf",
+      "size": 13384
+    },
     "work/verify_vulkan_sequence_rejection.py": {
       "sha256": "55cc62f908fba534e8a75ad44a90d487429c3cf7b9ec15c5b05edb139c4d673b",
       "size": 1598
@@ -26542,8 +26598,8 @@
       "size": 828
     },
     "work/vulkan_material_images_candidate.h": {
-      "sha256": "6ccf2838a46f9f2d7deea737b62d884efa76b3982cac28eaafe66e3979161136",
-      "size": 11656
+      "sha256": "5a35d90fd4a332da8bb6876fb473e50b0f910a22f12d76dc138dd25bffd0b461",
+      "size": 19594
     },
     "work/vulkan_model_draw_candidate.h": {
       "sha256": "728299c1b04c233b2ea6a28a2ed82421a0d544d5006b6d3a0e5897aa71bd16be",
@@ -26560,6 +26616,10 @@
     "work/vulkan_prepared_scene_candidate.h": {
       "sha256": "b18ff12e9411b9809e09d72e117e7f5e49934f137631fc897cb2e16efe57d3bb",
       "size": 6989
+    },
+    "work/vulkan_prepared_texture_binding_candidate.h": {
+      "sha256": "b520ca7ea6558986d91da0fc468c13936f3a37427a8b9b28fd8d14156382afe3",
+      "size": 8722
     },
     "work/vulkan_projected_light_buffer_candidate.h": {
       "sha256": "2d1a7ef3898c02b0d2db013644a764e1f4d2e1712fdad9ac1d1872365a31e78d",

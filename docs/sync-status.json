@@ -1,8 +1,7 @@
 {
-  "checked_utc": "2026-11-01T06:28:10.223967+00:00",
-  "status": "PUBLICATION PREPARED; inspect commit for remote result",
+  "checked_utc": "2026-11-01T07:37:37.356123+00:00",
+  "status": "CHECKED; see containing Git commit for publication result",
   "repository": "wigwoo1/SFM1-64-Bit",
-  "compatibility": "INCOMPLETE / EXPERIMENTAL",
-  "editor_rebuild": "Not required: all335 editor dependencies unchanged. Packaged editor and15 shaders unchanged. No runtime tests repeated.",
-  "source_update": "Owned CPU texture preparation/conversion research; pending stages do not establish GPU allocation/upload or completed material lookup. New allocation harness unverified."
+  "build": "Fresh complete AMD64 PE32+ build; 15 existing compiler warnings; five-frame bounded smoke passed. Compatibility remains incomplete.",
+  "source_note": "New prepared GPU texture binding remains experimental; normal editor routing and full Source parity are incomplete. Research utilities reviewed for publication, not all rerun."
 }

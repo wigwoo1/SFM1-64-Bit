@@ -39,6 +39,14 @@ functions.exec to tools without printing the full source/binary data to chat.
 GitHub releases are not exposed by the current connector; the current build ZIP
 is versioned at downloads/sfm64-experimental-windows-x64.zip instead.
 
+For a required publication rebuild, use a fresh output directory with
+`work/build_sfm64_editor_x64.cmd outputs/publication-editor-x64-<timestamp>`.
+Then pass that directory to `prepare_public_snapshot.py --build-directory`.
+This packages the actual isolated build without replacing the canonical editor
+or changing feature-test checkpoints. The option accepts workspace outputs only.
+Record its exit status, architecture checks and compiler warnings in the local
+publication receipt. A successful compile alone does not establish visual parity.
+
 The runtime ZIP must include the owned `shaders/` directory beside the editor.
 `work/editor_shader_manifest.txt` explicitly lists the project-authored HLSL
 sources and compiler profiles. The complete editor build compiles them with
