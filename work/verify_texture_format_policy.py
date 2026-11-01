@@ -12,7 +12,7 @@ def need(b,s):
 def predict(q):
     source,flags,current,config,enabled,hdr,selected=q;events=[(0,enabled,0,0)];changed=0;final=current;vtf=source
     if enabled&255:
-        if source in [22,23,24,25,26,27,28,29] or config&255 and source in [13,14,15,20,34,35,60,61,62]:request=source
+        if source in [22,23,24,25,26,27,29] or config&255 and source in [13,14,15,20,34,35,60,61,62]:request=source
         elif flags&0x3000:request=12
         elif source==5:request=5
         else:request=3
@@ -25,9 +25,24 @@ def predict(q):
 def main():
     OUT.mkdir(exist_ok=True);run=Path(tempfile.mkdtemp(prefix='verification-',dir=OUT));(OUT/'active-run.txt').write_text(str(run));print('Verification directory: '+str(run),flush=True)
     idx=json.loads((ROOT/'outputs/vtf-bgr888-20261101/latest-milestone.json').read_text());need(sha(idx['receipt'])==idx['receipt_sha256'],'accepted current milestone');prior=json.loads(Path(idx['receipt']).read_text());sources=dict(prior['source_sha256']);protected=dict(prior['protected_sha256']);protected[idx['receipt']]=idx['receipt_sha256']
+    # The separate daily publisher advanced only the protected publication
+    # metadata after the BGR milestone. Acknowledge that exact transition;
+    # never silently rebaseline the preceding receipt or editor identity.
+    published=ROOT/'publication/stage/docs/build-status.json'
+    before='f4529ff79043fe1dbeeb858341ffe2568234dba6dff7bfb6de6d4db3eacd4b45'
+    after='7ddd98a581771e5887984b01a1b7b4f1c0708a3e0555f39bf7f70de510bf33e4'
+    publication=ROOT/'publication/sync-20261101-0525-verified.local.json'
+    proof=json.loads(publication.read_text());build=json.loads(published.read_text())
+    need(protected[str(published)]==before and sha(published)==after,'explicit publication metadata transition')
+    need(proof['status']=='VERIFIED' and proof['commit']=='b88327227b78514c01d4cab23df3ac996b693c16' and proof['full_tree_verified'],'verified daily publication')
+    need(build['executable_sha256']==prior['editor_executable_sha256']==sha(ROOT/'outputs/sfm64-editor-x64/sfm64_session_ui.exe'),'published unchanged current runtime')
+    need(all(sha(ROOT/n)==h for n,h in build['editor_source_dependencies'].items()),'published editor dependency identities')
+    protected[str(published)]=after;protected[str(publication)]=sha(publication)
+    publication_transition=dict(path=str(published),before=before,after=after,publication_receipt=str(publication),publication_receipt_sha256=sha(publication))
+    (run/'publication-transition.json').write_text(json.dumps(publication_transition,indent=2))
     for group in [sources,protected]:need(all(sha(p)==h for p,h in group.items()),'preceding identities')
     for n in ['texture_format_policy_candidate.h','probe_texture_format_policy.cpp',Path(__file__).name]:sources[str(ROOT/'work'/n)]=sha(ROOT/'work'/n)
-    image,ranges=check_ranges(LIB,'materialsystem-disassembly.txt',[('whole_format_request',0x1002c800,0x1002c896),('whole_format_conversion_decision',0x1002d070,0x1002d129),('format_metadata_accessor',0x100496d0,0x100496e0)])
+    image,ranges=check_ranges(LIB,'materialsystem-disassembly.txt',[('whole_format_request',0x1002c800,0x1002c896),('whole_format_conversion_decision',0x1002d070,0x1002d129),('format_metadata_accessor',0x100496d0,0x100496e2)])
     registry=[]
     for f in range(64):
         name=image.string(image.word(0x10101b84+f*12));flag=image.b[image.offset(0x10101b84+f*12)+11]&1;registry.append({'format':f,'name':name,'compressed':bool(flag)})
@@ -66,5 +81,6 @@ def main():
     safety=execute([run/'owned.exe','--test'],'owned-safety');need('owned_format_policy_safety_checks=12' in safety.stdout,'safety count')
     for group in [sources,protected]:need(all(sha(p)==h for p,h in group.items()),'final identities')
     result=dict(status='VERIFIED bounded native/owned x64 format policy; pixel conversion and full file tail unverified',time_utc=datetime.now(timezone.utc).isoformat(),previous_goal_turn='PROGRESS',cases=len(rows),coverage=coverage,events=total_events,changed=changed,hdr_roundtrips=hdr_roundtrips,disabled=disabled,repetitions=2,trace_bytes=len(expected),trace_sha256=sha(run/'expected.bin'),executables=executables,compiler_warnings=warnings,owned_safety=safety.stdout,authenticated_ranges=[{k:v for k,v in e.items() if k!='instructions'} for e in ranges],source_sha256=sources,protected_sha256=protected,limits=['Original CTexture format request and conversion-decision routines execute unchanged in private x86 image. Installed metadata formats0..63 authenticated; hardware nearest-format result, enable/HDR services and VTF conversion are controlled.','Owned result is a transactional decision plan. It does not query actual native hardware, convert pixels, claim successful file/GPU loading or mutate production state.','Conversion callbacks log requested targets and update the supplied fake VTF format only. HDR25/24 request ordering is verified, not its floating-point image results.','No original writes/live SFM/computer use, editor dependency changes/rebuild/runtime or publication. Current BGR-corrected canonical runtime remains protected.'])
+    result['publication_transition']=publication_transition
     receipt=run/'results.json';receipt.write_text(json.dumps(result,indent=2)+'\n');(OUT/'latest-verification.json').write_text(json.dumps({'receipt':str(receipt),'receipt_sha256':sha(receipt)},indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k not in ['source_sha256','protected_sha256','authenticated_ranges','limits']},indent=2),flush=True)
 if __name__=='__main__':main()

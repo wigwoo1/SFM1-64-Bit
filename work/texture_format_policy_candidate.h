@@ -30,7 +30,7 @@ inline bool textureFormatPolicyCandidate(const TextureFormatPolicyInputCandidate
         if(*enabled&255u){
             const auto f=v.vtfFormat;
             const bool compressed=f==13||f==14||f==15||f==20||f==34||f==35||f==60||f==61||f==62;
-            const bool special=f>=22&&f<=29;
+            const bool special=f==22||f==23||f==24||f==25||f==26||f==27||f==29;
             next.requestedFormat=((v.compressionConfig&255u)&&compressed)||special?f:(v.textureFlags&0x3000u)?12u:f==5?5u:3u;
             if(!calls.nearestFormat)return false;
             const auto selected=calls.nearestFormat(next.requestedFormat,1);if(!selected||*selected>63)return false;

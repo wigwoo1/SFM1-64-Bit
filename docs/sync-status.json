@@ -1,5 +1,8 @@
 {
-  "checked_utc": "2026-11-01T05:25:16.060488+00:00",
+  "checked_utc": "2026-11-01T06:28:10.223967+00:00",
   "status": "PUBLICATION PREPARED; inspect commit for remote result",
-  "repository": "wigwoo1/SFM1-64-Bit"
+  "repository": "wigwoo1/SFM1-64-Bit",
+  "compatibility": "INCOMPLETE / EXPERIMENTAL",
+  "editor_rebuild": "Not required: all335 editor dependencies unchanged. Packaged editor and15 shaders unchanged. No runtime tests repeated.",
+  "source_update": "Owned CPU texture preparation/conversion research; pending stages do not establish GPU allocation/upload or completed material lookup. New allocation harness unverified."
 }

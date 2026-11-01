@@ -24,7 +24,7 @@ inline bool textureImagePlanCandidate(const TextureImagePlanInputCandidate&v,
     for(auto bits:v.reflectivityBits)if((bits&0x7f800000u)==0x7f800000u)return false;
     if(!v.lodResourceKnownAbsent||!v.overridesKnownAbsent||!v.hardwareKnown||
         !power(v.width)||!power(v.height)||!v.frames||v.frames>2048||
-        (v.format!=0&&v.format!=12&&v.format!=13)||v.picmip>3||
+        (v.format!=0&&v.format!=3&&v.format!=12&&v.format!=13&&v.format!=15)||v.picmip>3||
         v.maxWidth<4||v.maxHeight<4||v.maxWidth>32768||v.maxHeight>32768||
         (v.dimensionClamp&&!power(v.dimensionClamp))||
         !vtfEffectiveFlagsCandidate(v.major,v.minor,v.rawFlags,flags))return false;
