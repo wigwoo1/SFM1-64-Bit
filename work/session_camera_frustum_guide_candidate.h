@@ -99,6 +99,7 @@ inline size_t appendSessionCameraFrustumGuidesCandidate(const Graph& graph,
     const auto vertices = upload.vertices.size(), indices = upload.indices.size(), draws = upload.opaque.size();
     const auto slots = upload.materials.size(), alpha = prepared.materialAlpha.size();
     const auto entries = inputs.entries.size(), owners = inputs.owners.size(), inputAlpha = inputs.alpha.size();
+    const auto shading = upload.vertexShading.size();
     try {
         if (slots >= UINT32_MAX) throw std::runtime_error("camera frustum material slot overflow");
         const auto group = inputs.appendOwned(createFurSolidMaterialCandidate(color));
@@ -106,6 +107,7 @@ inline size_t appendSessionCameraFrustumGuidesCandidate(const Graph& graph,
         prepared.materialAlpha.push_back(1.0f);
         appendOpaqueFurRibbonsCandidate(upload, ribbons, static_cast<uint32_t>(slots));
     } catch (...) {
+        upload.vertexShading.resize(shading);
         upload.vertices.resize(vertices); upload.indices.resize(indices); upload.opaque.resize(draws);
         upload.materials.resize(slots); prepared.materialAlpha.resize(alpha);
         inputs.entries.resize(entries); inputs.owners.resize(owners); inputs.alpha.resize(inputAlpha);

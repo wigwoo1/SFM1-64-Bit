@@ -2,6 +2,7 @@
 [[vk::binding(0, 0)]] Texture2D<float4> baseTexture;
 [[vk::binding(1, 0)]] SamplerState baseSampler;
 [[vk::binding(2, 0)]] Texture2D<float4> selfIllumMask;
+[[vk::binding(4,0)]] SamplerState maskSampler;
 struct MaterialPush {
     [[vk::offset(96)]] float alpha;
     [[vk::offset(100)]] float alphaCutoff;
@@ -20,7 +21,7 @@ float4 main(float2 uv : TEXCOORD0, float3 vertexLight : TEXCOORD1) : SV_Target0 
     if (material.vertexLighting != 0) sampled.rgb *= vertexLight;
     if (material.selfIllumEnabled != 0) {
         float3 mask = sampled.aaa;
-        if (material.separateMask != 0) mask = selfIllumMask.Sample(baseSampler, transformedUv).rgb;
+        if (material.separateMask != 0) mask = selfIllumMask.Sample(maskSampler, transformedUv).rgb;
         sampled.rgb = sampled.rgb + mask * (material.linearTint * sampled.rgb - sampled.rgb);
     }
     sampled.a *= material.alpha;

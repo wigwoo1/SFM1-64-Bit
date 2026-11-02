@@ -1,0 +1,73 @@
+// Reuse only the owned system-D3D9 context; no preceding probe entry point.
+#define SFM64_PREPARED_SCENE_PROBE_CONTEXT_ONLY
+#include "probe_d3d9_prepared_scene_x64.cpp"
+#undef SFM64_PREPARED_SCENE_PROBE_CONTEXT_ONLY
+
+static float inputFloat(std::istream&in){return number(word(in));}
+// Independent native reference: CPU clip calculation, one interleaved stream,
+// non-indexed CPU submissions and separately authored pass-through shader.
+// It deliberately does not use the new28-byte buffer/declaration/indexed path.
+static std::vector<float> nativeReference(IDirect3DDevice9*d,const PreparedSessionSceneCandidate&s,uint32_t mode){
+    D3D9SceneComCandidate<ID3DBlob>vs,ps;
+    const char*code=R"(
+struct V{float4 p:POSITION;float3 n:TEXCOORD0;float4 t:TEXCOORD1;};
+V vertexMain(V value){return value;}
+float4 selectAttribute:register(c0);
+float4 pixelMain(V value):COLOR0{if(selectAttribute.x==0)return float4(value.n,1);return value.t;}
+)";
+    auto compile=[&](const char*entry,const char*profile,auto&out){out.create([&](auto**p){return D3DCompile(code,std::strlen(code),"owned-interleaved-reference",nullptr,nullptr,entry,profile,D3DCOMPILE_ENABLE_BACKWARDS_COMPATIBILITY,0,p,nullptr);});};compile("vertexMain","vs_3_0",vs);compile("pixelMain","ps_3_0",ps);
+    D3D9SceneComCandidate<IDirect3DVertexShader9>vertex;vertex.create([&](auto**p){return d->CreateVertexShader(static_cast<const DWORD*>(vs->GetBufferPointer()),p);});D3D9SceneComCandidate<IDirect3DPixelShader9>pixel;pixel.create([&](auto**p){return d->CreatePixelShader(static_cast<const DWORD*>(ps->GetBufferPointer()),p);});
+    const D3DVERTEXELEMENT9 elements[]{{0,0,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_POSITION,0},{0,16,D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,0},{0,28,D3DDECLTYPE_FLOAT4,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,1},D3DDECL_END()};D3D9SceneComCandidate<IDirect3DVertexDeclaration9>decl;decl.create([&](auto**p){return d->CreateVertexDeclaration(elements,p);});
+    D3D9SceneComCandidate<IDirect3DSurface9>target,readback,oldTarget,oldDepth;target.create([&](auto**p){return d->CreateRenderTarget(32,32,D3DFMT_A32B32G32R32F,D3DMULTISAMPLE_NONE,0,FALSE,p,nullptr);});readback.create([&](auto**p){return d->CreateOffscreenPlainSurface(32,32,D3DFMT_A32B32G32R32F,D3DPOOL_SYSTEMMEM,p,nullptr);});oldTarget.create([&](auto**p){return d->GetRenderTarget(0,p);});IDirect3DSurface9*depth=nullptr;auto hr=d->GetDepthStencilSurface(&depth);if(hr!=D3DERR_NOTFOUND)d3d9SceneCheckCandidate(hr);oldDepth.reset(depth);bool begun=false;
+    auto cleanup=[&]{if(begun)d->EndScene();d->SetStreamSource(0,nullptr,0,0);d->SetVertexDeclaration(nullptr);d->SetVertexShader(nullptr);d->SetPixelShader(nullptr);d->SetRenderTarget(0,oldTarget.get());d->SetDepthStencilSurface(oldDepth.get());};
+    try{d3d9SceneCheckCandidate(d->SetDepthStencilSurface(nullptr));d3d9SceneCheckCandidate(d->SetRenderTarget(0,target.get()));D3DVIEWPORT9 vp{0,0,32,32,0,1};d3d9SceneCheckCandidate(d->SetViewport(&vp));for(const auto&state:std::array<std::pair<D3DRENDERSTATETYPE,DWORD>,6>{{{D3DRS_ZENABLE,FALSE},{D3DRS_ALPHABLENDENABLE,FALSE},{D3DRS_ALPHATESTENABLE,FALSE},{D3DRS_SRGBWRITEENABLE,FALSE},{D3DRS_CULLMODE,D3DCULL_NONE},{D3DRS_COLORWRITEENABLE,15}}})d3d9SceneCheckCandidate(d->SetRenderState(state.first,state.second));d3d9SceneCheckCandidate(d->Clear(0,nullptr,D3DCLEAR_TARGET,0,1,0));d3d9SceneCheckCandidate(d->SetVertexDeclaration(decl.get()));d3d9SceneCheckCandidate(d->SetVertexShader(vertex.get()));d3d9SceneCheckCandidate(d->SetPixelShader(pixel.get()));const float selector[4]{float(mode-1),0,0,0};d3d9SceneCheckCandidate(d->SetPixelShaderConstantF(0,selector,1));d3d9SceneCheckCandidate(d->BeginScene());begun=true;
+        struct Packed{std::array<float,4>clip;std::array<float,3>normal;std::array<float,4>tangent;};static_assert(sizeof(Packed)==44,"reference independent packing");
+        for(const auto&draw:s.upload.opaque){std::vector<Packed>vertices;for(size_t n=0;n<draw.indexCount;++n){const auto index=s.upload.indices.at(size_t(draw.firstIndex)+n);auto clip=s.camera.clip(s.upload.vertices[index].position);clip[0]-=clip[3]/32;clip[1]=-clip[1]+clip[3]/32;const auto&a=s.upload.vertexShading[index];vertices.push_back({clip,a.normal,a.tangent});}d3d9SceneCheckCandidate(d->DrawPrimitiveUP(D3DPT_TRIANGLELIST,draw.indexCount/3,vertices.data(),sizeof(Packed)));}
+        d3d9SceneCheckCandidate(d->EndScene());begun=false;d3d9SceneCheckCandidate(d->GetRenderTargetData(target.get(),readback.get()));D3DLOCKED_RECT lock{};d3d9SceneCheckCandidate(readback->LockRect(&lock,nullptr,D3DLOCK_READONLY));std::vector<float>out(4096);for(size_t y=0;y<32;++y)std::memcpy(out.data()+y*128,static_cast<const uint8_t*>(lock.pBits)+y*size_t(lock.Pitch),512);d3d9SceneCheckCandidate(readback->UnlockRect());cleanup();return out;
+    }catch(...){cleanup();throw;}
+}
+static void unbound(IDirect3DDevice9*d){
+    for(UINT stream=0;stream<2;++stream){D3D9SceneComCandidate<IDirect3DVertexBuffer9>buffer;IDirect3DVertexBuffer9*raw=nullptr;UINT offset=0,stride=0;d3d9SceneCheckCandidate(d->GetStreamSource(stream,&raw,&offset,&stride));buffer.reset(raw);need(!raw,"stale vertex stream");}
+    D3D9SceneComCandidate<IDirect3DVertexShader9>vs;IDirect3DVertexShader9*v=nullptr;d3d9SceneCheckCandidate(d->GetVertexShader(&v));vs.reset(v);need(!v,"stale vertex shader");
+    D3D9SceneComCandidate<IDirect3DPixelShader9>ps;IDirect3DPixelShader9*p=nullptr;d3d9SceneCheckCandidate(d->GetPixelShader(&p));ps.reset(p);need(!p,"stale pixel shader");
+    D3D9SceneComCandidate<IDirect3DVertexDeclaration9>decl;IDirect3DVertexDeclaration9*c=nullptr;d3d9SceneCheckCandidate(d->GetVertexDeclaration(&c));decl.reset(c);need(!c,"stale declaration");
+    D3D9SceneComCandidate<IDirect3DIndexBuffer9>index;IDirect3DIndexBuffer9*i=nullptr;d3d9SceneCheckCandidate(d->GetIndices(&i));index.reset(i);need(!i,"stale index binding");
+    for(DWORD stage=0;stage<2;++stage){D3D9SceneComCandidate<IDirect3DBaseTexture9>texture;IDirect3DBaseTexture9*t=nullptr;d3d9SceneCheckCandidate(d->GetTexture(stage,&t));texture.reset(t);need(!t,"stale texture binding");}
+}
+static PreparedSessionSceneCandidate inputScene(std::istream&in,const std::vector<uint8_t>&vtf,const SourceBspBrushGeometryCandidate&brush,bool world){
+    PreparedSessionSceneCandidate scene;scene.outputWidth=scene.outputHeight=32;for(auto&f:scene.camera.rows)f=inputFloat(in);
+    std::vector<SceneGeometryModelCandidate>models(3);std::vector<std::array<float,3>>preview;
+    for(size_t model=0;model<3;++model){models[model].model.visible=model!=1;auto material=std::make_shared<ModelRenderInputsCandidate>();ModelRenderMaterialCandidate m;m.source.syntax=parseVmtCandidate("UnlitGeneric { $basetexture fixture/owned }");m.colorSpace={false,false};m.preparedBase=prepareModelTextureSnapshotCandidate("fixture/owned",vtf,0,0);need(bool(m.preparedBase.cpu),"owned prepared fixture");material->materials={m,m};material->indices={0,0,0,0,1,2};material->ranges={{3,3,model==2?0u:1u,0,0,0}};scene.materialInputs.appendOwned(material);
+        for(size_t vertex=0;vertex<3;++vertex){GeometryDeformedVertexCandidate v;for(float&x:v.position)x=inputFloat(in);for(float&x:v.normal)x=inputFloat(in);for(float&x:v.tangent)x=inputFloat(in);std::array<float,3>color;for(float&x:color)x=inputFloat(in);v.hasTangent=word(in)!=0;v.uv={.3125f,.3125f};
+            if(world){need(!v.hasTangent&&v.normal==brush.normals.at(vertex),"owned BSP normal source");for(size_t k=0;k<3;++k)need(std::abs(color[k]-brush.lightColors.at(vertex)[k])<1e-6,"independent BSP preview color");v.normal=brush.normals[vertex];color=brush.lightColors[vertex];}
+            models[model].vertices.push_back(v);if(model!=1)preview.push_back(color);
+        }
+    }
+    auto draws=prepareSceneMaterialDrawInputsCandidate(scene.materialInputs,{});scene.upload=prepareSceneGpuUploadCandidate(models,draws,[](const auto&){return 0.;});scene.materialAlpha.assign(scene.upload.materials.size(),1);
+    need(scene.upload.opaque.size()==2&&scene.upload.opaque[0].firstIndex==3&&scene.upload.opaque[1].firstIndex==9&&scene.upload.opaque[1].model==2&&scene.upload.opaque[0].materialSlot==1&&scene.upload.opaque[1].materialSlot==2,"actual planner routing");
+    if(world)for(size_t n=0;n<scene.upload.vertices.size();++n){auto&a=scene.upload.vertexShading[n];a.origin=SceneShadingOriginCandidate::WorldGeometry;a.hasPreviewLightColor=true;a.previewLightColor=preview[n];scene.upload.vertices[n].normal=preview[n];}
+    validateSceneShadingCandidate(scene.upload,true);return scene;
+}
+int main(int argc,char**argv){try{
+    need(argc==5,"queries owned-vtf owned-bsp fresh-output-directory");const auto vtf=bytes(argv[2]);const auto brush=readSourceBspInlineBrushCandidate(bytes(argv[3]),0);need(brush.normals.size()==3,"owned BSP fixture");const std::filesystem::path out=argv[4];need(std::filesystem::create_directory(out),"fresh diagnostic output directory");std::ifstream in(argv[1],std::ios::binary);need(bool(in),"diagnostic queries");const auto count=word(in);need(count&&count<=1024,"diagnostic case count");std::ofstream data(out/"pixels.bin",std::ios::binary),reference(out/"reference.bin",std::ios::binary);size_t preparationFailures=0,submissionFailures=0,invalidInputs=0,ownershipChecks=0;
+    {SceneDevice device(out);const auto contextResources=d3d9SceneLiveResourcesCandidate.load();
+        for(uint32_t serial=0;serial<count;++serial){const auto mode=word(in),world=word(in);need(mode==1||mode==2,"query diagnostic mode");auto scene=inputScene(in,vtf,brush,world!=0);std::vector<std::string>stages;const auto diagnostic=D3D9ShadingDiagnosticCandidate(mode);
+            auto committed=D3D9PreparedSceneCandidate::prepare(device.device.get(),scene);const auto defaultPixels=committed->render();unbound(device.device.get());
+            auto prepared=D3D9PreparedSceneCandidate::prepare(device.device.get(),scene,[&](const char*name){stages.push_back(name);},diagnostic);std::vector<std::string>renderStages;auto pixels=prepared->render({},[&](const char*name){renderStages.push_back(name);});unbound(device.device.get());need(prepared->drawCalls()==2,"actual diagnostic indexed draw count");
+            const auto expected=nativeReference(device.device.get(),scene,mode);need(expected==pixels,"independent interleaved native reference differs");unbound(device.device.get());word(reference,serial);word(reference,mode);reference.write(reinterpret_cast<const char*>(expected.data()),std::streamsize(expected.size()*4));
+            if(serial==0){const auto live=d3d9SceneLiveResourcesCandidate.load();auto*identity=committed.get();
+                for(size_t fail=0;fail<stages.size();++fail){size_t at=0;bool refused=false;try{auto next=D3D9PreparedSceneCandidate::prepare(device.device.get(),scene,[&](const char*){if(at++==fail)throw std::runtime_error("injected diagnostic preparation failure");},diagnostic);committed=std::move(next);}catch(const std::exception&){refused=true;}need(refused&&committed.get()==identity&&d3d9SceneLiveResourcesCandidate==live,"diagnostic preparation rollback");need(committed->render()==defaultPixels,"failed diagnostic prepare changed committed pixels");unbound(device.device.get());++preparationFailures;}
+                for(size_t fail=0;fail<renderStages.size();++fail){size_t at=0;bool refused=false;try{prepared->render({},[&](const char*){if(at++==fail)throw std::runtime_error("injected diagnostic submission failure");});}catch(const std::exception&){refused=true;}need(refused&&d3d9SceneLiveResourcesCandidate==live,"submission exception owner lifetime");unbound(device.device.get());need(committed->render()==defaultPixels&&prepared->render()==pixels,"submission cleanup/pixel recovery");unbound(device.device.get());++submissionFailures;}
+                for(size_t bad=0;bad<14;++bad){auto s=scene;auto profile=diagnostic;if(bad==0)s.upload.vertexShading.clear();if(bad==1)s.upload.vertexShading.pop_back();if(bad==2)s.upload.vertexShading[0].model=2;if(bad==3)s.upload.vertexShading[0].hasNormal=false;if(bad==4){s.upload.vertexShading[0].hasTangent=false;profile=D3D9ShadingDiagnosticCandidate::Tangent;}if(bad==5)s.upload.vertexShading[0].normal[0]=NAN;if(bad==6)s.upload.vertexShading[0].tangent[3]=INFINITY;if(bad==7)profile=D3D9ShadingDiagnosticCandidate(99);if(bad==8){s.upload.translucent.push_back(s.upload.opaque.back());s.upload.opaque.pop_back();}if(bad==9)s.materialAlpha[1]=.5f;if(bad==12)s.upload.opaque.clear();if(bad==13){s.upload.opaque.clear();s.upload.vertexShading.clear();}
+                    if(bad==10){s.upload.vertexShading[0]={};}if(bad==11){auto m=std::make_shared<ModelRenderInputsCandidate>(*s.materialInputs.ownerAt(0));m->materials[1].source.syntax.key="VertexLitGeneric";s.materialInputs.owners[0]=m;s.materialInputs.entries[0]=m.get();}
+                    bool refused=false;size_t built=0;try{auto next=D3D9PreparedSceneCandidate::prepare(device.device.get(),s,[&](const char*){++built;},profile);committed=std::move(next);}catch(const std::exception&){refused=true;}need(refused&&built==0&&committed.get()==identity&&d3d9SceneLiveResourcesCandidate==live,"invalid diagnostic input allocated/published");need(committed->render()==defaultPixels,"invalid diagnostic changed committed pixels");unbound(device.device.get());++invalidInputs;
+                }
+            }
+            // The GPU owns its packed stream; poisoning/destroying caller values
+            // after preparation cannot change a completed or subsequent draw.
+            for(auto&a:scene.upload.vertexShading){a.normal={99,99,99};a.tangent={99,99,99,99};}scene.upload.vertexShading.clear();scene.upload.vertexShading.shrink_to_fit();need(prepared->render()==pixels,"diagnostic stream borrowed caller storage");unbound(device.device.get());++ownershipChecks;
+            word(data,serial);word(data,mode);data.write(reinterpret_cast<const char*>(pixels.data()),std::streamsize(pixels.size()*4));prepared.reset();committed.reset();need(d3d9SceneLiveResourcesCandidate==contextResources,"diagnostic resources retained after scene");
+        }
+    }
+    need(in.peek()==EOF&&in.eof()&&d3d9SceneLiveResourcesCandidate==0,"complete queries/all resources retired");data.flush();reference.flush();need(bool(data)&&bool(reference),"diagnostic pixel output");std::cout<<"PASS shading_gpu_cases="<<count<<" preparation_failures="<<preparationFailures<<" submission_failures="<<submissionFailures<<" invalid_inputs="<<invalidInputs<<" owned_stream_copies="<<ownershipChecks<<" independent_native_reference_exact=1 live_resources=0 streams_unbound=1 native_x64=1 original_runtime=ABSENT\n";return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

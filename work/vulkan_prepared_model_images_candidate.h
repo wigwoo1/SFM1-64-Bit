@@ -1,7 +1,7 @@
 #pragma once
 #include "vulkan_prepared_texture_binding_candidate.h"
 
-// Composes verified prepared texture leases with the existing four-binding
+// Composes retained prepared texture leases with the six-binding normal
 // material descriptors. The retained model-input cache still owns this object;
 // its caller must complete submissions before destroying the cache/device.
 class VulkanPreparedModelImagesCandidate {
@@ -19,8 +19,12 @@ public:
     VulkanPreparedModelImagesCandidate(const VulkanPreparedModelImagesCandidate&)=delete;
     ~VulkanPreparedModelImagesCandidate(){legacy.reset();base.clear();second.clear();if(textureLayout)load<PFN_vkDestroyDescriptorSetLayout>(library,"vkDestroyDescriptorSetLayout")(device,textureLayout,nullptr);}
     void create(const std::vector<ModelRenderMaterialCandidate>&materials,VkDescriptorSetLayout materialLayout,
-        bool mask,bool baseSrgb,bool materialColor,bool bcEnabled){
+        bool mask,bool baseSrgb,bool materialColor,bool bcEnabled,const VulkanTextureSamplerFeaturesCandidate&samplingFeatures={}){
         if(legacy||textureLayout)throw std::runtime_error("prepared model images already created");
+        // Exact preceding-policy control for isolated rendered regressions.
+        char fixedOption[8]{};const auto fixedLength=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_FIXED_TEXTURE_MIP_TEST",fixedOption,sizeof(fixedOption));
+        if(fixedLength&&(fixedLength!=1||fixedOption[0]!='1'))throw std::runtime_error("fixed texture mip test option");
+        const bool fixedMipTest=fixedLength!=0;
         base.resize(materials.size());second.resize(materials.size());entries.resize(materials.size());
         auto prepare=[&](const ModelPreparedTextureCandidate&input,bool srgb,Selected&out){
             if(!input.cpu)return;
@@ -31,24 +35,38 @@ public:
             if(!textureLayout){VkDescriptorSetLayoutBinding b[2]{{0,VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,1,VK_SHADER_STAGE_FRAGMENT_BIT,nullptr},{1,VK_DESCRIPTOR_TYPE_SAMPLER,1,VK_SHADER_STAGE_FRAGMENT_BIT,nullptr}};VkDescriptorSetLayoutCreateInfo ci{};ci.sType=VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;ci.bindingCount=2;ci.pBindings=b;VulkanMaterialImagesCandidate::check(load<PFN_vkCreateDescriptorSetLayout>(library,"vkCreateDescriptorSetLayout")(device,&ci,nullptr,&textureLayout));}
             VulkanTextureSamplerPolicyCandidate policy;policy.minFilter=policy.magFilter=VK_FILTER_LINEAR;
             policy.baseMip=std::min(input.sourceMip,input.cpu->image()->plan()[9]-1);
-            if(input.fullMipSampling){policy.mipmapMode=VK_SAMPLER_MIPMAP_MODE_LINEAR;policy.maximumLod=VK_LOD_CLAMP_NONE;}else policy.fixedLod=0.f;
-            if(!Binding::create(input.cpu,library,device,physical,textureLayout,policy,srgb,bcEnabled,out.owner))throw std::runtime_error("prepared model GPU texture refused");
+            // Enabled reference preset, not live CVar/hardware negotiation. Original
+            // border flag overrides S/T clamp; reset border color is transparent
+            // black. Each prepared channel keeps its own immutable sampler.
+            const auto flags=input.cpu->image()->plan()[0];
+            if(flags&1u)policy.minFilter=policy.magFilter=VK_FILTER_NEAREST;
+            if(flags&4u)policy.addressU=VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            if(flags&8u)policy.addressV=VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            if(flags&0x20000000u)policy.addressU=policy.addressV=VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+            // Diagnostic force1 policy. Raw global force is NOT the effective max.
+            // Vulkan directional pixels differ from D3D9; caller enables explicitly.
+            const bool anisotropic=samplingFeatures.anisotropyEnabled&&samplingFeatures.maxAnisotropy>=2.f&&!fixedMipTest&&(flags&0x10u)&&!(flags&(1u|0x100u));
+            if(anisotropic)policy.maxAnisotropy=std::min(samplingFeatures.maxAnisotropy,std::max(2.f,std::min(8.f,std::floor(samplingFeatures.maxAnisotropy/4.f))));
+            if((input.fullMipSampling||anisotropic)&&!fixedMipTest&&!(flags&(1u|0x100u))){policy.mipmapMode=VK_SAMPLER_MIPMAP_MODE_LINEAR;policy.maximumLod=VK_LOD_CLAMP_NONE;}else policy.fixedLod=0.f;
+            if(!Binding::create(input.cpu,library,device,physical,textureLayout,policy,srgb,bcEnabled,out.owner,samplingFeatures))throw std::runtime_error("prepared model GPU texture refused");
             out.lease=out.owner->acquireFrame(input.frame);if(!out.lease)throw std::runtime_error("prepared model GPU texture frame");++preparedTextures;
         };
-        for(size_t n=0;n<materials.size();++n){const auto&m=materials[n];const bool srgb=materialColor?m.colorSpace.baseSrgb:baseSrgb;prepare(m.preparedBase,srgb,base[n]);prepare(m.preparedSecond,srgb,second[n]);
-            if(base[n].lease&&second[n].lease&&m.preparedBase.fullMipSampling!=m.preparedSecond.fullMipSampling)throw std::runtime_error("material channels require one compatible sampler policy");}
+        for(size_t n=0;n<materials.size();++n){const auto&m=materials[n];const bool srgb=materialColor?m.colorSpace.baseSrgb:baseSrgb;prepare(m.preparedBase,srgb,base[n]);prepare(m.preparedSecond,srgb,second[n]);}
         // Only tiny unused placeholders are allocated for replaced channels.
         // Mask and fallback images keep their unchanged owned legacy route.
         const VtfRgbaImageCandidate placeholder{1,1,{0,0,0,255}};
         struct MaterialView {const VtfRgbaImageCandidate&image;const MaterialSelfIllumCandidate&selfIllum;const VtfRgbaImageCandidate&selfIllumMaskImage;const MaterialColorSpaceCandidate&colorSpace;const VtfRgbaImageCandidate&secondBaseImage;};
         legacy=std::make_unique<VulkanMaterialImagesCandidate>(library,device,physical);
-        legacy->createFrom(materials.size(),[&](size_t n){const auto&m=materials[n];return MaterialView{base[n].lease?placeholder:m.image,m.selfIllum,m.selfIllumMaskImage,m.colorSpace,second[n].lease?placeholder:m.secondBaseImage};},materialLayout,mask,baseSrgb,materialColor);
+        legacy->createFrom(materials.size(),[&](size_t n){const auto&m=materials[n];return MaterialView{base[n].lease?placeholder:m.image,m.selfIllum,m.selfIllumMaskImage,m.colorSpace,second[n].lease?placeholder:m.secondBaseImage};},materialLayout,mask,baseSrgb,materialColor,0,true);
         sampler=legacy->sampler;
-        for(size_t n=0;n<materials.size();++n){const auto&old=legacy->entries[n];entries[n]={old.set,base[n].lease?base[n].lease->imageView():old.view};VkWriteDescriptorSet writes[3]{};VkDescriptorImageInfo info[3]{};uint32_t count=0;
+        for(size_t n=0;n<materials.size();++n){const auto&old=legacy->entries[n];entries[n]={old.set,base[n].lease?base[n].lease->imageView():old.view};VkWriteDescriptorSet writes[4]{};VkDescriptorImageInfo info[4]{};uint32_t count=0;
             auto write=[&](uint32_t binding,VkDescriptorType type,VkDescriptorImageInfo value){info[count]=value;auto&w=writes[count];w.sType=VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;w.dstSet=old.set;w.dstBinding=binding;w.descriptorCount=1;w.descriptorType=type;w.pImageInfo=&info[count++];};
             if(base[n].lease)write(0,VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,{VK_NULL_HANDLE,base[n].lease->imageView(),VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
             if(second[n].lease)write(3,VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,{VK_NULL_HANDLE,second[n].lease->imageView(),VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
-            if(base[n].lease||second[n].lease){auto selected=base[n].lease?base[n].lease->sampler():second[n].lease->sampler();write(1,VK_DESCRIPTOR_TYPE_SAMPLER,{selected,VK_NULL_HANDLE,VK_IMAGE_LAYOUT_UNDEFINED});if(!n)sampler=selected;}
+            if(base[n].lease){write(1,VK_DESCRIPTOR_TYPE_SAMPLER,{base[n].lease->sampler(),VK_NULL_HANDLE,VK_IMAGE_LAYOUT_UNDEFINED});if(!n)sampler=base[n].lease->sampler();}
+            if(second[n].lease)write(5,VK_DESCRIPTOR_TYPE_SAMPLER,{second[n].lease->sampler(),VK_NULL_HANDLE,VK_IMAGE_LAYOUT_UNDEFINED});
+            // Mask binding4 keeps its own legacy policy; a missing base must
+            // never inherit the prepared second texture sampler.
             if(count)load<PFN_vkUpdateDescriptorSets>(library,"vkUpdateDescriptorSets")(device,count,writes,0,nullptr);
         }
         for(const auto&e:legacy->maskEntries)maskEntries.push_back({e.set,e.view});

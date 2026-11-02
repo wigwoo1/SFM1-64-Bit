@@ -26,5 +26,12 @@ int main() {
     assert(rejects(max / 3 + 1, true));
     assert(rejects(max + size_t(1), false));
 
+    const auto independent = vulkanMaterialDescriptorCountsCandidate(59, true, true);
+    assert(independent.sampledImages == 177 && independent.samplers == 177 && independent.maxSets == 59);
+    assert(vulkanMaterialDescriptorCountsCandidate(max / 3, false, true).samplers == uint32_t((max / 3) * 3));
+    bool refused = false;
+    try { (void)vulkanMaterialDescriptorCountsCandidate(max / 3 + 1, false, true); }
+    catch (const std::overflow_error&) { refused = true; }
+    assert(refused);
     std::cout << "Vulkan material descriptor counts passed empty=1 two-texture=1 optional-mask=1 overflow-boundaries=1\n";
 }

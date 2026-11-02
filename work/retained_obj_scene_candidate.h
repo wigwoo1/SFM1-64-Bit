@@ -21,12 +21,16 @@ public:
   auto& upload=prepared.upload;auto& inputs=prepared.materialInputs;
   if(upload.vertices.size()>UINT32_MAX||mesh_.vertices.size()>UINT32_MAX-upload.vertices.size()||upload.indices.size()>UINT32_MAX||mesh_.indices.size()>UINT32_MAX-upload.indices.size()||upload.materials.size()>UINT32_MAX||mesh_.materials.size()>UINT32_MAX-upload.materials.size())throw std::runtime_error("OBJ scene buffer overflow");
   const auto vertexCount=upload.vertices.size(),indexCount=upload.indices.size(),drawCount=upload.opaque.size(),slotCount=upload.materials.size(),entryCount=inputs.entries.size(),ownerCount=inputs.owners.size(),inputAlphaCount=inputs.alpha.size(),alphaCount=prepared.materialAlpha.size();
+  validateSceneShadingCandidate(upload);const auto shadingCount=upload.vertexShading.size();
   try{
+   upload.vertexShading.reserve(vertexCount+scaledVertices_.size());if(upload.vertexShading.empty())upload.vertexShading.resize(vertexCount);
    upload.vertices.reserve(vertexCount+mesh_.vertices.size());upload.indices.reserve(indexCount+mesh_.indices.size());upload.materials.reserve(slotCount+mesh_.materials.size());upload.opaque.reserve(drawCount+mesh_.ranges.size());prepared.materialAlpha.reserve(alphaCount+mesh_.materials.size());auto group=inputs.appendOwned(materials_);
    for(size_t i=0;i<mesh_.materials.size();++i){upload.materials.push_back({group,static_cast<uint32_t>(i)});prepared.materialAlpha.push_back(1);}
+   for(size_t i=0;i<scaledVertices_.size();++i)upload.vertexShading.push_back(sceneVertexShadingCandidate(scaledVertices_[i],SceneShadingOriginCandidate::ImportedGeometry,group,static_cast<uint32_t>(i)));
    upload.vertices.insert(upload.vertices.end(),scaledVertices_.begin(),scaledVertices_.end());for(auto index:mesh_.indices)upload.indices.push_back(static_cast<uint32_t>(vertexCount)+index);
    for(size_t i=0;i<mesh_.ranges.size();++i){const auto& r=mesh_.ranges[i];upload.opaque.push_back({group,i,static_cast<uint32_t>(indexCount)+r.firstIndex,r.indexCount,r.material,static_cast<uint32_t>(slotCount)+r.material});}
-  }catch(...){upload.vertices.resize(vertexCount);upload.indices.resize(indexCount);upload.opaque.resize(drawCount);upload.materials.resize(slotCount);prepared.materialAlpha.resize(alphaCount);inputs.entries.resize(entryCount);inputs.owners.resize(ownerCount);inputs.alpha.resize(inputAlphaCount);throw;}
+   validateSceneShadingCandidate(upload);
+  }catch(...){upload.vertexShading.resize(shadingCount);upload.vertices.resize(vertexCount);upload.indices.resize(indexCount);upload.opaque.resize(drawCount);upload.materials.resize(slotCount);prepared.materialAlpha.resize(alphaCount);inputs.entries.resize(entryCount);inputs.owners.resize(ownerCount);inputs.alpha.resize(inputAlphaCount);throw;}
  }
 };
 

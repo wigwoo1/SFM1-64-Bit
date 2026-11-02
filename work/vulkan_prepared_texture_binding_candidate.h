@@ -5,12 +5,18 @@
 
 // Explicit backend sampler settings, not inferred Source flags or native-device
 // policy. The full validated mip range is available to the caller's shader.
+// Explicit promise from logical-device creation, not physical support alone.
+struct VulkanTextureSamplerFeaturesCandidate {
+    bool anisotropyEnabled=false;
+    float maxAnisotropy=1.f;
+};
 struct VulkanTextureSamplerPolicyCandidate {
     VkFilter minFilter=VK_FILTER_NEAREST,magFilter=VK_FILTER_NEAREST;
     VkSamplerMipmapMode mipmapMode=VK_SAMPLER_MIPMAP_MODE_NEAREST;
     VkSamplerAddressMode addressU=VK_SAMPLER_ADDRESS_MODE_REPEAT,addressV=VK_SAMPLER_ADDRESS_MODE_REPEAT;
     std::optional<float>fixedLod,maximumLod;
     uint32_t baseMip=0;
+    std::optional<float>maxAnisotropy;
 };
 struct VulkanTextureBindingFunctionsCandidate {
     PFN_vkCreateSampler createSampler=nullptr;PFN_vkDestroySampler destroySampler=nullptr;
@@ -57,12 +63,15 @@ public:
         HMODULE library,VkDevice device,VkPhysicalDevice physical,VkDescriptorSetLayout layout,
         const VulkanTextureSamplerPolicyCandidate&policy,bool srgb,bool compressionBcEnabled,
         std::shared_ptr<const VulkanPreparedTextureBindingCandidate>&output,
-        const VulkanTextureBindingFunctionsCandidate&functions)noexcept{
+        const VulkanTextureBindingFunctionsCandidate&functions,
+        const VulkanTextureSamplerFeaturesCandidate&features={})noexcept{
         try{
             const auto source=prepared;const auto calls=functions;const auto p=policy;
+            if(!std::isfinite(features.maxAnisotropy)||features.maxAnisotropy<1.f)return false;
+            if(p.maxAnisotropy&&(!features.anisotropyEnabled||!std::isfinite(*p.maxAnisotropy)||*p.maxAnisotropy<1.f||*p.maxAnisotropy>features.maxAnisotropy))return false;
             if((p.fixedLod&&(!std::isfinite(*p.fixedLod)||*p.fixedLod<0))||(p.maximumLod&&(!std::isfinite(*p.maximumLod)||*p.maximumLod<0)))return false;
             const auto filter=[](VkFilter f){return f==VK_FILTER_NEAREST||f==VK_FILTER_LINEAR;};
-            const auto address=[](VkSamplerAddressMode a){return a==VK_SAMPLER_ADDRESS_MODE_REPEAT||a==VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;};
+            const auto address=[](VkSamplerAddressMode a){return a==VK_SAMPLER_ADDRESS_MODE_REPEAT||a==VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE||a==VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;};
             if(!source||!source->image()||!library||!device||!physical||!layout||!calls.valid()||!filter(p.minFilter)||!filter(p.magFilter)||
                 (p.mipmapMode!=VK_SAMPLER_MIPMAP_MODE_NEAREST&&p.mipmapMode!=VK_SAMPLER_MIPMAP_MODE_LINEAR)||!address(p.addressU)||!address(p.addressV))return false;
             std::shared_ptr<const MaterialTextureUploadPlanCandidate>upload;
@@ -77,7 +86,7 @@ public:
                 VkFormatProperties formats{};calls.formatProperties(physical,entries[0].format,&formats);
                 if(!(formats.optimalTilingFeatures&VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))return false;
             }
-            VkSamplerCreateInfo si{};si.sType=VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;si.minFilter=p.minFilter;si.magFilter=p.magFilter;si.mipmapMode=p.mipmapMode;si.addressModeU=p.addressU;si.addressModeV=p.addressV;si.addressModeW=VK_SAMPLER_ADDRESS_MODE_REPEAT;si.minLod=0;si.maxLod=p.maximumLod.value_or(float(upload->mipCount()-p.baseMip-1));if(p.fixedLod)si.minLod=si.maxLod=*p.fixedLod;
+            VkSamplerCreateInfo si{};si.sType=VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;si.minFilter=p.minFilter;si.magFilter=p.magFilter;si.mipmapMode=p.mipmapMode;si.addressModeU=p.addressU;si.addressModeV=p.addressV;si.addressModeW=VK_SAMPLER_ADDRESS_MODE_REPEAT;si.borderColor=VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;si.anisotropyEnable=p.maxAnisotropy?VK_TRUE:VK_FALSE;si.maxAnisotropy=p.maxAnisotropy.value_or(1.f);si.minLod=0;si.maxLod=p.maximumLod.value_or(float(upload->mipCount()-p.baseMip-1));if(p.fixedLod)si.minLod=si.maxLod=*p.fixedLod;
             VulkanMaterialImagesCandidate::check(calls.createSampler(device,&si,nullptr,&next->sampler));
             const uint32_t count=uint32_t(entries.size());VkDescriptorPoolSize sizes[2]{{VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,count},{VK_DESCRIPTOR_TYPE_SAMPLER,count}};VkDescriptorPoolCreateInfo pi{};pi.sType=VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;pi.maxSets=count;pi.poolSizeCount=2;pi.pPoolSizes=sizes;VulkanMaterialImagesCandidate::check(calls.createPool(device,&pi,nullptr,&next->pool));
             next->sets.resize(count,VK_NULL_HANDLE);
@@ -92,8 +101,9 @@ public:
     static bool create(const std::shared_ptr<const ShaderTextureCpuPreparationCandidate>&prepared,
         HMODULE library,VkDevice device,VkPhysicalDevice physical,VkDescriptorSetLayout layout,
         const VulkanTextureSamplerPolicyCandidate&policy,bool srgb,bool compressionBcEnabled,
-        std::shared_ptr<const VulkanPreparedTextureBindingCandidate>&output)noexcept{
-        try{return create(prepared,library,device,physical,layout,policy,srgb,compressionBcEnabled,output,VulkanTextureBindingFunctionsCandidate::fromLibrary(library));}catch(...){return false;}
+        std::shared_ptr<const VulkanPreparedTextureBindingCandidate>&output,
+        const VulkanTextureSamplerFeaturesCandidate&features={})noexcept{
+        try{return create(prepared,library,device,physical,layout,policy,srgb,compressionBcEnabled,output,VulkanTextureBindingFunctionsCandidate::fromLibrary(library),features);}catch(...){return false;}
     }
     std::optional<FrameLease>acquireFrame(uint32_t frame)const{if(frame>=sets.size())return {};FrameLease lease;lease.owner=shared_from_this();lease.frame=frame;return lease;}
     void recordUpload(VkCommandBuffer command,VkPipelineStageFlags consumers)const{images->upload(command,consumers);}

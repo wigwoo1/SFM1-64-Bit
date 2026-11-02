@@ -35,7 +35,7 @@ static int safety(){
         if(mode==0)bad.hardwareKnown=false;if(mode==1)bad.overridesKnownAbsent=false;
         if(mode==2)bad.picmip=4;if(mode==3)bad.dimensionClamp=3;if(mode==4)bad.requestedFlags=0x4000;
         if(mode==5)input={};if(mode==6)input=Ref::environment();if(mode==7)input=Ref::ordinary(nullptr);
-        if(mode==8)input=Ref::ordinary(MaterialTextureResourceCandidate::fromVtf("fixture/lod",fixture(4,3,1,true)));
+        if(mode==8){auto unsupported=fixture(4,3,1,true);unsupported[92]=31;input=Ref::ordinary(MaterialTextureResourceCandidate::fromVtf("fixture/lod",unsupported));}
         if(mode==9)input=Ref::ordinary(MaterialTextureResourceCandidate::fromVtf("fixture/depth",fixture(4,3,2)));
         check(!Image::prepare(input,bad,output)&&output==original);
     }

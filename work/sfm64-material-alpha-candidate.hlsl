@@ -3,6 +3,7 @@
 [[vk::binding(0, 0)]] Texture2D<float4> baseTexture;
 [[vk::binding(1, 0)]] SamplerState baseSampler;
 [[vk::binding(3, 0)]] Texture2D<float4> secondBaseTexture;
+[[vk::binding(5,0)]] SamplerState secondSampler;
 struct MaterialPush {
     [[vk::offset(96)]] float alpha;
     [[vk::offset(100)]] float alphaCutoff;
@@ -16,7 +17,7 @@ float4 main(float2 uv : TEXCOORD0, float3 vertexLight : TEXCOORD1, float displac
     float2 transformedUv = float2(dot(float3(uv,1),material.baseTextureTransform0.xyz),dot(float3(uv,1),material.baseTextureTransform1.xyz));
     float4 sampled = baseTexture.Sample(baseSampler, transformedUv);
     if (material.vertexTransition != 0) {
-        float4 secondSample = secondBaseTexture.Sample(baseSampler, transformedUv);
+        float4 secondSample = secondBaseTexture.Sample(secondSampler, transformedUv);
         sampled = lerp(sampled, secondSample, saturate(displacementAlpha / 255.0));
     }
     if (sampled.a < material.alphaCutoff) discard;

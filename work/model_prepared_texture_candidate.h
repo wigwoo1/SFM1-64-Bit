@@ -6,6 +6,8 @@
 struct ModelPreparedTextureCandidate {
     std::shared_ptr<const ShaderTextureCpuPreparationCandidate>cpu;
     uint32_t frame=0;
+    // Historical name: selected/GPU-relative mip, NOT the authored file level.
+    // image()->plan()[11] and lease.sourceLevel() retain the authored identity.
     uint32_t sourceMip=0;
     bool fullMipSampling=false;
 };
@@ -21,7 +23,7 @@ inline ModelPreparedTextureCandidate prepareModelTextureSnapshotCandidate(const 
        !power(layout.mips[0].width)||!power(layout.mips[0].height)||(layout.flags&0x4000u))return result;
     uint32_t minor=0;std::memcpy(&minor,bytes.data()+8,4);
     if(minor>1){uint16_t depth=0;std::memcpy(&depth,bytes.data()+63,2);if(depth!=1)return result;}
-    if(minor>=3){uint32_t count=0;std::memcpy(&count,bytes.data()+68,4);for(uint32_t i=0;i<count;++i){uint32_t tag=0;std::memcpy(&tag,bytes.data()+80+size_t(i)*8,4);if((tag&0xffffffu)==0x444f4cu)return result;}}
+    if(layout.lodControl&&((*layout.lodControl)[0]>30||(*layout.lodControl)[1]>30))return result;
     uint32_t levels=1;for(auto n=std::max(layout.mips[0].width,layout.mips[0].height);n>1;n>>=1)++levels;
     if(layout.flags&0x100u){if(requestedMip)return result;levels=1;}
     if(levels>layout.mips.size())return result;
@@ -32,6 +34,25 @@ inline ModelPreparedTextureCandidate prepareModelTextureSnapshotCandidate(const 
     settings.forceFullMipChain=settings.hardwareKnown=settings.overridesKnownAbsent=true;
     TextureFormatPolicyServicesCandidate services;services.enabled=[]()->std::optional<uint32_t>{return 0;};
     MaterialShaderTextureRequestCandidate request;request.name=name;request.group="Owned model renderer snapshots";
-    if(!ShaderTextureCpuPreparationCandidate::prepareColdNormalMiss(request,MaterialTextureReferenceCandidate::ordinary(resource),settings,1,services,result.cpu))throw std::runtime_error("prepared model texture snapshot refused");
+    if(!ShaderTextureCpuPreparationCandidate::prepareColdNormalMiss(request,MaterialTextureReferenceCandidate::ordinary(resource),settings,1,services,result.cpu)){
+        // A declared NOMIP file may lack the level requested by its LOD clamp.
+        // Preserve the preceding decoded fallback; never invent missing pixels
+        // or abort a model load merely by opting into this new prepared route.
+        if(layout.lodControl)return result;
+        throw std::runtime_error("prepared model texture snapshot refused");
+    }
+    if(layout.lodControl){
+        const auto&plan=result.cpu->image()->plan();
+        // Existing callers request an authored mip and clamp their decoded
+        // fallback to the last authored level. Discarded levels select the new
+        // root; retained levels subtract its source skip exactly once.
+        const auto authored=std::min(requestedMip,uint32_t(layout.mips.size()-1));
+        result.sourceMip=std::min(authored>plan[11]?authored-plan[11]:0u,plan[9]-1);
+    }
+    // Reference preset verified for force-anisotropy1, filtering1, mipmapping1:
+    // ordinary textures use trilinear sampling across the retained authored chain.
+    // This is not live engine CVar/hardware negotiation. Anisotropic requests
+    // retain the preceding policy until their backend contract is proven.
+    result.fullMipSampling=(layout.flags&0x10u)==0;
     return result;
 }

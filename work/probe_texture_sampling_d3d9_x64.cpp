@@ -56,6 +56,10 @@ int main(int argc,char**argv){
                 check(api->CreateDevice(adapter,D3DDEVTYPE_HAL,window,D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,&pp,device.out()),"D3D9 HAL creation");found=true;break;
             }
             require(found,"requested Vulkan-matching D3D9 adapter unavailable");
+            // Observe the system device default; do not manufacture the reference
+            // by first writing BORDERCOLOR. Every pixel sampler starts at zero.
+            for(DWORD stage=0;stage<16;++stage){DWORD color=0xffffffffu;check(device->GetSamplerState(stage,D3DSAMP_BORDERCOLOR,&color),"default border query");require(color==0,"transparent black device default");}
+            std::cout<<"d3d9_pixel_border_defaults_checked=16 value=0 no_border_color_writes=1\n";
             std::ofstream metadata(output/"device.txt");metadata<<"description="<<identity.Description<<"\nvendor="<<identity.VendorId<<"\ndevice="<<identity.DeviceId<<"\ndriver="<<identity.Driver<<"\ndriver_version="<<identity.DriverVersion.QuadPart<<"\nwindow_visible="<<IsWindowVisible(window)<<"\n";require(bool(metadata),"device metadata");
             SamplingCom<ID3DBlob>vertexCode,pixelCode;
             auto compile=[&](const char*entry,const char*profile,SamplingCom<ID3DBlob>&code){SamplingCom<ID3DBlob>errors;auto hr=D3DCompile(shaderSource,sizeof(shaderSource)-1,"owned-texture-sampling",nullptr,nullptr,entry,profile,D3DCOMPILE_ENABLE_BACKWARDS_COMPATIBILITY,0,code.out(),errors.out());if(errors.p){std::ofstream f(output/(std::string(entry)+"-compiler.log"),std::ios::binary);f.write(static_cast<const char*>(errors->GetBufferPointer()),std::streamsize(errors->GetBufferSize()));}check(hr,"owned shader compilation");std::ofstream f(output/(std::string(entry)+".bin"),std::ios::binary);f.write(static_cast<const char*>(code->GetBufferPointer()),std::streamsize(code->GetBufferSize()));require(bool(f),"owned shader output");};
@@ -71,7 +75,7 @@ int main(int argc,char**argv){
             std::ofstream out(output/"samples.bin",std::ios::binary);uint32_t total=0;
             for(uint32_t serial=0;serial<count;++serial){
                 std::array<uint32_t,8>q{};for(auto&n:q)n=word(in);const auto name=text(in),path=text(in);(void)name;const auto n=word(in);require(n&&n<=4096,"sample count");std::vector<Request>requests(n);require(bool(in.read(reinterpret_cast<char*>(requests.data()),std::streamsize(n*sizeof(Request)))),"sample requests");
-                require(q[0]<=1&&q[1]<=1&&q[2]<=1&&q[3]<=1&&(q[4]==0||q[4]==2)&&(q[5]==0||q[5]==2)&&q[7]==0xffffffffu,"explicit sampler/no CPU conversion contract");
+                require(q[0]<=1&&q[1]<=1&&q[2]<=1&&q[3]<=1&&(q[4]==0||q[4]==2||q[4]==3)&&(q[5]==0||q[5]==2||q[5]==3)&&q[7]==0xffffffffu,"explicit sampler/no CPU conversion contract");
                 std::ifstream source(path,std::ios::binary);require(bool(source),"authored VTF");std::vector<uint8_t>bytes((std::istreambuf_iterator<char>(source)),{});const auto layout=readVtfTextureLayoutCandidate(bytes);require(layout.frameCount==2&&layout.mips.size()==4&&(layout.format==13||layout.format==15||layout.format==0),"fixture format/extent");
                 const auto format=layout.format==13?D3DFMT_DXT1:layout.format==15?D3DFMT_DXT5:D3DFMT_A8R8G8B8;
                 check(api->CheckDeviceFormat(adapter,D3DDEVTYPE_HAL,mode.Format,0,D3DRTYPE_TEXTURE,format),"texture format capability");
@@ -84,8 +88,8 @@ int main(int argc,char**argv){
                         for(uint32_t y=0;y<rows;++y){auto*dst=static_cast<uint8_t*>(lock.pBits)+size_t(y)*size_t(lock.Pitch);std::memcpy(dst,src+size_t(y)*stride,stride);if(layout.format==0)for(uint32_t x=0;x<m.width;++x)std::swap(dst[4*x],dst[4*x+2]);}
                         check(textures[frame]->UnlockRect(level),"texture unlock");}
                     check(device->SetTexture(frame,textures[frame].p),"frame texture bind");
-                    for(auto state:{D3DSAMP_ADDRESSU,D3DSAMP_ADDRESSV,D3DSAMP_ADDRESSW})check(device->SetSamplerState(frame,state,state==D3DSAMP_ADDRESSV?(q[5]?D3DTADDRESS_CLAMP:D3DTADDRESS_WRAP):(q[4]?D3DTADDRESS_CLAMP:D3DTADDRESS_WRAP)),"address mode");
-                    check(device->SetSamplerState(frame,D3DSAMP_MINFILTER,q[1]?D3DTEXF_LINEAR:D3DTEXF_POINT),"min filter");check(device->SetSamplerState(frame,D3DSAMP_MAGFILTER,q[2]?D3DTEXF_LINEAR:D3DTEXF_POINT),"mag filter");check(device->SetSamplerState(frame,D3DSAMP_MIPFILTER,q[3]?D3DTEXF_LINEAR:D3DTEXF_POINT),"mip filter");check(device->SetSamplerState(frame,D3DSAMP_SRGBTEXTURE,q[0]),"sRGB input");check(device->SetSamplerState(frame,D3DSAMP_MIPMAPLODBIAS,0),"LOD bias zero");check(device->SetSamplerState(frame,D3DSAMP_MAXMIPLEVEL,0),"largest mip zero");check(device->SetSamplerState(frame,D3DSAMP_MAXANISOTROPY,1),"anisotropy one");
+                    for(auto state:{D3DSAMP_ADDRESSU,D3DSAMP_ADDRESSV,D3DSAMP_ADDRESSW})check(device->SetSamplerState(frame,state,state==D3DSAMP_ADDRESSV?(q[5]==3?D3DTADDRESS_BORDER:q[5]==2?D3DTADDRESS_CLAMP:D3DTADDRESS_WRAP):(q[4]==3?D3DTADDRESS_BORDER:q[4]==2?D3DTADDRESS_CLAMP:D3DTADDRESS_WRAP)),"address mode");
+                    check(device->SetSamplerState(frame,D3DSAMP_MINFILTER,q[1]?D3DTEXF_LINEAR:D3DTEXF_POINT),"min filter");check(device->SetSamplerState(frame,D3DSAMP_MAGFILTER,q[2]?D3DTEXF_LINEAR:D3DTEXF_POINT),"mag filter");check(device->SetSamplerState(frame,D3DSAMP_MIPFILTER,q[3]?D3DTEXF_LINEAR:D3DTEXF_POINT),"mip filter");check(device->SetSamplerState(frame,D3DSAMP_SRGBTEXTURE,q[0]),"sRGB input");check(device->SetSamplerState(frame,D3DSAMP_MIPMAPLODBIAS,0),"LOD bias zero");check(device->SetSamplerState(frame,D3DSAMP_MAXMIPLEVEL,0),"largest mip zero");check(device->SetSamplerState(frame,D3DSAMP_MAXANISOTROPY,1),"anisotropy one");DWORD border=0xffffffffu;check(device->GetSamplerState(frame,D3DSAMP_BORDERCOLOR,&border),"retained border query");require(border==0,"border default retained");
                 }
                 std::vector<Vertex>vertices;vertices.reserve(size_t(n)*6);
                 const std::array<std::array<float,2>,6>corners{{{-.5f,-.5f},{.5f,-.5f},{-.5f,.5f},{-.5f,.5f},{.5f,-.5f},{.5f,.5f}}};

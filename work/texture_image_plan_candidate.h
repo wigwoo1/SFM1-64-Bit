@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <optional>
 #include "vtf_effective_flags_candidate.h"
 
 // Opt-in CPU plan for measured fresh 2D textures. This does not load an image,
@@ -14,6 +15,9 @@ struct TextureImagePlanInputCandidate {
     uint32_t picmip=0,maxWidth=0,maxHeight=0,dimensionClamp=0;
     bool forceFullMipChain=false,graffitiPolicy=false;
     bool lodResourceKnownAbsent=false,overridesKnownAbsent=false,hardwareKnown=false;
+    // Four inline bytes: PC X/Y, console X/Y. Neither unknown nor both present
+    // and known-absent is an admissible resource state.
+    std::optional<std::array<uint8_t,4>>lodControl;
 };
 // Native CTexture fields, ordered like the independent reference record.
 using TextureImagePlanCandidate=std::array<uint32_t,16>;
@@ -22,7 +26,7 @@ inline bool textureImagePlanCandidate(const TextureImagePlanInputCandidate&v,
     const auto power=[](uint32_t n){return n&&n<=32768&&!(n&(n-1));};
     uint32_t flags=0;
     for(auto bits:v.reflectivityBits)if((bits&0x7f800000u)==0x7f800000u)return false;
-    if(!v.lodResourceKnownAbsent||!v.overridesKnownAbsent||!v.hardwareKnown||
+    if(v.lodResourceKnownAbsent==bool(v.lodControl)||!v.overridesKnownAbsent||!v.hardwareKnown||
         !power(v.width)||!power(v.height)||!v.frames||v.frames>2048||
         (v.format!=0&&v.format!=3&&v.format!=12&&v.format!=13&&v.format!=15)||v.picmip>3||
         v.maxWidth<4||v.maxHeight<4||v.maxWidth>32768||v.maxHeight>32768||
@@ -31,6 +35,13 @@ inline bool textureImagePlanCandidate(const TextureImagePlanInputCandidate&v,
     flags|=v.requestedFlags|(v.graffitiPolicy?0x200u:0u);
     if(flags&0x4000u)return false; // Cubemap hardware/storage remains separate.
     uint32_t tw=v.width,th=v.height;
+    if(v.lodControl){
+        const auto&lod=*v.lodControl;
+        // Bounded measured PC domain. Never emulate x86 shift-count wrapping.
+        if(v.minor<3||lod[0]>30||lod[1]>30)return false;
+        // Either zero disables BOTH limits. Console bytes do not affect PC.
+        if(lod[0]&&lod[1]){tw=std::min(tw,uint32_t(1)<<lod[0]);th=std::min(th,uint32_t(1)<<lod[1]);}
+    }
     if(v.dimensionClamp)while(tw>v.dimensionClamp||th>v.dimensionClamp){tw>>=1;th>>=1;}
     if(!(flags&0x200u))for(uint32_t i=0;i<v.picmip;++i)if(tw>4&&th>4){tw>>=1;th>>=1;}
     tw=std::min(tw,v.maxWidth);th=std::min(th,v.maxHeight);

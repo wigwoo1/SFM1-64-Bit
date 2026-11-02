@@ -48,15 +48,14 @@ public:
             // Resource validation has established header/resource table spans.
             // The old 2D layout admits nonzero depth; this image stage requires1.
             const auto minor=word(8);if(minor>1&&half(63)!=1)return false;
-            if(minor>=3)for(uint32_t i=0;i<word(68);++i)
-                if((word(80+size_t(i)*8)&0xffffffu)==0x444f4cu)return false;
             if(layout.mips.empty())return false;
             TextureImagePlanInputCandidate v;v.major=word(4);v.minor=minor;v.rawFlags=layout.flags;
             v.requestedFlags=settings.requestedFlags;v.width=layout.mips[0].width;v.height=layout.mips[0].height;
             v.frames=layout.frameCount;v.format=layout.format;v.reflectivityBits={word(32),word(36),word(40)};
             v.picmip=settings.picmip;v.maxWidth=settings.maxWidth;v.maxHeight=settings.maxHeight;
             v.dimensionClamp=settings.dimensionClamp;v.forceFullMipChain=settings.forceFullMipChain;
-            v.graffitiPolicy=settings.graffitiPolicy;v.lodResourceKnownAbsent=true;
+            v.graffitiPolicy=settings.graffitiPolicy;v.lodControl=layout.lodControl;
+            v.lodResourceKnownAbsent=!v.lodControl;
             v.overridesKnownAbsent=settings.overridesKnownAbsent;v.hardwareKnown=settings.hardwareKnown;
             TextureImagePlanCandidate plan;
             if(!textureImagePlanCandidate(v,plan))return false;
