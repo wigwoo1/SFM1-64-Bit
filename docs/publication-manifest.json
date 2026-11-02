@@ -1,4 +1,3 @@
-Warning: fs was declared with const; use let for reassignable variables.
 {
   "repository": "wigwoo1/SFM1-64-Bit",
   "files": {
