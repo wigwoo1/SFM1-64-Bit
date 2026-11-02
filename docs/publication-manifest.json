@@ -26,7 +26,7 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "ff1e560d6b782f151bbfe4a5af83ac3c048066a04ac8b602e30ba3632a9ebcfd",
+      "sha256": "73505909d47ee7e9e5eb8f479438ac40a4a9c63cbb11a21571f4e623bb1a4721",
       "size": 45677
     },
     "docs/publication-policy.json": {
@@ -34,12 +34,12 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "3bb6868a876acbbb35cf8d34411c4bdeecdfc840390bd7a8e3321c19322fab99",
+      "sha256": "eff3af8fcce90631c920987cfad6b18a8a97264e9fa6058870bb752a8560d563",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "582238ebcc2aa029bdcd767979ca3fbc2be5cb14b3c7dd57d3aafec217a3ae88",
-      "size": 978398
+      "sha256": "7df76e1061c1018f5cfc84bd1c45b35c70e3da21096c2b60bd37ed3a1ed968b8",
+      "size": 961299
     },
     "publication/README.md": {
       "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
@@ -6100,6 +6100,10 @@
     "work/build_test_source_bsp_world_materials.cmd": {
       "sha256": "a552a234fd5580b2b24d2b6ba24869ec56db33d2a8974caf5ee228047698248f",
       "size": 539
+    },
+    "work/build_test_source_plain_lightmap_sampling.cmd": {
+      "sha256": "614a6c6ac95779cc74e44be24387e72ed476f02924560aba3325214d27409ff3",
+      "size": 672
     },
     "work/build_test_string_attribute_undo_replay.cmd": {
       "sha256": "00b312c2dff8454aedfe2b86ed906ffdfc8c19defbaf65195da2006909798d02",
@@ -18273,6 +18277,10 @@
       "sha256": "5b894afb47e9c8f8093707918e03b1cca25674574f8347fef460fe69d102bb85",
       "size": 2827
     },
+    "work/source_plain_lightmap_sampling_candidate.h": {
+      "sha256": "2146c1fd4c088683b204e0b599c033d2cbc8b5f43d2575a0feb7e5f1adc22e46",
+      "size": 3782
+    },
     "work/source_plain_lightmapped_dynamic_selection_candidate.h": {
       "sha256": "62d682b3cb561cc2aa87af90b5852ed85e6943f169ec6a76b7cb5e64ad3c6996",
       "size": 2042
@@ -23248,6 +23256,10 @@
     "work/test_source_model_cached_lighting.cpp": {
       "sha256": "01a9d5f8d2b4c3f51df734ae0de2e2fd4500dc3d9ecfd7b4a7e626a904f5a009",
       "size": 3724
+    },
+    "work/test_source_plain_lightmap_sampling.cpp": {
+      "sha256": "5530bc4f097f48e57a071c2d4bad212f50136d73483d1d3af09e8dac3d237af0",
+      "size": 4429
     },
     "work/test_source_world_light_overflow.cpp": {
       "sha256": "1e3891ee20281d5268c6e0008440b2b1a60884c1b3cccf97bb1c36c13fbc318f",

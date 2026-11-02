@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-11-02T06:08:38.653411+00:00",
-  "executable_sha256": "bc7b03e63b8c27dbf9d328f9a07dc86be84cf39cae35c444d69126839e2b0062",
+  "compiled_utc": "2026-11-01T06:55:23.792963+00:00",
+  "executable_sha256": "65d37889be8e479294a625ebb1a91c92d5e83ffff00288954d9393e1d877ec94",
   "editor_source_dependencies": {
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
     "work/animation_keys.h": "0ba29f76618039904fb15c9ea4ddf86ac3c8f9ec28d9efc9d6de25900d4542cb",
@@ -382,13 +382,13 @@
     "shaders/sfm64-projected-light-vertex-candidate.spv": "aedf68f66935fb2f1b5649a50fee5a05f24bd2261abfc92bd8b3059f2f992d3f",
     "shaders/sfm64-shadow-depth-vertex.spv": "d915d5fbd3d7253c2e4d6bd4aa05eca3dc69522d65b56bd53b833c04d3ed2f85",
     "shaders/sfm64-shadow-scene-vertex.spv": "66781376a618d57ac1d196d1cd7def058d4a98a1eac4d44177320e42c321d8cd",
-    "shaders/sfm64-material-alpha-candidate.spv": "28a9891e631029965ed0f84993dca8b981f550dddd71d3cd06db79c9e0d0a591",
-    "shaders/sfm64-material-selfillum-candidate.spv": "880c100eae2b3d642245a1242b815f2c1ca5880a69af690257bb3f39b3af29e9",
+    "shaders/sfm64-material-alpha-candidate.spv": "cb84b2ef178da3d0e830721cae249eb25e0c185fcad3fb3593a93143c2d4b1a1",
+    "shaders/sfm64-material-selfillum-candidate.spv": "b179e9092114a64b21ad8be70b587555f21122302c6619ef95d591404eac0570",
     "shaders/sfm64-normal-view-candidate.spv": "51dda2e048e99373d091b1354c3d77e4f46540ecc5a6481979210d3108281fe5",
     "shaders/sfm64-eye-composition-candidate.spv": "c9446b3c6ea6a77f891abf2864f390c50de41baa9d382fcaee084389c2731611",
     "shaders/sfm64-projected-light-fragment-candidate.spv": "d29ed04e7eb873aef94237081f7aeca518b5d7153f8cf1a70a98577da61ebeb6",
     "shaders/sfm64-projected-light-shadow-fragment-candidate.spv": "325ffc39ed1ec8492387d3c0eac59048275c15e7b49726e5bdcfd3d867c03363",
-    "shaders/sfm64-unlit-two-texture-candidate.spv": "8d7f893ecfd92acec573fd657bf153701b92e5b274d4d18cbc88231adf5ae8c9",
+    "shaders/sfm64-unlit-two-texture-candidate.spv": "8ce206f3b3437c91d07ec361ef73982a617478838aba680c1a7aaa53bb5493ba",
     "shaders/sfm64-light-buffer-readback.spv": "187aee853c36cbf225eb95b5f700a6c364bf1295d1e51eb0be139a026eea8314",
     "shaders/sfm64-shadow-depth-readback.spv": "7296a7961ac257ffdeb14d723600d3c2c18ecc92c3729546b411d05b7287aa0e"
   },
