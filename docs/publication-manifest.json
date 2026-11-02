@@ -1,3 +1,4 @@
+Warning: fs was declared with const; use let for reassignable variables.
 {
   "repository": "wigwoo1/SFM1-64-Bit",
   "files": {
@@ -34,7 +35,7 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "a759581d3e0372252b6e3a9ea3d1e9dad7b06ec3c8d94d8dd7216b8904a11ad0",
+      "sha256": "4c242326b3b3b119cc7e24bc7c2e47d57def44c57a59a7776b25408492481126",
       "size": 240
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
