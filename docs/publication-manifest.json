@@ -34,8 +34,8 @@
       "size": 4143
     },
     "docs/sync-status.json": {
-      "sha256": "f714d62e5e3aa53c5283250ab155b99091c85cd49094ac11784bb713842a05cb",
-      "size": 185
+      "sha256": "13c7dceaceb7b8920ebe4516d82ca7f1a3d67a4eeb75db12db4f8aa0d5862199",
+      "size": 243
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "7df76e1061c1018f5cfc84bd1c45b35c70e3da21096c2b60bd37ed3a1ed968b8",
@@ -3440,6 +3440,22 @@
     "work/build_native_light_cache_position.cmd": {
       "sha256": "2a6cdd7dc6591815fc1371f46a7463c2ad4e400467734ca46fe08ba161911336",
       "size": 901
+    },
+    "work/build_native_lightmap_half_test.cmd": {
+      "sha256": "69a215f6de719fa84f4194a9caf345102dcd3fe4fd3ab6e640b97063d23c3946",
+      "size": 897
+    },
+    "work/build_native_lightmap_hdr0_pixel_test.cmd": {
+      "sha256": "e1ac2699e55edad5fda39eabb1e8e722fe1e29d54e97161c4f5d2abb439f3932",
+      "size": 845
+    },
+    "work/build_native_lightmap_hdr2_pixel_test.cmd": {
+      "sha256": "a6fb73bcb227d4a147fb4a132047ce244b81a18512a3b3cc64da78ac98dd9fe7",
+      "size": 993
+    },
+    "work/build_native_lightmap_pixel_layout_test.cmd": {
+      "sha256": "f109c9373a7e59b3e8b54c7211204f55fdc76cf5fe8c5afbfd61b5fa7cf31cdb",
+      "size": 959
     },
     "work/build_native_live_identity_lookup.cmd": {
       "sha256": "30a5b73f3f0c96b9147031dfea4cfae27badd4d68e855c444070285712ddf86e",
@@ -11208,6 +11224,22 @@
     "work/native_light_cache_position_bytes.h": {
       "sha256": "d3f66d33686f5d9bf444cf5f432817a968341209afa93d0eb358eb58f7271cea",
       "size": 4689
+    },
+    "work/native_lightmap_half_candidate.h": {
+      "sha256": "ce5dc0b78b507c843ae6d4006d6e84946385dccac6c747277928d887aa018a47",
+      "size": 1109
+    },
+    "work/native_lightmap_hdr0_pixel_candidate.h": {
+      "sha256": "b6c75605289a1b71d24ef611ba79ba13f9f77545bd86fc39ecb0789818b15315",
+      "size": 1779
+    },
+    "work/native_lightmap_hdr2_pixel_candidate.h": {
+      "sha256": "eb63fc3a95670f6f5230c6dbe213e868ee78c01972d3662385139de452baba00",
+      "size": 1230
+    },
+    "work/native_lightmap_pixel_layout_candidate.h": {
+      "sha256": "12854dfa91b81ed43b0ab9e583e149c4bb35175936909c17d0a30d407c8bc6c8",
+      "size": 1155
     },
     "work/native_line_split_bytes.h": {
       "sha256": "1a6cc5292d431d143989c2b1afa71d504f413a40804565ff2bb2459f5f9a9c52",
@@ -21581,6 +21613,22 @@
       "sha256": "04ba44129b81c6db6fdf062d311eae249f12226f2fa0db23e777a3b6f434036a",
       "size": 1371
     },
+    "work/test_native_lightmap_half.cpp": {
+      "sha256": "4880a54cafae6a35c8dffd5b9fcc9377b1ccfa0e18035e450c1565f4720f9ab9",
+      "size": 1948
+    },
+    "work/test_native_lightmap_hdr0_pixel.cpp": {
+      "sha256": "d09aa1b0f6e5d750777d837aaebf512a239103de1cdce92d119443c75f72f3e5",
+      "size": 1729
+    },
+    "work/test_native_lightmap_hdr2_pixel.cpp": {
+      "sha256": "2f02b67ab859b01ebf84d81f8b41953ca1dbb6f859568a647913ae2a3d7f57ea",
+      "size": 2329
+    },
+    "work/test_native_lightmap_pixel_layout.cpp": {
+      "sha256": "071696301d7e5e5f0d754ab206af88f3bfd839d8c90041197dc997f8d9ca1f1b",
+      "size": 2348
+    },
     "work/test_native_live_identity_lookup_x64.cpp": {
       "sha256": "6f4141c9c73d1605a11e5a12615c70252aee21709041840fa6ed462d7c85c309",
       "size": 1494
@@ -25776,6 +25824,22 @@
     "work/verify_native_light_cache_position.py": {
       "sha256": "ff3fc40e70c71b3860d8c566862b49855d2e5705efdbf8167331f0058e2ec8b9",
       "size": 3214
+    },
+    "work/verify_native_lightmap_half.py": {
+      "sha256": "267d71109bb4ed99d540c991e76590edac9f0a815f3fe58f2322fee4ba8925cc",
+      "size": 8322
+    },
+    "work/verify_native_lightmap_hdr0_pixel.py": {
+      "sha256": "c71c760cce2fb0dee2f298ec898e036b0e4ac800e2eb99ddc213d21fbc305ba8",
+      "size": 6487
+    },
+    "work/verify_native_lightmap_hdr2_pixel.py": {
+      "sha256": "adf617290f04157a28a7350e623e7d724bfe5968c50f50fd882dad2f2bfd3542",
+      "size": 12010
+    },
+    "work/verify_native_lightmap_pixel_layout.py": {
+      "sha256": "664075378747c7f770a7a091de41c3dc3ac6ce7dd96ba7523109bdc50009f07c",
+      "size": 8548
     },
     "work/verify_native_optimized_box.py": {
       "sha256": "de868f6c3d5469ceb304b41a078adf3621bedccaf1593ca37d98ffe28ca64b58",
