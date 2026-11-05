@@ -1,0 +1,38 @@
+#define DMX_GRAPH_NO_MAIN
+#include "dmx_graph.cpp"
+#include "prepared_session_scene_candidate.h"
+#include "retained_source_bsp_world_candidate.h"
+#define main pairedReaderFixtureMain
+#include "test_source_bsp_paired_lightmap_selection.cpp"
+#undef main
+#include <fstream>
+
+static Graph graph(const char* name){Graph g;g.strings={"DmeFilmClip","world","mapname"};Element e{};e.type=0;e.name=1;Value v;v.text=name;e.attributes.push_back({2,5,{v}});g.elements.push_back(e);return g;}
+static void save(const std::filesystem::path&p,const std::vector<uint8_t>&b){std::ofstream f(p,std::ios::binary);f.write(reinterpret_cast<const char*>(b.data()),std::streamsize(b.size()));check(bool(f),"owned fixture write");}
+static PreparedSessionSceneCandidate seed(){PreparedSessionSceneCandidate s;s.camera.rows={1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};auto i=std::make_shared<ModelRenderInputsCandidate>();i->indices={0,1,2};i->ranges={{0,3,0,0,0,0}};i->materials.resize(1);s.materialInputs.appendOwned(i);s.materialAlpha={1};s.upload.materials={{0,0}};s.upload.indices={0,1,2};s.upload.opaque={{0,0,0,3,0,0}};for(size_t n=0;n<3;++n)s.upload.vertices.push_back({{float(n),-1,.5f},{0,0,1},{0,0}});return s;}
+static void unchanged(const PreparedSessionSceneCandidate&a,const PreparedSessionSceneCandidate&b){
+ check(a.upload.indices==b.upload.indices&&a.materialAlpha==b.materialAlpha&&a.materialInputs.owners==b.materialInputs.owners&&a.materialInputs.entries==b.materialInputs.entries&&a.materialInputs.alpha.size()==b.materialInputs.alpha.size(),"transaction indices/material owners");
+ for(size_t n=0;n<a.materialInputs.alpha.size();++n){const auto&x=a.materialInputs.alpha[n];const auto&y=b.materialInputs.alpha[n];check(x.size()==y.size(),"transaction alpha count");for(size_t k=0;k<x.size();++k)check(x[k].material==y[k].material&&x[k].alpha==y[k].alpha,"transaction alpha values");}
+ check(a.upload.vertices.size()==b.upload.vertices.size()&&a.upload.vertexShading.size()==b.upload.vertexShading.size()&&a.upload.materials.size()==b.upload.materials.size()&&a.upload.bspLightmaps.size()==b.upload.bspLightmaps.size(),"transaction channel sizes");
+ for(size_t n=0;n<a.upload.vertices.size();++n){const auto&x=a.upload.vertices[n];const auto&y=b.upload.vertices[n];check(x.position==y.position&&x.normal==y.normal&&x.uv==y.uv&&x.displacementAlpha==y.displacementAlpha,"transaction vertices");}
+ for(size_t n=0;n<a.upload.vertexShading.size();++n){const auto&x=a.upload.vertexShading[n];const auto&y=b.upload.vertexShading[n];check(x.normal==y.normal&&x.tangent==y.tangent&&x.previewLightColor==y.previewLightColor&&x.model==y.model&&x.sourceVertex==y.sourceVertex&&x.origin==y.origin&&x.hasNormal==y.hasNormal&&x.hasTangent==y.hasTangent&&x.hasPreviewLightColor==y.hasPreviewLightColor,"transaction shading");}
+ for(size_t n=0;n<a.upload.materials.size();++n)check(a.upload.materials[n].model==b.upload.materials[n].model&&a.upload.materials[n].material==b.upload.materials[n].material,"transaction material addresses");
+ for(size_t n=0;n<a.upload.bspLightmaps.size();++n)check(a.upload.bspLightmaps[n].snapshot==b.upload.bspLightmaps[n].snapshot,"transaction snapshot owners");
+ auto draws=[](const auto&x,const auto&y){check(x.size()==y.size(),"transaction draw count");for(size_t n=0;n<x.size();++n)check(x[n].model==y[n].model&&x[n].range==y[n].range&&x[n].firstIndex==y[n].firstIndex&&x[n].indexCount==y[n].indexCount&&x[n].materialIndex==y[n].materialIndex&&x[n].materialSlot==y[n].materialSlot,"transaction draw identity");};draws(a.upload.opaque,b.upload.opaque);draws(a.upload.translucent,b.upload.translucent);
+}
+int main(int argc,char**argv){try{
+ static_assert(sizeof(void*)==8,"native x64 required");check(argc==3,"fresh disposable directory and owned VTF");const std::filesystem::path root=argv[1];check(std::filesystem::create_directory(root),"fresh fixture directory");std::filesystem::create_directories(root/"maps");std::filesystem::create_directories(root/"materials/owned");save(root/"materials/owned/pixel.vtf",readBinaryAssetCandidate(argv[2]));{std::ofstream f(root/"materials/mat.vmt");f<<"LightmappedGeneric { $basetexture owned/pixel }";}
+ const auto bytes=fixture();save(root/"maps/a.bsp",bytes);save(root/"maps/b.bsp",bytes);auto invalid=bytes;u32(invalid,12+58*16,0);save(root/"maps/invalid.bsp",invalid);
+ RetainedSourceBspWorldCandidate ldr({root},SourceBspLightmapSelectionCandidate::Ldr),hdr({root},SourceBspLightmapSelectionCandidate::Hdr),legacy({root}),explicitLegacy({root},SourceBspLightmapSelectionCandidate::LegacyPreview);
+ auto l=seed(),h=seed(),d=seed(),e=seed();ldr.append(graph("a"),0,l);hdr.append(graph("a"),0,h);legacy.append(graph("a"),0,d);explicitLegacy.append(graph("a"),0,e);
+ check(l.upload.vertices.size()==6&&h.upload.vertices.size()==7&&l.upload.indices.size()==6&&h.upload.indices.size()==9,"actual retained differing dataset geometry");check(d.upload.indices==l.upload.indices&&e.upload.indices==l.upload.indices,"legacy defaults changed");
+ const auto&la=l.upload.bspLightmaps.at(0);const auto&ha=h.upload.bspLightmaps.at(0);check(la.firstVertex==3&&ha.firstVertex==3&&ha.firstIndex==3&&ha.model==1,"nonzero global scene prefixes");check(la.snapshot->lightmaps->faceLump()==7&&ha.snapshot->lightmaps->faceLump()==58&&ha.snapshot->lightmaps->lightingLump()==53,"retained raw identity");check(ha.snapshot->lightmaps->sample(0,0,0,0,0)==std::array<uint8_t,4>{91,82,73,3}&&ha.snapshot->vertexLuxels[0].luxel==std::array<double,2>{96,202},"selected HDR samples/luxels");
+ check(h.upload.vertices[5].position==std::array<float,3>{2,2,0}&&h.upload.vertexShading[5].sourceVertex==2&&h.upload.vertexShading[5].origin==SceneShadingOriginCandidate::WorldGeometry,"retained original float positions/provenance");
+ auto repeat=seed();hdr.append(graph("a"),0,repeat);check(repeat.upload.bspLightmaps[0].snapshot==ha.snapshot,"same-profile cache not reused");
+ auto bad=seed();const auto badBefore=bad;refuses([&]{hdr.append(graph("invalid"),0,bad);},"strict HDR silently fell back");unchanged(bad,badBefore);
+ size_t failures=1;std::vector<std::string> stages;{RetainedSourceBspWorldCandidate discover({root},SourceBspLightmapSelectionCandidate::Hdr);auto s=seed();discover.append(graph("b"),0,s,[&](const char*stage){stages.emplace_back(stage);});}
+ check(stages.size()==13,"load/append stage coverage");for(bool allocation:{false,true})for(size_t fail=0;fail<stages.size();++fail){auto packet=h;size_t at=0;refuses([&]{hdr.append(graph("b"),0,packet,[&](const char*){if(at++==fail){if(allocation)throw std::bad_alloc();throw std::runtime_error("owned injected failure");}});},"injected failure not propagated");unchanged(packet,h);auto after=seed();hdr.append(graph("a"),0,after);check(after.upload.bspLightmaps[0].snapshot==ha.snapshot,"failure replaced previous cache");++failures;}
+ refuses([&]{RetainedSourceBspWorldCandidate unknown({root},SourceBspLightmapSelectionCandidate(99));},"invalid retained selection accepted");
+ auto legacyInvalid=seed();legacy.append(graph("invalid"),0,legacyInvalid);check(legacyInvalid.upload.bspLightmaps[0].snapshot->lightmaps->faceLump()==7,"legacy preference/fallback policy changed");
+ check(readBinaryAssetCandidate(root/"maps/a.bsp")==bytes,"source fixture modified by load");validateSceneBspLightmapsCandidate(h.upload);std::cout<<"PASS retained_dataset_selection=1 actual_world_loader=1 nonzero_scene_prefix=1 distinct_topology=1 strict_hdr_refusal=1 immutable_cache_profile=1 cache_reuse=1 rollback_failures="<<failures<<" default_legacy=1 original_runtime=ABSENT\n";return 0;
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

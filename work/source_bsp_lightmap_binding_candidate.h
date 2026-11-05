@@ -32,13 +32,13 @@ inline void validateSourceBspLightmapBindingCandidate(const SourceBspLightmapped
     }
 }
 
-// This wrapper deliberately follows the EXISTING geometry parser's dataset
-// selection. The raw reader still offers explicit LDR/HDR selection separately.
-// Native HDR geometry selection when both datasets exist is a future task.
+// The same explicit dataset is used for geometry and raw lightmap metadata.
+// Omitted selection preserves the historical LegacyPreview behavior.
 inline SourceBspLightmappedBrushCandidate readSourceBspLightmappedBrushCandidate(
-    const std::vector<uint8_t>& bytes,uint32_t modelIndex){
+    const std::vector<uint8_t>& bytes,uint32_t modelIndex,
+    SourceBspLightmapSelectionCandidate selection=SourceBspLightmapSelectionCandidate::LegacyPreview){
     SourceBspLightmappedBrushCandidate next;
-    next.lightmaps=readSourceBspLightmapDataCandidate(bytes,modelIndex,SourceBspLightmapSelectionCandidate::LegacyPreview);
+    next.lightmaps=readSourceBspLightmapDataCandidate(bytes,modelIndex,selection);
     SourceBspBrushEmissionTraceCandidate trace;
     trace.vertex=[&](uint32_t face,const std::array<float,3>& sourceBasePosition){
         const auto first=next.lightmaps->firstFace();
@@ -46,7 +46,7 @@ inline SourceBspLightmappedBrushCandidate readSourceBspLightmappedBrushCandidate
         next.vertexLuxels.push_back({face,next.lightmaps->luxel(size_t(face-first),sourceBasePosition)});
     };
     trace.triangle=[&](uint32_t face){next.triangleFaces.push_back(face);};
-    next.geometry=readSourceBspInlineBrushCandidate(bytes,modelIndex,&trace);
+    next.geometry=readSourceBspInlineBrushCandidate(bytes,modelIndex,&trace,selection);
     validateSourceBspLightmapBindingCandidate(next);
     return next; // No callback retains a pointer to this local result.
 }

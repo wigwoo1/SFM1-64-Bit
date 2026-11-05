@@ -6,10 +6,13 @@
 #include <chrono>
 struct ScenePreparationProfileCandidate {double evaluation=0,poses=0,geometry=0,materials=0,upload=0,decoration=0,furGuides=0,furRibbons=0,furAppend=0;};
 struct SceneMissingAssetDiagnosticCandidate {std::string modelAsset;std::filesystem::path vmt;std::vector<std::string>references;};
-inline std::string sceneMissingAssetSummaryCandidate(const std::vector<SceneMissingAssetDiagnosticCandidate>&diagnostics){
- size_t references=0;for(const auto&entry:diagnostics)references+=entry.references.size();if(!references)return {};
- const auto&first=diagnostics.front();return "Missing texture assets: "+std::to_string(references)+" | "+first.references.front();
+struct SceneUnavailableModelDiagnosticCandidate {uint32_t id;std::string asset;size_t requestedIndex,modelCount;};
+inline std::string sceneMissingAssetSummaryCandidate(const std::vector<SceneMissingAssetDiagnosticCandidate>&diagnostics,const std::vector<SceneUnavailableModelDiagnosticCandidate>&models={}){
+ const auto unavailable=models.empty()?std::string{}:"Unavailable models: "+std::to_string(models.size())+" | "+models.front().asset;
+ size_t references=0;for(const auto&entry:diagnostics)references+=entry.references.size();if(!references)return unavailable;
+ const auto&first=diagnostics.front();auto textures="Missing texture assets: "+std::to_string(references)+" | "+first.references.front();return unavailable.empty()?textures:unavailable+" | "+textures;
 }
+class SceneHdr2PreparedFrameCandidate;
 struct PreparedSessionSceneCandidate {
  RenderCameraCandidate camera;
  SceneMaterialInputsCandidate materialInputs;
@@ -21,6 +24,9 @@ struct PreparedSessionSceneCandidate {
  uint32_t shot=UINT32_MAX;
  std::vector<SessionRenderLightCandidate>lightSnapshots;
  std::vector<SceneMissingAssetDiagnosticCandidate>missingAssets;
+ // Optional immutable CPU profile/plan, published only after complete preparation.
+ std::shared_ptr<const SceneHdr2PreparedFrameCandidate>hdr2;
+ std::vector<SceneUnavailableModelDiagnosticCandidate>missingModels;
 };
 using SceneGeometryDecorationCandidate=std::function<void(const Graph&,const SessionRenderSceneCandidate&,const std::vector<SceneGeometryModelCandidate>&,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&,PreparedSessionSceneCandidate&)>;
 inline PreparedSessionSceneCandidate prepareSessionSceneCandidate(const Graph&graph,const SessionRenderSceneCandidate&scene,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&asset,SceneRenderInputsCacheCandidate&materials,GeometryDeformationWorkerPoolCandidate&workers,const std::vector<std::filesystem::path>&mounts,bool allowScale=false,bool allowNameMapping=false,const SceneModelDeformationCandidate&deform={},const SceneBorrowedDeformationCandidate&borrowed={},const SceneGeometryDecorationCandidate&decorate={}){

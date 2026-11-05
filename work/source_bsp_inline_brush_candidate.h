@@ -1,6 +1,7 @@
 #pragma once
 #include "read_binary_asset_candidate.h"
 #include "sfm_model_geometry.h"
+#include "source_bsp_lightmap_selection_candidate.h"
 #include <array>
 #include <algorithm>
 #include <cmath>
@@ -12,6 +13,13 @@
 #include <set>
 #include <functional>
 
+// Typed unavailable-index result: callers may distinguish an absent inline
+// model from corrupt/unsupported BSP data without matching error text.
+struct SourceBspModelIndexUnavailableCandidate : std::runtime_error {
+ const size_t index,count;
+ SourceBspModelIndexUnavailableCandidate(size_t value,size_t total)
+  :std::runtime_error("VBSP inline model index"),index(value),count(total){}
+};
 struct SourceBspBrushTriangleCandidate { std::array<uint32_t,3> vertices{}; uint32_t material=0; };
 struct SourceBspBrushGeometryCandidate {
  std::vector<std::array<float,3>> positions,normals;
@@ -36,7 +44,7 @@ inline SfmModelGeometryCandidate sourceBspStaticModelCandidate(const SourceBspBr
  for(size_t i=0;i<brush.positions.size();++i){auto&v=model.geometry.vertices[i];std::memcpy(v.data()+16,brush.positions[i].data(),12);std::memcpy(v.data()+28,brush.normals[i].data(),12);std::memcpy(v.data()+40,brush.uvs[i].data(),8);}
  model.meshes.resize(brush.materials.size());for(size_t i=0;i<model.meshes.size();++i){model.meshes[i].body=0;model.meshes[i].model=0;model.meshes[i].mesh=uint32_t(i);model.meshes[i].material=int32_t(i);}for(const auto&t:brush.triangles){if(t.material>=model.meshes.size())throw std::runtime_error("BSP static material index");model.meshes[t.material].triangles.push_back(t.vertices);}return model;
 }
-inline SourceBspBrushGeometryCandidate readSourceBspInlineBrushCandidate(const std::vector<uint8_t>&b,size_t modelIndex,const SourceBspBrushEmissionTraceCandidate*trace=nullptr){
+inline SourceBspBrushGeometryCandidate readSourceBspInlineBrushCandidate(const std::vector<uint8_t>&b,size_t modelIndex,const SourceBspBrushEmissionTraceCandidate*trace=nullptr,SourceBspLightmapSelectionCandidate selection=SourceBspLightmapSelectionCandidate::LegacyPreview){
  auto range=[&](uint64_t p,uint64_t n){if(p>b.size()||n>b.size()-p)throw std::runtime_error("BSP data range");};
  auto u32=[&](size_t p){range(p,4);uint32_t v;std::memcpy(&v,b.data()+p,4);return v;};
  auto i32=[&](size_t p){uint32_t u=u32(p);int32_t v;std::memcpy(&v,&u,4);return v;};
@@ -45,11 +53,15 @@ inline SourceBspBrushGeometryCandidate readSourceBspInlineBrushCandidate(const s
  auto f32=[&](size_t p){uint32_t u=u32(p);float v;std::memcpy(&v,&u,4);if(!std::isfinite(v))throw std::runtime_error("BSP nonfinite float");return v;};
  if(b.size()<1036||std::memcmp(b.data(),"VBSP",4))throw std::runtime_error("VBSP header required");
  std::array<SourceBspBrushLumpCandidate,64>lumps{};for(size_t n=0;n<64;++n){size_t p=8+n*16;lumps[n]={u32(p),u32(p+4),i32(p+8),i32(p+12)};range(lumps[n].offset,lumps[n].size);}
- // Keep face light offsets/styles paired with the selected lighting dataset.
- // Preserve the existing LDR preference and legacy HDR-without-HDR-faces fallback.
- const bool hdrLighting=!lumps[8].size&&lumps[53].size;
- auto&models=lumps[14];auto&faces=lumps[hdrLighting&&lumps[58].size?58:7];if(models.size%48||faces.version!=1||faces.size%56)throw std::runtime_error("unsupported VBSP model/face layout");if(modelIndex>=models.size/48)throw std::runtime_error("VBSP inline model index");
- auto&vertices=lumps[3];auto&edges=lumps[12];auto&surfedges=lumps[13];auto&texinfo=lumps[6];auto&texdata=lumps[2];auto&strings=lumps[43];auto&stringTable=lumps[44];auto&lighting=lumps[hdrLighting?53:8];auto&dispInfo=lumps[26];auto&dispVerts=lumps[33];auto&dispTris=lumps[48];
+ // Resolve geometry and preview-lighting tables together. The default exactly
+ // preserves the prior LDR preference and legacy HDR-without-HDR-faces fallback.
+ uint32_t faceLump=7,lightingLump=8;
+ if(selection==SourceBspLightmapSelectionCandidate::Ldr){faceLump=7;lightingLump=8;}
+ else if(selection==SourceBspLightmapSelectionCandidate::Hdr){faceLump=58;lightingLump=53;if(!lumps[58].size)throw std::runtime_error("HDR lightmaps require the HDR face table");}
+ else if(selection==SourceBspLightmapSelectionCandidate::LegacyPreview){const bool hdrLighting=!lumps[8].size&&lumps[53].size;faceLump=hdrLighting&&lumps[58].size?58:7;lightingLump=hdrLighting?53:8;}
+ else throw std::runtime_error("invalid lightmap dataset selection");
+ auto&models=lumps[14];auto&faces=lumps[faceLump];if(models.size%48||faces.version!=1||faces.size%56)throw std::runtime_error("unsupported VBSP model/face layout");if(modelIndex>=models.size/48)throw SourceBspModelIndexUnavailableCandidate(modelIndex,models.size/48);
+ auto&vertices=lumps[3];auto&edges=lumps[12];auto&surfedges=lumps[13];auto&texinfo=lumps[6];auto&texdata=lumps[2];auto&strings=lumps[43];auto&stringTable=lumps[44];auto&lighting=lumps[lightingLump];auto&dispInfo=lumps[26];auto&dispVerts=lumps[33];auto&dispTris=lumps[48];
  if(vertices.size%12||edges.size%4||surfedges.size%4||texinfo.size%72||texdata.size%32||stringTable.size%4||dispInfo.size%176||dispVerts.size%20||dispTris.size%2)throw std::runtime_error("VBSP geometry lump alignment");
  size_t m=models.offset+modelIndex*48;int32_t firstFace=i32(m+40),faceCount=i32(m+44);if(firstFace<0||faceCount<0||uint64_t(firstFace)+faceCount>faces.size/56)throw std::runtime_error("VBSP model face span");
  SourceBspBrushGeometryCandidate out;for(size_t c=0;c<3;++c){out.boundsMin[c]=f32(m+c*4);out.boundsMax[c]=f32(m+12+c*4);out.modelOrigin[c]=f32(m+24+c*4);if(out.boundsMin[c]>out.boundsMax[c])throw std::runtime_error("VBSP model bounds");}

@@ -2,6 +2,7 @@
 #include "d3d9_prepared_scene_candidate.h"
 #include "source_lightmap_float_storage_candidate.h"
 #include "source_lightmap_integer_storage_candidate.h"
+#include "native_lightmap_hdr2_region_candidate.h"
 
 enum class D3D9PackedLightmapFormatCandidate { Rgba16Float, Rgba16Unorm };
 
@@ -24,6 +25,14 @@ inline bool finiteNonnegative(uint32_t value)noexcept{
 class D3D9PackedLightmapTextureCandidate {
 public:
     using Hook=std::function<void(const char*)>;
+    // Narrow injectable call boundary for HRESULT/descriptor/lock tests. Empty
+    // callbacks call the real device/texture methods; no pointers are retained.
+    struct Hdr2Calls {
+        std::function<HRESULT(IDirect3DDevice9*,UINT,UINT,D3DFORMAT,IDirect3DTexture9**)> create;
+        std::function<HRESULT(IDirect3DTexture9*,D3DSURFACE_DESC*)> describe;
+        std::function<HRESULT(IDirect3DTexture9*,D3DLOCKED_RECT*)> lock;
+        std::function<HRESULT(IDirect3DTexture9*)> unlock;
+    };
 private:
     // Retained device is released after its texture.
     D3D9SceneComCandidate<IDirect3DDevice9> device_;
@@ -36,6 +45,56 @@ private:
 public:
     D3D9PackedLightmapTextureCandidate(const D3D9PackedLightmapTextureCandidate&)=delete;
     D3D9PackedLightmapTextureCandidate& operator=(const D3D9PackedLightmapTextureCandidate&)=delete;
+    static std::unique_ptr<D3D9PackedLightmapTextureCandidate> prepareHdr2(
+            IDirect3DDevice9* device,uint32_t width,uint32_t height,
+            const std::array<const std::vector<NativeLightmapHdr2BitsCandidate>*,4>& planes,
+            uint32_t requestedFormat,const Hook& hook={},const Hdr2Calls& calls={}){
+        using namespace native_lightmap_hdr2_region_detail;
+        d3d9SceneRequireCandidate(device&&width&&height&&planes[0],"HDR2 device/dimensions/main required");
+        d3d9SceneRequireCandidate(requestedFormat==36||requestedFormat==113,"HDR2 requested format unsupported");
+        const size_t countPlanes=planes[1]&&planes[2]&&planes[3]?4u:1u;
+        size_t count=0,textureWidth=0,rowBytes=0,total=0;
+        d3d9SceneRequireCandidate(multiply(width,height,count)&&multiply(width,countPlanes,textureWidth)&&
+            textureWidth<=UINT_MAX&&multiply(textureWidth,8,rowBytes)&&rowBytes<=INT_MAX&&
+            multiply(rowBytes,height,total),"HDR2 texture extent overflow");
+        for(size_t k=0;k<countPlanes;++k)d3d9SceneRequireCandidate(planes[k]->size()==count,"HDR2 source plane size");
+        D3DCAPS9 caps{};d3d9SceneCheckCandidate(device->GetDeviceCaps(&caps));
+        d3d9SceneRequireCandidate(textureWidth<=caps.MaxTextureWidth&&height<=caps.MaxTextureHeight,"HDR2 device texture limits");
+        stage(hook,"hdr2-preflight");
+        const auto storage=static_cast<D3DFORMAT>(requestedFormat);
+        auto next=std::unique_ptr<D3D9PackedLightmapTextureCandidate>(new D3D9PackedLightmapTextureCandidate(
+            static_cast<uint32_t>(textureWidth),height,requestedFormat==113?D3D9PackedLightmapFormatCandidate::Rgba16Float:D3D9PackedLightmapFormatCandidate::Rgba16Unorm));
+        device->AddRef();next->device_.reset(device);stage(hook,"hdr2-device-retained");
+        stage(hook,"hdr2-before-create");
+        next->texture_.create([&](auto** out){return calls.create?calls.create(device,static_cast<UINT>(textureWidth),height,storage,out):
+            device->CreateTexture(static_cast<UINT>(textureWidth),height,1,0,storage,D3DPOOL_MANAGED,out,nullptr);});
+        stage(hook,"hdr2-created");
+        D3DSURFACE_DESC desc{};stage(hook,"hdr2-before-describe");
+        d3d9SceneCheckCandidate(calls.describe?calls.describe(next->texture_.get(),&desc):next->texture_->GetLevelDesc(0,&desc));
+        d3d9SceneRequireCandidate(next->texture_->GetLevelCount()==1&&next->texture_->GetType()==D3DRTYPE_TEXTURE&&
+            desc.Width==textureWidth&&desc.Height==height&&desc.Format==storage&&
+            (desc.Format==D3DFMT_A16B16G16R16||desc.Format==D3DFMT_A16B16G16R16F)&&
+            desc.Pool==D3DPOOL_MANAGED&&desc.Usage==0,"HDR2 observed texture descriptor mismatch");
+        stage(hook,"hdr2-described");
+        std::vector<uint8_t> packed(total);
+        d3d9SceneRequireCandidate(nativeLightmapHdr2RegionCandidate(static_cast<uint32_t>(desc.Format),planes,
+            {width,height,0,0,rowBytes},packed),"HDR2 region encoding refused");stage(hook,"hdr2-packed");
+        D3DLOCKED_RECT lockedRect{};stage(hook,"hdr2-before-lock");
+        d3d9SceneCheckCandidate(calls.lock?calls.lock(next->texture_.get(),&lockedRect):next->texture_->LockRect(0,&lockedRect,nullptr,0));
+        bool locked=true;
+        auto unlock=[&](){return calls.unlock?calls.unlock(next->texture_.get()):next->texture_->UnlockRect(0);};
+        try{
+            stage(hook,"hdr2-locked");
+            size_t lastRow=0,end=0;
+            d3d9SceneRequireCandidate(lockedRect.pBits&&lockedRect.Pitch>0&&size_t(lockedRect.Pitch)>=rowBytes&&
+                multiply(size_t(height)-1,size_t(lockedRect.Pitch),lastRow)&&add(lastRow,rowBytes,end)&&
+                end-1<=(std::numeric_limits<uintptr_t>::max)()-reinterpret_cast<uintptr_t>(lockedRect.pBits),"HDR2 locked row extent invalid");
+            d3d9_packed_lightmap_detail::copyRows(lockedRect.pBits,size_t(lockedRect.Pitch),packed.data(),rowBytes,height);
+            stage(hook,"hdr2-uploaded");stage(hook,"hdr2-before-unlock");
+            locked=false;d3d9SceneCheckCandidate(unlock());stage(hook,"hdr2-unlocked");
+        }catch(...){if(locked){locked=false;try{(void)unlock();}catch(...){}}throw;}
+        return next;
+    }
     static std::unique_ptr<D3D9PackedLightmapTextureCandidate> prepare(
             IDirect3DDevice9* device,uint32_t width,uint32_t height,
             const std::vector<std::array<float,4>>& pixels,
@@ -79,4 +138,5 @@ public:
     uint32_t width()const noexcept{return width_;}
     uint32_t height()const noexcept{return height_;}
     D3D9PackedLightmapFormatCandidate format()const noexcept{return format_;}
+    uint32_t actualD3DFormat()const noexcept{return format_==D3D9PackedLightmapFormatCandidate::Rgba16Float?113u:36u;}
 };

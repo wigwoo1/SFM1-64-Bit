@@ -21,6 +21,12 @@ struct VulkanPreparedSceneResourcesCandidate {
  std::vector<uint8_t>twoTextureSlots;
  std::vector<MaterialUvTransformCandidate>secondTextureTransform;
 
+ // Optional explicit per-face route. Pipeline selection is preflighted by the
+ // recorder; the post-material hook only binds compatible streams/descriptors
+ // or constants. Captured owners and pipelines must outlive submitted frames.
+ VulkanScenePipelineSelectorCandidate drawPipeline;
+ std::function<void(const SceneGpuDrawCandidate&)> beforeDraw;
+
 };
 template<class Scene>
 inline void recordVulkanPreparedSceneCandidate(const VulkanSceneCommandFunctionsCandidate&fn,PFN_vkCmdPushConstants push,VkCommandBuffer command,const Scene&upload,const RenderCameraCandidate&camera,const std::vector<float>&alpha,const VulkanPreparedSceneResourcesCandidate&resources){
@@ -58,5 +64,6 @@ inline void recordVulkanPreparedSceneCandidate(const VulkanSceneCommandFunctions
   }
   else if(!resources.selfIllumPush.empty()){auto values=resources.selfIllumPush.at(draw.materialSlot);values[0]=alpha.at(draw.materialSlot);values[7]=resources.vertexLighting.empty()?0.f:resources.vertexLighting.at(draw.materialSlot);std::copy(transform.begin(),transform.begin()+4,values.begin()+8);std::copy(transform.begin()+4,transform.end(),values.begin()+12);push(command,resources.layout,VK_SHADER_STAGE_FRAGMENT_BIT,96,64,values.data());}
   else{float values[12]{alpha.at(draw.materialSlot),resources.alphaCutoff.empty()?0.f:resources.alphaCutoff.at(draw.materialSlot),resources.vertexLighting.empty()?0.f:resources.vertexLighting.at(draw.materialSlot),resources.vertexTransition.empty()?0.f:resources.vertexTransition.at(draw.materialSlot)};std::copy(transform.begin(),transform.begin()+4,values+4);std::copy(transform.begin()+4,transform.end(),values+8);push(command,resources.layout,VK_SHADER_STAGE_FRAGMENT_BIT,96,48,values);}
- },resources.materialPipelines);
+  if(resources.beforeDraw)resources.beforeDraw(draw);
+ },resources.materialPipelines,resources.drawPipeline);
 }

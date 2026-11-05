@@ -10,8 +10,12 @@
 // parsed model/materials are retained across animation samples.
 class RetainedSourceBspWorldCandidate {
  std::vector<std::filesystem::path> mounts_;
+ // Fixed through the public lifetime of this loader; never inferred from the
+ // presence of lighting lumps or a renderer's current hardware configuration.
+ SourceBspLightmapSelectionCandidate selection_;
  struct Cache {
   std::filesystem::path path;
+  SourceBspLightmapSelectionCandidate selection=SourceBspLightmapSelectionCandidate::LegacyPreview;
   SfmModelGeometryCandidate model;
   std::vector<std::array<float,3>>lightColors;
   std::vector<float>displacementAlphas;
@@ -36,22 +40,24 @@ class RetainedSourceBspWorldCandidate {
   if(path.empty())throw std::runtime_error("session BSP map missing: "+name);
   auto bytes=readBinaryAssetCandidate(path);stage(hook,"load-read");
   SourceBspLightmappedBrushCandidate world;bool available=false;std::string unavailable;
-  try{world=readSourceBspLightmappedBrushCandidate(bytes,0);available=true;}
-  catch(const std::runtime_error&error){unavailable=error.what();world.geometry=readSourceBspInlineBrushCandidate(bytes,0);}
+  try{world=readSourceBspLightmappedBrushCandidate(bytes,0,selection_);available=true;}
+  catch(const std::runtime_error&error){if(selection_!=SourceBspLightmapSelectionCandidate::LegacyPreview)throw;unavailable=error.what();world.geometry=readSourceBspInlineBrushCandidate(bytes,0);}
   stage(hook,"load-geometry");
-  Cache next;next.path=path;stage(hook,"load-path");next.model=sourceBspStaticModelCandidate(world.geometry);stage(hook,"load-model");
+  Cache next;next.path=path;next.selection=selection_;stage(hook,"load-path");next.model=sourceBspStaticModelCandidate(world.geometry);stage(hook,"load-model");
   auto nextInputs=std::make_shared<ModelRenderInputsCandidate>(prepareModelRenderInputsCandidate(next.model,0,mounts_,0));for(auto&material:nextInputs->materials)material.vertexLighting=true;stage(hook,"load-inputs");
   next.lightmaps=available?prepareSourceBspLightmapSnapshotCandidate(std::move(world),nextInputs->indices):unavailableSourceBspLightmapSnapshotCandidate(world.geometry.positions.size(),nextInputs->indices,std::move(unavailable));stage(hook,"load-snapshot");
   next.lightColors=std::move(world.geometry.lightColors);next.displacementAlphas=std::move(world.geometry.displacementAlphas);next.inputs=std::move(nextInputs);
   auto result=std::make_shared<const Cache>(std::move(next));stage(hook,"load-cache-ready");return result;
  }
 public:
- explicit RetainedSourceBspWorldCandidate(std::vector<std::filesystem::path>mounts):mounts_(std::move(mounts)){}
+ explicit RetainedSourceBspWorldCandidate(std::vector<std::filesystem::path>mounts,SourceBspLightmapSelectionCandidate selection=SourceBspLightmapSelectionCandidate::LegacyPreview):mounts_(std::move(mounts)),selection_(selection){
+  if(selection!=SourceBspLightmapSelectionCandidate::Ldr&&selection!=SourceBspLightmapSelectionCandidate::Hdr&&selection!=SourceBspLightmapSelectionCandidate::LegacyPreview)throw std::runtime_error("invalid retained BSP dataset selection");
+ }
  void append(const Graph&graph,uint32_t root,PreparedSessionSceneCandidate&prepared,const Hook&hook={}){
   auto name=mapName(graph,root);if(name.empty())return;
   std::string normalized=name;for(char&c:normalized)if(c=='\\')c='/';std::filesystem::path relative(normalized);relative.replace_extension(".bsp");std::filesystem::path path;for(const auto&mount:mounts_){auto candidate=mount/"maps"/relative;if(std::filesystem::is_regular_file(candidate)){path=candidate;break;}}
   if(path.empty())throw std::runtime_error("session BSP map missing: "+name);
-  auto retained=cache_;if(!retained||path!=retained->path)retained=load(name,hook);
+  auto retained=cache_;if(!retained||path!=retained->path||selection_!=retained->selection)retained=load(name,hook);
   const auto&model_=retained->model;const auto&lightColors_=retained->lightColors;const auto&displacementAlphas_=retained->displacementAlphas;const auto&inputs_=retained->inputs;
   if(!inputs_||model_.geometry.vertices.empty())throw std::runtime_error("empty BSP world model");
   auto&upload=prepared.upload;auto&materialInputs=prepared.materialInputs;

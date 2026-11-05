@@ -10,8 +10,8 @@
 #include <memory>
 #include <stdexcept>
 #include <vector>
+#include "source_bsp_lightmap_selection_candidate.h"
 
-enum class SourceBspLightmapSelectionCandidate {Ldr, Hdr, LegacyPreview};
 enum class SourceBspLightmapAvailabilityCandidate {MissingOffset, NoStyles, Samples};
 
 struct SourceBspLightmapFaceCandidate {
