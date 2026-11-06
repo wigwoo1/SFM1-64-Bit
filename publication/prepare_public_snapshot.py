@@ -6,6 +6,13 @@ from editor_runtime_package import shader_manifest,owned_shader_payload,write_ed
 ROOT=Path(__file__).resolve().parent.parent
 PUB=ROOT/'publication'; STAGE=PUB/'stage'; REPO='wigwoo1/SFM1-64-Bit'
 EXT={'.cpp','.h','.hpp','.c','.py','.cmd','.ps1','.inc','.hlsl','.hlsli'}
+# These audit scripts contain decoded original instruction tables. They remain
+# private reference evidence even though their container format is Python.
+PRIVATE_REFERENCE_SOURCES={
+ 'audit_ifm_display_route_candidate.py',
+ 'audit_ifm_target_mode_candidate.py',
+ 'audit_ifm_viewport_copy_candidate.py',
+}
 RAW=re.compile(r'(?:Bytes\d*|static (?:const )?(?:unsigned char|uint8_t)[^\n]*?)\[\]\s*=\s*\{[0-9, ]{500}')
 SECRET=[re.compile(p) for p in [r'gh[pousr]_[A-Za-z0-9]{30,}',r'github_pat_[A-Za-z0-9_]{30,}',r'sk-proj-[A-Za-z0-9_-]{25,}',r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----']]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -20,6 +27,7 @@ def main():
  STAGE.mkdir(parents=True,exist_ok=True);selected={};excluded=[]
  for p in sorted((ROOT/'work').iterdir()):
   if not p.is_file() or p.suffix.lower() not in EXT:continue
+  if p.name in PRIVATE_REFERENCE_SOURCES:excluded.append((p.name,'private disassembly instruction anchors'));continue
   try:s=p.read_bytes().decode('utf-8')
   except UnicodeDecodeError:excluded.append((p.name,'non-UTF8; needs review'));continue
   if RAW.search(s):excluded.append((p.name,'embedded original instruction array'));continue
@@ -54,6 +62,10 @@ The prototype has a Win32 editor, Vulkan rendering experiments, session parsing
 and editing components, and many isolated compatibility tests. Complete animation,
 material, lighting, particle and workflow fidelity is still unverified. Isolated
 passing tests do not establish full application compatibility.
+
+The explicit experimental HDR2 output route has controlled color-copy tests.
+Its current full-editor translucency fixture still has an unresolved coverage
+or composition mismatch. Do not treat this as verified native material parity.
 
 Save and Save As intentionally save **new copies only**. Existing files must not
 be replaced. Keep originals and backups; experimental output requires validation.
@@ -165,6 +177,8 @@ sfm64_session_ui.exe --interactive --session "X:\path\session.dmx" --content-dir
 
 Keep originals backed up. Save/Save As requests a new filename and saves copies.
 Full SFM compatibility and visual fidelity remain incomplete/unverified.
+The explicit experimental HDR2 translucency fixture has an unresolved
+coverage/composition mismatch. The default preview remains experimental too.
 BUILD.json records compile time, architecture, warnings and source hashes.
 This publication did not repeat interactive runtime/render testing.
 '''.replace('\\"','"')

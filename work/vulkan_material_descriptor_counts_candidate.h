@@ -11,9 +11,9 @@ struct VulkanMaterialDescriptorCountsCandidate {
 };
 
 inline VulkanMaterialDescriptorCountsCandidate vulkanMaterialDescriptorCountsCandidate(
-    size_t materialCount, bool withSelfIllumMask, bool independentSamplers = false) {
-    const size_t sampledImagesPerMaterial = withSelfIllumMask ? 3u : 2u;
-    const size_t samplersPerMaterial = independentSamplers ? 3u : 1u;
+    size_t materialCount, bool withSelfIllumMask, bool independentSamplers = false, bool lightwarpLayout = false) {
+    const size_t sampledImagesPerMaterial = (withSelfIllumMask ? 3u : 2u) + (lightwarpLayout ? 3u : 0u);
+    const size_t samplersPerMaterial = (independentSamplers ? 3u : 1u) + (lightwarpLayout ? 3u : 0u);
     const size_t maximum = std::numeric_limits<uint32_t>::max();
     if (materialCount > maximum || materialCount > maximum / sampledImagesPerMaterial || materialCount > maximum / samplersPerMaterial)
         throw std::overflow_error("material image descriptor count overflow");

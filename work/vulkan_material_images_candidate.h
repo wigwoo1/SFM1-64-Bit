@@ -80,13 +80,13 @@ struct VulkanMaterialImagesCandidate {
    VkImageCreateInfo ii{};ii.sType=VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;ii.imageType=VK_IMAGE_TYPE_2D;ii.format=format;ii.extent={e.width,e.height,1};ii.mipLevels=ii.arrayLayers=1;ii.samples=VK_SAMPLE_COUNT_1_BIT;ii.tiling=VK_IMAGE_TILING_OPTIMAL;ii.usage=VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT|extraUsage;check(load<PFN_vkCreateImage>(library,"vkCreateImage")(device,&ii,nullptr,&e.image));load<PFN_vkGetImageMemoryRequirements>(library,"vkGetImageMemoryRequirements")(device,e.image,&req);allocate(req,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,e.imageMemory);check(load<PFN_vkBindImageMemory>(library,"vkBindImageMemory")(device,e.image,e.imageMemory,0));VkImageViewCreateInfo vi{};vi.sType=VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;vi.image=e.image;vi.viewType=VK_IMAGE_VIEW_TYPE_2D;vi.format=ii.format;vi.subresourceRange={VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1};check(load<PFN_vkCreateImageView>(library,"vkCreateImageView")(device,&vi,nullptr,&e.view));
  }
  template<class Material>
- void createFrom(size_t materialCount,Material material,VkDescriptorSetLayout layout,bool withSelfIllumMask=false,bool baseSrgb=false,bool useMaterialColorSpace=false,VkImageUsageFlags extraUsage=0,bool independentSamplers=false){
+ void createFrom(size_t materialCount,Material material,VkDescriptorSetLayout layout,bool withSelfIllumMask=false,bool baseSrgb=false,bool useMaterialColorSpace=false,VkImageUsageFlags extraUsage=0,bool independentSamplers=false,bool lightwarpLayout=false){
    if(pool||sampler||!entries.empty()||!maskEntries.empty()||!secondEntries.empty())throw std::runtime_error("material images already created");
   // Budget every declared image binding, even when unused. The normal editor
   // opts into samplers1/4/5; legacy smaller layouts retain the sampler1 default.
   // Decoded channels currently share the same owned repeat/linear policy, but
   // each declared sampler binding is initialized before prepared replacements.
-  const auto descriptorCounts=vulkanMaterialDescriptorCountsCandidate(materialCount,true,independentSamplers);
+  const auto descriptorCounts=vulkanMaterialDescriptorCountsCandidate(materialCount,true,independentSamplers,lightwarpLayout);
   for(size_t n=0;n<materialCount;++n){const auto&image=material(n).image;if(!image.width||!image.height||uint64_t(image.width)*image.height>SIZE_MAX/4||image.rgba.size()!=uint64_t(image.width)*image.height*4)throw std::runtime_error("material image dimensions or bytes");}
   // Binding2 requires the caller to supply a compatible three-binding layout.
   if(withSelfIllumMask)for(size_t n=0;n<materialCount;++n){const auto&m=material(n);if(m.selfIllum.enabled&&!m.selfIllum.mask.empty()){const auto&image=m.selfIllumMaskImage;if(!image.width||!image.height||uint64_t(image.width)*image.height>SIZE_MAX/4||image.rgba.size()!=uint64_t(image.width)*image.height*4)throw std::runtime_error("selfillum mask dimensions or bytes");}}

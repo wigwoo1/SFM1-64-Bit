@@ -17,7 +17,33 @@ inline std::filesystem::path findMountedMaterialCandidate(const std::vector<std:
  for(const auto&mount:mounts){auto path=mount/"materials"/relative;if(std::filesystem::is_regular_file(path))return path;}
  return {};
 }
-struct MountedModelMaterialCandidate {std::filesystem::path vmt,baseTexture,irisTexture;VmtNodeCandidate syntax;std::filesystem::path selfIllumMaskTexture,baseTexture2;bool baseTextureMissing=false,selfIllumMaskMissing=false,baseTexture2Missing=false;std::vector<std::string>missingTextureReferences;};
+struct MountedLightwarpTexturesCandidate {
+ std::filesystem::path warp,normal,exponent;
+};
+struct MountedModelMaterialCandidate {std::filesystem::path vmt,baseTexture,irisTexture;VmtNodeCandidate syntax;std::filesystem::path selfIllumMaskTexture,baseTexture2;bool baseTextureMissing=false,selfIllumMaskMissing=false,baseTexture2Missing=false;std::vector<std::string>missingTextureReferences;MountedLightwarpTexturesCandidate lightwarp;};
+
+// Resolve optional HDR2 inputs from the effective VMT, after session overrides.
+// A missing auxiliary texture does not invalidate the base material.
+inline MountedLightwarpTexturesCandidate resolveLightwarpTexturesCandidate(
+ const VmtNodeCandidate& syntax,const std::vector<std::filesystem::path>& mounts,
+ std::vector<std::string>& missing){
+ MountedLightwarpTexturesCandidate result;
+ if(vmtAsciiLowerCandidate(syntax.key)!="vertexlitgeneric")return result;
+ auto lookup=[&](const char* parameter){
+  const auto values=vmtValuesCandidate(syntax,parameter);
+  if(values.empty()||(values.size()==1&&values.front().empty()))return std::filesystem::path{};
+  if(values.size()!=1){missing.emplace_back(std::string(parameter)+" (ambiguous)");return std::filesystem::path{};}
+  const auto path=findMountedMaterialCandidate(mounts,materialRelativePathCandidate(values.front(),".vtf"));
+  if(path.empty())missing.emplace_back(std::string(parameter)+" "+values.front());
+  return path;
+ };
+ result.warp=lookup("$lightwarptexture");
+ if(!result.warp.empty()){
+  result.normal=lookup("$bumpmap");
+  result.exponent=lookup("$phongexponenttexture");
+ }
+ return result;
+}
 inline MountedModelMaterialCandidate resolveMountedModelMaterialCandidate(const ModelMaterialMetadataCandidate&metadata,size_t family,int32_t slot,const std::vector<std::filesystem::path>&mounts,const std::function<void(const std::filesystem::path&,VmtNodeCandidate&)>&applyOverrides={}){
  const auto&name=metadata.resolve(family,slot);MountedModelMaterialCandidate result;
  for(const auto&directory:metadata.directories){result.vmt=findMountedMaterialCandidate(mounts,materialRelativePathCandidate(directory+name,".vmt"));if(!result.vmt.empty())break;}

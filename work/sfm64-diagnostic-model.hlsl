@@ -12,6 +12,7 @@ struct VertexOutput {
     float2 uv : TEXCOORD0;
     float3 vertexLight : TEXCOORD1;
     float displacementAlpha : TEXCOORD2;
+    float3 worldPosition : TEXCOORD3;
 };
 VertexOutput main(VertexInput input) {
     VertexOutput output;
@@ -20,5 +21,6 @@ VertexOutput main(VertexInput input) {
     output.uv = input.uv;
     output.vertexLight = input.normal;
     output.displacementAlpha = input.displacementAlpha;
+    output.worldPosition=input.position;
     return output;
 }

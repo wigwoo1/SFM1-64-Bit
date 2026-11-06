@@ -12,8 +12,7 @@ inline void validateSceneBaseLightmapOptionsCandidate(const SceneBaseLightmapOpt
     for(float value:options.modulation)if(!std::isfinite(value)||value<0||value>16)throw std::runtime_error("explicit base lightmap modulation range");
 }
 inline bool sceneBaseLightmapMaterialCandidate(const ModelRenderMaterialCandidate& m){return vmtAsciiLowerCandidate(m.source.syntax.key)=="lightmappedgeneric";}
-inline void validateSceneBaseLightmapMaterialCandidate(const ModelRenderMaterialCandidate& m,float alpha){
-    validateSourceBaseLightmapMaterialCandidate(m.source.syntax);
+inline void validateSceneBaseLightmapInputsCandidate(const ModelRenderMaterialCandidate& m,float alpha){
     if(alpha!=1||m.translucent||m.alphaCutoff!=0||m.vertexTransition||m.selfIllum.enabled||m.irisImage.width||m.unlitTwoTexture||m.additive||m.source.baseTextureMissing||!m.colorSpace.baseSrgb||m.baseTextureTransform!=materialUvTransformCandidate(m.source.syntax))
         throw std::runtime_error("unsupported base lightmap prepared material feature");
     // vertexLighting is legacy-preview bookkeeping on retained world materials;
@@ -21,6 +20,10 @@ inline void validateSceneBaseLightmapMaterialCandidate(const ModelRenderMaterial
     if(!m.preparedBase.cpu)throw std::runtime_error("base lightmap prepared VTF unavailable");
     const auto& image=*m.preparedBase.cpu->image();const auto& p=image.plan();
     if((image.format()!=0&&image.format()!=13&&image.format()!=15)||!p[9]||m.preparedBase.sourceMip>=p[9]||m.preparedBase.frame>=p[10])throw std::runtime_error("unsupported base lightmap VTF format/frame/mip");
+}
+inline void validateSceneBaseLightmapMaterialCandidate(const ModelRenderMaterialCandidate& m,float alpha){
+    validateSourceBaseLightmapMaterialCandidate(m.source.syntax);
+    validateSceneBaseLightmapInputsCandidate(m,alpha);
 }
 struct SceneBaseLightmapBatchCandidate {SceneGpuDrawCandidate draw;size_t plane=SIZE_MAX;};
 struct SceneBaseLightmapPlanCandidate {

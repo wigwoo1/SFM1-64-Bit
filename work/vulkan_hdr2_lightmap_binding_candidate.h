@@ -48,10 +48,19 @@ public:
     }
     // Pipeline and shared resources.layout must expose compatible set0/set1 and
     // vertex push0..63, fragment96..159. Does not replace existing callbacks.
-    void configure(VulkanPreparedSceneResourcesCandidate&resources,VkPipeline hdrPipeline,VkCommandBuffer command){
+    void configure(VulkanPreparedSceneResourcesCandidate&resources,VkPipeline hdrPipeline,VkCommandBuffer command,VkPipeline directional=VK_NULL_HANDLE,std::function<bool(const SceneGpuDrawCandidate&)> available={}){
         if(!hdrPipeline||!command||!resources.layout||resources.drawPipeline||resources.beforeDraw)throw std::runtime_error("HDR2 draw hook inputs/conflict");auto self=shared_from_this();const auto layout=resources.layout;
-        VulkanScenePipelineSelectorCandidate select=[self,hdrPipeline](const auto&d,VkPipeline fallback){return self->resource(d)==SIZE_MAX?fallback:hdrPipeline;};
-        std::function<void(const SceneGpuDrawCandidate&)>before=[self,layout,command](const auto&d){const auto n=self->resource(d);if(n==SIZE_MAX)return;const VkDeviceSize zero=0;load<PFN_vkCmdBindVertexBuffers>(self->library_,"vkCmdBindVertexBuffers")(command,1,1,&self->uvs_,&zero);const auto set=self->sets_.at(n);load<PFN_vkCmdBindDescriptorSets>(self->library_,"vkCmdBindDescriptorSets")(command,VK_PIPELINE_BIND_POINT_GRAPHICS,layout,1,1,&set,0,nullptr);load<PFN_vkCmdPushConstants>(self->library_,"vkCmdPushConstants")(command,layout,VK_SHADER_STAGE_FRAGMENT_BIT,144,16,self->push_.data());};
+        VulkanScenePipelineSelectorCandidate select=[self,hdrPipeline,directional,available](const auto&d,VkPipeline fallback){
+            auto n=self->resource(d);if(n==SIZE_MAX)return fallback;
+            if(self->images_->plan()->faces.at(n).directionalStep>0)return directional&&available&&available(d)?directional:fallback;
+            return hdrPipeline;
+        };
+        std::function<void(const SceneGpuDrawCandidate&)>before=[self,layout,command,directional,available](const auto&d){const auto n=self->resource(d);if(n==SIZE_MAX)return;
+            const float step=self->images_->plan()->faces.at(n).directionalStep;
+            if(step>0){
+                if(!directional||!available||!available(d))return;
+                load<PFN_vkCmdPushConstants>(self->library_,"vkCmdPushConstants")(command,layout,VK_SHADER_STAGE_FRAGMENT_BIT,124,4,&step);
+            }const VkDeviceSize zero=0;load<PFN_vkCmdBindVertexBuffers>(self->library_,"vkCmdBindVertexBuffers")(command,1,1,&self->uvs_,&zero);const auto set=self->sets_.at(n);load<PFN_vkCmdBindDescriptorSets>(self->library_,"vkCmdBindDescriptorSets")(command,VK_PIPELINE_BIND_POINT_GRAPHICS,layout,1,1,&set,0,nullptr);load<PFN_vkCmdPushConstants>(self->library_,"vkCmdPushConstants")(command,layout,VK_SHADER_STAGE_FRAGMENT_BIT,144,16,self->push_.data());};
         resources.drawPipeline.swap(select);resources.beforeDraw.swap(before);
     }
 };

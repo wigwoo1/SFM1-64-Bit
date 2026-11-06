@@ -12,6 +12,10 @@ and editing components, and many isolated compatibility tests. Complete animatio
 material, lighting, particle and workflow fidelity is still unverified. Isolated
 passing tests do not establish full application compatibility.
 
+The explicit experimental HDR2 output route has controlled color-copy tests.
+Its current full-editor translucency fixture still has an unresolved coverage
+or composition mismatch. Do not treat this as verified native material parity.
+
 Save and Save As intentionally save **new copies only**. Existing files must not
 be replaced. Keep originals and backups; experimental output requires validation.
 

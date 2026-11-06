@@ -5,6 +5,7 @@
 #include "source_hdr_lightmap_scale_candidate.h"
 #include "source_lightmap_instance_modulation_candidate.h"
 #include "native_lightmap_hdr2_region_candidate.h"
+#include "source_directional_hdr2_face_candidate.h"
 #include <functional>
 
 // Explicit controlled profile. Encoding IDs describe CPU byte storage, not an
@@ -16,6 +17,7 @@ struct SourceHdr2ScenePolicyCandidate {
     std::array<float,4> instance;
     uint8_t configurationByte49;
     float exposure;
+    bool directionalWorld=false;
 };
 struct SceneHdr2PagePlacementCandidate {
     uint32_t width,height,x,y;
@@ -27,6 +29,7 @@ struct SceneHdr2FaceCandidate {
     std::shared_ptr<const SourceBspAccumulatedLightmapCandidate> accumulated;
     SceneHdr2PagePlacementCandidate page;
     std::vector<uint8_t> bytes;
+    float directionalStep=0;
 };
 struct SceneHdr2BatchCandidate {
     SceneGpuDrawCandidate draw;
@@ -77,11 +80,28 @@ template<class Prepared>std::shared_ptr<const SceneHdr2PlanCandidate> prepareSce
         const SceneBspLightmapAssociationCandidate* association=nullptr;
         for(const auto& a:u.bspLightmaps)if(a.model==draw.model&&draw.firstIndex>=a.firstIndex&&uint64_t(draw.firstIndex)+draw.indexCount<=uint64_t(a.firstIndex)+a.indexCount){if(association)throw std::runtime_error("HDR2 ambiguous association");association=&a;}
         if(association){const auto& range=inputs.ranges.at(draw.range);if(range.materialIndex!=draw.materialIndex||range.indexCount!=draw.indexCount||uint64_t(association->firstIndex)+range.firstIndex!=draw.firstIndex||inputs.indices!=association->snapshot->localIndices)throw std::runtime_error("HDR2 retained range identity");}
+        const bool directional=policy.directionalWorld&&bool(material.selfShadowedBump.cpu);
         std::string reason;
         if(!sceneBaseLightmapMaterialCandidate(material))reason="material shader outside plain HDR2 subset";
         else if(!association)reason="no retained BSP association";
         else if(translucent)reason="translucent range";
-        else{try{validateSceneBaseLightmapMaterialCandidate(material,scene.materialAlpha.at(draw.materialSlot));}catch(const std::runtime_error& e){reason=e.what();}}
+        else{try{if(directional){
+            auto syntax=material.source.syntax;
+            unsigned bumps=0,flags=0;
+            auto& nodes=syntax.children;
+            nodes.erase(std::remove_if(nodes.begin(),nodes.end(),[&](const auto& node){
+                auto key=vmtAsciiLowerCandidate(node.key);
+                if(key!="$bumpmap"&&key!="$ssbump")return false;
+                if(node.block||!node.children.empty()||node.value.empty())throw std::runtime_error("invalid SSbump leaf");
+                if(key=="$bumpmap")++bumps;
+                else if(node.value=="1")++flags;
+                else throw std::runtime_error("unsupported SSbump value");
+                return true;
+            }),nodes.end());
+            if(bumps!=1||flags!=1||material.baseTextureTransform!=identityMaterialUvTransformCandidate())throw std::runtime_error("unsupported SSbump parameters");
+            validateSourceBaseLightmapMaterialCandidate(syntax);
+            validateSceneBaseLightmapInputsCandidate(material,scene.materialAlpha.at(draw.materialSlot));
+        }else validateSceneBaseLightmapMaterialCandidate(material,scene.materialAlpha.at(draw.materialSlot));}catch(const std::runtime_error& e){reason=e.what();}}
         if(!reason.empty()){output.push_back({draw,SIZE_MAX,reason});continue;}
         const auto& a=*association;const auto& s=*a.snapshot;const auto& range=inputs.ranges.at(draw.range);
         if(range.eyeball!=-1){output.push_back({draw,SIZE_MAX,"eyeball range"});continue;}
@@ -96,11 +116,22 @@ template<class Prepared>std::shared_ptr<const SceneHdr2PlanCandidate> prepareSce
                 // Only non-displaced world output equals the original source floats.
                 if(f.displacementIndex==-1&&data.luxel(slot,u.vertices.at(global).position)!=s.vertexLuxels.at(local).luxel)throw std::runtime_error("HDR2 source position/luxel identity");
             }
-            if(f.availability!=SourceBspLightmapAvailabilityCandidate::Samples||f.styleCount!=1||f.styles[0]!=0||f.planesPerStyle!=1||f.flags!=0||f.displacementIndex!=-1)why="face outside static style0 plain non-displaced subset";
+            if(f.availability!=SourceBspLightmapAvailabilityCandidate::Samples||f.styleCount!=1||f.styles[0]!=0||f.planesPerStyle!=(directional?4:1)||f.flags!=(directional?0x800:0)||f.displacementIndex!=-1)why="face outside static style0 plain non-displaced subset";
             else if(f.samplesPerPlane>16384||uint64_t(f.size[0]+1)*8>65535)why="face outside accumulated plane limits";
             if(why.empty()){
                 const auto key=std::make_pair(&s,face);auto found=cached.find(key);
                 if(found==cached.end()){
+                    if(directional){
+                        uint32_t width=uint32_t(f.size[0])+1,height=uint32_t(f.size[1])+1;
+                        auto page=placement(s,face,width*4,height);
+                        if(!page.width||!page.height||page.width>32768||page.height>32768||
+                           uint64_t(page.x)+width*4>page.width||uint64_t(page.y)+height>page.height)
+                            throw std::runtime_error("invalid directional page placement");
+                        SceneHdr2FaceCandidate prepared{{},page,std::vector<uint8_t>(size_t(page.width)*page.height*8,page.initialByte),float(width)/page.width};
+                        if(!encodeSourceDirectionalHdr2FaceCandidate(data,slot,policy.styleScale,policy.encoding,
+                            {width,height,page.x,page.y,size_t(page.width)*8},prepared.bytes))throw std::runtime_error("directional page encoding refused");
+                        resource=next.faces.size();next.faces.push_back(std::move(prepared));cached.emplace(key,resource);
+                    }else{
                     auto plane=SourceBspAccumulatedLightmapCandidate::prepare(a.snapshot,face,material.source.syntax,policy.styleScale,SourceLightmapAccumulationUnitsCandidate::TexLightLinear);stage("face-accumulated");
                     const auto page=placement(s,face,plane->width(),plane->height());
                     if(!page.width||!page.height||page.width>32768||page.height>32768||uint64_t(page.x)+plane->width()>page.width||uint64_t(page.y)+plane->height()>page.height||page.x>32767||page.y>32767)throw std::runtime_error("HDR2 explicit page placement");
@@ -109,10 +140,14 @@ template<class Prepared>std::shared_ptr<const SceneHdr2PlanCandidate> prepareSce
                     SceneHdr2FaceCandidate prepared{plane,page,std::vector<uint8_t>(totalBytes,page.initialByte)};
                     if(!nativeLightmapHdr2RegionCandidate(policy.encoding,{&bits,nullptr,nullptr,nullptr},{plane->width(),plane->height(),page.x,page.y,rowBytes},prepared.bytes))throw std::runtime_error("HDR2 page encoding refused");stage("page-encoded");
                     resource=next.faces.size();next.faces.push_back(std::move(prepared));cached.emplace(key,resource);
+                    }
                 }else resource=found->second;
                 const auto& page=next.faces.at(resource).page;
                 for(size_t k=0;k<3;++k){const auto global=u.indices.at(size_t(draw.firstIndex)+j+k);SourcePlainLightmapSamplingInputCandidate input{};input.axes=f.axes;input.minima=f.minima;input.size=f.size;input.position=u.vertices.at(global).position;input.surfaceFlags=f.flags;input.pageOffset={int32_t(page.x),int32_t(page.y)};input.pageDimensions={page.width,page.height};
-                    std::array<float,2> uv;if(!sourcePlainLightmapSamplingCandidate(uv,input))throw std::runtime_error("HDR2 UV control/range refused");if(uvOwners[global]!=SIZE_MAX&&(uvOwners[global]!=resource||next.lightUvs[global]!=uv))throw std::runtime_error("HDR2 conflicting vertex UV ownership");uvOwners[global]=resource;next.lightUvs[global]=uv;}
+                    std::array<float,2> uv;if(directional){
+                    const auto& luxel=s.vertexLuxels.at(global-a.firstVertex).luxel;
+                    uv={float((page.x+luxel[0]+0.5)/page.width),float((page.y+luxel[1]+0.5)/page.height)};
+                }else if(!sourcePlainLightmapSamplingCandidate(uv,input))throw std::runtime_error("HDR2 UV control/range refused");if(uvOwners[global]!=SIZE_MAX&&(uvOwners[global]!=resource||next.lightUvs[global]!=uv))throw std::runtime_error("HDR2 conflicting vertex UV ownership");uvOwners[global]=resource;next.lightUvs[global]=uv;}
             }
             auto split=draw;split.firstIndex+=j;split.indexCount=3;
             if(!output.empty()){auto& prev=output.back();if(prev.faceResource==resource&&prev.unadmittedReason==why&&prev.draw.model==split.model&&prev.draw.range==split.range&&prev.draw.materialSlot==split.materialSlot&&prev.draw.materialIndex==split.materialIndex&&uint64_t(prev.draw.firstIndex)+prev.draw.indexCount==split.firstIndex){prev.draw.indexCount+=3;continue;}}

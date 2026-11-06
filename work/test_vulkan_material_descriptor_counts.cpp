@@ -33,5 +33,11 @@ int main() {
     try { (void)vulkanMaterialDescriptorCountsCandidate(max / 3 + 1, false, true); }
     catch (const std::overflow_error&) { refused = true; }
     assert(refused);
+    const auto hdr = vulkanMaterialDescriptorCountsCandidate(59, true, true, true);
+    assert(hdr.sampledImages == 354 && hdr.samplers == 354 && hdr.maxSets == 59);
+    refused = false;
+    try { (void)vulkanMaterialDescriptorCountsCandidate(max / 6 + 1, true, true, true); }
+    catch (const std::overflow_error&) { refused = true; }
+    assert(refused);
     std::cout << "Vulkan material descriptor counts passed empty=1 two-texture=1 optional-mask=1 overflow-boundaries=1\n";
 }

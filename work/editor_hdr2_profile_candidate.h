@@ -15,7 +15,10 @@ inline std::shared_ptr<const SceneHdr2ProfileCandidate> readEditorHdr2ProfileCan
     input.imbue(std::locale::classic());
     auto word=[&](const char* expected){std::string value;if(!(input>>value)||value!=expected)throw std::runtime_error("HDR2 profile expected "+std::string(expected));};
     SourceHdr2ScenePolicyCandidate p{};uint32_t config=0,padding=0,initial=0;std::string filter;
-    word("SFM64_HDR2_PROFILE_V1");word("selectedHdrType");input>>p.selectedHdrType;
+    std::string version;input>>version;
+    if(version=="SFM64_HDR2_PROFILE_DIRECTIONAL_TEST_V1")p.directionalWorld=true;
+    else if(version!="SFM64_HDR2_PROFILE_V1")throw std::runtime_error("unknown HDR2 profile version");
+    word("selectedHdrType");input>>p.selectedHdrType;
     word("encoding");input>>p.encoding;word("styleScale");input>>p.styleScale;
     word("instance");for(auto& value:p.instance)input>>value;
     word("configurationByte49");input>>config;word("exposure");input>>p.exposure;
@@ -33,5 +36,5 @@ inline void configureEditorHdr2ProfileCandidate(){
         if(GetEnvironmentVariableA(option,nullptr,0))throw std::runtime_error(std::string("HDR2 explicit profile conflicts with ")+option);
     std::ifstream input(path);if(!input)throw std::runtime_error("HDR2 profile file unavailable");
     auto next=readEditorHdr2ProfileCandidate(input);editorHdr2ProfileCandidate=std::move(next);
-    std::cout<<"experimental_hdr2_profile=1 output=linear_UNORM base_read=material_metadata source_parity=unverified\n";
+    std::cout<<"experimental_hdr2_profile=1 scene=RGBA16_SFLOAT output=encoded_UNORM base_read=material_metadata source_parity=unverified\n";
 }

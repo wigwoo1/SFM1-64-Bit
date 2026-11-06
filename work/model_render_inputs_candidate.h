@@ -9,11 +9,76 @@
 #include "material_constant_color_candidate.h"
 #include "material_color_space_candidate.h"
 #include "material_uv_transform_candidate.h"
+#include <sstream>
+#include <locale>
 #include <map>
 #include <limits>
 #include <cstdlib>
 #include <optional>
-struct ModelRenderMaterialCandidate {MountedModelMaterialCandidate source;VtfRgbaImageCandidate image;bool translucent=false;VtfRgbaImageCandidate irisImage;float alphaCutoff=0;std::optional<NativeAlphaShadowStateCandidate>nativeAlpha;MaterialSelfIllumCandidate selfIllum;VtfRgbaImageCandidate selfIllumMaskImage;MaterialColorSpaceCandidate colorSpace;MaterialUvTransformCandidate baseTextureTransform=identityMaterialUvTransformCandidate();bool vertexLighting=false;VtfRgbaImageCandidate secondBaseImage;bool vertexTransition=false;bool unlitTwoTexture=false,additive=false;MaterialUvTransformCandidate secondTextureTransform=identityMaterialUvTransformCandidate();std::optional<uint32_t>baseTextureFlags,secondTextureFlags;ModelPreparedTextureCandidate preparedBase,preparedSecond;};
+// c10.z in the supported Phong shader variants. Zero selects the texture red
+// channel; a missing optional means the authored scalar could not be resolved.
+inline std::optional<float> phongExponentControlCandidate(const VmtNodeCandidate& syntax){
+ const auto values=vmtValuesCandidate(syntax,"$phongexponent");
+ if(values.empty())return 0.f;
+ if(values.size()!=1)return {};
+ std::istringstream input(values.front());
+ input.imbue(std::locale::classic());
+ float value;
+ if(!(input>>value) || !std::isfinite(value))return {};
+ input>>std::ws;
+ if(!input.eof())return {};
+ return value;
+}
+// Experimental HDR2 uses the confirmed r_rimlight=1 benchmark profile.
+inline std::array<float,2> unmaskedRimControlsCandidate(const VmtNodeCandidate& syntax){
+ auto scalar=[&](const char* key,float fallback)->std::optional<float>{
+  auto values=vmtValuesCandidate(syntax,key);
+  if(values.empty())return fallback;
+  if(values.size()!=1)return {};
+  std::istringstream in(values.front());in.imbue(std::locale::classic());
+  float value;if(!(in>>value)||!std::isfinite(value))return {};
+  in>>std::ws;if(!in.eof())return {};
+  return value;
+ };
+ auto enabled=scalar("$rimlight",0),mask=scalar("$rimmask",0);
+ if(!enabled || *enabled==0 || !mask || *mask!=0)return {};
+ auto exponent=scalar("$rimlightexponent",4),boost=scalar("$rimlightboost",1);
+ if(!exponent || !boost)return {};
+ return {std::max(1.f,*exponent),*boost};
+}
+struct ScalarSkyPhongCandidate {
+ std::array<float,2> rim{};
+ std::array<float,4> fresnelBoost{};
+ bool useBaseAlpha=false;
+};
+inline std::optional<ScalarSkyPhongCandidate> scalarSkyPhongCandidate(const VmtNodeCandidate& syntax){
+ const auto is=[&](const char* key,const char* value){return vmtValuesCandidate(syntax,key)==std::vector<std::string>{value};};
+ if(!is("$phong","1"))return {};
+ const auto mask=vmtValuesCandidate(syntax,"$basemapalphaphongmask");
+ if(!mask.empty() && !is("$basemapalphaphongmask","0") && !is("$basemapalphaphongmask","1"))return {};
+ for(auto key:{"$basemapluminancephongmask","$invertphongmask","$phongalbedotint"})
+  if(!vmtValuesCandidate(syntax,key).empty()&&!is(key,"0"))return {};
+ if(!vmtValuesCandidate(syntax,"$phongwarptexture").empty())return {};
+ if(!vmtValuesCandidate(syntax,"$phongtint").empty()&&!is("$phongtint","[0 0 0]"))return {};
+ auto f=vmtValuesCandidate(syntax,"$phongfresnelranges"),b=vmtValuesCandidate(syntax,"$phongboost");
+ if(f.size()!=1 || b.size()!=1 || f[0].size()<2 || f[0].front()!='[' || f[0].back()!=']')return {};
+ auto boostText=b[0];
+ if(boostText.size()>1 && boostText.front()=='[' && boostText.back()==']')boostText=boostText.substr(1,boostText.size()-2);
+ std::istringstream ranges(f[0].substr(1,f[0].size()-2)),boost(boostText);
+ ranges.imbue(std::locale::classic());boost.imbue(std::locale::classic());
+ std::array<float,4> out{};
+ if(!(ranges>>out[0]>>out[1]>>out[2]) || !(boost>>out[3]))return {};
+ ranges>>std::ws;boost>>std::ws;
+ if(!ranges.eof()||!boost.eof())return {};
+ for(float value:out)if(!std::isfinite(value)||value<0)return {};
+ return ScalarSkyPhongCandidate{unmaskedRimControlsCandidate(syntax),out,is("$basemapalphaphongmask","1")};
+}
+struct ModelLightwarpInputsCandidate {
+ std::optional<ScalarSkyPhongCandidate> scalarSkyPhong;
+ std::optional<float> phongExponentControl;
+ ModelPreparedTextureCandidate warp,normal,exponent;
+};
+struct ModelRenderMaterialCandidate {MountedModelMaterialCandidate source;VtfRgbaImageCandidate image;bool translucent=false;VtfRgbaImageCandidate irisImage;float alphaCutoff=0;std::optional<NativeAlphaShadowStateCandidate>nativeAlpha;MaterialSelfIllumCandidate selfIllum;VtfRgbaImageCandidate selfIllumMaskImage;MaterialColorSpaceCandidate colorSpace;MaterialUvTransformCandidate baseTextureTransform=identityMaterialUvTransformCandidate();bool vertexLighting=false;VtfRgbaImageCandidate secondBaseImage;bool vertexTransition=false;bool unlitTwoTexture=false,additive=false;MaterialUvTransformCandidate secondTextureTransform=identityMaterialUvTransformCandidate();std::optional<uint32_t>baseTextureFlags,secondTextureFlags;ModelPreparedTextureCandidate preparedBase,preparedSecond;ModelLightwarpInputsCandidate lightwarpInputs;ModelPreparedTextureCandidate selfShadowedBump;};
 inline VtfRgbaImageCandidate missingSourceTextureFallbackCandidate(){return {2,2,{255,0,255,255,0,0,0,255,0,0,0,255,255,0,255,255}};}
 struct ModelRenderRangeCandidate {uint32_t firstIndex,indexCount,materialIndex,body,model,mesh;int32_t eyeball=-1;};
 struct ModelRenderInputsCandidate {std::vector<uint32_t>indices;std::vector<ModelRenderRangeCandidate>ranges;std::vector<ModelRenderMaterialCandidate>materials;};

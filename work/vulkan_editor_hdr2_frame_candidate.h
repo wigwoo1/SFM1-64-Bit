@@ -37,9 +37,9 @@ public:
         if(images_)images_->recordUpload(command);
         command_=command;upload_=upload;state_=State::Recorded;
     }
-    void configure(VulkanPreparedSceneResourcesCandidate& resources,VkPipeline pipeline,VkCommandBuffer command){
+    void configure(VulkanPreparedSceneResourcesCandidate& resources,VkPipeline pipeline,VkCommandBuffer command,VkPipeline directional=VK_NULL_HANDLE,std::function<bool(const SceneGpuDrawCandidate&)> available={}){
         if(state_!=State::Recorded||command!=command_||!pipeline)throw std::runtime_error("HDR2 editor configure state");
-        if(binding_)binding_->configure(resources,pipeline,command);
+        if(binding_)binding_->configure(resources,pipeline,command,directional,available);
     }
     void submitted(VkCommandBuffer command){
         if(state_!=State::Recorded||command!=command_)throw std::runtime_error("HDR2 editor submit state");

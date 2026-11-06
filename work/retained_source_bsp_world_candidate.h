@@ -16,6 +16,7 @@ class RetainedSourceBspWorldCandidate {
  struct Cache {
   std::filesystem::path path;
   SourceBspLightmapSelectionCandidate selection=SourceBspLightmapSelectionCandidate::LegacyPreview;
+  std::shared_ptr<const std::vector<SourceSkyLightCandidate>> skyLights;
   SfmModelGeometryCandidate model;
   std::vector<std::array<float,3>>lightColors;
   std::vector<float>displacementAlphas;
@@ -43,8 +44,28 @@ class RetainedSourceBspWorldCandidate {
   try{world=readSourceBspLightmappedBrushCandidate(bytes,0,selection_);available=true;}
   catch(const std::runtime_error&error){if(selection_!=SourceBspLightmapSelectionCandidate::LegacyPreview)throw;unavailable=error.what();world.geometry=readSourceBspInlineBrushCandidate(bytes,0);}
   stage(hook,"load-geometry");
-  Cache next;next.path=path;next.selection=selection_;stage(hook,"load-path");next.model=sourceBspStaticModelCandidate(world.geometry);stage(hook,"load-model");
-  auto nextInputs=std::make_shared<ModelRenderInputsCandidate>(prepareModelRenderInputsCandidate(next.model,0,mounts_,0));for(auto&material:nextInputs->materials)material.vertexLighting=true;stage(hook,"load-inputs");
+  Cache next;
+  if(selection_==SourceBspLightmapSelectionCandidate::Hdr){
+   auto sky=readSourceHdrSkyLightsCandidate(bytes);
+   if(sky)next.skyLights=std::make_shared<const std::vector<SourceSkyLightCandidate>>(std::move(*sky));
+  }
+  next.path=path;next.selection=selection_;stage(hook,"load-path");next.model=sourceBspStaticModelCandidate(world.geometry);stage(hook,"load-model");
+  auto nextInputs=std::make_shared<ModelRenderInputsCandidate>(prepareModelRenderInputsCandidate(next.model,0,mounts_,0));for(auto& material:nextInputs->materials){
+   material.vertexLighting=true;
+   const auto& syntax=material.source.syntax;
+   if(selection_!=SourceBspLightmapSelectionCandidate::Hdr || vmtAsciiLowerCandidate(syntax.key)!="lightmappedgeneric" ||
+      vmtValuesCandidate(syntax,"$ssbump")!=std::vector<std::string>{"1"})continue;
+   auto names=vmtValuesCandidate(syntax,"$bumpmap");
+   if(names.size()!=1 || names.front().empty())continue;
+   try{
+    const auto file=findMountedMaterialCandidate(mounts_,materialRelativePathCandidate(names.front(),".vtf"));
+    if(file.empty())throw std::runtime_error("missing VTF");
+    material.selfShadowedBump=prepareModelTextureSnapshotCandidate(names.front(),readBinaryAssetCandidate(file),0,0);
+    if(!material.selfShadowedBump.cpu)throw std::runtime_error("unsupported VTF");
+   }catch(const std::runtime_error& error){
+    material.source.missingTextureReferences.push_back("$bumpmap "+names.front()+" ("+error.what()+")");
+   }
+  }stage(hook,"load-inputs");
   next.lightmaps=available?prepareSourceBspLightmapSnapshotCandidate(std::move(world),nextInputs->indices):unavailableSourceBspLightmapSnapshotCandidate(world.geometry.positions.size(),nextInputs->indices,std::move(unavailable));stage(hook,"load-snapshot");
   next.lightColors=std::move(world.geometry.lightColors);next.displacementAlphas=std::move(world.geometry.displacementAlphas);next.inputs=std::move(nextInputs);
   auto result=std::make_shared<const Cache>(std::move(next));stage(hook,"load-cache-ready");return result;
@@ -87,7 +108,7 @@ public:
    stage(hook,"append-sorted");
    upload.bspLightmaps.push_back({group,static_cast<uint32_t>(vertexBase),static_cast<uint32_t>(model_.geometry.vertices.size()),static_cast<uint32_t>(indexBase),static_cast<uint32_t>(inputs_->indices.size()),retained->lightmaps});stage(hook,"append-associated");
    validateSceneShadingCandidate(upload);
-   validateSceneBspLightmapsCandidate(upload);stage(hook,"append-ready-to-commit");cache_.swap(retained);
+   validateSceneBspLightmapsCandidate(upload);stage(hook,"append-ready-to-commit");prepared.hdrSkyLights=retained->skyLights;cache_.swap(retained);
   }catch(...){upload.bspLightmaps.resize(lightmapBase);upload.vertexShading.resize(shadingBase);upload.vertices.resize(vertexBase);upload.indices.resize(indexBase);upload.materials.resize(slotBase);upload.opaque.resize(opaqueBase);upload.translucent.resize(translucentBase);prepared.materialAlpha.resize(alphaBase);materialInputs.entries.resize(entriesBase);materialInputs.owners.resize(ownersBase);materialInputs.alpha.resize(inputAlphaBase);throw;}
  }
 };

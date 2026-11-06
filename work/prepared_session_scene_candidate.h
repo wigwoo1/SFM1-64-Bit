@@ -3,6 +3,7 @@
 #include "scene_material_draw_inputs_candidate.h"
 #include "scene_gpu_upload_candidate.h"
 #include "render_camera_file_candidate.h"
+#include "source_hdr_sky_lights_candidate.h"
 #include <chrono>
 struct ScenePreparationProfileCandidate {double evaluation=0,poses=0,geometry=0,materials=0,upload=0,decoration=0,furGuides=0,furRibbons=0,furAppend=0;};
 struct SceneMissingAssetDiagnosticCandidate {std::string modelAsset;std::filesystem::path vmt;std::vector<std::string>references;};
@@ -23,10 +24,20 @@ struct PreparedSessionSceneCandidate {
  ScenePreparationProfileCandidate profile;
  uint32_t shot=UINT32_MAX;
  std::vector<SessionRenderLightCandidate>lightSnapshots;
+ // Keyed by session element so invisible or skipped models cannot shift another model's origin.
+ std::map<uint32_t,std::array<float,3>> explicitLightOrigins;
+ // Visible models whose shot animation set requests animated render bounds.
+ std::set<uint32_t> animatedBoundsModels;
+ std::vector<uint32_t> lightingModelIds;
+ std::array<float,3> lightingCameraPosition{};
+ std::map<uint32_t,std::array<std::array<float,3>,6>> modelAmbientCubes;
+ std::map<uint32_t,std::vector<uint8_t>> modelSkyVisible;
+ std::map<uint32_t,std::array<float,3>> animatedDrawPositions;
  std::vector<SceneMissingAssetDiagnosticCandidate>missingAssets;
  // Optional immutable CPU profile/plan, published only after complete preparation.
  std::shared_ptr<const SceneHdr2PreparedFrameCandidate>hdr2;
  std::vector<SceneUnavailableModelDiagnosticCandidate>missingModels;
+ std::shared_ptr<const std::vector<SourceSkyLightCandidate>> hdrSkyLights;
 };
 using SceneGeometryDecorationCandidate=std::function<void(const Graph&,const SessionRenderSceneCandidate&,const std::vector<SceneGeometryModelCandidate>&,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&,PreparedSessionSceneCandidate&)>;
 inline PreparedSessionSceneCandidate prepareSessionSceneCandidate(const Graph&graph,const SessionRenderSceneCandidate&scene,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&asset,SceneRenderInputsCacheCandidate&materials,GeometryDeformationWorkerPoolCandidate&workers,const std::vector<std::filesystem::path>&mounts,bool allowScale=false,bool allowNameMapping=false,const SceneModelDeformationCandidate&deform={},const SceneBorrowedDeformationCandidate&borrowed={},const SceneGeometryDecorationCandidate&decorate={}){

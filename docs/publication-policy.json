@@ -6,6 +6,18 @@
       "embedded original instruction array"
     ],
     [
+      "audit_ifm_display_route_candidate.py",
+      "private disassembly instruction anchors"
+    ],
+    [
+      "audit_ifm_target_mode_candidate.py",
+      "private disassembly instruction anchors"
+    ],
+    [
+      "audit_ifm_viewport_copy_candidate.py",
+      "private disassembly instruction anchors"
+    ],
+    [
       "aux_pixel_native_init.h",
       "embedded original instruction array"
     ],

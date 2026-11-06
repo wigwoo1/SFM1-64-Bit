@@ -18,4 +18,6 @@ for /f "usebackq eol=# tokens=1,2" %%P in ("%CD%\work\editor_shader_manifest.txt
 exit /b 0
 :compile
 "%SFM64_DXC_EXE%" -spirv -fspv-target-env=vulkan1.0 -T %~2 -E main "work\%~1.hlsl" -Fo "%SHADERS%\%~1.spv"
-exit /b %errorlevel%
+if errorlevel 1 exit /b 1
+if not exist "%SHADERS%\%~1.spv" exit /b 1
+exit /b 0

@@ -2,6 +2,17 @@
 #include "source_bsp_base_lightmap_candidate.h"
 #include "source_lightmap_accumulation_candidate.h"
 
+inline std::vector<SourceLightmapLinearPixelCandidate> accumulateSourceBspPlaneCandidate(
+    const SourceBspLightmapDataCandidate& data,size_t slot,uint32_t plane,uint32_t width,uint32_t height,
+    float styleScale,SourceLightmapAccumulationUnitsCandidate units){
+        std::vector<SourceLightmapRawSampleCandidate> raw;raw.reserve(size_t(width)*height);
+        for(uint32_t y=0;y<uint32_t(height);++y)for(uint32_t x=0;x<uint32_t(width);++x)raw.push_back(data.sample(slot,0,plane,x,y));
+        std::vector<SourceLightmapLinearPixelCandidate> staged(size_t(width)*height,{0,0,0,1});
+        if(!sourceLightmapAccumulationCandidate(staged,raw,styleScale,units))
+            throw std::runtime_error("accumulated lightmap arithmetic/control refused");
+        return staged;
+}
+
 // Immutable CPU plane, not renderer/material admission or original live state.
 // styleScale is an explicit caller multiplier, separate from HDR/exposure.
 // Alpha1 is a declared opaque-plane policy; RGBExp32's fourth byte is exponent.
@@ -44,11 +55,7 @@ public:
         const uint64_t width=uint64_t(f.size[0])+1,height=uint64_t(f.size[1])+1,count=width*height;
         if(width>UINT32_MAX||height>UINT32_MAX||!count||count!=f.samplesPerPlane||count>16384||width*8>65535)
             throw std::runtime_error("accumulated lightmap dimensions/stride unsupported");
-        std::vector<SourceLightmapRawSampleCandidate> raw;raw.reserve(size_t(count));
-        for(uint32_t y=0;y<uint32_t(height);++y)for(uint32_t x=0;x<uint32_t(width);++x)raw.push_back(data.sample(slot,0,0,x,y));
-        std::vector<SourceLightmapLinearPixelCandidate> staged(size_t(count),{0,0,0,1});
-        if(!sourceLightmapAccumulationCandidate(staged,raw,styleScale,units))
-            throw std::runtime_error("accumulated lightmap arithmetic/control refused");
+        auto staged=accumulateSourceBspPlaneCandidate(data,slot,0,uint32_t(width),uint32_t(height),styleScale,units);
         auto next=std::shared_ptr<SourceBspAccumulatedLightmapCandidate>(new SourceBspAccumulatedLightmapCandidate);
         next->source_=std::move(source);next->face_=face;next->width_=uint32_t(width);next->height_=uint32_t(height);
         next->styleScale_=styleScale;next->units_=units;next->pixels_=std::move(staged);return next;
