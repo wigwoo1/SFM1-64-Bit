@@ -11,6 +11,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+from translucent_fixture_geometry_candidate import validate_translucent_quad, repair_translucent_fixture_quad
 
 ROOT = Path(__file__).resolve().parent.parent
 EDITOR_RECEIPT = ROOT / 'outputs/viewport-output-editor-gq_u0ne9/verification-xy8cfd11/results.json'
@@ -247,6 +248,12 @@ def main():
             lightmap[faces+2*56:faces+3*56] = lightmap[faces+56:faces+2*56]
             model = struct.unpack_from('<I',lightmap,8+14*16)[0]
             struct.pack_into('<II',lightmap,model+40,1,layers)
+            refused = False
+            try: validate_translucent_quad(lightmap, layers)
+            except ValueError: refused = True
+            need(refused, 'Inherited malformed quad negative control did not fail')
+            repair_translucent_fixture_quad(lightmap)
+            result.setdefault('fixture_geometry', {})[label] = validate_translucent_quad(lightmap, layers)
             bsp.write_bytes(lightmap)
             hashes = {str(p.relative_to(own)):sha(p) for p in own.rglob('*') if p.is_file()}
             out = run / ('editor-' + label); out.mkdir()
@@ -282,7 +289,7 @@ def main():
                       actual_editor=captures,editor_source_sha256=before['editor_source_sha256'],
                       source_sha256={name:sha(ROOT/'work'/name) for name in [
                           'probe_viewport_output_blending_x64.cpp','viewport_output_blend_probe.hlsl',
-                          'build_viewport_output_blending_x64.cmd',Path(__file__).name]},
+                          'build_viewport_output_blending_x64.cmd','translucent_fixture_geometry_candidate.py',Path(__file__).name]},
                       limits=['All synthetic input; original SFM and F: unused.',
                               'One tested GPU, Vulkan validation layer not enabled.',
                               'The real output helper is shared with the editor. Controlled blend pipelines mirror editor blend factors but do not prove all native material operations.',
