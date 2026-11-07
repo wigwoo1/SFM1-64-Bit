@@ -10,22 +10,24 @@ class SceneHdr2ProfileCandidate {
     uint32_t padding_;
     uint8_t initialByte_;
     SceneHdr2FilterCandidate filter_;
-    std::array<uint32_t,12> identity_{};
+    bool sessionExposure_;
+    std::array<uint32_t,13> identity_{};
 public:
     SceneHdr2ProfileCandidate(SourceHdr2ScenePolicyCandidate policy,uint32_t padding,
-            uint8_t initialByte,SceneHdr2FilterCandidate filter)
-        :policy_(policy),padding_(padding),initialByte_(initialByte),filter_(filter){
+            uint8_t initialByte,SceneHdr2FilterCandidate filter,bool sessionExposure=false)
+        :policy_(policy),padding_(padding),initialByte_(initialByte),filter_(filter),sessionExposure_(sessionExposure){
         validateSourceHdr2ScenePolicyCandidate(policy_);
         if(padding_>16383||(filter_!=SceneHdr2FilterCandidate::Nearest&&filter_!=SceneHdr2FilterCandidate::Linear))
             throw std::runtime_error("HDR2 explicit page/filter profile refused");
         auto bits=[](float value){uint32_t word;std::memcpy(&word,&value,4);return word;};
         identity_={uint32_t(policy_.selectedHdrType),policy_.encoding,bits(policy_.styleScale),
             bits(policy_.instance[0]),bits(policy_.instance[1]),bits(policy_.instance[2]),bits(policy_.instance[3]),
-            policy_.configurationByte49,bits(policy_.exposure),padding_,initialByte_,uint32_t(filter_)};
+            policy_.configurationByte49,bits(policy_.exposure),padding_,initialByte_,uint32_t(filter_),uint32_t(sessionExposure_)};
     }
     SceneHdr2ProfileCandidate& operator=(const SceneHdr2ProfileCandidate&)=delete;
     const SourceHdr2ScenePolicyCandidate& policy()const noexcept{return policy_;}
-    const std::array<uint32_t,12>& identity()const noexcept{return identity_;}
+    const std::array<uint32_t,13>& identity()const noexcept{return identity_;}
+    bool usesSessionExposure()const noexcept{return sessionExposure_;}
     SourceBspLightmapSelectionCandidate dataset()const noexcept{return SourceBspLightmapSelectionCandidate::Hdr;}
     SceneHdr2FilterCandidate filter()const noexcept{return filter_;}
     SceneHdr2PagePlacementCandidate page(uint32_t width,uint32_t height)const{
@@ -54,7 +56,15 @@ public:
             const Prepared& scene,std::shared_ptr<const SceneHdr2ProfileCandidate> profile,
             const std::function<void(const char*)>& hook={}){
         if(!profile)throw std::runtime_error("HDR2 frame profile required");
-        auto plan=prepareSceneHdr2LightmapPlanCandidate(scene,profile->policy(),
+        auto policy=profile->policy();
+        if(profile->usesSessionExposure()){
+            if(scene.sessionExposure)policy.exposure=scene.sessionExposure->product;
+            else if(scene.shot!=UINT32_MAX||!scene.upload.vertices.empty())
+                throw std::runtime_error("session exposure snapshot missing from evaluated frame");
+            // A prototype blank/gap frame has no camera and only clears.
+            else policy.exposure=1;
+        }
+        auto plan=prepareSceneHdr2LightmapPlanCandidate(scene,policy,
             [&profile](const auto&,uint32_t,uint32_t w,uint32_t h){return profile->page(w,h);},hook);
         return std::shared_ptr<const SceneHdr2PreparedFrameCandidate>(
             new SceneHdr2PreparedFrameCandidate(std::move(profile),std::move(plan)));

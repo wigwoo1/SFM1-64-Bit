@@ -1,5 +1,10 @@
 #pragma once
 #include "studio_pixel_constant_tail_candidate.h"
+// Historical "Exposure" naming is not a proved tone-map/exposure binding.
+// This helper uploads c29; Valve's public common_ps_fxc.h identifies c29.w as
+// reciprocal destination-alpha depth range and lighting scales separately at
+// c30. Installed initialization uses parameter0=8192/192. Do not connect this
+// callback to session/camera toneMapScale without independent route evidence.
 // The exposure callback supplies separately the stored float and the native
 // extended-precision comparison result. Do not infer the latter from float32.
 struct StudioPixelExposureCandidate{float stored;bool positive;};

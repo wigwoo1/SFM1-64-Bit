@@ -8,7 +8,10 @@
 static std::string profileText(uint32_t encoding=113,const char*filter="nearest",float exposure=1){
  std::ostringstream s;s<<"SFM64_HDR2_PROFILE_V1\nselectedHdrType 2\nencoding "<<encoding<<"\nstyleScale 0.5\ninstance 0.5 0.75 1 1\nconfigurationByte49 0\nexposure "<<exposure<<"\npagePadding 0\npageInitialByte 0\nfilter "<<filter<<'\n';return s.str();
 }
-int main(int argc,char**argv){try{
+#ifndef SFM64_EDITOR_HDR2_PROFILE_ENTRY
+#define SFM64_EDITOR_HDR2_PROFILE_ENTRY main
+#endif
+int SFM64_EDITOR_HDR2_PROFILE_ENTRY(int argc,char**argv){try{
  check(argc==3,"fresh owned directory and VTF");const std::filesystem::path root=argv[1];check(std::filesystem::create_directory(root),"fresh fixture directory");
  std::istringstream valid(profileText());auto p=readEditorHdr2ProfileCandidate(valid);check(p->policy().encoding==113&&p->policy().instance==std::array<float,4>{.5f,.75f,1,1}&&p->filter()==SceneHdr2FilterCandidate::Nearest,"explicit parsed policy");
  std::istringstream numeric(profileText(36,"linear",2));auto q=readEditorHdr2ProfileCandidate(numeric);check(q->policy().encoding==36&&q->filter()==SceneHdr2FilterCandidate::Linear&&q->policy().exposure==2,"numeric linear policy");

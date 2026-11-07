@@ -26,20 +26,20 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "400ee3d8f92009d6a507197118a9eae6c3987a3a039b4134e1af4595ff5edc16",
-      "size": 57772
+      "sha256": "94c89f55deb7acfe50ab3ce880f91e34e7a5a71e5836f783e94eba391673a5c4",
+      "size": 57881
     },
     "docs/publication-policy.json": {
       "sha256": "a972ec573f886d9faf5fcd9a21285a93333464226f47c7312e502f0ca22d1734",
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "537031fcfb9915be2728223ddbc62295dfeae99865438a18bae34c502f31ad73",
+      "sha256": "fc59354bcbe6d2411a1f57057815ed98889d518bfb5a82131ff6b1b8a1c1a1f3",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "cae2e36b96f8f5cbeaaef2012d2cbed49fa3150c51d58af01e31613a6fc2c6aa",
-      "size": 1143648
+      "sha256": "a4fd0335d0be0089d7a14e2690230c8c782e4732bdb2545d72927e349fe8d596",
+      "size": 1145767
     },
     "publication/README.md": {
       "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
@@ -4913,6 +4913,10 @@
       "sha256": "2c013c13cac479e95fa060cf0b553a6492bf78a0923870d62f6a1abe8e944248",
       "size": 393
     },
+    "work/build_session_exposure_test.cmd": {
+      "sha256": "77657b9f1104d157e276d6d1b4740ea2c971ddfde9146ac803a08be49d2784b2",
+      "size": 683
+    },
     "work/build_session_expression_inspector.cmd": {
       "sha256": "7e12cda38e73587485dd81e83e5fc27441abfa68dcd572d257f26b7a1537fd10",
       "size": 348
@@ -8250,8 +8254,8 @@
       "size": 352
     },
     "work/editor_hdr2_profile_candidate.h": {
-      "sha256": "b7865c19b944b9e461bf56ee8c63788b551e066a92a84f3150783d70a6c8aee2",
-      "size": 3417
+      "sha256": "85e3bc14544f87089c81ac9bc9dcfe66c857e0057a272c1495fbd4eeb4ec9343",
+      "size": 3871
     },
     "work/editor_map_command_protocol_candidate.h": {
       "sha256": "97a7ee3cf7e5980c8963efe18568ff43a5f886608cd0d7262772e6ee0f391bf0",
@@ -12442,8 +12446,8 @@
       "size": 18638
     },
     "work/prepared_session_scene_candidate.h": {
-      "sha256": "48af9981e56ef1980b3f49157336b8721067a37e0652494c54d5d36ab9710185",
-      "size": 5512
+      "sha256": "4dba599c2f8367d8c09b241df9b6d485545aeaeafb1d56bda58cc200cb0e2318",
+      "size": 5633
     },
     "work/preserve_flex_scan_reference.py": {
       "sha256": "1eeffd5f7a7a91cc23f6f68c863a9fe41282864b924238f042b87f91272505d4",
@@ -17318,8 +17322,8 @@
       "size": 3065
     },
     "work/retained_session_scene_candidate.h": {
-      "sha256": "d90cecbb49fcfad61d68b220d989fa4797e058073ec2ffbd0ccd4c2065eea7c4",
-      "size": 19865
+      "sha256": "f2871845a5d29739b7e86507d1ba138c3fc928c99b2f4e528203f97f673f3474",
+      "size": 20347
     },
     "work/retained_shader_constants_candidate.h": {
       "sha256": "70e1899f36e039715b62e09133a5f65b665e62f898e4460c050968c5f8663912",
@@ -17574,8 +17578,8 @@
       "size": 13466
     },
     "work/scene_hdr2_profile_candidate.h": {
-      "sha256": "82990e3473184600c0a1ec4a737399fc9f6f92513f840ed5fadd6331e49f329c",
-      "size": 3951
+      "sha256": "352e05018e04140e7ebfdc85b1b1425ecec3d808417c21da68e9d96e29c91cc3",
+      "size": 4590
     },
     "work/scene_material_draw_inputs_candidate.h": {
       "sha256": "4b29fcadd0c777af1bebf32d6e1ee22adb6c3e3378e0dfc3ecac2f7a399dff6f",
@@ -17668,6 +17672,10 @@
     "work/session_document_root_candidate.h": {
       "sha256": "466b64c00cf94ff4dde9c24cfc84eec7c36006593431dcd8631fb3f6fb5713f2",
       "size": 540
+    },
+    "work/session_exposure_candidate.h": {
+      "sha256": "fc3fc03aa0c4093c3cbe2a99fc2ab590a617f5c89e6621d49cf2f2f2099d5ef2",
+      "size": 2875
     },
     "work/session_expression_chain_discovery.h": {
       "sha256": "33e41db178c29a1a7b22d8fb4b7df7e1c631fc5849cd67e2e81b4e3f4e484985",
@@ -19174,8 +19182,8 @@
       "size": 657
     },
     "work/studio_pixel_color_candidate.h": {
-      "sha256": "fea8a829c5eeb1a55b28ed2f0d9f93bee704a848a8ad999bdced407d1056fc09",
-      "size": 1308
+      "sha256": "2dbd446cb61d1e72df90404ef1dbbcbadff6191b331fb4e516451b9773616b94",
+      "size": 1698
     },
     "work/studio_pixel_color_owner_candidate.h": {
       "sha256": "330c86279df21b13a27466ea738ca31fab2bbebc665889ed4ba036e0d3e63f51",
@@ -20378,8 +20386,8 @@
       "size": 3518
     },
     "work/test_editor_hdr2_profile.cpp": {
-      "sha256": "8ec8f94d0d1148a8be8d2d63e531180889adafa6c1a047a48fc4df04a04c5d38",
-      "size": 6029
+      "sha256": "6b4ecccf40224889921fa7c34d218b16b7932c3a0bf81d805bb06ad26d754df3",
+      "size": 6148
     },
     "work/test_editor_hierarchy_rows.cpp": {
       "sha256": "c869191d013c1eb796ddfca9eac95c7124fb26f08c006bb3306f10f5b8599a8c",
@@ -23228,6 +23236,10 @@
     "work/test_session_empty_float_play.cpp": {
       "sha256": "189c49d2a673531ee017d32519cc2780136e0cc768d3b62939f4bd851ee62537",
       "size": 2087
+    },
+    "work/test_session_exposure_candidate.cpp": {
+      "sha256": "c360e06cc54a7791bb88f0a4975e138046a837d6a8339d5d07b58ccfdee98375",
+      "size": 11677
     },
     "work/test_session_expression_runtime.cpp": {
       "sha256": "02e0bac4222a183d793da6cb15b26bd6a8ea2d202e065a1f73bcc3ab6ff5348d",
@@ -26536,6 +26548,10 @@
     "work/verify_selfillum_srgb_fixture.py": {
       "sha256": "37e1ac43ee975cd81af1aaebf0102f7db83dc209037ade33a40bf6c80009cb84",
       "size": 3032
+    },
+    "work/verify_session_exposure_candidate.py": {
+      "sha256": "d83afbb3eee82af39ffb096a5a832ca7d497c59239d118617fed539157a4bcc3",
+      "size": 11325
     },
     "work/verify_session_illumination_dag.py": {
       "sha256": "d1b0e4c728ae8a90af113acc9f03422216559c664cc9c594188bbdd4cd01ea04",
