@@ -100,7 +100,7 @@ def main():
             fixed,_,_=capture(candidate,'manual-'+str(frame),session,owned,frame,manual)
             filename=f'vulkan-retained-frame-{frame}.rgba'
             wire=(actual/filename).read_bytes();need(wire==(fixed/filename).read_bytes(),'Session product differs from independently chosen numeric exposure')
-            need(f'product={exposure:g} scope=admitted_lightmaps_only' in log,'Evaluated exposure diagnostic')
+            need(f'product={exposure:g} scope=admitted_lightmaps_and_model_lightwarp' in log,'Evaluated exposure diagnostic')
             colors=[tuple(encoded(v) for v in [.05,.05,.08])+(255,), (encoded(.25*exposure),0,0,255),(0,encoded(.375*exposure),0,255)]
             counts=Counter(); maximum=0
             need(len(wire)==512*512*4,'Owned capture extent')
@@ -139,7 +139,7 @@ def main():
         need(old_hashes==new_hashes,'Default benchmark pixels changed')
         manual,_,manual_hashes=capture(candidate,'benchmark-manual',parent/'benchmark-input.dmx',content,120,reference)
         actual,text,actual_hashes=capture(candidate,'benchmark-session',parent/'benchmark-input.dmx',content,120,mode)
-        need(manual_hashes==actual_hashes and 'product=1 scope=admitted_lightmaps_only' in text,'Benchmark unity input route changed pixels')
+        need(manual_hashes==actual_hashes and 'product=1 scope=admitted_lightmaps_and_model_lightwarp' in text,'Benchmark unity input route changed pixels')
         need(sha(original)==proof['sha256'],'Original benchmark changed')
         need(all(sha(owned/p)==digest for p,digest in source_before.items()),'Read-only fixture changed')
         result.update(status='VERIFIED bounded evaluated session/camera exposure on admitted HDR2 lightmaps',
@@ -147,7 +147,7 @@ def main():
             original_benchmark_sha256=proof['sha256'],source_sha256={p:sha(ROOT/p) for p in before['editor_source_dependencies']},
             limits=['Input-product evidence is static analysis of intentionally modified installed IFM; original engine execution is absent.',
                     'Explicit session_camera profile option only; default preview and numeric exposure profiles preserved.',
-                    'Only admitted plain/directional HDR2 lightmap batches consume this exposure. Fallback model/material paths and full native post effects remain unverified.',
+                    'These fixtures verify admitted plain/directional HDR2 lightmap batches. The model lightwarp exposure path has separate benchmark coverage. Other material paths and native post effects remain unverified.',
                     'Zero, negative, nonfinite and unrepresentable products fail explicitly; native automatic exposure is not inferred.',
                     'Swapchain route executes but its pixels are not read back; no Vulkan validation layer is installed.'])
     except Exception as error:

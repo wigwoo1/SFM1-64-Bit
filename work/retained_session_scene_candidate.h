@@ -231,7 +231,7 @@ public:
   if(hdr2Profile_){
    if(hdr2Profile_->usesSessionExposure())result.sessionExposure=readSessionExposureCandidate(timeline_.graph(),timeline_.renderRoot(),step.scene.camera);
    result.hdr2=SceneHdr2PreparedFrameCandidate::prepare(result,hdr2Profile_);
-   if(result.sessionExposure){const auto& exposure=*result.sessionExposure;std::cout<<"session_camera_exposure=1 tick="<<tick<<" camera="<<exposure.camera<<" session_scale="<<exposure.sessionScale<<" camera_scale="<<exposure.cameraScale<<" product="<<exposure.product<<" scope=admitted_lightmaps_only\n";}
+   if(result.sessionExposure){const auto& exposure=*result.sessionExposure;std::cout<<"session_camera_exposure=1 tick="<<tick<<" camera="<<exposure.camera<<" session_scale="<<exposure.sessionScale<<" camera_scale="<<exposure.cameraScale<<" product="<<exposure.product<<" scope=admitted_lightmaps_and_model_lightwarp\n";}
   }
   return result;}
  size_t assetCount()const{return assets_.size();}size_t materialCount()const{return materials_.size();}size_t materialHits()const{return materials_.hits();}

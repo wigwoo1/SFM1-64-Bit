@@ -199,6 +199,7 @@ if(action==PlaybackEditorActionCandidate::ExportShotFirstFrame){if(exportImageWi
   std::set<uint32_t> normalSlots,exponentSlots;
   std::map<uint32_t,std::array<float,10>> phong;
   std::map<uint32_t,std::array<float,24>> lighting;
+  const float exposure=frozenScene->sessionExposure?frozenScene->sessionExposure->product:1.f;
   for(uint32_t slot=0;slot<sceneView.materials.size();++slot){
    const auto address=sceneView.materials[slot];
    if(address.model>=frozenScene->lightingModelIds.size())continue;
@@ -212,7 +213,7 @@ if(action==PlaybackEditorActionCandidate::ExportShotFirstFrame){if(exportImageWi
    const auto candidate=prepareModelWarpDrawInputsCandidate(mat,currentMaterialAlpha[slot],
     images.hasWarp(address.material),normalWarpPipeline && images.hasNormal(address.material),
     exponentPipeline && images.hasExponent(address.material),cube->second,
-    frozenScene->hdrSkyLights->front(),vis->second.front(),frozenScene->lightingCameraPosition);
+    frozenScene->hdrSkyLights->front(),vis->second.front(),frozenScene->lightingCameraPosition,exposure);
    if(!candidate)continue;
    if(candidate->route==ModelWarpDrawRouteCandidate::Normal)normalSlots.insert(slot);
    if(candidate->route==ModelWarpDrawRouteCandidate::Exponent)exponentSlots.insert(slot);

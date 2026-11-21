@@ -16,7 +16,8 @@ struct ModelWarpDrawInputsCandidate {
 inline std::optional<ModelWarpDrawInputsCandidate> prepareModelWarpDrawInputsCandidate(
     const ModelRenderMaterialCandidate& material, float alpha, bool warpAvailable, bool normalAvailable,
     bool exponentAvailable, const std::array<std::array<float, 3>, 6>& cube,
-    const SourceSkyLightCandidate& sky, bool skyVisible, const std::array<float, 3>& camera) {
+    const SourceSkyLightCandidate& sky, bool skyVisible, const std::array<float, 3>& camera,
+    float exposure = 1.f) {
     if (alpha != 1 || material.translucent || material.alphaCutoff || material.selfIllum.enabled ||
         !warpAvailable) return {};
 
@@ -38,10 +39,22 @@ inline std::optional<ModelWarpDrawInputsCandidate> prepareModelWarpDrawInputsCan
         result.phong[7] = exponent;
         std::copy_n(controls.rim.begin(), 2, result.phong.begin() + 8);
     }
+    if (!std::isfinite(exposure) || exposure <= 0.f)
+        throw std::runtime_error("invalid model lightwarp exposure");
+    // The current lightwarp shaders are homogeneous in ambient and sky RGB.
+    // Scaling those inputs gives exposed linear RGB while preserving the push
+    // constant layout, sky direction, material controls and output alpha.
+    auto expose = [exposure](float energy) {
+        if (exposure == 1.f) return energy;
+        const float value = energy * exposure;
+        if (!std::isfinite(value)) throw std::runtime_error("model lightwarp exposure overflow");
+        return value;
+    };
     for (size_t face = 0; face < cube.size(); ++face) {
-        std::copy(cube[face].begin(), cube[face].end(), result.light.begin() + 4 * face);
+        for (size_t channel = 0; channel < cube[face].size(); ++channel)
+            result.light[4 * face + channel] = expose(cube[face][channel]);
         result.light[4 * face + 3] = face < 3 ? sky.towardLight[face]
-            : (skyVisible ? sky.intensity[face - 3] : 0.f);
+            : (skyVisible ? expose(sky.intensity[face - 3]) : 0.f);
     }
     return result;
 }

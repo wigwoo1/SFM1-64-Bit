@@ -1,5 +1,6 @@
 #define SFM64_EDITOR_HDR2_PROFILE_ENTRY baseHdr2ProfileFixtureMain
 #include "test_editor_hdr2_profile.cpp"
+#include "model_warp_draw_inputs_candidate.h"
 #include "session_timeline_document_candidate.h"
 #include <limits>
 
@@ -36,9 +37,42 @@ static void exposureAnimate(Graph& g){
  }
  exposurePut(g,clip,"channels",15,std::move(channels));
 }
+static void checkModelExposure(){
+ ModelRenderMaterialCandidate material{};
+ material.lightwarpInputs.scalarSkyPhong=ScalarSkyPhongCandidate{{4.f,2.f},{2.f,1.f,5.f,1.f},true};
+ material.lightwarpInputs.phongExponentControl=0.f;
+ std::array<std::array<float,3>,6> cube{};
+ for(size_t face=0;face<cube.size();++face)cube[face]={float(face)/4.f,.25f,-.125f};
+ const SourceSkyLightCandidate sky{{2.f,.5f,.125f},{.25f,-.5f,.75f}};
+ const std::array<float,3> eye{2.f,4.f,8.f};
+ auto prepare=[&](bool normal,bool exponent,bool visible,float scale){
+  return prepareModelWarpDrawInputsCandidate(material,1.f,true,normal,exponent,cube,sky,visible,eye,scale);
+ };
+ for(auto route:{ModelWarpDrawRouteCandidate::Diffuse,ModelWarpDrawRouteCandidate::Normal,ModelWarpDrawRouteCandidate::Exponent}){
+  const bool normal=route==ModelWarpDrawRouteCandidate::Normal;
+  const bool exponent=route==ModelWarpDrawRouteCandidate::Exponent;
+  const auto baseline=prepare(normal,exponent,true,1.f);
+  check(baseline&&baseline->route==route,"model exposure route");
+  for(float scale:{.5f,2.f,8.f}){
+   const auto changed=prepare(normal,exponent,true,scale);
+   check(changed&&changed->route==route&&changed->phong==baseline->phong,"exposure changed route or Phong controls");
+   for(size_t index=0;index<changed->light.size();++index){
+    const bool direction=index%4==3&&index<12;
+    check(changed->light[index]==baseline->light[index]*(direction?1.f:scale),"model exposure value or sky direction");
+   }
+  }
+  const auto occluded=prepare(normal,exponent,false,.5f);
+  check(occluded&&occluded->light[15]==0.f&&occluded->light[19]==0.f&&occluded->light[23]==0.f,"exposed hidden sky");
+ }
+ for(float invalid:{0.f,-1.f,std::numeric_limits<float>::infinity(),std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::max()})
+  refuses([&]{prepare(true,false,true,invalid);},"invalid model exposure admitted");
+ check(!prepareModelWarpDrawInputsCandidate(material,.5f,true,true,false,cube,sky,true,eye,2.f),"exposure admitted a translucent model draw");
+ std::cout<<"PASS model_lightwarp_exposure routes=3 invalid=5\n";
+}
 int main(int argc,char** argv){try{
  check(argc==3||argc==4,"fresh fixture directory, generated VTF and optional disposable benchmark copy");
  check(baseHdr2ProfileFixtureMain(3,argv)==0,"existing explicit-profile regression");
+ checkModelExposure();
  const std::filesystem::path root=argv[1];auto g=profileGraph("owned");const auto saved=g;
  auto initial=readSessionExposureCandidate(g,0,2);check(initial.product==1&&!initial.sessionAttribute&&!initial.cameraAttribute,"missing exposure defaults");
  exposurePut(g,7,"toneMapScale",3,{exposureFloat(.5f)});exposurePut(g,2,"toneMapScale",3,{exposureFloat(2)});

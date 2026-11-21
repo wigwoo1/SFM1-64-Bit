@@ -8,7 +8,7 @@
 inline std::shared_ptr<const SceneHdr2ProfileCandidate> editorHdr2ProfileCandidate;
 inline std::string editorHdr2SummaryCandidate(const SceneHdr2PreparedFrameCandidate& frame){
     size_t fallback=0;for(const auto* list:{&frame.plan()->opaque,&frame.plan()->translucent})for(const auto& batch:*list)fallback+=batch.faceResource==SIZE_MAX;
-    return "Experimental HDR2: "+std::to_string(frame.plan()->faces.size())+" lit faces, "+std::to_string(fallback)+" fallback batches. "+(frame.profile()->usesSessionExposure()?"Session/camera exposure on admitted lightmaps only. ":"")+"Source appearance unverified.";
+    return "Experimental HDR2: "+std::to_string(frame.plan()->faces.size())+" lit faces, "+std::to_string(fallback)+" fallback batches. "+(frame.profile()->usesSessionExposure()?"Session/camera exposure on admitted lightmaps and model lightwarp draws. ":"")+"Source appearance unverified.";
 }
 // Explicit experimental startup policy, never stored in the session or inferred
 // from native CVars. All fields are mandatory in the documented fixed order.
