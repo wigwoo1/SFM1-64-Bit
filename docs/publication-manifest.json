@@ -26,7 +26,7 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "2ce0e8946c7482421e5c8524e8d502af0d438ac075e6c26c760956c82ac44da5",
+      "sha256": "56a78892693c0f8346e2e2851442a8ce888967caf274d26cc3b019a43ccd4262",
       "size": 57911
     },
     "docs/publication-policy.json": {
@@ -34,12 +34,12 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "1dc7b6ce7502772c31281e89d18da97170ffbac1e3223d6515a016021f8e4561",
-      "size": 165
+      "sha256": "cb070fa380839256ef627d5a0d4cee19b540552baf79f99c7593bb9ab24ac9b3",
+      "size": 351
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "175c591109ef649dbaf302b893add4e0fcdae586eed64ea74d9ab91056a0d652",
-      "size": 1146780
+      "sha256": "a1887278903146066913a7438106f7cea4ec5a3c61431767c3c251c72c069349",
+      "size": 1147106
     },
     "publication/README.md": {
       "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
@@ -12474,8 +12474,8 @@
       "size": 18638
     },
     "work/prepared_session_scene_candidate.h": {
-      "sha256": "4dba599c2f8367d8c09b241df9b6d485545aeaeafb1d56bda58cc200cb0e2318",
-      "size": 5633
+      "sha256": "a1ebf63bd78124fd2b6139ddec9585d16a722ea6a17255411e5387279f5150d8",
+      "size": 5799
     },
     "work/preserve_flex_scan_reference.py": {
       "sha256": "1eeffd5f7a7a91cc23f6f68c863a9fe41282864b924238f042b87f91272505d4",
@@ -17350,8 +17350,8 @@
       "size": 3065
     },
     "work/retained_session_scene_candidate.h": {
-      "sha256": "f2871845a5d29739b7e86507d1ba138c3fc928c99b2f4e528203f97f673f3474",
-      "size": 20347
+      "sha256": "ac4b2191e0e3cc8f716b1171a07cd9ba735727575b6d7b082f121cf1c46baafa",
+      "size": 20426
     },
     "work/retained_shader_constants_candidate.h": {
       "sha256": "70e1899f36e039715b62e09133a5f65b665e62f898e4460c050968c5f8663912",
@@ -18544,6 +18544,10 @@
     "work/source_physics_triangle_simplex_candidate.h": {
       "sha256": "5b894afb47e9c8f8093707918e03b1cca25674574f8347fef460fe69d102bb85",
       "size": 2827
+    },
+    "work/source_pixel_local_lights_candidate.h": {
+      "sha256": "1390d3901eda16d4558450d35cc6ad4fb1fac14615bb016a67dcdb31cf72c81f",
+      "size": 1615
     },
     "work/source_plain_lightmap_sampling_candidate.h": {
       "sha256": "2146c1fd4c088683b204e0b599c033d2cbc8b5f43d2575a0feb7e5f1adc22e46",
@@ -23570,8 +23574,8 @@
       "size": 3951
     },
     "work/test_source_inline_number.cpp": {
-      "sha256": "5a924d4cc41a176893d23d693bc0b0e45f6249b13fc2c4a1c751b3f47ba89b0a",
-      "size": 5889
+      "sha256": "36df15af0dbea758716043aa14cb5e68fa7f8dfb6c2c71aa97b4519dd5076863",
+      "size": 5938
     },
     "work/test_source_light_cache_position.cpp": {
       "sha256": "02f563f5f591d374e669f34dc55f44b60286dd51b0124cb6fa6897f09a194a5d",

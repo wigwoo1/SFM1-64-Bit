@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-11-21T07:46:05.009912+00:00",
-  "executable_sha256": "feb9f7c16623d74bc60f8c9f1801250472807d9cdb87cda4d900c257df6eda6c",
+  "compiled_utc": "2026-11-21T12:48:00.581161+00:00",
+  "executable_sha256": "6e060b30c81edf514a4c19fc8916555e869c8852adc6a8ab6bfe660d1d0ab4d9",
   "editor_source_dependencies": {
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
     "work/animation_keys.h": "0ba29f76618039904fb15c9ea4ddf86ac3c8f9ec28d9efc9d6de25900d4542cb",
@@ -177,7 +177,7 @@
     "work/parameterized_curve_parameters.h": "2199a1afa80caff1feec846932a0cc4e3d29cd90c74365b78c556c23aa6a5b54",
     "work/prepared_scene_gpu_bridge_candidate.h": "0d660e35ff4deacc09698d4094a3b264820cda958822ac84e1edc27475fa62b2",
     "work/prepared_session_expression_chain_pass.h": "dc788d17eed427a77619abeb4abb2c51ec39d69e81abe62699a8fd1bc4f5f9ff",
-    "work/prepared_session_scene_candidate.h": "4dba599c2f8367d8c09b241df9b6d485545aeaeafb1d56bda58cc200cb0e2318",
+    "work/prepared_session_scene_candidate.h": "a1ebf63bd78124fd2b6139ddec9585d16a722ea6a17255411e5387279f5150d8",
     "work/private_expression_chain_sample.h": "4370ba610afe6335baa305d5de5a205246f61acfb8ddb288475cf708a5f13a1b",
     "work/probe_vulkan_win32_surface_x64.cpp": "98b99e894e304c1e5d4b547ed7c9fbc439a9c32bec883d7aba8be85d2f47fde9",
     "work/projected_light_prepared_fields_candidate.h": "36ecb54355b667cb8f30bc725f726602cb5bf8ab61397ebdf54528e00b335f4d",
@@ -209,7 +209,7 @@
     "work/retained_obj_scene_candidate.h": "1584ea011c9c1d7c3e0bc011b3c8f2d4f1abe7717ded07b9d9cbb3fbb69dfd50",
     "work/retained_preparation_worker_candidate.h": "69e0f80b1f80305d98d27943987da685671d6c77ff2fc6f8585180313ee19444",
     "work/retained_scene_material_gpu_cache_candidate.h": "5f91ffab099e4d2c7516bd12fece1071fa2790bb23963c9f0d129086a5a63296",
-    "work/retained_session_scene_candidate.h": "f2871845a5d29739b7e86507d1ba138c3fc928c99b2f4e528203f97f673f3474",
+    "work/retained_session_scene_candidate.h": "ac4b2191e0e3cc8f716b1171a07cd9ba735727575b6d7b082f121cf1c46baafa",
     "work/retained_shot_timeline_candidate.h": "9b8ec36b382e77219e797075acccb3031c1426db68214cdf4542e35a3f3d7021",
     "work/retained_source_bsp_world_candidate.h": "b9d74714a0bfb4fd3d85dfde39853a5dc77b2f4b5b49d119ca2f80d6fefba646",
     "work/retained_static_flex_provider_candidate.h": "47a3a2f3a2cae6505f0fcd5ffa59dfd86b8aa84019320328f90467ac5bfd9b15",

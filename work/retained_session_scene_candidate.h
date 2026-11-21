@@ -200,7 +200,8 @@ class RetainedSessionSceneCandidate {
     if(namedAttribute(timeline_.graph(),timeline_.graph().elements.at(it->id),"effects"))
      throw std::runtime_error("unavailable inline model effects fallback unsupported: "+name);
     missing.push_back({it->id,name,error.index,error.count});admitted=false;
-    std::cout<<"unavailable_inline_model="<<name<<" element="<<it->id<<" draw_omitted=1 document_preserved=1\n";
+    std::cout<<"unavailable_inline_model="<<name<<" element="<<it->id<<" draw_omitted=1 document_preserved=1"
+     <<" requested_index="<<error.index<<" bsp_model_count="<<error.count<<"\n";
    }
    if(admitted){if(keep!=it)*keep=std::move(*it);++keep;}
   }

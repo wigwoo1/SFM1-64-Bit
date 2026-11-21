@@ -37,7 +37,7 @@ int main(int argc,char**argv){try{
    owner.replaceSession(graph("*3"),0);auto absent=owner.sample(0,64,32);
    check(absent.missingModels.size()==1&&absent.missingModels[0].id==8&&absent.missingModels[0].asset=="*3"&&absent.missingModels[0].requestedIndex==3&&absent.missingModels[0].modelCount==3,"missing-inline diagnostic identity");
    check(absent.materialInputs.size()==1&&absent.upload.bspLightmaps[0].model==0&&modelVertices(absent,0)==(hdr?11u:9u),"missing inline drew substitute geometry");
-   check(sceneMissingAssetSummaryCandidate(absent.missingAssets,absent.missingModels).find("*3")!=std::string::npos,"missing inline not reported in UI summary");
+   check(sceneMissingAssetSummaryCandidate(absent.missingAssets,absent.missingModels)=="Unavailable map models: 1 | *3 (model index 3 outside 3 BSP records)","missing inline reason not reported in UI summary");
    const std::vector<SceneMissingAssetDiagnosticCandidate> textures{{"test",{}, {"missing.vtf"}}};auto summary=sceneMissingAssetSummaryCandidate(textures,absent.missingModels);
    check(summary.find("*3")!=std::string::npos&&summary.find("missing.vtf")!=std::string::npos,"model diagnostic hid texture diagnostic");
    auto effects=graph("*3");effects.strings.push_back("effects");effects.elements[8].attributes.push_back({uint32_t(effects.strings.size()-1),15,{}});owner.replaceSession(effects,0);

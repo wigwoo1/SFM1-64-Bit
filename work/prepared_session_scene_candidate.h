@@ -11,7 +11,12 @@ struct ScenePreparationProfileCandidate {double evaluation=0,poses=0,geometry=0,
 struct SceneMissingAssetDiagnosticCandidate {std::string modelAsset;std::filesystem::path vmt;std::vector<std::string>references;};
 struct SceneUnavailableModelDiagnosticCandidate {uint32_t id;std::string asset;size_t requestedIndex,modelCount;};
 inline std::string sceneMissingAssetSummaryCandidate(const std::vector<SceneMissingAssetDiagnosticCandidate>&diagnostics,const std::vector<SceneUnavailableModelDiagnosticCandidate>&models={}){
- const auto unavailable=models.empty()?std::string{}:"Unavailable models: "+std::to_string(models.size())+" | "+models.front().asset;
+ std::string unavailable;
+ if(!models.empty()){
+  const auto&first=models.front();
+  unavailable="Unavailable map models: "+std::to_string(models.size())+" | "+first.asset+
+   " (model index "+std::to_string(first.requestedIndex)+" outside "+std::to_string(first.modelCount)+" BSP records)";
+ }
  size_t references=0;for(const auto&entry:diagnostics)references+=entry.references.size();if(!references)return unavailable;
  const auto&first=diagnostics.front();auto textures="Missing texture assets: "+std::to_string(references)+" | "+first.references.front();return unavailable.empty()?textures:unavailable+" | "+textures;
 }
