@@ -15,23 +15,46 @@ int32_t wireInt(const Value&v){auto bits=wireU32(v);int32_t n;std::memcpy(&n,&bi
 float wireFloat(const Value&v,size_t component=0){auto bits=wireU32(v,component);float n;std::memcpy(&n,&bits,4);return n;}
 void setWireU32(Value&v,uint32_t bits,size_t component=0){size_t o=component*4;if(o>v.wire.size()||v.wire.size()-o<4)throw std::runtime_error("missing numeric component");for(unsigned i=0;i<4;++i)v.wire[o+i]=static_cast<char>(bits>>(8*i));}
 void setFloat(Attribute&a,size_t value,float n,size_t component=0){unsigned type=a.type>=15?a.type-14:a.type;if(type!=3&&(type<9||type>14))throw std::runtime_error("not float typed");uint32_t bits;std::memcpy(&bits,&n,4);setWireU32(a.values.at(value),bits,component);}
-Graph loadGraph(const char* path){
- Reader r(path);auto h=r.cstr();if(h!="<!-- dmx encoding binary 5 format sfm_session 20 -->\n"&&h!="<!-- dmx encoding binary 5 format sfm_session 20 -->")throw std::runtime_error("unsupported header");
- Graph g;g.header=h;auto ns=r.count();g.strings.reserve(ns);for(uint32_t i=0;i<ns;++i)g.strings.push_back(r.cstr());
- auto ne=r.count();g.elements.reserve(ne);
- auto index=[&](){auto n=r.u32();if(n>=ns)throw std::runtime_error("invalid string index");return n;};
- for(uint32_t i=0;i<ne;++i){Element e;e.type=index();e.name=index();r.bytes(e.id.data(),16);g.elements.push_back(std::move(e));}
- for(auto&e:g.elements){auto na=r.count();e.attributes.reserve(na);for(uint32_t j=0;j<na;++j){
+// Callers admit the header before reading the common binary graph. Older PCFs
+// store element names and scalar strings inline and use narrower dictionaries.
+Graph readBinaryDmxGraphBody(Reader& r,std::string header,unsigned version,bool checkTableExtents=false){
+ const auto checkExtent=[&](uint32_t count,unsigned minimumWidth){
+  if(!checkTableExtents)return;
+  const auto position=static_cast<uint64_t>(r.f.tellg());
+  if(position>r.size||uint64_t(count)*minimumWidth>r.size-position)
+   throw std::runtime_error("truncated DMX table");
+ };
+ Graph g;g.header=std::move(header);
+ const uint32_t ns=version<4?r.u16():r.count();
+ checkExtent(ns,1);
+ g.strings.reserve(ns);for(uint32_t i=0;i<ns;++i)g.strings.push_back(r.cstr());
+ auto inlineStringIndex=[&](){
+  const auto index=static_cast<uint32_t>(g.strings.size());
+  g.strings.push_back(r.cstr());
+  return index;
+ };
+ auto ne=r.count();checkExtent(ne,19);g.elements.reserve(ne);
+ auto index=[&](){const uint32_t n=version<5?r.u16():r.u32();if(n>=ns)throw std::runtime_error("invalid string index");return n;};
+ for(uint32_t i=0;i<ne;++i){Element e;e.type=index();e.name=version<4?inlineStringIndex():index();r.bytes(e.id.data(),16);g.elements.push_back(std::move(e));}
+ for(auto&e:g.elements){auto na=r.count();checkExtent(na,4);e.attributes.reserve(na);for(uint32_t j=0;j<na;++j){
   Attribute a;a.name=index();a.type=r.u8();bool array=a.type>=15;unsigned scalar=array?a.type-14:a.type;
-  if(scalar<1||scalar>14)throw std::runtime_error("unsupported type");auto n=array?r.count():1;a.values.reserve(n);
+  if(scalar<1||scalar>14)throw std::runtime_error("unsupported type");
+  static constexpr unsigned widths[]={0,0,4,4,1,0,0,4,4,8,12,16,12,16,64};
+  const auto fixedWidth=version==2&&scalar==7?16u:widths[scalar];
+  const auto minimumWidth=scalar==1||scalar==6?4u:scalar==5?(array||version<4?1u:2u):fixedWidth;
+  const auto n=array?r.count():1u;checkExtent(n,minimumWidth);a.values.reserve(n);
   for(uint32_t k=0;k<n;++k){Value v;
    if(scalar==1){v.reference=r.u32();if(v.reference==0xfffffffe)v.text=r.cstr();else if(v.reference!=0xffffffff&&v.reference>=ne)throw std::runtime_error("bad reference");}
-   else if(scalar==5){if(array)v.text=r.cstr();else {v.stringIndex=index();v.text=g.strings[v.stringIndex];}}
-   else {static const unsigned widths[]={0,0,4,4,1,0,0,4,4,8,12,16,12,16,64};auto bytes=scalar==6?r.blobCount():widths[scalar];v.wire.resize(bytes);if(bytes)r.bytes(v.wire.data(),bytes);}
+   else if(scalar==5){if(array)v.text=r.cstr();else {v.stringIndex=version<4?inlineStringIndex():index();v.text=g.strings[v.stringIndex];}}
+   else {auto bytes=scalar==6?r.blobCount():fixedWidth;v.wire.resize(bytes);if(bytes)r.bytes(v.wire.data(),bytes);}
    a.values.push_back(std::move(v));
   }e.attributes.push_back(std::move(a));
  }}
  if(static_cast<uint64_t>(r.f.tellg())!=r.size)throw std::runtime_error("trailing data");return g;
+}
+Graph loadGraph(const char* path){
+ Reader r(path);auto h=r.cstr();if(h!="<!-- dmx encoding binary 5 format sfm_session 20 -->\n"&&h!="<!-- dmx encoding binary 5 format sfm_session 20 -->")throw std::runtime_error("unsupported header");
+ return readBinaryDmxGraphBody(r,std::move(h),5);
 }
 uint32_t internString(Graph&g,const std::string&s){
  if(s.find('\0')!=std::string::npos)throw std::runtime_error("embedded NUL string");

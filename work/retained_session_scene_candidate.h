@@ -6,6 +6,8 @@
 #include "recovered_frame_ticks_candidate.h"
 #include "source_render_shutter_schedule_candidate.h"
 #include "session_progressive_refinement_candidate.h"
+#include "session_particle_start_candidate.h"
+#include "source_particle_control_point_mask_candidate.h"
 #include "read_binary_asset_candidate.h"
 #include "source_bsp_inline_brush_candidate.h"
 #include "source_bsp_inline_model_name_candidate.h"
@@ -34,6 +36,12 @@ struct RetainedShutterScheduleCandidate {
 class RetainedSessionSceneCandidate {
  RetainedShotTimelineCandidate timeline_;
  std::vector<std::filesystem::path>mounts_;
+ std::unique_ptr<const SourceParticleCatalogCandidate> particleCatalog_;
+ SessionParticleSimulationKeysCandidate particleKeys_;
+ SessionParticleSimulationKeysCandidate particleEmissionKeys_;
+ std::unique_ptr<SessionParticleControlPointBindingsCandidate> particlePointBindings_;
+ bool traceParticleBirths_=false;
+ uint32_t particleKeysShot_=UINT32_MAX;
  using AssetKey=std::pair<std::string,std::filesystem::path>;
  std::map<AssetKey,SfmModelGeometryCandidate>assets_;
  GeometryDeformationWorkerPoolCandidate workers_;
@@ -228,6 +236,17 @@ public:
  void addSceneDecorationCandidate(SceneGeometryDecorationCandidate decoration){auto previous=decoration_;decoration_=[previous,decoration](const auto& graph,const auto& scene,const auto& geometry,const auto& asset,auto& prepared){if(previous)previous(graph,scene,geometry,asset,prepared);decoration(graph,scene,geometry,asset,prepared);};}
  void setModelDeformationCandidate(RetainedModelDeformationCandidate provider){deformation_=std::move(provider);borrowed_={};}
  void setBorrowedDeformationCandidate(RetainedBorrowedDeformationCandidate provider){borrowed_=std::move(provider);deformation_={};}
+ void loadParticleDefinitions(bool traceBirths=false){
+  traceParticleBirths_=traceBirths;
+  if(particleCatalog_)return;
+  try{
+   particleCatalog_=std::make_unique<const SourceParticleCatalogCandidate>(mounts_);
+   std::cout<<"particle_catalog loaded="<<particleCatalog_->loaded()<<" missing="
+            <<particleCatalog_->missing()<<" unreadable="<<particleCatalog_->unreadable()<<'\n';
+  }catch(const std::runtime_error& error){
+   std::cout<<"particle_catalog unavailable: "<<error.what()<<'\n';
+  }
+ }
  RetainedSessionSceneCandidate(Graph graph,uint32_t root,std::vector<std::filesystem::path>mounts,size_t geometryWorkers=4,bool allowScale=false,bool allowNameMapping=false,std::shared_ptr<const SceneHdr2ProfileCandidate>hdr2Profile={}):timeline_(std::move(graph),root),mounts_(std::move(mounts)),workers_(geometryWorkers),materials_(mounts_,2,[this](const std::string&name)->const SfmModelGeometryCandidate&{return asset(name);},[this](const std::string&name){return name.size()>1&&name[0]=='*'?inlineMapPath():std::filesystem::path{};},bool(hdr2Profile)),hdr2Profile_(std::move(hdr2Profile)),world_(mounts_,hdr2Profile_?hdr2Profile_->dataset():SourceBspLightmapSelectionCandidate::LegacyPreview),allowScale_(allowScale),allowNameMapping_(allowNameMapping){}
  RetainedSessionSceneCandidate(const RetainedSessionSceneCandidate&)=delete;
  RetainedSessionSceneCandidate&operator=(const RetainedSessionSceneCandidate&)=delete;
@@ -236,6 +255,10 @@ public:
  void replaceSession(Graph graph,uint32_t root){
   static_assert(std::is_nothrow_move_assignable<RetainedShotTimelineCandidate>::value,"timeline commit must not throw");
   RetainedShotTimelineCandidate next(std::move(graph),root);timeline_=std::move(next);
+  particleKeys_.clear();
+  particleEmissionKeys_.clear();
+  particlePointBindings_.reset();
+  particleKeysShot_=UINT32_MAX;
  }
  RetainedShutterScheduleCandidate shutterSchedule(int32_t outputTick,uint32_t explicitCount,
      const std::vector<SessionCameraSamplePointsCandidate>& suppliedPoints){
@@ -287,6 +310,82 @@ public:
  }
 private:
  PreparedSessionSceneCandidate samplePrepared(int32_t outputTick,int32_t tick,uint32_t width,uint32_t height,const SessionCameraSamplePointsCandidate* cameraSamples=nullptr){auto start=std::chrono::steady_clock::now();auto step=evaluateLiveShutterSampleCandidate(timeline_,outputTick,tick,width,height,scalarWorkers_,vectorWorkers_,expressionWorkers_,cameraSamples);auto evaluated=std::chrono::steady_clock::now();auto unavailableModels=admitInlineModels(step.scene);auto admittedAt=std::chrono::steady_clock::now();if(expressionWorkers_)std::cout<<"scene_private_expression_jobs="<<step.evaluation.privateExpressionJobs<<"\n";SceneModelDeformationCandidate deform;if(deformation_)deform=[this](const SessionRenderModelCandidate&instance,const SfmModelGeometryCandidate&model){return deformation_(timeline_.graph(),instance,model);};SceneBorrowedDeformationCandidate borrowed;if(borrowed_)borrowed=[this](const SessionRenderModelCandidate&instance,const SfmModelGeometryCandidate&model)->const VvdGeometryCandidate&{return borrowed_(timeline_.graph(),instance,model);};auto decorate=[this](const Graph&graph,const SessionRenderSceneCandidate&scene,const std::vector<SceneGeometryModelCandidate>&geometry,const auto&assetLoader,PreparedSessionSceneCandidate&prepared){world_.append(graph,timeline_.renderRoot(),prepared);if(hdr2Profile_)prepareModelLightingInputs(graph,scene,geometry,prepared);if(decoration_)decoration_(graph,scene,geometry,assetLoader,prepared);};auto result=prepareSessionSceneCandidate(timeline_.graph(),step.scene,[this](const std::string&name)->const SfmModelGeometryCandidate&{return asset(name);},materials_,workers_,mounts_,allowScale_,allowNameMapping_,deform,borrowed,decorate);result.profile.evaluation=std::chrono::duration<double,std::milli>(evaluated-start).count();result.profile.poses+=std::chrono::duration<double,std::milli>(admittedAt-evaluated).count();result.missingModels=std::move(unavailableModels);result.shotLocalTick=step.evaluation.shot.localTick;
+  if(particleCatalog_){
+   if(particleKeysShot_!=result.shot){
+    particleKeys_.clear();
+    particleEmissionKeys_.clear();
+    particlePointBindings_.reset();
+    std::vector<uint32_t> particleIds;
+    for(const auto& particle:result.gameParticles)particleIds.push_back(particle.id);
+    try{
+     if(!particleIds.empty())
+      particleKeys_=readSessionParticleSimulationKeysCandidate(timeline_.savedGraph(),result.shot,particleIds);
+    }catch(const std::runtime_error& error){
+     std::cout<<"particle startup keys unavailable: "<<error.what()<<'\n';
+    }
+    if(traceParticleBirths_&&!particleIds.empty()){
+     try{
+      particleEmissionKeys_=readSessionParticleSimulationKeysCandidate(
+          timeline_.savedGraph(),result.shot,particleIds,"emitting");
+     }catch(const std::runtime_error& error){
+      std::cout<<"particle emission keys unavailable: "<<error.what()<<'\n';
+     }
+    }
+    try{
+     if(!particleIds.empty()){
+      const auto& saved=timeline_.savedGraph();
+      const auto root=hierarchySingleReference(saved,saved.elements.at(result.shot),"scene");
+      particlePointBindings_=std::make_unique<SessionParticleControlPointBindingsCandidate>(
+          saved,result.shot,root,particleIds);
+     }
+    }catch(const std::runtime_error& error){
+     std::cout<<"particle control-point bindings unavailable: "<<error.what()<<'\n';
+    }
+    particleKeysShot_=result.shot;
+   }
+   result.particleDefinitions.reserve(result.gameParticles.size());
+   const auto& graph=timeline_.graph();
+   std::optional<GraphTransformHierarchy> pointHierarchy;
+   for(const auto& particle:result.gameParticles){
+    auto binding=bindSessionParticleDefinitionCandidate(graph,particle.id,*particleCatalog_);
+    using State=SessionParticleDefinitionCandidate::State;
+    if((binding.state==State::Loaded||binding.state==State::Embedded)&&std::isfinite(binding.timeScale))
+     binding.startupAtSample=sessionParticleStartupCandidate(
+         particleKeys_,particle.id,result.shotLocalTick,binding.timeScale);
+    if(particlePointBindings_&&(binding.state==State::Loaded||binding.state==State::Embedded)){
+     try{
+      const auto& definitionGraph=binding.config?binding.config->graph:graph;
+      binding.controlPointBypassMask=sourceParticleControlPointMaskCandidate(definitionGraph,binding.definition);
+      if(binding.controlPointBypassMask){
+       if(!pointHierarchy)pointHierarchy.emplace(
+           graph,hierarchySingleReference(graph,graph.elements.at(result.shot),"scene"));
+       const auto startupTick=binding.startupAtSample?
+           std::optional<int32_t>(binding.startupAtSample->cursor):std::nullopt;
+       binding.controlPoints=particlePointBindings_->sample(
+           *pointHierarchy,particle.id,*binding.controlPointBypassMask,result.shotLocalTick,startupTick);
+       if(traceParticleBirths_&&binding.startupAtSample&&!binding.controlPoints.empty()){
+        const auto simulation=particleKeys_.find(particle.id);
+        const auto emission=particleEmissionKeys_.find(particle.id);
+        if(simulation!=particleKeys_.end()&&emission!=particleEmissionKeys_.end()){
+         binding.birthReplay=replaySessionParticleBirthsCandidate(definitionGraph,binding.definition,
+             *binding.startupAtSample,result.shotLocalTick,binding.timeScale,simulation->second,emission->second);
+         for(auto& birth:binding.birthReplay){
+          if(birth.delivered==0)continue;
+          const auto points=particlePointBindings_->sample(
+              *pointHierarchy,particle.id,*binding.controlPointBypassMask,birth.lastControlTick,std::nullopt);
+          const auto cp=std::find_if(points.begin(),points.end(),[](const auto& p){return p.index==0;});
+          if(cp!=points.end())birth.emitterPosition=cp->current.position;
+         }
+        }
+       }
+      }
+     }catch(const std::runtime_error& error){
+      std::cout<<"particle control-point sample unavailable for "<<particle.id<<": "<<error.what()<<'\n';
+     }
+    }
+    result.particleDefinitions.push_back(std::move(binding));
+   }
+  }
   if(hdr2Profile_){
    if(hdr2Profile_->usesSessionExposure())result.sessionExposure=readSessionExposureCandidate(timeline_.graph(),timeline_.renderRoot(),step.scene.camera);
    result.hdr2=SceneHdr2PreparedFrameCandidate::prepare(result,hdr2Profile_);

@@ -1,5 +1,6 @@
 // Reconstructed binary-v5 string/element-table reader, not a full DMX loader.
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -8,11 +9,12 @@
 #include <vector>
 struct Reader {
  std::ifstream f; uint64_t size;
- explicit Reader(const char* path):f(path,std::ios::binary) {
+ explicit Reader(const std::filesystem::path& path):f(path,std::ios::binary) {
   if(!f) throw std::runtime_error("open failed");
   f.seekg(0,std::ios::end);size=static_cast<uint64_t>(f.tellg());f.seekg(0);
  }
  void bytes(char* p,size_t n){if(!f.read(p,n))throw std::runtime_error("truncated input");}
+ uint16_t u16(){unsigned char b[2];bytes(reinterpret_cast<char*>(b),2);return static_cast<uint16_t>(unsigned(b[0])|(unsigned(b[1])<<8));}
  uint32_t u32(){unsigned char b[4];bytes(reinterpret_cast<char*>(b),4);return uint32_t(b[0])|(uint32_t(b[1])<<8)|(uint32_t(b[2])<<16)|(uint32_t(b[3])<<24);}
  std::string cstr(){std::string s;char c;while(true){bytes(&c,1);if(!c)return s;if(s.size()>=1048576)throw std::runtime_error("string too long");s+=c;}}
  uint32_t count(){auto n=u32();if(n>size||n>10000000)throw std::runtime_error("invalid count");return n;}

@@ -26,20 +26,20 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "5d5f2cda7eee0d63405b2d05d3d698efe7d335564312feeecb9c8a2f0b4fa6f4",
-      "size": 61157
+      "sha256": "1dccb406ca053775593efed9e6c717e976ff32669778ba75835f24d431d2f590",
+      "size": 62681
     },
     "docs/publication-policy.json": {
       "sha256": "a972ec573f886d9faf5fcd9a21285a93333464226f47c7312e502f0ca22d1734",
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "4e4f2b3d183a4ecf7927c9ae1557147a9794c003c644b5c037d766cb9d24fc2c",
-      "size": 706
+      "sha256": "f2c37dc49191837a313576bf36ef4da6b6876c7a96c91bf94b5f5a080adf599b",
+      "size": 845
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "6e6cfa26efc11ee6691792c3a090a01fd4a1fb3e3e6b4d46aad0a023a64dd4b7",
-      "size": 1200987
+      "sha256": "00e83fbfc63f8a7900ba974f28683161497b40b8e0c974c541b6550de9c2a563",
+      "size": 1234685
     },
     "publication/README.md": {
       "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
@@ -134,8 +134,8 @@
       "size": 2874
     },
     "work/animation_time_frame.h": {
-      "sha256": "b6c3d3590f2fc1fb8ea23285b2ed0c70f97064cdc4c1a6eb184762456fb95dc1",
-      "size": 1184
+      "sha256": "cf97912d766770aa2bedb5390f8ba7ad53a4c1781dfa4ab692e267dfa2f3ffa9",
+      "size": 1472
     },
     "work/append_runtime_reference.h": {
       "sha256": "6eb2001625f7c104b9d471f2b991dd853bcd0ce694c28b8e1be6f5d7ca3c86ea",
@@ -8158,12 +8158,12 @@
       "size": 1192
     },
     "work/dmx_graph.cpp": {
-      "sha256": "f3d6f65a17cf69c86938ef6322f95332566eb7485fb93f9623f1a1a757ab8064",
-      "size": 7492
+      "sha256": "822fa8d5ecda9dd3526e7e265fa01ef6fad8f0cfb21b6b9eebbc5aa196a97d75",
+      "size": 8654
     },
     "work/dmx_tables.cpp": {
-      "sha256": "0bad58afd20aa41915c442e047feb4c458667b278bdf9cc13b94afc36007a3fe",
-      "size": 3689
+      "sha256": "ce36f6040000b583ab42798f94c540d80bacdc3325edec76dcd737533b7c1afc",
+      "size": 3868
     },
     "work/document_datamodel_scope_candidate.h": {
       "sha256": "668d55e4ca9849067df7c4e6d64b8f33876cda5093596500efce53e173673fcc",
@@ -12478,8 +12478,8 @@
       "size": 18673
     },
     "work/prepared_session_scene_candidate.h": {
-      "sha256": "deebea8e73891a62b7c0cc162a3fdb255b322e6641c0added01916c3f6c666ae",
-      "size": 6069
+      "sha256": "f02f42b77b09c1608d9ddc3c5c5b621c15c9808c5d19b73b57aa55d9b63c6be2",
+      "size": 6192
     },
     "work/preserve_flex_scan_reference.py": {
       "sha256": "1eeffd5f7a7a91cc23f6f68c863a9fe41282864b924238f042b87f91272505d4",
@@ -17354,8 +17354,8 @@
       "size": 3065
     },
     "work/retained_session_scene_candidate.h": {
-      "sha256": "9027d0531499db5f308638f64a11ef9e646c29ab4b84541d02012226c4385d95",
-      "size": 24439
+      "sha256": "d0d66d9da72c3d7ee5845f0c3e8d017cf129d3c09f484efd451351d78938a3f4",
+      "size": 29668
     },
     "work/retained_shader_constants_candidate.h": {
       "sha256": "70e1899f36e039715b62e09133a5f65b665e62f898e4460c050968c5f8663912",
@@ -17857,9 +17857,25 @@
       "sha256": "5028fdd1d3c4eb1361c3b83d7550b1d1af2a94ee739ed096d0970c153b852181",
       "size": 1180
     },
+    "work/session_particle_births_candidate.h": {
+      "sha256": "99f3f226ca04fe9578f0367173617df39203e89098cae56b3326f85925af281e",
+      "size": 7473
+    },
     "work/session_particle_bool_play_candidate.h": {
       "sha256": "61605d449cf17f8063912da94267ec1f936afb449643dad5090b1457d5b5b5d9",
       "size": 2361
+    },
+    "work/session_particle_control_points_candidate.h": {
+      "sha256": "82f3562e0e6604fe4206f7d80ab1f7754fbd3c1313aabe97c8b5ca9eb7ba0016",
+      "size": 7940
+    },
+    "work/session_particle_definition_candidate.h": {
+      "sha256": "b3af09eff1e4dbd0bb18ff3a78ef371745380e9b5f1618a89d0fbd100969333d",
+      "size": 3063
+    },
+    "work/session_particle_start_candidate.h": {
+      "sha256": "910b1f65f78c3d515d2e1211b965e648cab1b7138adce22ff4ec6d4ff8916179",
+      "size": 4545
     },
     "work/session_point_constraint_runtime.h": {
       "sha256": "883e695be79bc9893728aa9536baadc64d30af7eb21fda487fddf6cb8fc06563",
@@ -18333,6 +18349,10 @@
       "sha256": "8558d721c85b5966d2fddc67950b702a698dea63d971de4fc8c4c1bfd65a0db2",
       "size": 538
     },
+    "work/source_continuous_particle_emitter_candidate.h": {
+      "sha256": "5c49e7807eefbe981433fa2ae259a401d9cb4efd7d4b5df8d31d47c7617b3ce8",
+      "size": 3355
+    },
     "work/source_convex_brush_ray_candidate.h": {
       "sha256": "d11d64e2a7fe1ebcb5a3b2ab4ddfbb560c892b48b75cdf8451382914bb9907a7",
       "size": 3520
@@ -18529,9 +18549,25 @@
       "sha256": "5700e8e1f8bb23f1e854512468d77418d7af4bec207468049260b5fc190725e5",
       "size": 1904
     },
+    "work/source_particle_collection_start_candidate.h": {
+      "sha256": "0a721bd7e38a45dc38c5053bba4420e91369b006bdfad396676bb2823812e4c2",
+      "size": 2215
+    },
     "work/source_particle_collection_timing_candidate.h": {
       "sha256": "172b4bff00dd0ae9942947626009cd7a482d14b4ff64aacb8f9eb83657d0fec7",
       "size": 3341
+    },
+    "work/source_particle_control_point_candidate.h": {
+      "sha256": "5431e0b65cd8abeed4d3f1f3837a2345093ce35a8b57414dad2e03d333c9b206",
+      "size": 1062
+    },
+    "work/source_particle_control_point_mask_candidate.h": {
+      "sha256": "1e2609a7d03952142c56481d8550b2de65aed0a065e4ede2164972306b57ca2a",
+      "size": 3364
+    },
+    "work/source_particle_definition_candidate.h": {
+      "sha256": "79faa10b4f4579e0463fd1116f79137e6727eb9db94aead449e356ee56094b98",
+      "size": 7483
     },
     "work/source_phy_aabb_candidate.h": {
       "sha256": "cf6e16305be45bc11eab2bbd2c79200637438dc38fae4d63c78570eab59f7165",
@@ -24414,8 +24450,8 @@
       "size": 3258
     },
     "work/time_scale.h": {
-      "sha256": "43cb4098797dacd0cc1a042ccb98662b15b52c99367e4a3febf680372abfb7b8",
-      "size": 841
+      "sha256": "bf2898c63a594e5312de5b2da020f57cc5dfe3bd611edee703da998970698797",
+      "size": 1043
     },
     "work/time_selection.h": {
       "sha256": "cd4e07ed429dfec04a7e71b180e8f037b06a15d71348f79a84174d35fa79ad5a",
@@ -27518,8 +27554,8 @@
       "size": 20235
     },
     "work/vulkan_model_draw_candidate.h": {
-      "sha256": "aee3806561976cf4e079cf2c835f24dd0f6a1dce9850ff95bc2b3cf311f8fdfa",
-      "size": 141937
+      "sha256": "2da48be046c2f1ea3ee6565b7abc8aa38731b4a91e11f5fbe9731f940469adda",
+      "size": 144654
     },
     "work/vulkan_model_swapchain_probe_candidate.h": {
       "sha256": "32e38492b5df57f245dba3da1158cf5c3e644b3317becd85346157229fc7bd1e",

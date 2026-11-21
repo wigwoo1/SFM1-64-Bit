@@ -1,4 +1,5 @@
 #pragma once
+#include "session_particle_definition_candidate.h"
 #include "scene_geometry_preparation_candidate.h"
 #include "scene_material_draw_inputs_candidate.h"
 #include "scene_gpu_upload_candidate.h"
@@ -50,6 +51,7 @@ struct PreparedSessionSceneCandidate {
  std::optional<SessionCameraAmbientOcclusionCandidate> cameraAmbientOcclusion;
  int32_t shotLocalTick=0;
  std::vector<SessionParticleControlCandidate> gameParticles;
+ std::vector<SessionParticleDefinitionCandidate> particleDefinitions;
 };
 using SceneGeometryDecorationCandidate=std::function<void(const Graph&,const SessionRenderSceneCandidate&,const std::vector<SceneGeometryModelCandidate>&,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&,PreparedSessionSceneCandidate&)>;
 inline PreparedSessionSceneCandidate prepareSessionSceneCandidate(const Graph&graph,const SessionRenderSceneCandidate&scene,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&asset,SceneRenderInputsCacheCandidate&materials,GeometryDeformationWorkerPoolCandidate&workers,const std::vector<std::filesystem::path>&mounts,bool allowScale=false,bool allowNameMapping=false,const SceneModelDeformationCandidate&deform={},const SceneBorrowedDeformationCandidate&borrowed={},const SceneGeometryDecorationCandidate&decorate={}){

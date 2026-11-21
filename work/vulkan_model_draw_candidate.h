@@ -32,6 +32,7 @@
 #include "win32_sfm_editor_shell_candidate.h"
 #include "session_graph_curve_projection_candidate.h"
 #include "session_camera_frustum_guide_candidate.h"
+#include <iomanip>
 #pragma once
 #include "session_timeline_lane_candidate.h"
 #include "model_render_inputs_candidate.h"
@@ -112,6 +113,8 @@ inline void testVulkanModelDrawCandidate(HMODULE library,Handle physical,Handle 
  const bool hasRenderSamples=renderSampling.enabled();
  const bool shutterReadback=enabledDiagnostic("SFM64_DIAGNOSTIC_SHUTTER_SAMPLE_READBACK");
  const bool particleTiming=enabledDiagnostic("SFM64_DIAGNOSTIC_PARTICLE_TIMING");
+ const bool particleBirths=enabledDiagnostic("SFM64_DIAGNOSTIC_PARTICLE_BIRTHS");
+ const bool particleDefinitions=enabledDiagnostic("SFM64_DIAGNOSTIC_PARTICLE_DEFINITIONS")||particleBirths;
  if(shutterReadback&&!animatedShutter)throw std::runtime_error("shutter readback requires animated shutter capture");
  std::vector<SessionCameraSamplePointsCandidate> cameraSamples;
  wchar_t cameraSamplesPath[32768]{};
@@ -160,6 +163,7 @@ inline void testVulkanModelDrawCandidate(HMODULE library,Handle physical,Handle 
     (aoMaskLength&&!aoCameraControls&&(aoMaskLength!=1||aoMaskFlag[0]!='1')))
   throw std::runtime_error("AO readback option must be 1, or camera or shade for mask readback");
  std::optional<uint32_t>explicitSceneRoot;char rootText[32]{};auto rootSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_SCENE_ROOT",rootText,sizeof(rootText));if(rootSize){if(!sceneRequested||rootSize>=sizeof(rootText))throw std::runtime_error("scene root option conflict or length");uint32_t root=0;auto parsed=std::from_chars(rootText,rootText+rootSize,root);if(parsed.ec!=std::errc{}||parsed.ptr!=rootText+rootSize)throw std::runtime_error("scene root invalid");explicitSceneRoot=root;}char blankPolicy[8]{};auto blankSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_TIMELINE_BLANKS",blankPolicy,sizeof(blankPolicy));if(blankSize&&(blankSize!=1||(blankPolicy[0]!='0'&&blankPolicy[0]!='1')))throw std::runtime_error("timeline blank policy invalid");const bool timelineBlanks=blankSize&&blankPolicy[0]=='1';if(timelineBlanks&&!sceneRequested)throw std::runtime_error("timeline blank policy requires scene");char staticFlexText[8]{};auto staticFlexSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_STATIC_FLEX",staticFlexText,sizeof(staticFlexText));if(staticFlexSize&&(staticFlexSize!=1||(staticFlexText[0]!='0'&&staticFlexText[0]!='1')))throw std::runtime_error("static flex option must be 0 or 1");const bool staticFlex=staticFlexSize&&staticFlexText[0]=='1';char softwareFlexText[8]{};auto softwareFlexSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_SOFTWARE_FLEX",softwareFlexText,sizeof(softwareFlexText));if(softwareFlexSize&&(softwareFlexSize!=1||(softwareFlexText[0]!='0'&&softwareFlexText[0]!='1')))throw std::runtime_error("software flex option must be 0 or 1");const bool softwareFlex=softwareFlexSize&&softwareFlexText[0]=='1';if(softwareFlex&&!staticFlex)throw std::runtime_error("software flex requires static flex");if(staticFlex&&!sceneRequested)throw std::runtime_error("static flex requires scene");std::unique_ptr<SessionTimelineDocumentCandidate>editorDocument;std::unique_ptr<RetainedSessionSceneCandidate>frozenSceneOwner;std::unique_ptr<PreparedSessionSceneCandidate>frozenScene;char frozenTickText[32]{};auto frozenTickSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_FROZEN_SCENE_TICK",frozenTickText,sizeof(frozenTickText));if(frozenTickSize){if(frozenTickSize>=sizeof(frozenTickText)||frameProvider.sample||blendMode)throw std::runtime_error("frozen scene conflicts with frame provider or controlled blend");int32_t tick=0;auto parsed=std::from_chars(frozenTickText,frozenTickText+frozenTickSize,tick);if(parsed.ec!=std::errc{}||parsed.ptr!=frozenTickText+frozenTickSize)throw std::runtime_error("frozen scene tick");char sessionPath[32768]{};auto pathSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_FROZEN_SCENE_SESSION",sessionPath,sizeof(sessionPath));if(!pathSize||pathSize>=sizeof(sessionPath))throw std::runtime_error("frozen scene session path");auto sceneGraph=loadGraph(sessionPath);auto sceneRoot=sessionRenderRootCandidate(sceneGraph,explicitSceneRoot);std::cout<<"scene_root_source="<<(explicitSceneRoot?"explicit":"activeClip")<<" root="<<sceneRoot<<"\n";if(selectNextFrame&&timelineBlanks&&!explicitSceneRoot&&GetEnvironmentVariableA("SFM64_DIAGNOSTIC_SESSION_TIMELINE",nullptr,0)){editorDocument=std::make_unique<SessionTimelineDocumentCandidate>(Graph(sceneGraph));playbackSessionPathCandidate=sessionPath;}frozenSceneOwner=std::make_unique<RetainedSessionSceneCandidate>(std::move(sceneGraph),sceneRoot,materialMounts,geometryWorkers,true,true,editorHdr2ProfileCandidate);char expressionWorkerText[32]{};auto expressionWorkerSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_EXPRESSION_WORKERS",expressionWorkerText,sizeof(expressionWorkerText));size_t expressionWorkers=0;if(expressionWorkerSize){if(expressionWorkerSize>=sizeof(expressionWorkerText))throw std::runtime_error("expression worker option length");auto parsedWorkers=std::from_chars(expressionWorkerText,expressionWorkerText+expressionWorkerSize,expressionWorkers);if(parsedWorkers.ec!=std::errc{}||parsedWorkers.ptr!=expressionWorkerText+expressionWorkerSize)throw std::runtime_error("expression worker option invalid");}frozenSceneOwner->setTimelineWorkersCandidate(2,2,expressionWorkers);frozenSceneOwner->addSceneDecorationCandidate([](const Graph&graph,const SessionRenderSceneCandidate&scene,const auto&,const auto&,PreparedSessionSceneCandidate&prepared){char overrideValue[8]{};const auto overrideSize=GetEnvironmentVariableA("SFM64_SHOW_CAMERA_FRUSTUM",overrideValue,sizeof(overrideValue));const bool enabled=sessionCameraFrustumGuidesEnabledCandidate(sfmEditorShellCandidate.showCameraFrustum,overrideValue,overrideSize);const auto count=appendSessionCameraFrustumGuidesCandidate(graph,scene,prepared,enabled);if(count)std::cout<<"scene_camera_frustum_guides="<<count<<" setting=enabled\n";});std::cout<<"scene_expression_workers="<<expressionWorkers<<"\n";if(staticFlex){auto provider=std::make_shared<RetainedStaticFlexProviderCandidate>(materialMounts,softwareFlex,softwareFlex);frozenSceneOwner->setBorrowedDeformationCandidate([provider](const Graph&graph,const SessionRenderModelCandidate&instance,const SfmModelGeometryCandidate&value)->const VvdGeometryCandidate&{return provider->sampleBorrowed(graph,instance,value);});std::cout<<"scene_static_flex=1 temporal_policy=identical_descriptor_arrays native_parity=unverified\n";}if(furLaunchConfigurationCandidate||GetEnvironmentVariableA("SFM64_DIAGNOSTIC_FUR_TEST",nullptr,0)){char furWorkerText[32]{};auto furWorkerSize=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_FUR_WORKERS",furWorkerText,sizeof(furWorkerText));size_t furWorkers=0;if(furWorkerSize){if(furWorkerSize>=sizeof(furWorkerText))throw std::runtime_error("fur worker option length");auto parsedFurWorkers=std::from_chars(furWorkerText,furWorkerText+furWorkerSize,furWorkers);if(parsedFurWorkers.ec!=std::errc{}||parsedFurWorkers.ptr!=furWorkerText+furWorkerSize||furWorkers>64)throw std::runtime_error("fur worker option must be 0..64");}auto configuration=furLaunchConfigurationCandidate.value_or(FurLaunchConfigurationCandidate{2552,1000,2.f,0.05f});if(!furLaunchConfigurationCandidate)configuration.workers=furWorkers;auto furProvider=std::make_shared<RetainedFurSceneCandidate>(configuration.model,configuration.count,configuration.length,configuration.width,0.1f,configuration.seed,configuration.color,configuration.workers,configuration.coverage);std::cout<<"scene_fur_workers="<<configuration.workers<<"\n";frozenSceneOwner->setSceneDecorationCandidate([furProvider](const auto&graph,const auto&scene,const auto&geometry,const auto&asset,auto&prepared){furProvider->prepare(graph,scene,geometry,asset,prepared);});std::cout<<"scene_fur_attached=1 model="<<configuration.model<<" strands="<<configuration.count<<" material=solid_fur\n";}frozenSceneOwner->addSceneDecorationCandidate([](const auto&,const auto&,const auto&,const auto&,auto& prepared){auto current=std::atomic_load(&objLaunchSceneCandidate);if(current)current->append(prepared);});if(auto imported=std::atomic_load(&objLaunchSceneCandidate)){std::cout<<"scene_obj_attached=1 vertices="<<imported->mesh().vertices.size()<<" materials="<<imported->mesh().materials.size()<<" material_assignments=preview_or_png\n";}
+ if(particleDefinitions)frozenSceneOwner->loadParticleDefinitions(particleBirths);
  if(aoCameraControls)frozenSceneOwner->addSceneDecorationCandidate(
   [aoShade,explicitSceneRoot](const Graph&graph,const SessionRenderSceneCandidate&scene,const auto&,const auto&,PreparedSessionSceneCandidate&prepared){
    auto values=readSessionCameraAmbientOcclusionCandidate(graph,scene.camera);
@@ -186,7 +190,7 @@ inline void testVulkanModelDrawCandidate(HMODULE library,Handle physical,Handle 
 if(action==PlaybackEditorActionCandidate::ExportShotFirstFrame){if(exportImageWindowCandidate)DestroyWindow(exportImageWindowCandidate);KillTimer(vulkanPlaybackState.window,2);if(vulkanPlaybackState.test&&GetEnvironmentVariableA("SFM64_DIAGNOSTIC_EXPORT_COMPLETE_TEST",nullptr,0)){playbackRenderSettingsCandidate.renderer=2;playbackRenderSettingsCandidate.samples=8;}if(vulkanPlaybackState.test&&GetEnvironmentVariableA("SFM64_DIAGNOSTIC_EXPORT_MENU_TEST",nullptr,0))playbackRenderSettingsCandidate.renderer=2;
  if(playbackNativeExportCandidate&&!playbackNativeExportCandidate->poll())throw std::runtime_error("An export is already running");
  RetainedFilmTrackCandidate track(editorDocument->graph(),sessionRenderRootCandidate(editorDocument->graph()));auto shot=track.select(sceneTicks.at(selected));if(!shot)throw std::runtime_error("No shot at the selected frame");
- ExportConfigurationCandidate configuration;configuration.python=L"C:\\Users\\wigwo\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe";configuration.backend="work/sfm_export_backend_candidate.py";configuration.blender=L"C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe";configuration.sfm=L"F:\\SteamLibrary\\steamapps\\common\\SourceFilmmaker\\game";configuration.converterSnapshot="work/cv/65e1f239";configuration.cyclesSchema="outputs/cycles-worker/dynamic-enum-result.json";configuration.requestRoot="work/ne";
+ ExportConfigurationCandidate configuration;configuration.python=L"python.exe";configuration.backend="work/sfm_export_backend_candidate.py";configuration.blender=L"C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe";configuration.sfm=L"F:\\SteamLibrary\\steamapps\\common\\SourceFilmmaker\\game";configuration.converterSnapshot="work/cv/65e1f239";configuration.cyclesSchema="outputs/cycles-worker/dynamic-enum-result.json";configuration.requestRoot="work/ne";
  auto owner=std::atomic_load(&objLaunchSceneCandidate);auto name=editorDocument->graph().strings.at(editorDocument->graph().elements.at(shot->clip).name);
  auto request=std::make_unique<NativeExportRequestCandidate>(configuration,playbackRenderSettingsCandidate,[&](const std::filesystem::path&path){editorDocument->captureExportSnapshot(path.string().c_str(),[&](Graph&copy){studioEmbedObjSessionCandidate(copy,owner);if(readRenderSettingsCandidate(copy)||!sameRenderSettingsCandidate(playbackRenderSettingsCandidate,PlaybackRenderSettingsCandidate{}))embedRenderSettingsCandidate(copy,playbackRenderSettingsCandidate);});},name,playbackDocumentRevisionCandidate);
  std::cout<<"native_export_started="<<request->folder().string()<<" selected_shot="<<name<<" first_frame=1 dirty="<<editorDocument->dirty()<<" embedded_obj="<<bool(owner)<<"\n";playbackNativeExportCandidate=std::move(request);return false;
@@ -347,6 +351,50 @@ if(action==PlaybackEditorActionCandidate::ExportShotFirstFrame){if(exportImageWi
             <<" local_tick="<<frozenScene->shotLocalTick<<" host_advance_bits="<<durationBits
             <<" element="<<particle.id<<" simulating="<<particle.simulating
             <<" emitting="<<particle.emitting<<'\n';
+  }
+ }
+ if(particleDefinitions&&frozenScene){
+  static constexpr const char* states[]={"unavailable","ambiguous","embedded","loaded","invalid"};
+  for(const auto& binding:frozenScene->particleDefinitions){
+   std::cout<<"particle_definition frame="<<frame<<" ordinal="<<submissionSample
+            <<" particle="<<binding.particle<<" state="<<states[static_cast<unsigned>(binding.state)]
+            <<" name="<<std::quoted(binding.name)<<" seed="<<binding.seed<<" time_scale="<<binding.timeScale;
+   if(binding.config)
+    std::cout<<" file="<<std::quoted(binding.config->path.filename().u8string())
+             <<" element="<<binding.definition;
+   if(binding.startupAtSample)
+    std::cout<<" startup_cursor="<<binding.startupAtSample->cursor
+             <<" startup_skipped_ticks="<<binding.startupAtSample->skippedTicks
+             <<" startup_stop_after_skip="<<binding.startupAtSample->stopAfterSkip;
+   std::cout<<'\n';
+   for(const auto& point:binding.controlPoints){
+    const auto logPoint=[&](const SourceParticleControlPointCandidate& pose,int32_t tick,const char* phase){
+     std::ostringstream line;
+     line<<std::setprecision(9)<<"particle_point frame="<<frame<<" ordinal="<<submissionSample
+         <<" particle="<<binding.particle<<" cp="<<point.index<<" transform="<<point.transform
+         <<" model="<<point.model<<" phase="<<phase<<" tick="<<tick
+         <<" bypass_parent_mask="<<*binding.controlPointBypassMask;
+     for(const auto& vector:{pose.position,pose.forward,pose.right,pose.up})
+      line<<' '<<vector[0]<<','<<vector[1]<<','<<vector[2];
+     std::cout<<line.str()<<'\n';
+    };
+    logPoint(point.current,frozenScene->shotLocalTick,"current");
+    if(point.startup)logPoint(*point.startup,binding.startupAtSample->cursor,"startup");
+   }
+   for(const auto& birth:binding.birthReplay){
+    std::ostringstream line;
+    line<<std::setprecision(9)<<"particle_births frame="<<frame<<" ordinal="<<submissionSample
+        <<" particle="<<binding.particle<<" collection="<<std::quoted(birth.name)
+        <<" requested="<<birth.requested<<" delivered="<<birth.delivered<<" scope=drained_batches";
+    if(birth.delivered){
+     line<<" first_seconds="<<birth.firstSeconds<<" last_seconds="<<birth.lastSeconds
+         <<" control_tick="<<birth.lastControlTick;
+     if(birth.emitterPosition)
+      line<<" emitter_cp0="<<(*birth.emitterPosition)[0]<<','<<(*birth.emitterPosition)[1]
+          <<','<<(*birth.emitterPosition)[2];
+    }
+    std::cout<<line.str()<<'\n';
+   }
   }
  }
  if(iteration||submissionSample)check(load<PFN_vkResetCommandPool>(library,"vkResetCommandPool")(dev,pool,0));

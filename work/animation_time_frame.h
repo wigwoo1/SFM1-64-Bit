@@ -1,5 +1,6 @@
 #pragma once
 #include "time_selection.h"
+#include <algorithm>
 // Graph declarations and animation_keys.h must be included first.
 struct AnimationTimeFrame {
  int32_t start=0,duration=0,offset=0;float scale=1;
@@ -14,5 +15,10 @@ struct AnimationTimeFrame {
   if(found!=15)throw std::runtime_error("missing time-frame field");
  }
  int32_t childTime(int32_t parentTick,bool clamp)const{return timeToChild(parentTick,start,duration,offset,scale,clamp);}
+ int32_t parentTime(int32_t childTick,bool clamp)const{
+  auto relative=wrapTicks(uint32_t(divideSourceTicksCandidate(childTick,scale))-uint32_t(offset));
+  if(clamp)relative=std::clamp(relative,0,duration);
+  return wrapTicks(uint32_t(start)+uint32_t(relative));
+ }
  const Value* exactKey(const KeyTrack&track,int32_t parentTick,bool clamp)const{return track.exact(childTime(parentTick,clamp));}
 };
