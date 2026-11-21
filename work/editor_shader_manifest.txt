@@ -23,3 +23,6 @@ ps_6_0 sfm64-model-warp-exponent
 ps_6_0 sfm64-hdr2-ssbump-fragment
 vs_6_0 sfm64-viewport-copy-vertex
 ps_6_0 sfm64-viewport-copy-fragment
+vs_6_0 sfm64-ao-front-vertex-candidate
+ps_6_0 sfm64-ao-front-fragment-candidate
+cs_6_0 sfm64-ambient-occlusion-mask-candidate

@@ -26,20 +26,20 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "377d6f62b366bf61bab3e27a0382926112391bb3732d343215ab699aeb4ada8c",
-      "size": 57911
+      "sha256": "7518b2c527277ce2f199af593063e398bc2d3a199457a83f79025425c31f6296",
+      "size": 58997
     },
     "docs/publication-policy.json": {
       "sha256": "a972ec573f886d9faf5fcd9a21285a93333464226f47c7312e502f0ca22d1734",
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "ffb687f3e3ee27ebc34d2f9fc5b5baac653d5bfc7454b30acf54f29578d720ec",
+      "sha256": "ff88beb416965c3475fc44ec2551b49aad7c3b4a92c5ad61872bc8fdc7f8c95b",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "4f80fc0d4d2e61b98c71f7f261124fd68874e04217f7eb09659b0abad108a91e",
-      "size": 1147640
+      "sha256": "3c0c4074e676d5cfb8fd1745f26ed0c4f770534bdb617e0b649d8bc0d4d0ff57",
+      "size": 1165582
     },
     "publication/README.md": {
       "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
@@ -100,6 +100,10 @@
     "work/allow_valid_scene_clear_frames.py": {
       "sha256": "b10913cbe7e99f294efb88faee4f435c94117ea8ea9d16239b4267c1be45c0be",
       "size": 361
+    },
+    "work/ambient_occlusion_view_candidate.h": {
+      "sha256": "6f3b027cf0af7bef12333ce15fea95e25ba1c18960f09dd1e4b1f29393ea8330",
+      "size": 4190
     },
     "work/analyze_empty_dags.cpp": {
       "sha256": "e74f5802933aede04a8ef4af6adb2943a5fd4842de606ff65ef95c8da3a4bb4d",
@@ -8278,8 +8282,8 @@
       "size": 479
     },
     "work/editor_shader_manifest.txt": {
-      "sha256": "0f1bccc5cf9a2a22deab67d3b90ace91ff38496ce8c88008a05bff145f1b502c",
-      "size": 984
+      "sha256": "197f4c0a0f76f4bfd5e90a6806df03b2cfedea3297572a8edbc565c1a9cf15ea",
+      "size": 1110
     },
     "work/editor_shader_resources_candidate.h": {
       "sha256": "985bc0ece999d393fca387213021d3cdc1f67b7b26baf833a6067b65deec0e47",
@@ -17929,6 +17933,18 @@
       "sha256": "e1faaf220cb9ad86077ca4156f2bff4e96c58e8f7b7cc27e7d22bfcb320f9b16",
       "size": 2738
     },
+    "work/sfm64-ambient-occlusion-mask-candidate.hlsl": {
+      "sha256": "7b601c416cfa5f23b62294755e44fd37500bbafc8b3069edc14fd76fc6279813",
+      "size": 2898
+    },
+    "work/sfm64-ao-front-fragment-candidate.hlsl": {
+      "sha256": "0356a2d54c92fbc1d2c7c60862993678b5520e89f98bd8b0b8c5b454fda5272f",
+      "size": 1062
+    },
+    "work/sfm64-ao-front-vertex-candidate.hlsl": {
+      "sha256": "8d2d968adda19ab50c12dfc7d225f6def727c232e5309ad57f656f47d75714df",
+      "size": 778
+    },
     "work/sfm64-diagnostic-model.hlsl": {
       "sha256": "2e05caed5d181caecf2d85bd288034b3920468555e5fe7009ce633e490fd49d2",
       "size": 984
@@ -27393,6 +27409,14 @@
       "sha256": "0685d2741861c0329e588396e12defbea7a3d49c591338103480ec78302b05ee",
       "size": 4679
     },
+    "work/vulkan_ambient_occlusion_front_candidate.h": {
+      "sha256": "d8d929f1ef04f2da74185306c6a039c592074e3a77e5e76a27b5d00523aa64af",
+      "size": 14498
+    },
+    "work/vulkan_ambient_occlusion_mask_candidate.h": {
+      "sha256": "52dddfea96fc19ffb1517528a88b7a655d0bc177478552db55bcf943016eb1f9",
+      "size": 16024
+    },
     "work/vulkan_buffer_copy_candidate.h": {
       "sha256": "f9f84d65e1c59e65c704d2832a59f3453449bc7fa5a9fc507a82585c5db038fb",
       "size": 5322
@@ -27438,16 +27462,16 @@
       "size": 20235
     },
     "work/vulkan_model_draw_candidate.h": {
-      "sha256": "c2006ae4574167a06099894a1a12399854c6eeeb1cfd71e9478637288447751e",
-      "size": 119456
+      "sha256": "9af374e0c214d071d9358cdda0dcb6d6e814d8a54a0817e8769fb5547d9635bc",
+      "size": 125910
     },
     "work/vulkan_model_swapchain_probe_candidate.h": {
       "sha256": "32e38492b5df57f245dba3da1158cf5c3e644b3317becd85346157229fc7bd1e",
       "size": 13295
     },
     "work/vulkan_offscreen_target_candidate.h": {
-      "sha256": "f741ae54b5c6d3e37a9e728037343adeee42e93f16a00fc86054196b89c0f54a",
-      "size": 5911
+      "sha256": "54b74e5277174d5e93ca329f50c2fbbed9dcca473787485efbeba8fe72f5dae2",
+      "size": 6011
     },
     "work/vulkan_prepared_model_images_candidate.h": {
       "sha256": "aebf798f660a6c1db6f54c3ea01a118131abee26de760961baf9ab8b73894853",
