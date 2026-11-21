@@ -1,20 +1,33 @@
 #include "gameinfo_mounts_candidate.h"
-#include <fstream>
 #include <iostream>
 int main(){
  try{
-  std::filesystem::path game=R"(F:\SteamLibrary\steamapps\common\SourceFilmmaker\game)";
-  std::ifstream f(game/"usermod/gameinfo.txt",std::ios::binary);
-  if(!f)throw std::runtime_error("installed GameInfo missing");
-  std::string source((std::istreambuf_iterator<char>(f)),{});
+  const std::filesystem::path game=std::filesystem::path("fixtures")/"game";
+  const std::string source=R"(
+   "GameInfo"
+   {
+    FileSystem
+    {
+     SearchPaths
+     {
+      Game "|gameinfo_path|." // Resolve relative to the config.
+      Game tf_movies
+      Game tf
+      Game left4dead2_movies
+      Game hl2
+      Game workshop
+      Game extra_tools
+     }
+    }
+   }
+  )";
   auto plan=gameinfoMountPlanCandidate(source,game/"usermod",game);
   auto&mounts=plan.gamePaths;
-  std::vector<std::string>expected{"usermod","tf_movies","tf","left4dead2_movies","hl2","workshop","fluidscriptstudios_tools"};
+  std::vector<std::string>expected{"usermod","tf_movies","tf","left4dead2_movies","hl2","workshop","extra_tools"};
   if(mounts.size()!=expected.size()*2)throw std::runtime_error("localized mount count");
   for(size_t n=0;n<expected.size();++n){
    auto localized=game/(expected[n]+"_english");auto base=game/expected[n];
    if(mounts[n*2]!=localized||mounts[n*2+1]!=base)throw std::runtime_error("localized/base mount order got="+mounts[n*2].string()+" then="+mounts[n*2+1].string()+" expected="+localized.string()+" then="+base.string());
-   if(!std::filesystem::is_directory(base))throw std::runtime_error("declared mount missing: "+base.string());
    std::cout<<n<<" "<<localized.string()<<" -> "<<base.string()<<"\n";
   }
   if(plan.gameBinPaths.size()!=expected.size())throw std::runtime_error("GameBin mount count");

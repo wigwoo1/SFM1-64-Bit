@@ -34,7 +34,7 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "1166e9edf49bc9aea6cc095f08f57f89b3369748af0777bf24253d334082c07c",
+      "sha256": "90a74fb441c1adb0f54bf85ff4e811c5450447a8cfe97843e076f941f18a649a",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -19694,8 +19694,8 @@
       "size": 3376
     },
     "work/test_bsp_hdr_enable.cpp": {
-      "sha256": "f6ff81b0b851b7f189d90eea43757525091eaef2ea428e8155ccc20075ff7414",
-      "size": 4048
+      "sha256": "9c5d8f81ca29cfb7f381309704ee6c547e18bb6975c19ce2fb5db816bd192ff5",
+      "size": 4361
     },
     "work/test_bsp_light_cache_position.cpp": {
       "sha256": "ad7e67b49c46dfdd40e813c46c11a15a69b7d5a4d040887744281b01084a014e",
@@ -20838,8 +20838,8 @@
       "size": 2324
     },
     "work/test_gameinfo_mounts.cpp": {
-      "sha256": "f168df15af2d66efa4cabd69f6d3b7477fce90b508d47d2409612557dfb7f8ce",
-      "size": 3480
+      "sha256": "b3d51ef19e6678612e31ceaeff706797b984215b7db38ace233698a58b0fc9f1",
+      "size": 3440
     },
     "work/test_gamma_lookup_oracle.cpp": {
       "sha256": "1fa37846471e59332d48a2059854b8a83c4527d664e87f430ebf7603b78e44ff",

@@ -32,10 +32,20 @@ int main(int argc,char**argv){try{
     auto word=[&](size_t o){uint32_t v;std::memcpy(&v,b.data()+o,4);return v;};
     require(word(0)==0x50534256&&word(4)==20&&word(8+10*16+8)==1,"benchmark BSP20 split leaves");
     auto length=[&](unsigned id){auto n=word(8+id*16+4);require(n<=INT32_MAX,"valid BSP length");return int32_t(n);};
-    struct Configuration {int32_t level,dx,type,emulate;bool request;SourceBspAmbientStorageCandidate storage;};
+    struct Configuration {
+        int32_t level,dx,type,emulate;
+        bool request;
+        int32_t currentType;
+        SourceBspAmbientStorageCandidate storage;
+    };
     const auto H=SourceBspAmbientStorageCandidate::SplitHdr,L=SourceBspAmbientStorageCandidate::SplitLdr;
-    const std::array<Configuration,8>configs{{{0,95,2,0,false,L},{1,95,2,0,false,L},{2,95,2,0,true,H},{3,95,1,0,true,H},
-        {2,89,2,0,true,L},{2,95,0,0,false,L},{0,95,2,1,false,H},{2,90,2,0,true,H}}};
+    const std::array<Configuration,9>configs{{
+        {0,95,2,0,false,0,L}, {1,95,2,0,false,0,L},
+        {2,95,2,0,true,2,H}, {3,95,1,0,true,1,H},
+        {2,89,2,0,true,0,L}, {2,95,0,0,false,0,L},
+        {0,95,2,1,false,2,H}, {2,90,2,0,true,2,H},
+        {3,100,2,0,true,2,H},
+    }};
     for(size_t i=0;i<configs.size();++i){const auto&c=configs[i];
         const auto result=sourceBspHdrEnableRequestCandidate(20,length,[&]{return c.level;},[&]{return c.type;});
         require(result.mapHasHdr&&result.enableRequested==c.request,"benchmark map request");
@@ -45,11 +55,15 @@ int main(int argc,char**argv){try{
             void enableGlobalHdr(){enabled=true;}bool hdrEnabled(){return enabled;}
             int32_t dxSupportLevel(){return dx;}int32_t hardwareHdrType(){return type;}
         }hardware{result.enableRequested,c.dx,c.type};
-        const auto selected=sourceBspAmbientSelectionCandidate(1,[&]{return sourceHardwareHdrTypeCandidate(c.emulate,hardware);},[&]{return length(55);});
+        const auto selected=sourceBspAmbientSelectionCandidate(1,[&]{
+            const auto type=sourceHardwareHdrTypeCandidate(c.emulate,hardware);
+            require(type==c.currentType,"benchmark current hardware HDR type");
+            return type;
+        },[&]{return length(55);});
         require(selected==c.storage,"benchmark configuration handoff selection");
         SourceBspLeafAmbientCandidate ambient(b,sourceBspSplitAmbientEncodingCandidate(selected));
         require(ambient.samples.size()==(selected==H?12696u:2842u),"benchmark selected sample population");++checks;
-        std::cout<<"configuration="<<i<<" mat_hdr_level="<<c.level<<" dx="<<c.dx<<" hardware_type="<<c.type<<" emulate_gl="<<c.emulate<<" requested="<<result.enableRequested<<" selected="<<(selected==H?"hdr":"ldr")<<" samples="<<ambient.samples.size()<<'\n';
+        std::cout<<"configuration="<<i<<" mat_hdr_level="<<c.level<<" dx="<<c.dx<<" hardware_type="<<c.type<<" emulate_gl="<<c.emulate<<" requested="<<result.enableRequested<<" current_type="<<c.currentType<<" selected="<<(selected==H?"hdr":"ldr")<<" samples="<<ambient.samples.size()<<'\n';
     }
     std::cout<<"PASS checks="<<checks<<" explicit_configurations="<<configs.size()<<" native_runtime_configuration=unverified editor_integration=0\n";return 0;
 }catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
