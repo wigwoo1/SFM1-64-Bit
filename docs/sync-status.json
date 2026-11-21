@@ -1,10 +1,13 @@
 {
-  "checked_utc": "2026-11-21T14:51:24.939975+00:00",
-  "status": "Experimental AMD64 editor rebuilt. Default Vulkan smoke test passed.",
+  "checked_utc": "2026-11-21T15:43:01.947462+00:00",
+  "status": "Experimental AMD64 editor rebuilt and verified in packaged Vulkan control tests.",
   "repository": "wigwoo1/SFM1-64-Bit",
   "build_exit_code": 0,
   "compiler_warning_count": 18,
-  "compiled_shader_count": 30,
-  "post_package_smoke_test": "The editor processed and presented five benchmark frames in control-test mode.",
-  "known_limitation": "The opt-in Source ambient occlusion noise diagnostic rejects the stock reflection texture, which stores six mip levels. The default path passed with diagnostics disabled. Visual parity remains unverified."
+  "compiled_shader_count": 31,
+  "control_test_frames": 10,
+  "render_samples": 20,
+  "executable_sha256": "0619d3a4188866835adec0a90a486572ee0c9999c03f09c75e1766bcbc7e83af",
+  "package_sha256": "c89fb044630189c6e638c4ee62f3642e74f866d64677b63f0c0c42123c24ca70",
+  "known_limitation": "HDR sample accumulation is opt-in and reuses a frozen pose and camera. Full Source Filmmaker compatibility and visual parity remain unverified."
 }

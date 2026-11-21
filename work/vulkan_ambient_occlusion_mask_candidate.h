@@ -285,15 +285,22 @@ public:
         }
     }
 
-    void record(VkCommandBuffer command,VkBuffer noiseStaging,VkBuffer readback) {
-        if (!mask_.image || !readback) throw std::runtime_error("AO mask readback resources missing");
+    void record(VkCommandBuffer command,VkBuffer noiseStaging,VkBuffer readback,bool repeatedSample=false) {
+        if (!mask_.image || (!readback && !shadingSet_)) throw std::runtime_error("AO mask destination missing");
         recordNoise(command,noiseStaging);
-        transition(command,mask_,VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_GENERAL,
-                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,0,VK_ACCESS_SHADER_WRITE_BIT);
+        transition(command,mask_,repeatedSample?VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:VK_IMAGE_LAYOUT_UNDEFINED,
+                   VK_IMAGE_LAYOUT_GENERAL,repeatedSample?VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT:VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                   VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,repeatedSample?VK_ACCESS_SHADER_READ_BIT:0u,VK_ACCESS_SHADER_WRITE_BIT);
         proc<PFN_vkCmdBindPipeline>("vkCmdBindPipeline")(command,VK_PIPELINE_BIND_POINT_COMPUTE,pipeline_);
         proc<PFN_vkCmdBindDescriptorSets>("vkCmdBindDescriptorSets")(
             command,VK_PIPELINE_BIND_POINT_COMPUTE,layout_,0,1,&set_,0,nullptr);
         proc<PFN_vkCmdDispatch>("vkCmdDispatch")(command,(width_+7)/8,(height_+7)/8,1);
+        if (!readback) {
+            transition(command,mask_,VK_IMAGE_LAYOUT_GENERAL,VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                       VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                       VK_ACCESS_SHADER_WRITE_BIT,VK_ACCESS_SHADER_READ_BIT);
+            return;
+        }
         transition(command,mask_,VK_IMAGE_LAYOUT_GENERAL,VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,VK_PIPELINE_STAGE_TRANSFER_BIT,
                    VK_ACCESS_SHADER_WRITE_BIT,VK_ACCESS_TRANSFER_READ_BIT);

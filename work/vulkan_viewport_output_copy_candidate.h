@@ -5,7 +5,8 @@
 
 // Keep linear lighting and blending in float storage. Encode once into an
 // eight-bit result, then use that image's UNORM format for capture/presentation.
-inline VkFormat vulkanViewportSceneFormatCandidate(bool hdr2, bool diagnosticSrgb) {
+inline VkFormat vulkanViewportSceneFormatCandidate(bool hdr2, bool diagnosticSrgb, bool renderSamples=false) {
+    if (renderSamples) return VK_FORMAT_R32G32B32A32_SFLOAT;
     return hdr2 ? VK_FORMAT_R16G16B16A16_SFLOAT :
         diagnosticSrgb ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
 }
@@ -215,7 +216,7 @@ public:
     VulkanViewportOutputCopyCandidate(const VulkanViewportOutputCopyCandidate&) = delete;
     VulkanViewportOutputCopyCandidate& operator=(const VulkanViewportOutputCopyCandidate&) = delete;
 
-    VkImage record(VkCommandBuffer command) {
+    VkImage record(VkCommandBuffer command,bool sourceFromTransfer=false) {
         // The scene pass just produced source_ in TRANSFER_SRC layout. Returning
         // an UNORM image prevents a second conversion in the presenter's blit.
         std::array<VkImageMemoryBarrier, 2> barriers{};
@@ -224,9 +225,9 @@ public:
             barrier.srcQueueFamilyIndex = barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
             barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
         }
-        barriers[0].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        barriers[0].srcAccessMask = sourceFromTransfer ? VK_ACCESS_TRANSFER_WRITE_BIT : VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         barriers[0].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-        barriers[0].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        barriers[0].oldLayout = sourceFromTransfer ? VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL : VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         barriers[0].newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         barriers[0].image = source_;
         barriers[1].srcAccessMask = recorded_ ? VK_ACCESS_TRANSFER_READ_BIT : 0;

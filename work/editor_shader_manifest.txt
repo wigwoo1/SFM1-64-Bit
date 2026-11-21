@@ -29,3 +29,4 @@ ps_6_0 sfm64-viewport-copy-fragment
 vs_6_0 sfm64-ao-front-vertex-candidate
 ps_6_0 sfm64-ao-front-fragment-candidate
 cs_6_0 sfm64-ambient-occlusion-mask-candidate
+cs_6_0 sfm64-render-sample-accumulation-candidate
