@@ -15,6 +15,9 @@ struct SourceParticleLifeCandidate {
     int32_t sequence = 0;
     SourceParticleBirthAppearanceCandidate appearance{};
     SourceParticleSpawnPositionCandidate motion{};
+    float radius = appearance.radius;
+    std::array<float, 3> tint = appearance.tint;
+    uint32_t oscillatorId = 0;
 };
 
 struct SourceParticleAlphaFadeCandidate {
@@ -25,11 +28,14 @@ inline float sourceParticleReciprocalCandidate(float number) {
     return _mm_cvtss_f32(_mm_rcp_ss(_mm_set_ss(number)));
 }
 
-inline float sourceParticleFadeWeightCandidate(float phase, float start, float end) {
-    const float fraction = std::clamp((phase - start) * sourceParticleReciprocalCandidate(end - start),
-                                      0.f, 1.f);
+inline float sourceParticleSmoothWeightCandidate(float fraction) {
     const float squared = fraction * fraction;
     return squared * 3.f - (fraction * 2.f) * squared;
+}
+
+inline float sourceParticleFadeWeightCandidate(float phase, float start, float end) {
+    return sourceParticleSmoothWeightCandidate(
+        std::clamp((phase - start) * sourceParticleReciprocalCandidate(end - start), 0.f, 1.f));
 }
 
 inline bool sourceParticleFadeAndDecayCandidate(SourceParticleLifeCandidate& particle, float now,

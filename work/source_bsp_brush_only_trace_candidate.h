@@ -9,8 +9,9 @@ public:
  std::vector<SourceBspCollisionRecordCandidate>records;
  std::vector<SourceLineWalkPlaneCandidate>planes;
  std::vector<SourceLineWalkNodeCandidate>nodes;int32_t root=0;
+ std::vector<int32_t>modelRoots;
  explicit SourceBspBrushOnlyTraceCandidate(const std::vector<uint8_t>&b,const std::vector<uint32_t>&surfaceIds):data(b),records(sourceBspCollisionRecordsCandidate(data,surfaceIds)){
-  const SourceBspPointLeafCandidate checked(b);root=checked.worldRoot();for(const auto&p:data.planes)planes.push_back({p.normal,p.distance,p.type});
+  const SourceBspPointLeafCandidate checked(b);root=checked.worldRoot();modelRoots=checked.modelRoots();for(const auto&p:data.planes)planes.push_back({p.normal,p.distance,p.type});
   auto word=[&](size_t p){uint32_t v;std::memcpy(&v,b.data()+p,4);return v;};auto child=[&](size_t p){int32_t v;std::memcpy(&v,b.data()+p,4);return v;};
   const size_t offset=word(8+5*16),count=word(8+5*16+4)/32;for(size_t i=0;i<count;++i){size_t p=offset+32*i;nodes.push_back({word(p),{child(p+4),child(p+8)}});}
  }

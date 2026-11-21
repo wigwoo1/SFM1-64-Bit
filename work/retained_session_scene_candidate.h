@@ -24,9 +24,15 @@
 #include "source_bsp_light_cache_world_candidate.h"
 #include "source_bsp_displacement_collision_candidate.h"
 #include "source_bsp_world_light_trace_candidate.h"
+#include "source_swept_world_trace_candidate.h"
+#ifdef SFM64_EDITOR_STATIC_PROP_COLLISION
+#include "source_particle_static_prop_scene_candidate.h"
+#endif
 #pragma pop_macro("far")
 #pragma pop_macro("near")
 #include <charconv>
+#include <iomanip>
+#include <sstream>
 using RetainedModelDeformationCandidate=std::function<VvdGeometryCandidate(const Graph&,const SessionRenderModelCandidate&,const SfmModelGeometryCandidate&)>;
 using RetainedBorrowedDeformationCandidate=std::function<const VvdGeometryCandidate&(const Graph&,const SessionRenderModelCandidate&,const SfmModelGeometryCandidate&)>;
 struct RetainedShutterScheduleCandidate {
@@ -43,6 +49,10 @@ class RetainedSessionSceneCandidate {
  SessionParticleSimulationKeysCandidate particleEmissionKeys_;
  std::unique_ptr<SessionParticleControlPointBindingsCandidate> particlePointBindings_;
  bool traceParticleBirths_=false;
+ bool traceParticleWorldCollision_=false;
+#ifdef SFM64_EDITOR_STATIC_PROP_COLLISION
+ bool traceParticleStaticProps_=false;
+#endif
  uint32_t particleKeysShot_=UINT32_MAX;
  using AssetKey=std::pair<std::string,std::filesystem::path>;
  std::map<AssetKey,SfmModelGeometryCandidate>assets_;
@@ -61,14 +71,10 @@ class RetainedSessionSceneCandidate {
   return std::filesystem::canonical(bspPath);
  }
  std::map<std::string,std::vector<uint8_t>> lightingModelBytes_;
- struct AmbientMap {
+ struct PointCollisionMap {
   SourceBspBrushOnlyTraceCandidate brush;
   SourceBspDisplacementCollisionCandidate displacements;
   SourcePreparedWorldRayCandidate rays;
-  SourceBspLightCacheWorldCandidate world;
-  SourceBspLeafAmbientCandidate hdr;
-  SourceBspTraceSurfaceFlagsCandidate surfaces;
-  SourceBspWorldLightTraceCandidate skyTrace;
   static std::vector<uint32_t> surfaceIds(const std::vector<uint8_t>& bytes){
    if(bytes.size()<1036)throw std::runtime_error("truncated BSP lighting header");
    uint32_t length;std::memcpy(&length,bytes.data()+8+6*16+4,4);
@@ -77,14 +83,50 @@ class RetainedSessionSceneCandidate {
    for(size_t n=0;n<ids.size();++n)ids[n]=static_cast<uint32_t>(n);
    return ids;
   }
+  explicit PointCollisionMap(const std::vector<uint8_t>& bytes):PointCollisionMap(bytes,surfaceIds(bytes)){}
+  PointCollisionMap(const std::vector<uint8_t>& bytes,const std::vector<uint32_t>& ids)
+   :brush(bytes,ids),displacements(bytes),rays(brush,displacements.meshes){}
+  PointCollisionMap(const PointCollisionMap&)=delete;
+ };
+ struct AmbientMap : PointCollisionMap {
+  SourceBspLightCacheWorldCandidate world;
+  SourceBspLeafAmbientCandidate hdr;
+  SourceBspTraceSurfaceFlagsCandidate surfaces;
+  SourceBspWorldLightTraceCandidate skyTrace;
   explicit AmbientMap(const std::vector<uint8_t>& bytes):AmbientMap(bytes,surfaceIds(bytes)){}
   AmbientMap(const std::vector<uint8_t>& bytes,const std::vector<uint32_t>& ids)
-   :brush(bytes,ids),displacements(bytes),rays(brush,displacements.meshes),
+   :PointCollisionMap(bytes,ids),
     world(bytes,brush,rays),hdr(bytes,SourceBspAmbientEncodingCandidate::Hdr),surfaces(bytes,ids),skyTrace(rays,surfaces){}
   AmbientMap(const AmbientMap&)=delete;
  };
  std::unique_ptr<AmbientMap> ambientMap_;
  std::filesystem::path ambientMapPath_;
+ std::unique_ptr<PointCollisionMap> particleCollisionMap_;
+ std::filesystem::path particleCollisionMapPath_;
+ const PointCollisionMap& particleCollisionMap(){
+  const auto path=inlineMapPath();
+  if(ambientMap_&&path==ambientMapPath_)return *ambientMap_;
+  if(!particleCollisionMap_||path!=particleCollisionMapPath_){
+   auto next=std::make_unique<PointCollisionMap>(readBinaryAssetCandidate(path));
+   particleCollisionMapPath_=path;
+   particleCollisionMap_=std::move(next);
+  }
+  return *particleCollisionMap_;
+ }
+#ifdef SFM64_EDITOR_STATIC_PROP_COLLISION
+ std::unique_ptr<SourceParticleStaticPropSceneCandidate> particleStaticProps_;
+ std::filesystem::path particleStaticPropsPath_;
+ const SourceParticleStaticPropSceneCandidate& particleStaticProps(){
+  const auto path=inlineMapPath();
+  if(!particleStaticProps_||path!=particleStaticPropsPath_){
+   auto next=std::make_unique<SourceParticleStaticPropSceneCandidate>(readBinaryAssetCandidate(path),mounts_);
+   particleStaticPropsPath_=path;
+   particleStaticProps_=std::move(next);
+   std::cout<<"particle_static_props registered="<<particleStaticProps_->registeredCount()<<'\n';
+  }
+  return *particleStaticProps_;
+ }
+#endif
  void sampleModelAmbient(PreparedSessionSceneCandidate& frame){
   if(!frame.hdrSkyLights || (frame.explicitLightOrigins.empty() && frame.animatedDrawPositions.empty()))return;
   const auto path=inlineMapPath();
@@ -238,8 +280,15 @@ public:
  void addSceneDecorationCandidate(SceneGeometryDecorationCandidate decoration){auto previous=decoration_;decoration_=[previous,decoration](const auto& graph,const auto& scene,const auto& geometry,const auto& asset,auto& prepared){if(previous)previous(graph,scene,geometry,asset,prepared);decoration(graph,scene,geometry,asset,prepared);};}
  void setModelDeformationCandidate(RetainedModelDeformationCandidate provider){deformation_=std::move(provider);borrowed_={};}
  void setBorrowedDeformationCandidate(RetainedBorrowedDeformationCandidate provider){borrowed_=std::move(provider);deformation_={};}
- void loadParticleDefinitions(bool traceBirths=false,const std::filesystem::path& randomReference={}){
+ void loadParticleDefinitions(bool traceBirths=false,const std::filesystem::path& randomReference={},
+                              bool traceWorldCollision=false,bool traceStaticProps=false){
   traceParticleBirths_=traceBirths;
+  traceParticleWorldCollision_=traceBirths&&traceWorldCollision;
+#ifdef SFM64_EDITOR_STATIC_PROP_COLLISION
+  traceParticleStaticProps_=traceParticleWorldCollision_&&traceStaticProps;
+#else
+  if(traceStaticProps)throw std::runtime_error("Static prop diagnostics require the full x64 editor build");
+#endif
   if(traceBirths&&!particleSheets_)particleSheets_.emplace(mounts_);
   if(traceBirths&&!randomReference.empty()){
    particleRandomTable_=readSourceParticleRandomTableCandidate(randomReference);
@@ -380,10 +429,48 @@ private:
           const auto cp=std::find_if(points.begin(),points.end(),[](const auto& p){return p.index==0;});
           return cp==points.end()?std::nullopt:std::optional{cp->current};
          };
+         SessionParticleTraceCandidate trace;
+         const PointCollisionMap* collisionMap=nullptr;
+#ifdef SFM64_EDITOR_STATIC_PROP_COLLISION
+         const SourceParticleStaticPropSceneCandidate* staticProps=nullptr;
+#endif
+         if(traceParticleWorldCollision_)trace=[&](const SourceParticlePlaneTraceRequestCandidate& ray){
+          if(!collisionMap)collisionMap=&particleCollisionMap();
+          SourceParticleVectorCandidate delta{};
+          for(size_t axis=0;axis<delta.size();++axis)delta[axis]=ray.end[axis]-ray.start[axis];
+#ifdef SFM64_EDITOR_STATIC_PROP_COLLISION
+          if(traceParticleStaticProps_){
+           if(!staticProps)staticProps=&particleStaticProps();
+           const float xx=delta[0]*delta[0],yy=delta[1]*delta[1],zz=delta[2]*delta[2];
+           const auto result=staticProps->trace(collisionMap->rays,{ray.start,delta,(xx+yy)+zz!=0.f},ray.contentsMask);
+           const auto& hit=result.hit;
+           std::ostringstream report;
+           report<<std::setprecision(9)<<"particle_scene_ray";
+           for(float value:ray.start)report<<' '<<value;
+           for(float value:delta)report<<' '<<value;
+           report<<' '<<ray.contentsMask<<' '<<ray.collisionGroup<<' '<<result.worldFraction<<' '<<hit.fraction;
+           for(float value:hit.plane.normal)report<<' '<<value;
+           report<<' '<<(hit.surfaceId==sourceEngineStudioSurfaceIdCandidate?hit.hitBox:0)<<' '<<result.overflow;
+           std::cout<<report.str()<<'\n';
+           return SourceParticlePlaneTraceHitCandidate{hit.fraction,hit.plane.normal};
+          }
+#endif
+          const auto hit=sourceSweptWorldTraceCandidate(collisionMap->rays,ray.start,delta,ray.contentsMask);
+          const auto& state=hit.state.trace;
+          const SourceParticleVectorCandidate normal{state.plane[0],state.plane[1],state.plane[2]};
+          std::ostringstream report;
+          report<<std::setprecision(9)<<"particle_world_ray";
+          for(float value:ray.start)report<<' '<<value;
+          for(float value:delta)report<<' '<<value;
+          report<<' '<<ray.contentsMask<<' '<<ray.collisionGroup<<' '<<state.fraction;
+          for(float value:normal)report<<' '<<value;
+          std::cout<<report.str()<<'\n';
+          return SourceParticlePlaneTraceHitCandidate{state.fraction,normal};
+         };
          binding.birthReplay=replaySessionParticleBirthsCandidate(definitionGraph,binding.definition,
              *binding.startupAtSample,result.shotLocalTick,binding.timeScale,simulation->second,emission->second,
              binding.seed,particleRandomTable_?&*particleRandomTable_:nullptr,
-             particleSheets_?&*particleSheets_:nullptr,pointAt);
+             particleSheets_?&*particleSheets_:nullptr,pointAt,trace);
          for(auto& birth:binding.birthReplay){
           if(birth.delivered==0)continue;
           const auto cp=pointAt(birth.lastControlTick);

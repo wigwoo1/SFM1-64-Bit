@@ -38,21 +38,36 @@ public:
   }
  }
  const std::vector<std::vector<uint32_t>>&leafRefs()const{return leafDisplacements;}
+ int32_t modelRoot(size_t modelIndex)const{
+  if(!modelIndex||modelIndex>=world.modelRoots.size())throw std::runtime_error("invalid inline BSP collision model");
+  const int32_t root=world.modelRoots[modelIndex];
+  const bool valid=root>=0?size_t(root)<world.nodes.size():uint64_t(-1-int64_t(root))<leafDisplacements.size();
+  if(!valid)throw std::runtime_error("inline BSP model root outside tables");
+  return root;
+ }
  void trace(const std::array<float,3>&start,const std::array<float,3>&end,uint32_t mask,SourcePreparedWorldRayStateCandidate&state)const{
-  std::array<float,3>delta{};for(size_t a=0;a<3;++a)delta[a]=end[a]-start[a];traceWithDelta(start,end,delta,mask,state);
+  std::array<float,3>delta{};for(size_t a=0;a<3;++a)delta[a]=end[a]-start[a];traceWithDelta(world.root,start,end,delta,mask,state);
  }
  // Ray_t semantics: delta is retained even when start+delta rounds differently.
  // Stationary dispatch is deliberately not simulated by this swept entrypoint.
  void traceRay(const std::array<float,3>&start,const std::array<float,3>&delta,uint32_t mask,SourcePreparedWorldRayStateCandidate&state)const{
   if(delta==std::array<float,3>{0,0,0})throw std::runtime_error("stationary world ray requires separate dispatch");
-  std::array<float,3>end{};for(size_t a=0;a<3;++a)end[a]=start[a]+delta[a];traceWithDelta(start,end,delta,mask,state);
+  traceSweptPointAtRoot(world.root,start,delta,mask,state);
+ }
+ void traceSweptPointAtRoot(int32_t root,const std::array<float,3>&start,const std::array<float,3>&delta,
+                           uint32_t mask,SourcePreparedWorldRayStateCandidate&state)const{
+  std::array<float,3>end{};for(size_t a=0;a<3;++a)end[a]=start[a]+delta[a];traceWithDelta(root,start,end,delta,mask,state);
  }
  // Original 10148030 / 10147F40 stationary dispatch, zero extents only.
  // The nested normal probe deliberately retains the stationary work flag,
  // so displacement visits are not suppressed as they are on swept rays.
  void traceStationaryPoint(const std::array<float,3>&point,uint32_t mask,SourcePreparedWorldRayStateCandidate&state)const{
+  traceStationaryPointAtRoot(world.root,point,mask,state);
+ }
+ void traceStationaryPointAtRoot(int32_t root,const std::array<float,3>&point,uint32_t mask,
+                                 SourcePreparedWorldRayStateCandidate&state)const{
   if(mask&0x2000)throw std::runtime_error("surface-exclusion mask not supported by prepared world adapter");
-  auto result=state;const auto selection=sourceStationaryLeafSelectionCandidate(world,point,{1,1,1});
+  auto result=state;const auto selection=sourceStationaryLeafSelectionAtRootCandidate(world,root,point,{1,1,1});
   std::vector<uint8_t>visited(world.data.brushes.size());bool anyNonSolidLeaf=false;
   for(auto leaf:selection.leaves){
    if(!(world.data.leafContents.at(leaf)&1))anyNonSolidLeaf=true;
@@ -76,15 +91,17 @@ private:
   for(size_t a=0;a<3;++a){const float step=normal[a]*99999.8984375f;end[a]=point[a]+step;delta[a]=end[a]-point[a];}
   auto result=state;result.trace.fraction=1;result.trace.leftSolid=0;result.trace.allSolid=false;result.trace.startSolid=false;result.displacementHit=0;result.trace.surface={};
   // Plane, contents and displacement flags survive this reset in 1014CE00.
-  traceWithDelta(point,end,delta,mask,result,false);state=result;
+  traceWithDelta(world.root,point,end,delta,mask,result,false);state=result;
  }
- void traceWithDelta(const std::array<float,3>&start,const std::array<float,3>&end,const std::array<float,3>&delta,uint32_t mask,SourcePreparedWorldRayStateCandidate&state,bool swept=true)const{
+ void traceWithDelta(int32_t root,const std::array<float,3>&start,const std::array<float,3>&end,
+                     const std::array<float,3>&delta,uint32_t mask,
+                     SourcePreparedWorldRayStateCandidate&state,bool swept=true)const{
   if(mask&0x2000)throw std::runtime_error("surface-exclusion mask not supported by prepared world adapter");
   auto result=state;std::array<float,3>inverse{};
   for(size_t a=0;a<3;++a){inverse[a]=delta[a]==0?std::numeric_limits<float>::max():1.f/delta[a];if(!std::isfinite(start[a])||!std::isfinite(end[a])||!std::isfinite(delta[a])||!std::isfinite(inverse[a]))throw std::runtime_error("invalid prepared world ray");}
   std::vector<uint32_t>contents;for(const auto&b:world.data.brushes)contents.push_back(b.contents);
   std::vector<uint32_t>brushVisits(contents.size()),dispVisits(meshes.size());
-  sourceBspLineWalkCandidate(world.planes,world.nodes,world.root,uint32_t(leafDisplacements.size()),start,end,0,1,result.trace.fraction,[&](uint32_t leaf,float,float){
+  sourceBspLineWalkCandidate(world.planes,world.nodes,root,uint32_t(leafDisplacements.size()),start,end,0,1,result.trace.fraction,[&](uint32_t leaf,float,float){
    const auto&brushes=world.data.leafBrushes.at(leaf);
    sourceLeafBrushPolicyCandidate(brushes,contents,brushVisits,1,mask,result.trace,[](uint32_t){return false;},[&](uint32_t brush,auto&s){
     bool entering=false;sourceBrushLineDispatchCandidate(world.data,world.records,brush,start,end,s,&entering,&delta);

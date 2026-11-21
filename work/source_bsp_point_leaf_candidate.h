@@ -13,7 +13,7 @@ class SourceBspPointLeafCandidate {
  struct Node{uint32_t plane;std::array<int32_t,2>children;};
  std::vector<Plane>planes_;
  std::vector<Node>nodes_;
- int32_t root_=0;
+ std::vector<int32_t>modelRoots_;
  uint32_t leaves_=0;
 public:
  explicit SourceBspPointLeafCandidate(const std::vector<uint8_t>&b){
@@ -23,10 +23,11 @@ public:
   if(b.size()<1036||u32(0)!=0x50534256||u32(4)!=20)throw std::runtime_error("point leaf requires BSP20");
   auto lump=[&](unsigned id,size_t stride,uint32_t version){size_t p=8+id*16;auto start=u32(p),bytes=u32(p+4);if(start>INT32_MAX||bytes>INT32_MAX||uint64_t(start)+bytes>b.size()||(bytes&&start<1036)||bytes%stride||u32(p+8)!=version||u32(p+12))throw std::runtime_error("invalid point-leaf BSP lump");return std::array<size_t,2>{start,bytes/stride};};
   auto planes=lump(1,20,0),nodes=lump(5,32,0),leaves=lump(10,32,1),models=lump(14,48,0);
-  if(!leaves[1]||leaves[1]>65536||nodes[1]>65536||planes[1]>65536||!models[1])throw std::runtime_error("unsupported point-leaf table coverage");leaves_=uint32_t(leaves[1]);root_=signedWord(models[0]+36);
+  if(!leaves[1]||leaves[1]>65536||nodes[1]>65536||planes[1]>65536||!models[1])throw std::runtime_error("unsupported point-leaf table coverage");leaves_=uint32_t(leaves[1]);
   for(size_t i=0;i<planes[1];++i){size_t p=planes[0]+i*20;Plane plane{{scalar(p),scalar(p+4),scalar(p+8)},scalar(p+12),signedWord(p+16)};if(plane.type<0||plane.type>5)throw std::runtime_error("BSP plane type");planes_.push_back(plane);}
   auto childValid=[&](int32_t child){return child>=0?uint64_t(child)<nodes[1]:uint64_t(-1-int64_t(child))<leaves_;};
-  if(!childValid(root_))throw std::runtime_error("BSP world root outside tables");
+  for(size_t i=0;i<models[1];++i)modelRoots_.push_back(signedWord(models[0]+i*48+36));
+  if(!childValid(worldRoot()))throw std::runtime_error("BSP world root outside tables");
   for(size_t i=0;i<nodes[1];++i){size_t p=nodes[0]+i*32;Node node{u32(p),{signedWord(p+4),signedWord(p+8)}};
    if(node.plane>=planes_.size()||!childValid(node.children[0])||!childValid(node.children[1]))throw std::runtime_error("BSP node reference");
    const auto&plane=planes_[node.plane];if(plane.type<3){for(int axis=0;axis<3;++axis)if(plane.normal[size_t(axis)]!=(axis==plane.type?1.f:0.f))throw std::runtime_error("noncanonical referenced axial plane");}
@@ -39,7 +40,7 @@ public:
   }
  }
  uint32_t leafAt(const std::array<float,3>&point)const{
-  for(float value:point)if(!std::isfinite(value))throw std::runtime_error("nonfinite BSP point");int32_t cursor=root_;
+  for(float value:point)if(!std::isfinite(value))throw std::runtime_error("nonfinite BSP point");int32_t cursor=worldRoot();
   while(cursor>=0){const auto&node=nodes_.at(size_t(cursor));const auto&plane=planes_.at(node.plane);float distance;
    if(plane.type<3)distance=point[size_t(plane.type)]-plane.distance;
    else distance=((point[0]*plane.normal[0]+point[1]*plane.normal[1])+point[2]*plane.normal[2])-plane.distance;
@@ -47,14 +48,16 @@ public:
   }
   return uint32_t(-1-int64_t(cursor));
  }
- size_t nodeCount()const{return nodes_.size();}size_t planeCount()const{return planes_.size();}uint32_t leafCount()const{return leaves_;}int32_t worldRoot()const{return root_;}
+ size_t nodeCount()const{return nodes_.size();}size_t planeCount()const{return planes_.size();}uint32_t leafCount()const{return leaves_;}
+ int32_t worldRoot()const{return modelRoots_.front();}
+ const auto& modelRoots()const{return modelRoots_;}
  // Recovered native 10145690 plane-by-plane target adjustment. This is not a
  // brush collision trace. Exact plane ties intentionally retain native rules.
  std::array<float,3>constrainToStartLeaf(const std::array<float,3>&start,float tolerance,const std::array<float,3>&target)const{
   for(float value:start)if(!std::isfinite(value))throw std::runtime_error("nonfinite BSP segment start");
   for(float value:target)if(!std::isfinite(value))throw std::runtime_error("nonfinite BSP segment target");
   if(!std::isfinite(tolerance)||tolerance<0)throw std::runtime_error("invalid BSP segment tolerance");
-  auto result=target;int32_t cursor=root_;
+  auto result=target;int32_t cursor=worldRoot();
   while(cursor>=0){const auto&node=nodes_.at(size_t(cursor));const auto&plane=planes_.at(node.plane);
    auto distance=[&](const auto&point){float value;if(plane.type<3)value=point[size_t(plane.type)]-plane.distance;
     else{const float y=point[1]*plane.normal[1],x=point[0]*plane.normal[0],z=point[2]*plane.normal[2];const float xy=y+x;value=(xy+z)-plane.distance;}

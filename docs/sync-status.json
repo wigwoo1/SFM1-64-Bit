@@ -1,14 +1,15 @@
 {
   "repository": "wigwoo1/SFM1-64-Bit",
-  "checked_utc": "2026-11-21T20:04:58.751657+00:00",
-  "status": "The current editor source failed to compile. The last verified experimental Windows x64 source snapshot and download remain available.",
-  "attempted_build_exit_code": 1,
-  "attempted_build_compiler_warning_count": 8,
-  "attempted_build_compiled_shader_count": 31,
-  "attempted_build_primary_error": "work/retained_session_scene_candidate.h at lines 420 and 422 reads a field named normal that the BSP trace result does not expose (MSVC C2039).",
-  "published_build_previously_verified_at_commit": "781983493c3def0b5f5eaaf901a82930da23f1b5",
-  "published_executable_sha256": "4308c640611de7998a2296ff3f93e1565e05185eb43d2794e34b2ef85a53021e",
-  "published_package_sha256": "35a0128f4f56130375255e290fa17b5b9640f05ff1d37e4969a025e5dfb9cc02",
-  "published_package_git_blob_sha": "5fc406e5a609dab64a6cb72701c67d9aefa37db6",
-  "compatibility": "Experimental and incomplete."
+  "checked_utc": "2026-11-21T20:49:10.534407+00:00",
+  "status": "The current experimental Windows x64 editor was rebuilt and packaged.",
+  "build_exit_code": 0,
+  "compile_warnings": 18,
+  "compiled_shaders": 31,
+  "executable_sha256": "c2221241c5b7d2667101a02be6e6fca60a2578afcf702b9be92279c3d0a3d716",
+  "package_sha256": "b6819223afa8b506b4ce02fd9a361f40810cf1b643ef07531239a9058a557255",
+  "package_validation": "Verified ZIP contents, checksums and AMD64 PE32+ header.",
+  "control_test": "PASS",
+  "control_test_frames": 5,
+  "compatibility": "Experimental and incomplete. Interactive workflow and visual parity remain unverified.",
+  "public_package_note": "The experimental export command resolves python.exe on PATH. Interactive export was not tested."
 }

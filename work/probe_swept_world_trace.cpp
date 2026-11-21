@@ -12,6 +12,9 @@
 #ifdef FULL_WORLD_TRACE
 #include "source_world_ray_trace_candidate.h"
 #endif
+#ifdef TRANSLATED_BRUSH_POINT_TRACE
+#include "source_translated_brush_point_trace_candidate.h"
+#endif
 #ifdef CACHE_WORLD_POSITION
 #include "source_bsp_light_cache_world_candidate.h"
 #ifdef CACHE_NEW_RECORD_ANCHOR
@@ -70,6 +73,16 @@ static void __fastcall releaseWork(void*,void*,void*record){if(reinterpret_cast<
 static void* __cdecl clearTrace(void*p,int value,size_t n){return std::memset(p,value,n);}
 static size_t activeQuery=0;
 static LONG CALLBACK reportFault(EXCEPTION_POINTERS*p){std::cerr<<"native fault query="<<activeQuery<<" eip="<<std::hex<<p->ContextRecord->Eip<<" ecx="<<p->ContextRecord->Ecx<<" edx="<<p->ContextRecord->Edx<<" eax="<<p->ContextRecord->Eax<<" address="<<p->ExceptionRecord->ExceptionInformation[1]<<std::endl;ExitProcess(90);}
+#ifdef TRANSLATED_BRUSH_POINT_TRACE
+struct BrushFixtureCollideable {
+ const uintptr_t* table;
+ int32_t modelIndex;
+ std::array<float,3> origin, angles{};
+};
+static int32_t __fastcall brushFixtureModel(BrushFixtureCollideable* entity,void*){return entity->modelIndex;}
+static const float* __fastcall brushFixtureOrigin(BrushFixtureCollideable* entity,void*){return entity->origin.data();}
+static const float* __fastcall brushFixtureAngles(BrushFixtureCollideable* entity,void*){return entity->angles.data();}
+#endif
 #ifdef CACHE_WORLD_POSITION
 static uint8_t*cacheNativeBase=nullptr;
 static void __fastcall cacheWorldTraceBridge(void*,void*,const uint8_t*ray,uint32_t mask,void*filter,uint8_t*out){
@@ -180,6 +193,18 @@ if(refs.size()>65535)throw std::runtime_error("leaf reference index overflow");l
  for(const auto&f:treeFragments)std::memcpy(base+f.offset,f.bytes,f.size);for(const auto&f:rayTriangleFragments)std::memcpy(base+f.offset,f.bytes,f.size);for(const auto&f:rayTreeFragments)std::memcpy(base+f.offset,f.bytes,f.size);for(const auto&c:rayTriangleConstants)std::memcpy(base+c.offset,c.bytes,c.size);for(const auto&c:rayTreeConstants)std::memcpy(base+c.offset,c.bytes,c.size);for(const auto&c:dispBoundsConstants)std::memcpy(base+c.offset,c.bytes,c.size);
  for(const auto&f:sweptWorldFragments)std::memcpy(base+f.offset,f.bytes,f.size);const float high=std::numeric_limits<float>::max();std::memcpy(base+0x31debc,&high,4);
  auto jump=[&](size_t at,uintptr_t target){base[at]=0xe9;int32_t d=int32_t(target-(reinterpret_cast<uintptr_t>(base)+at+5));std::memcpy(base+at+1,&d,4);};jump(0x149230,reinterpret_cast<uintptr_t>(&acquireWork));jump(0xe020,reinterpret_cast<uintptr_t>(&releaseWork));jump(0x2de530,reinterpret_cast<uintptr_t>(&clearTrace));
+#ifdef TRANSLATED_BRUSH_POINT_TRACE
+ std::vector<std::array<uint8_t,56>>models(owned.modelRoots.size());
+ for(size_t i=0;i<models.size();++i)std::memcpy(models[i].data()+36,&owned.modelRoots[i],4);
+ const auto modelCount=uint32_t(models.size());
+ std::memcpy(base+0x637604,&modelCount,4);
+ const auto modelTable=reinterpret_cast<uintptr_t>(models.data());
+ std::memcpy(base+0x637608,&modelTable,4);
+ std::array<uintptr_t,10> collideableTable{};
+ collideableTable[0x18/4]=reinterpret_cast<uintptr_t>(&brushFixtureModel);
+ collideableTable[0x20/4]=reinterpret_cast<uintptr_t>(&brushFixtureOrigin);
+ collideableTable[0x24/4]=reinterpret_cast<uintptr_t>(&brushFixtureAngles);
+#endif
 #ifdef CACHE_WORLD_POSITION
  // Spatial globals consumed by original point-leaf/contents/clip wrappers.
  uint32_t nodeCount=uint32_t(nodes.size());put(world,0x74,&nodeCount,4);std::memcpy(base+0x637568,world.data(),world.size());uint32_t sse=1;std::memcpy(base+0x6c1228,&sse,4);
@@ -203,6 +228,16 @@ if(refs.size()>65535)throw std::runtime_error("leaf reference index overflow");l
 #endif
  while(in.read(reinterpret_cast<char*>(q.data()),36)){
   std::array<float,3>start,delta;std::memcpy(start.data(),q.data(),12);std::memcpy(delta.data(),q.data()+3,12);if(q[7]>1||q[8]>1)throw std::runtime_error("fixture bool");SourceSweptWorldTraceCandidate result;
+#ifdef TRANSLATED_BRUSH_POINT_TRACE
+  uint32_t modelIndex;
+  std::array<float,3> origin;
+  if(!in.read(reinterpret_cast<char*>(&modelIndex),4)||
+     !in.read(reinterpret_cast<char*>(origin.data()),12)||q[8]!=1)
+   throw std::runtime_error("invalid brush model fixture");
+#ifdef NATIVE_BRUSH_WORLD
+  (void)combined.modelRoot(modelIndex);
+#endif
+#endif
 #ifdef WORLD_SURFACE_FLAGS
   std::array<uint32_t,2>surfaceResult{};
 #endif
@@ -224,7 +259,14 @@ if(refs.size()>65535)throw std::runtime_error("leaf reference index overflow");l
   ray.bytes[69]=delta!=std::array<float,3>{0,0,0};
 #endif
   std::array<uint8_t,84>trace;trace.fill(0xcd);
-#ifdef CACHE_WORLD_POSITION
+#ifdef TRANSLATED_BRUSH_POINT_TRACE
+  ray.bytes[69]=uint8_t(q[7]);
+  BrushFixtureCollideable entity{collideableTable.data(),int32_t(modelIndex+1),origin};
+  using Clip=bool(__thiscall*)(void*,const void*,uint32_t,void*,void*);
+  const auto clip=reinterpret_cast<Clip>(base+0x16d6f0);
+  if(!clip(nullptr,ray.bytes.data(),q[6],&entity,trace.data())||releases!=1)
+   throw std::runtime_error("original brush clipping dispatch failed");
+#elif defined(CACHE_WORLD_POSITION)
   using Leaf=int32_t(__cdecl*)(const float*);inputLeaf=reinterpret_cast<Leaf>(base+0x145660)(start.data());std::array<uint8_t,0x1e0>record;record.fill(0xa5);const auto originalStart=start;
 #ifdef CACHE_NEW_RECORD_ANCHOR
   put(cacheCenterVariable,0x30,&q[6],4);const std::array<int32_t,3>cell{17,-29,47};invokeNewCacheRecordAnchor(base+0x19791b,record.data(),start.data(),inputLeaf,cell.data());auto recordWord=[&](size_t at){uint32_t v;std::memcpy(&v,record.data()+at,4);return v;};if(recordWord(0x18c)!=uint32_t(inputLeaf)||recordWord(0xc8)!=UINT32_MAX||recordWord(0x128)!=UINT32_MAX||recordWord(0x1d4)!=17||recordWord(0x1d8)!=uint32_t(-29)||recordWord(0x1dc)!=47)throw std::runtime_error("new cache-record frame/field setup differs");
@@ -261,7 +303,9 @@ std::memcpy(&result.state.displacementFlags,trace.data()+0x34,2);std::memcpy(&re
   anchor=sourceLightCachePositionCandidate(start,inputLeaf,observedCache);if(anchor!=cacheWorld.position(start))throw std::runtime_error("observed versus direct cache adapter differs");
 #endif
 #else
-#ifdef FULL_WORLD_TRACE
+#ifdef TRANSLATED_BRUSH_POINT_TRACE
+  result=sourceTranslatedBrushPointTraceCandidate(combined,modelIndex,origin,start,delta,q[6],q[7]!=0);
+#elif defined(FULL_WORLD_TRACE)
 #ifdef WORLD_SURFACE_FLAGS
   const float dx=delta[0]*delta[0],dy=delta[1]*delta[1],dz=delta[2]*delta[2];const float dxy=dx+dy;result=sourceWorldRayTraceWithSweptFlagCandidate(combined,start,delta,q[6],(dxy+dz)!=0,q[7]!=0,q[8]!=0);
 #else

@@ -1,8 +1,8 @@
 """Intact original engine TraceRay policy vs owned semantics; world/partition/clip services controlled."""
-import collections,hashlib,json,random,struct,subprocess,tempfile
+import collections,hashlib,json,os,random,struct,subprocess,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
-OUT=ROOT/'outputs/engine-point-trace-20261016'
+OUT=Path(os.environ.get('SFM64_ENGINE_POINT_TEST_DIRECTORY', ROOT/'outputs/engine-point-trace-20261016'))
 ENGINE=Path('F:/SteamLibrary/steamapps/common/SourceFilmmaker/game/bin/engine.dll')
 ENGINE_SHA='c084b859142f39e3a1040a550e5e2edf44940f1f5fb9fe46cf257f25bb5b5e4f'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
@@ -29,8 +29,17 @@ def expected(row,counters):
             if any(short[j]!=f(delta[j]*scale) for j in range(3)):counters['rounded_shortening']+=1
         struct.pack_into('<f',result,44,1.);overflows=max(0,len(candidates)-1024);counters['overflowed_candidates']+=overflows
         for i,(handle,trace) in enumerate(candidates[:1024]):
-            label=i+1;calls.extend([(1,label),(2,label),(2,label)]);static=handle&0xffff0000==0x40000000
-            if not static or excluded==label:counters['filtered']+=1;continue
+            label=i+1;calls.extend([(1,label),(2,label)]);static=handle&0xffff0000==0x40000000
+            if mode==0:
+                if static:
+                    counters['particle_static_prop_bypasses']+=1
+                    if excluded==label:counters['particle_static_props_accepted_despite_predicate']+=1
+                else:
+                    calls.append((4,label));counters['particle_entity_predicates']+=1
+                    if excluded==label:counters['particle_entity_filtered']+=1;continue
+            else:
+                calls.append((2,label))
+                if not static or excluded==label:counters['filtered']+=1;continue
             calls.append((3,label));counters['clipped']+=1;fraction=struct.unpack_from('<f',result,44)[0];candidateFraction=struct.unpack_from('<f',trace,44)[0]
             if trace[54] or trace[55] or fraction>candidateFraction:
                 old=bytes(result);result[:]=trace;counters['merged']+=1
@@ -43,7 +52,7 @@ def expected(row,counters):
 def main():
     require(sha(ENGINE)==ENGINE_SHA,'Original engine changed');run=Path(tempfile.mkdtemp(prefix='verification-',dir=OUT));rng=random.Random(0x16ece0);rows=[]
     # Every world fraction/filter/start-solid and selected candidate flag state.
-    for mode in [1,3]:
+    for mode in [0,1,3]:
         for worldFraction in [0.,.125,.5,1.]:
             for worldInside in [0,1,2]:
                 for static in [False,True]:
@@ -52,17 +61,36 @@ def main():
                             world=make_trace(rng,worldFraction,worldInside,0,.75);candidates=[((0x40000000 if static else 0x40010000)+j,make_trace(rng,.25,inside,solid,.5)) for j in [1,2]];rows.append(encode([1e7,-1e7,-0.],[.5,-.25,0.],1,0x4481,mode,excluded,world,candidates))
     directed=len(rows)
     for i in range(8192):
-        n=rng.randrange(0,17);mode=rng.choice([1,3]);start=[f(rng.uniform(-1e6,1e6)) for _ in range(3)];delta=[f(rng.uniform(-1000,1000)) for _ in range(3)];world=make_trace(rng,start=0 if i%5 else None,allsolid=0);candidates=[]
+        n=rng.randrange(0,17);mode=rng.choice([0,1,3]);start=[f(rng.uniform(-1e6,1e6)) for _ in range(3)];delta=[f(rng.uniform(-1000,1000)) for _ in range(3)];world=make_trace(rng,start=0 if i%5 else None,allsolid=0);candidates=[]
         for j in range(n):candidates.append((rng.choice([0x40000000,0x40000000,0,0x40010000,0xffff0000])+rng.randrange(65536),make_trace(rng)))
         rows.append(encode(start,delta,i%2,rng.getrandbits(32),mode,rng.randrange(n+1),world,candidates))
     # Original collector retains first1024 and issues a warning per extra item.
-    for n in [0,1,1023,1024,1025,2048]:
-        world=make_trace(rng,1.,0,0,0.);candidates=[(0x40000000+j,make_trace(rng,1.,0,0,0.)) for j in range(n)];rows.append(encode([0,0,0],[1,2,3],1,1,3,0,world,candidates))
-    inputPath=run/'inputs.bin';inputPath.write_bytes(b''.join(rows));coverage=collections.Counter();reference=[expected(row,coverage) for row in rows];(run/'expected.bin').write_bytes(b''.join(framed(x) for x in reference));executables=[];outputs=[]
+    for mode in [0,3]:
+        for n in [0,1,1023,1024,1025,2048]:
+            world=make_trace(rng,1.,0,0,0.);candidates=[(0x40000000+j,make_trace(rng,1.,0,0,0.)) for j in range(n)];rows.append(encode([0,0,0],[1,2,3],1,1,mode,0,world,candidates))
+            directed+=1
+    # Preserve candidate order across mixed props/entities and exact ties.
+    for excluded in (0,1,2,3):
+        for first,second in ((.25,.25),(.125,.25),(.25,.125)):
+            world=make_trace(rng,.75,0,0,0.)
+            candidates=[(0x40000001,make_trace(rng,first,0,0,0.)),
+                        (0x40010001,make_trace(rng,second,0,0,0.)),
+                        (0x40000002,make_trace(rng,1.,0,0,0.))]
+            rows.append(encode([2.,4.,8.],[9.,6.,3.],1,0x0200400B,0,excluded,world,candidates))
+            directed+=1
+    inputPath=run/'inputs.bin';inputPath.write_bytes(b''.join(rows));coverage=collections.Counter();reference=[expected(row,coverage) for row in rows]
+    require(all(coverage[name]>0 for name in ('particle_static_prop_bypasses',
+        'particle_static_props_accepted_despite_predicate','particle_entity_predicates','particle_entity_filtered')),
+        'Missing particle filter coverage')
+    (run/'expected.bin').write_bytes(b''.join(framed(x) for x in reference));executables=[];outputs=[]
+    expected_swept=b''.join(struct.pack('<I',struct.unpack_from('<I',row,24)[0]
+                             if struct.unpack_from('<I',result,96)[0] else 0xffffffff)
+                            for row,result in zip(rows,reference,strict=True))
     for name,machine in [('engine_point_native_x86',0x14c),('engine_point_owned_x64',0x8664)]:
         p=OUT/(name+'.exe');raw=p.read_bytes();pe=struct.unpack_from('<I',raw,60)[0];require(raw[pe:pe+4]==b'PE\0\0' and struct.unpack_from('<H',raw,pe+4)[0]==machine and b'asInvoker' in raw,'Executable architecture/manifest');executables.append(dict(path=str(p),sha256=sha(p),machine=hex(machine)));dest=run/(name+'.bin');r=subprocess.run([str(p),str(ENGINE),str(inputPath),str(dest)],capture_output=True,text=True,timeout=120);(run/(name+'.log')).write_text(r.stdout+r.stderr);require(r.returncode==0,'Engine point probe '+name+' '+r.stdout+r.stderr);data=dest.read_bytes();at=0;parsed=[]
         while at<len(data):value,at=parse_frame(data,at);parsed.append(value)
         require(len(parsed)==len(rows),'Output count');outputs.append(parsed)
+        require(dest.with_suffix('.bin.swept').read_bytes()==expected_swept,'Enumeration swept flags '+name)
     safetyPath=OUT/'engine_point_safety_x64.exe';raw=safetyPath.read_bytes();pe=struct.unpack_from('<I',raw,60)[0];require(struct.unpack_from('<H',raw,pe+4)[0]==0x8664 and b'asInvoker' in raw,'Safety architecture/manifest');executables.append(dict(path=str(safetyPath),sha256=sha(safetyPath),machine='0x8664'));safety=subprocess.run([str(safetyPath)],capture_output=True,text=True,timeout=15);(run/'safety.log').write_text(safety.stdout+safety.stderr);require(safety.returncode==0,'Engine point safety '+safety.stdout+safety.stderr)
     differences=[]
     for i,want in enumerate(reference):

@@ -114,6 +114,8 @@ inline void testVulkanModelDrawCandidate(HMODULE library,Handle physical,Handle 
  const bool shutterReadback=enabledDiagnostic("SFM64_DIAGNOSTIC_SHUTTER_SAMPLE_READBACK");
  const bool particleTiming=enabledDiagnostic("SFM64_DIAGNOSTIC_PARTICLE_TIMING");
  const bool particleBirths=enabledDiagnostic("SFM64_DIAGNOSTIC_PARTICLE_BIRTHS");
+ const bool particleWorldCollision=particleBirths&&enabledDiagnostic("SFM64_DIAGNOSTIC_PARTICLE_WORLD_COLLISION");
+ const bool particleStaticProps=particleWorldCollision&&enabledDiagnostic("SFM64_DIAGNOSTIC_PARTICLE_STATIC_PROPS");
  const bool particleDefinitions=enabledDiagnostic("SFM64_DIAGNOSTIC_PARTICLE_DEFINITIONS")||particleBirths;
  if(shutterReadback&&!animatedShutter)throw std::runtime_error("shutter readback requires animated shutter capture");
  std::vector<SessionCameraSamplePointsCandidate> cameraSamples;
@@ -170,7 +172,7 @@ inline void testVulkanModelDrawCandidate(HMODULE library,Handle physical,Handle 
    const auto length=GetEnvironmentVariableW(L"SFM64_DIAGNOSTIC_PARTICLE_RANDOM_REFERENCE",path,32768);
    if(length&&length<32768)randomReference=path;
   }
-  frozenSceneOwner->loadParticleDefinitions(particleBirths,randomReference);
+  frozenSceneOwner->loadParticleDefinitions(particleBirths,randomReference,particleWorldCollision,particleStaticProps);
  }
  if(aoCameraControls)frozenSceneOwner->addSceneDecorationCandidate(
   [aoShade,explicitSceneRoot](const Graph&graph,const SessionRenderSceneCandidate&scene,const auto&,const auto&,PreparedSessionSceneCandidate&prepared){
@@ -431,6 +433,16 @@ if(action==PlaybackEditorActionCandidate::ExportShotFirstFrame){if(exportImageWi
      }
      if(birth.operatorRandomVectors)
       line<<" operator_random_vectors="<<*birth.operatorRandomVectors;
+     if(birth.sampledLiveMotion && birth.sampledLiveMotion->oscillatorId)
+      line<<" oscillator_id="<<*birth.sampledLiveMotion->oscillatorId;
+     if(birth.collisionContacts)
+      line<<" collision_scope="<<(particleStaticProps?"bsp_world_static_props":"bsp_world")
+          <<" collision_contacts="<<*birth.collisionContacts;
+     if(birth.sampledLiveStyle){
+      const auto& live=*birth.sampledLiveStyle;
+      line<<" style_id="<<live.id<<" live_radius="<<live.radius<<" live_tint="
+          <<live.tint[0]<<','<<live.tint[1]<<','<<live.tint[2];
+     }
     }
     std::cout<<line.str()<<'\n';
    }

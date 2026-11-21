@@ -12,6 +12,13 @@
 struct SessionParticleLiveMotionCandidate {
     uint32_t id;
     SourceParticleSpawnPositionCandidate motion;
+    std::optional<uint32_t> oscillatorId;
+};
+
+struct SessionParticleLiveStyleCandidate {
+    uint32_t id;
+    float radius;
+    std::array<float, 3> tint;
 };
 
 struct SessionParticleBirthsCandidate {
@@ -31,10 +38,14 @@ struct SessionParticleBirthsCandidate {
     int64_t skippedTintBirths = 0;
     std::optional<SessionParticleLiveMotionCandidate> sampledLiveMotion;
     std::optional<uint64_t> operatorRandomVectors;
+    std::optional<SessionParticleLiveStyleCandidate> sampledLiveStyle;
+    std::optional<size_t> collisionContacts;
 };
 
 using SessionParticlePointSamplerCandidate =
     std::function<std::optional<SourceParticleControlPointCandidate>(int32_t)>;
+using SessionParticleTraceCandidate =
+    std::function<SourceParticlePlaneTraceHitCandidate(const SourceParticlePlaneTraceRequestCandidate&)>;
 
 // Replay an isolated emitter tree. Supported life programs retain particles
 // across steps. Other definitions drain each diagnostic batch.
@@ -44,7 +55,7 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
         const SessionParticleSimulationCurveCandidate& emission, int32_t seed = 0,
         const SourceParticleRandomTableCandidate* randomTable = nullptr,
         SourceParticleSheetCacheCandidate* sheets = nullptr,
-        const SessionParticlePointSamplerCandidate& pointAt = {}) {
+        const SessionParticlePointSamplerCandidate& pointAt = {}, const SessionParticleTraceCandidate& trace = {}) {
     if (startup.skippedTicks || target < startup.cursor || timeScale < 0 || !std::isfinite(timeScale) ||
         simulation.keys.empty() || emission.keys.empty()) return {};
     struct Collection {
@@ -59,6 +70,8 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
         std::optional<SourceParticleVectorCandidate> previousPoint;
         SourceParticleControlPointLockCandidate lock{};
         float previousDelta = .05f;
+        size_t planeOwner = 0;
+        SourceParticleCachedPlanesCandidate planes{};
     };
     std::vector<SessionParticleBirthsCandidate> result;
     std::vector<Collection> collections;
@@ -75,7 +88,7 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
         const auto* a = sourceParticleAttributeCandidate(graph, e, name, 4);
         return a ? a->values.front().wire.front() != 0 : fallback;
     };
-    const auto visit = [&](auto&& self, uint32_t id) -> bool {
+    const auto visit = [&](auto&& self, uint32_t id, size_t planeOwner) -> bool {
         if (id >= graph.elements.size() || active.size() >= 64 || !active.insert(id).second) return false;
         const auto& def = graph.elements[id];
         if (graph.strings.at(def.type) != "DmeParticleSystemDefinition" ||
@@ -105,7 +118,7 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
             !std::isfinite(duration) || duration < 0 || capacity < 0 || capacity > 5000 ||
             !std::isfinite(maximumStep) || maximumStep != .1f) return false;
 
-        auto lifetime = sessionParticleLifeProgramCandidate(graph, def);
+        auto lifetime = sessionParticleLifeProgramCandidate(graph, def, bool(trace));
         // The root's seed and draw cursor are verified. A child may offset
         // its draw cursor using definition data, so admit fixed children.
         const bool seeded = active.size() == 1 && seed != 0 && randomTable;
@@ -126,9 +139,12 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
         result.push_back({graph.strings.at(def.name), id});
         if (lifetime) result.back().liveCount = 0;
         if (lifetime && lifetime->needsRandom()) result.back().randomDraws = 0;
+        if (lifetime && lifetime->collision) result.back().collisionContacts = 0;
         result.back().lifetimeFromSheet = sheet != nullptr;
+        const size_t current = collections.size();
         collections.push_back({{rate, start, duration}, {}, 0.f, maximumStep, capacity, lifetime, {},
                                {static_cast<uint32_t>(seed), 0}, sheet, previousPoint});
+        collections.back().planeOwner = planeOwner;
         if (const auto* children = sourceParticleAttributeCandidate(graph, def, "children", 15))
             for (const auto& entry : children->values) {
                 if (entry.reference >= graph.elements.size()) return false;
@@ -136,12 +152,12 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                 if (graph.strings.at(child.type) != "DmeParticleChild" || number(child, "delay", 0.f) != 0.f)
                     return false;
                 const auto* link = sourceParticleAttributeCandidate(graph, child, "child", 1);
-                if (!link || !self(self, link->values[0].reference)) return false;
+                if (!link || !self(self, link->values[0].reference, current)) return false;
             }
         active.erase(id);
         return true;
     };
-    if (!visit(visit, root)) return {};
+    if (!visit(visit, root, 0)) return {};
 
     // Each diagnostic replay owns a fresh serial manager stream. This scope
     // leaves out other particle instances and the engine's worker scheduling.
@@ -231,11 +247,16 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                             c.live[slot].duration = sourceParticleSheetLifetimeCandidate(
                                 c.live[slot].duration, c.live[slot].sequence, c.lifetime->sequenceFps, c.sheet);
                     for (size_t slot = begin; slot < c.live.size(); ++slot) {
+                        auto& particle = c.live[slot];
                         if (c.lifetime->hasAppearance()) {
-                            auto& particle = c.live[slot];
                             particle.initialAlpha = particle.alpha = particle.appearance.opacity;
+                            particle.radius = particle.appearance.radius;
+                            particle.tint = particle.appearance.tint;
                             summary.lastAppearance = particle.appearance;
                         }
+                        // Default ID initialization follows the authored stages
+                        // and advances the seeded collection cursor once per birth.
+                        if (c.lifetime->oscillator) particle.oscillatorId = c.random.nextIndex();
                         uint32_t lifeBits;
                         std::memcpy(&lifeBits, &c.live[slot].duration, sizeof(lifeBits));
                         for (const auto value : {lifeBits, static_cast<uint32_t>(c.live[slot].sequence)})
@@ -248,6 +269,7 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                 // Native dispatch compacts the kill list after each operator.
                 // An empty collection skips its remaining operators.
                 if (c.lifetime) {
+                    uint32_t operatorOffset = 0;
                     for (const auto update : c.lifetime->updates) {
                         if (c.live.empty()) break;
                         switch (update) {
@@ -261,8 +283,31 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                                 *c.lifetime->movement, command.durationSeconds, c.previousDelta);
                             for (auto& particle : c.live)
                                 sourceAdvanceParticleMotionCandidate(particle.motion, motion);
+                            // Basic Movement dispatches the single admitted
+                            // constraint before the next authored operator.
+                            if (const auto& collision = c.lifetime->collision) {
+                                auto& planes = collections[c.planeOwner].planes;
+                                planes.sample(c.clock, point->position, collision->offset,
+                                              collision->movementTolerance, collision->group, trace);
+                                for (auto& particle : c.live)
+                                    *summary.collisionContacts += sourceParticleResolveCachedPlaneCandidate(
+                                        particle.motion, particle.radius, planes.planes, collision->response);
+                            }
                             break;
                         }
+                        case SessionParticleUpdateCandidate::ScaleRadius:
+                            for (auto& particle : c.live)
+                                sourceParticleScaleRadiusCandidate(particle, c.clock, *c.lifetime->radiusScale);
+                            break;
+                        case SessionParticleUpdateCandidate::FadeColor:
+                            for (auto& particle : c.live)
+                                sourceParticleFadeColorCandidate(particle, c.clock, *c.lifetime->colorFade);
+                            break;
+                        case SessionParticleUpdateCandidate::OscillatePosition:
+                            for (auto& particle : c.live)
+                                sourceParticleOscillatePositionCandidate(particle, *c.lifetime->oscillator, c.clock,
+                                    command.durationSeconds, *randomTable, c.random.seed, operatorOffset);
+                            break;
                         case SessionParticleUpdateCandidate::ControlPointLock: {
                             const auto translation = c.lock.begin(point->position, 1.f);
                             if (const auto& partial = c.lifetime->partialLock) {
@@ -291,10 +336,16 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                             break;
                         }
                         }
+                        operatorOffset += sourceParticleOperatorSampleStrideCandidate;
                     }
                     summary.liveCount = c.live.size();
                     summary.sampledLiveMotion.reset();
-                    if (c.lifetime->updates.size() > 1 && !c.live.empty()) {
+                    summary.sampledLiveStyle.reset();
+                    const auto& updates = c.lifetime->updates;
+                    const bool hasMotion = c.lifetime->movement || c.lifetime->oscillator || std::find(updates.begin(), updates.end(),
+                        SessionParticleUpdateCandidate::ControlPointLock) != updates.end();
+                    const bool hasStyle = c.lifetime->radiusScale || c.lifetime->colorFade;
+                    if ((hasMotion || hasStyle) && !c.live.empty()) {
                         // Sample the oldest survivor when testing a fade so
                         // the record covers time spent partially attached.
                         const auto& particle = c.lifetime->partialLock
@@ -302,7 +353,12 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                                 return a.born < b.born;
                             })
                             : c.live.back();
-                        summary.sampledLiveMotion = SessionParticleLiveMotionCandidate{particle.id, particle.motion};
+                        if (hasMotion)
+                            summary.sampledLiveMotion = SessionParticleLiveMotionCandidate{particle.id, particle.motion,
+                                c.lifetime->oscillator ? std::optional{particle.oscillatorId} : std::nullopt};
+                        if (hasStyle)
+                            summary.sampledLiveStyle = SessionParticleLiveStyleCandidate{
+                                particle.id, particle.radius, particle.tint};
                     }
                 }
                 if (point) {

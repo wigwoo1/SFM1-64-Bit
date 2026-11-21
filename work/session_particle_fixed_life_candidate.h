@@ -1,10 +1,19 @@
 #pragma once
 
 #include "session_particle_appearance_candidate.h"
-#include "source_particle_lifetime_candidate.h"
+#include "source_particle_cached_plane_collision_candidate.h"
 #include "source_particle_motion_candidate.h"
+#include "source_particle_style_candidate.h"
+#include "source_particle_vector_oscillation_candidate.h"
 
-enum class SessionParticleUpdateCandidate { Expire, BasicMovement, ControlPointLock };
+enum class SessionParticleUpdateCandidate { Expire, BasicMovement, ControlPointLock, ScaleRadius, FadeColor, OscillatePosition };
+
+struct SessionParticleCachedCollisionCandidate {
+    SourceParticlePlaneResponseCandidate response;
+    SourceParticleVectorCandidate offset;
+    float movementTolerance;
+    uint32_t group;
+};
 
 struct SessionParticleLifeProgramCandidate {
     float minimum = 0.f, maximum = 0.f;
@@ -16,16 +25,20 @@ struct SessionParticleLifeProgramCandidate {
     float sequenceFps = 0.f;
     std::optional<SourceParticleBasicMotionCandidate> movement;
     std::optional<SourceParticlePartialLockCandidate> partialLock;
+    std::optional<SourceParticleRadiusScaleCandidate> radiusScale;
+    std::optional<SourceParticleColorFadeCandidate> colorFade;
+    std::optional<SourceParticleVectorOscillationCandidate> oscillator;
+    std::optional<SessionParticleCachedCollisionCandidate> collision;
     std::vector<SessionParticleUpdateCandidate> updates;
 
     bool hasAppearance() const { return !appearance.empty() || yawFlip.has_value(); }
-    bool needsRandom() const { return minimum != maximum || sequence || sphere || hasAppearance(); }
+    bool needsRandom() const { return minimum != maximum || sequence || sphere || hasAppearance() || oscillator; }
 };
 
 // Admit the supported stages in their authored order. Other attribute
 // writers can change the collection's draw order.
 inline std::optional<SessionParticleLifeProgramCandidate> sessionParticleLifeProgramCandidate(
-        const Graph& graph, const Element& definition) {
+        const Graph& graph, const Element& definition, bool hasCollisionProvider = false) {
     const auto number = [&](const Element& element, const char* key, float fallback) {
         const auto* found = sourceParticleAttributeCandidate(graph, element, key, 3);
         return found ? wireFloat(found->values.front()) : fallback;
@@ -46,7 +59,7 @@ inline std::optional<SessionParticleLifeProgramCandidate> sessionParticleLifePro
             if (number(node, key, 1.f) != 1.f) return nullptr;
         return &node;
     };
-    for (const auto* group : {"constraints", "forces", "renderers"}) {
+    for (const auto* group : {"forces", "renderers"}) {
         const auto* list = sourceParticleAttributeCandidate(graph, definition, group, 15);
         if (list && !list->values.empty()) return {};
     }
@@ -57,7 +70,7 @@ inline std::optional<SessionParticleLifeProgramCandidate> sessionParticleLifePro
     const auto* initializers = sourceParticleAttributeCandidate(graph, definition, "initializers", 15);
     const auto* operators = sourceParticleAttributeCandidate(graph, definition, "operators", 15);
     if (!initializers || initializers->values.empty() || initializers->values.size() > 10 ||
-        !operators || operators->values.empty() || operators->values.size() > 3) return {};
+        !operators || operators->values.empty() || operators->values.size() > 6) return {};
     const auto* initializer = supported(initializers->values.front().reference);
     if (!initializer || function(*initializer) != "lifetime random") return {};
     const float minimum = number(*initializer, "lifetime_min", 0.f);
@@ -68,6 +81,38 @@ inline std::optional<SessionParticleLifeProgramCandidate> sessionParticleLifePro
     SessionParticleLifeProgramCandidate result;
     result.minimum = minimum;
     result.maximum = maximum;
+    if (const auto* constraints = sourceParticleAttributeCandidate(graph, definition, "constraints", 15);
+        constraints && !constraints->values.empty()) {
+        if (!hasCollisionProvider || constraints->values.size() != 1) return {};
+        const auto* op = supported(constraints->values.front().reference);
+        if (!op || function(*op) != "collision via traces") return {};
+        const auto* mode = sourceParticleAttributeCandidate(graph, *op, "collision mode", 2);
+        if (!mode || wireInt(mode->values.front()) != 1) return {};
+        for (const char* key : {"kill particle on collision", "Confirm Collision"}) {
+            const auto* flag = sourceParticleAttributeCandidate(graph, *op, key, 4);
+            if (flag && flag->values.front().wire.front()) return {};
+        }
+        if (number(*op, "minimum speed to kill on collision", -1.f) > 0.f) return {};
+        const auto* group = sourceParticleAttributeCandidate(graph, *op, "collision group", 5);
+        const auto groupName = group ? vmtAsciiLowerCandidate(group->values.front().text) : "none";
+        // These group values come from the installed TF client's lookup table.
+        uint32_t groupId = 0;
+        if (groupName == "rockets") groupId = 26;
+        else if (groupName == "debris") groupId = 1;
+        else if (groupName != "none") return {};
+        SessionParticleCachedCollisionCandidate collision{
+            {number(*op, "radius scale", 1.f), number(*op, "amount of bounce", 0.f),
+             number(*op, "amount of slide", 0.f)}, {},
+            number(*op, "control point movement distance tolerance", 5.f), groupId};
+        const auto* offset = sourceParticleAttributeCandidate(graph, *op, "control point offset for fast collisions", 10);
+        if (offset)
+            for (size_t a = 0; a < 3; ++a) collision.offset[a] = wireFloat(offset->values.front(), a);
+        for (const auto value : {collision.response.radiusScale, collision.response.bounce, collision.response.slide,
+                                 collision.movementTolerance})
+            if (!std::isfinite(value) || value < 0.f) return {};
+        for (float value : collision.offset) if (!std::isfinite(value)) return {};
+        result.collision = collision;
+    }
     size_t next = 1;
     if (next < initializers->values.size()) {
         const auto* sphere = supported(initializers->values[next].reference, true);
@@ -180,6 +225,8 @@ inline std::optional<SessionParticleLifeProgramCandidate> sessionParticleLifePro
         const auto type = function(*operation);
         if (type == "movement basic") {
             if (!result.sphere || result.movement) return {};
+            const auto* passes = sourceParticleAttributeCandidate(graph, *operation, "max constraint passes", 2);
+            if (passes && wireInt(passes->values.front()) <= 0) result.collision.reset();
             const auto* gravity = sourceParticleAttributeCandidate(graph, *operation, "gravity", 10);
             SourceParticleBasicMotionCandidate movement{{}, number(*operation, "drag", 0.f)};
             if (gravity)
@@ -219,6 +266,74 @@ inline std::optional<SessionParticleLifeProgramCandidate> sessionParticleLifePro
             }
             locked = true;
             result.updates.push_back(SessionParticleUpdateCandidate::ControlPointLock);
+        } else if (type == "radius scale") {
+            if (result.radiusScale) return {};
+            const auto* ease = sourceParticleAttributeCandidate(graph, *operation, "ease_in_and_out", 4);
+            SourceParticleRadiusScaleCandidate scale{
+                number(*operation, "start_time", 0.f), number(*operation, "end_time", 1.f),
+                number(*operation, "radius_start_scale", 1.f), number(*operation, "radius_end_scale", 1.f),
+                number(*operation, "scale_bias", .5f), ease && ease->values.front().wire.front() != 0};
+            if (!std::isfinite(scale.start) || !std::isfinite(scale.end) ||
+                !std::isfinite(scale.startScale) || !std::isfinite(scale.endScale) ||
+                !(0.f <= scale.bias && scale.bias < 1.f) ||
+                (scale.bias != 0.f && !std::isfinite(sourceParticleRefinedReciprocalCandidate(scale.bias))))
+                return {};
+            result.radiusScale = scale;
+            result.updates.push_back(SessionParticleUpdateCandidate::ScaleRadius);
+        } else if (type == "color fade") {
+            if (result.colorFade) return {};
+            const auto* field = sourceParticleAttributeCandidate(graph, *operation, "output field", 2);
+            const auto* ease = sourceParticleAttributeCandidate(graph, *operation, "ease_in_and_out", 4);
+            const auto* color = sourceParticleAttributeCandidate(graph, *operation, "color_fade", 8);
+            if ((field && wireInt(field->values.front()) != 6) || !color || color->values.front().wire.size() != 4)
+                return {};
+            const auto& rgb = color->values.front().wire;
+            const auto normalized = [&](size_t channel) {
+                return static_cast<uint8_t>(rgb[channel]) * sourceParticleByteScaleCandidate;
+            };
+            SourceParticleColorFadeCandidate fade{
+                number(*operation, "fade_start_time", 0.f), number(*operation, "fade_end_time", 1.f),
+                {normalized(0), normalized(1), normalized(2)}, !ease || ease->values.front().wire.front() != 0};
+            if (!std::isfinite(fade.start) || !std::isfinite(fade.end)) return {};
+            result.colorFade = fade;
+            result.updates.push_back(SessionParticleUpdateCandidate::FadeColor);
+        } else if (type == "oscillate vector") {
+            const auto* field = sourceParticleAttributeCandidate(graph, *operation, "oscillation field", 2);
+            if (!result.sphere || result.oscillator || (field && wireInt(field->values.front()) != 0)) return {};
+            SourceParticleVectorOscillationCandidate settings;
+            const auto readVector = [&](const char* key, SourceParticleVectorCandidate& target) {
+                const auto* attribute = sourceParticleAttributeCandidate(graph, *operation, key, 10);
+                if (attribute)
+                    for (size_t axis = 0; axis < 3; ++axis) target[axis] = wireFloat(attribute->values.front(), axis);
+            };
+            const auto readFlag = [&](const char* key, bool fallback) {
+                const auto* attribute = sourceParticleAttributeCandidate(graph, *operation, key, 4);
+                return attribute ? attribute->values.front().wire.front() != 0 : fallback;
+            };
+            readVector("oscillation rate min", settings.rateMin);
+            readVector("oscillation rate max", settings.rateMax);
+            readVector("oscillation frequency min", settings.frequencyMin);
+            readVector("oscillation frequency max", settings.frequencyMax);
+            settings.startMin = number(*operation, "start time min", settings.startMin);
+            settings.startMax = number(*operation, "start time max", settings.startMax);
+            settings.endMin = number(*operation, "end time min", settings.endMin);
+            settings.endMax = number(*operation, "end time max", settings.endMax);
+            settings.multiplier = number(*operation, "oscillation multiplier", settings.multiplier);
+            settings.phase = number(*operation, "oscillation start phase", settings.phase);
+            settings.normalizePhase = readFlag("proportional 0/1", settings.normalizePhase);
+            settings.normalizeWindow = readFlag("start/end proportional", settings.normalizeWindow);
+            settings.offsetHistory = readFlag("offset instead of accelerate position", settings.offsetHistory);
+            if (!std::isfinite(settings.multiplier) || !std::isfinite(settings.phase) ||
+                !std::isfinite(settings.startMax - settings.startMin) ||
+                !std::isfinite(settings.endMax - settings.endMin) ||
+                settings.startMin > settings.startMax || settings.endMin > settings.endMax) return {};
+            for (size_t axis = 0; axis < 3; ++axis)
+                if (!std::isfinite(settings.rateMax[axis] - settings.rateMin[axis]) ||
+                    !std::isfinite(settings.frequencyMax[axis] - settings.frequencyMin[axis]) ||
+                    settings.rateMin[axis] > settings.rateMax[axis] ||
+                    settings.frequencyMin[axis] > settings.frequencyMax[axis]) return {};
+            result.oscillator = settings;
+            result.updates.push_back(SessionParticleUpdateCandidate::OscillatePosition);
         } else {
             if (expires || (type != "lifespan decay" && type != "alpha fade and decay")) return {};
             if (type == "alpha fade and decay") {
@@ -236,5 +351,5 @@ inline std::optional<SessionParticleLifeProgramCandidate> sessionParticleLifePro
             result.updates.push_back(SessionParticleUpdateCandidate::Expire);
         }
     }
-    return expires ? std::optional{std::move(result)} : std::nullopt;
+    return expires && (!result.collision || result.movement) ? std::optional{std::move(result)} : std::nullopt;
 }

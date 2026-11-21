@@ -26,20 +26,20 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "ba04c614c028dfce8b9302746f87a23a8b95de1f37c866b17c0bc7bcd0ca01ba",
-      "size": 63863
+      "sha256": "f2e8a46ad485843daf522926f0102511a81f8f7af7df9a3438b3ebbddbbc6b2b",
+      "size": 68446
     },
     "docs/publication-policy.json": {
       "sha256": "a972ec573f886d9faf5fcd9a21285a93333464226f47c7312e502f0ca22d1734",
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "6574d50e980f23d246f784b191883d6ae75333413017828498e9aab07f3d305c",
-      "size": 980
+      "sha256": "a31ce824e29bc3419a768f58c5934cf88a00ebd4429c04c77fdbf3103f79e3da",
+      "size": 806
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "35a0128f4f56130375255e290fa17b5b9640f05ff1d37e4969a025e5dfb9cc02",
-      "size": 1259950
+      "sha256": "b6819223afa8b506b4ce02fd9a361f40810cf1b643ef07531239a9058a557255",
+      "size": 1349441
     },
     "publication/README.md": {
       "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
@@ -50,8 +50,8 @@
       "size": 2761
     },
     "publication/prepare_public_snapshot.py": {
-      "sha256": "29200eec265126e29da692cf9d1751b4c056e2932cd5ee35e3a7bd1d1ba808d2",
-      "size": 13879
+      "sha256": "4bf41b25dc910dc1ecfee6dc77ff96ee5502d837b7ec237b78a84c49cef0424d",
+      "size": 13968
     },
     "test-session-core.ps1": {
       "sha256": "18c0edf7caae2f72532e643a056faba0a971c702e9bc7f14d1c9074882771c2e",
@@ -1706,8 +1706,8 @@
       "size": 414
     },
     "work/build_engine_point_trace.cmd": {
-      "sha256": "c7fbda2663cc1490f38d811acf80f44b98326f71113ced6d57e41d59a86a5466",
-      "size": 1238
+      "sha256": "df6acf05d997de370c523e5a6405aaabe39cb70c2777a91fcfa0a61479a02ee1",
+      "size": 1347
     },
     "work/build_engine_projection_associate.cmd": {
       "sha256": "cacc6e2e5214996335e51134c82d0c094f1574708b42fb50ff1ea9ad86bf6eaf",
@@ -4061,6 +4061,10 @@
       "sha256": "dd27ff9dc8ca28f583471546a5c10410d8abb5df086f9c7a04f27022df5c6f30",
       "size": 408
     },
+    "work/build_particle_trace_filter.cmd": {
+      "sha256": "aeed28347dd3be6166619ec2538152adde949f2c1b603967e532ceceddfcbf93",
+      "size": 892
+    },
     "work/build_pending_draw_flush.cmd": {
       "sha256": "4958407a2bfa2d3199b43a6b7b20309af41213fc279a6d0f5ae16c51eb9d2c69",
       "size": 632
@@ -5102,8 +5106,8 @@
       "size": 352
     },
     "work/build_sfm64_editor_x64.cmd": {
-      "sha256": "a5cb7875e565ae19e0e27cc4dd53f325c4ae3a2bd04f7906b0a99308604b135a",
-      "size": 2105
+      "sha256": "ad98a1668bc011b366621ceb60363c2fbf4b44c0a42c3275b48f2de1d8e87123",
+      "size": 2348
     },
     "work/build_sfm64_session_ui.cmd": {
       "sha256": "748e11e642397d4ffa38aec020f171645e4626a86d8d58b96da99949508600e2",
@@ -6420,6 +6424,10 @@
     "work/build_transition_vertex_values.cmd": {
       "sha256": "88c3b951c44da648100e873225d2cbc48cec8eec17fec42bb101d3980c52f721",
       "size": 376
+    },
+    "work/build_translated_brush_point_trace.cmd": {
+      "sha256": "ea4bd9d1e5be9400f19ed32748f21adf8aa68fe9902208ef7d2efc8a8890aac8",
+      "size": 995
     },
     "work/build_translucent_fixture_geometry_x64.cmd": {
       "sha256": "0aafbe5dc23b38a534756051454ab1304a6076635054fa66cac1f4280c9e59b8",
@@ -8478,8 +8486,8 @@
       "size": 466
     },
     "work/engine_point_trace_test_fixture.h": {
-      "sha256": "d23ff3a7b55c98505c694b55e046e693c7eb2c52fcbf482cb3941ccf7824ee85",
-      "size": 2604
+      "sha256": "78dba6bd1a6c2a836edb0ee32eca2657f06951d785d2b455e79205a097f960fe",
+      "size": 2615
     },
     "work/engine_projection_associate_candidate.h": {
       "sha256": "7255fec57143f2cd7330da8b4b5639b8709dae66c685129bfd9e47ecd2161742",
@@ -12742,8 +12750,8 @@
       "size": 4007
     },
     "work/probe_engine_point_trace.cpp": {
-      "sha256": "edddde66f9b39b3c1ddafb86f78be01c0ee767e69855b780bd781aeb21ff4eda",
-      "size": 9393
+      "sha256": "50b8f1e08b155c4144cbe7a9a6f95d94636d3f7fc0d981fd48d63eb978cdf5d9",
+      "size": 10492
     },
     "work/probe_engine_projection_box_planes.cpp": {
       "sha256": "e7f80b88116a18f1ffc19f45b59082681f0f93c79258d757f7e268d9cf82b417",
@@ -13957,6 +13965,10 @@
       "sha256": "6e96c5ca2b2c711e857b6f187e137f76e9465c3a344021f65d8685151c9ca96e",
       "size": 2567
     },
+    "work/probe_particle_trace_filter.cpp": {
+      "sha256": "af361dbb1fed24cc8b3a68df3c4837ac924761941c7850b7f4dd8eb4cf7ff11a",
+      "size": 11041
+    },
     "work/probe_pending_draw_flush.cpp": {
       "sha256": "70ef6944a0cbd14596b0e93a4ac6535bea1eb9e436623bd543e84018367d69e5",
       "size": 5983
@@ -14414,8 +14426,8 @@
       "size": 4615
     },
     "work/probe_swept_world_trace.cpp": {
-      "sha256": "10ca85d02f7f0f431c68f6578bd6bc85699476d26078bd22ef3780ee30d0107e",
-      "size": 26339
+      "sha256": "57fed2e1c6cd40cd6878965b75f602740e1ec15a5f94f5dec0eba59930b8782f",
+      "size": 28620
     },
     "work/probe_texture_allocation.cpp": {
       "sha256": "36576659e7c187837082d03aee4bd9403b7da943334f1b79593b03d58cc0cec5",
@@ -17354,8 +17366,8 @@
       "size": 3065
     },
     "work/retained_session_scene_candidate.h": {
-      "sha256": "9f2c79a43b4bb22f4ec4249d447228d2d2252d2fd93c933b79b849fe425f56a0",
-      "size": 30510
+      "sha256": "137646b15e4f21fb68823843bec45d21614285026e7dc06fb301decb1c6448ea",
+      "size": 35158
     },
     "work/retained_shader_constants_candidate.h": {
       "sha256": "70e1899f36e039715b62e09133a5f65b665e62f898e4460c050968c5f8663912",
@@ -17862,8 +17874,8 @@
       "size": 4724
     },
     "work/session_particle_births_candidate.h": {
-      "sha256": "c1868df036db6a48552340c4e7bb1a334852491b4d98f7a37a927dffb604fa49",
-      "size": 19255
+      "sha256": "83ae722964032000b58784c511ce3ae17e47a50c739431a775cc994063a9a984",
+      "size": 23133
     },
     "work/session_particle_bool_play_candidate.h": {
       "sha256": "61605d449cf17f8063912da94267ec1f936afb449643dad5090b1457d5b5b5d9",
@@ -17878,8 +17890,8 @@
       "size": 3063
     },
     "work/session_particle_fixed_life_candidate.h": {
-      "sha256": "45af2c200792557cde759133bf69795c79ee161e48d2ce4341a54e73ad534ad7",
-      "size": 14824
+      "sha256": "f81a7704557fadcca37ae7a2f08aa560c39dfab53263034c73756aa4f57c969c",
+      "size": 23219
     },
     "work/session_particle_start_candidate.h": {
       "sha256": "88b0c8ce477f6ce1decb1b041137d09266b33ae09fb7f4f5c51963f127b60872",
@@ -18270,8 +18282,8 @@
       "size": 5371
     },
     "work/source_bsp_brush_only_trace_candidate.h": {
-      "sha256": "ffbf52df2545e6202af95ed2b98df29492e7f7eedd4f7cb8b5047e50b76ec1fb",
-      "size": 1935
+      "sha256": "d2179f051923dcd43d23d3b2a08a6ac5ac9fee9ee6454546f9ee4e921c12c150",
+      "size": 2000
     },
     "work/source_bsp_collision_records_candidate.h": {
       "sha256": "4cc8fb31f97276b3b81fed94140b025ac381bbf7bc8189978486338912f51ea2",
@@ -18330,8 +18342,8 @@
       "size": 3481
     },
     "work/source_bsp_point_leaf_candidate.h": {
-      "sha256": "c8432f928f3477133d31716a3d8e53d0f1a1f7dee5e4e150794a330c0c676ca6",
-      "size": 5873
+      "sha256": "b7ec71af8763b257136d2738a28e717a61920f4e0d62e0610846437bafcce7bb",
+      "size": 6031
     },
     "work/source_bsp_static_props_candidate.h": {
       "sha256": "bcba80fb8c1351e093c7dbda9b343c5f0c2653b4d18ed129ff433ef1c50305f7",
@@ -18438,8 +18450,8 @@
       "size": 1320
     },
     "work/source_engine_point_trace_candidate.h": {
-      "sha256": "0914b410e8ce05bde83a1cbe9160000bbc9be7f27096b54135ef44b652246d4c",
-      "size": 3458
+      "sha256": "85acb0ab990250fc625f6af75d3c3642b7e0df7c788beac714205608cbc6a211",
+      "size": 4116
     },
     "work/source_engine_studio_point_clip_candidate.h": {
       "sha256": "e61901de81fd982e481369dc19fa08b42d4b0a912e69d3b7416e91a25bf24e1e",
@@ -18561,6 +18573,10 @@
       "sha256": "3ff2469da8c7213ed7fd0ce42e7f477b31df0538fa7644222e36cee378b277f5",
       "size": 4689
     },
+    "work/source_particle_cached_plane_collision_candidate.h": {
+      "sha256": "e5c7ddceec3883556300da6e2f8fe8d84fd34532a884fecb46e1f8705a0f6cae",
+      "size": 5640
+    },
     "work/source_particle_collection_start_candidate.h": {
       "sha256": "0a721bd7e38a45dc38c5053bba4420e91369b006bdfad396676bb2823812e4c2",
       "size": 2215
@@ -18582,8 +18598,8 @@
       "size": 7483
     },
     "work/source_particle_lifetime_candidate.h": {
-      "sha256": "de487dca6e9586f3df4e89341dcd1154129d1e32def6551aa92f25f49d767f75",
-      "size": 4241
+      "sha256": "765c6f5057196302438ee9ffe8f15732462726b66980c31975bbac00f63be45f",
+      "size": 4421
     },
     "work/source_particle_motion_candidate.h": {
       "sha256": "e15db3f3c26aae5beffd3dd076c4f9dc6de4010d1844422a3f1c733a1acbaed2",
@@ -18594,8 +18610,8 @@
       "size": 1383
     },
     "work/source_particle_random_candidate.h": {
-      "sha256": "2c83c4fcdc181662e49fe11165d55a49beb2e2c18fc5113f0c4c37f55f283873",
-      "size": 2284
+      "sha256": "1e6061f29e10a5b030d16ceab07b1108aa7b5fccaccb67dcf28fc1a09e0cdd90",
+      "size": 2353
     },
     "work/source_particle_sheet_cache_candidate.h": {
       "sha256": "effa0740f3bfdc92221c28f25441f57bf97f1c1bf9af04be12629ba8a89bbcfc",
@@ -18604,6 +18620,22 @@
     "work/source_particle_sphere_spawn_candidate.h": {
       "sha256": "2296399ffb5e0f959dd605ad9c98f869874d102945443b4e1f0ced88777bf92f",
       "size": 3770
+    },
+    "work/source_particle_static_prop_scene_candidate.h": {
+      "sha256": "b80edb597d308907b446451999b8d7153d08f68ca9c49af413302c0c82862bee",
+      "size": 3873
+    },
+    "work/source_particle_style_candidate.h": {
+      "sha256": "8153c9911b214fea8e65956ffd3cfa300a27479f222d4a495bfe80318700fa9e",
+      "size": 2341
+    },
+    "work/source_particle_trace_filter_candidate.h": {
+      "sha256": "30692295a926661b365acb858427e515d4cfa6225e0df22abfbdcbec804724e3",
+      "size": 2615
+    },
+    "work/source_particle_vector_oscillation_candidate.h": {
+      "sha256": "e788cfd386d06bb36edb05754677ee768b479ce345a17a203222774cf232a67a",
+      "size": 3157
     },
     "work/source_phy_aabb_candidate.h": {
       "sha256": "cf6e16305be45bc11eab2bbd2c79200637438dc38fae4d63c78570eab59f7165",
@@ -18694,8 +18726,8 @@
       "size": 2276
     },
     "work/source_prepared_world_ray_candidate.h": {
-      "sha256": "50bb781692f0e96c9225e054c7e58549117dbdf3825e77f567aa6058c68e978e",
-      "size": 8277
+      "sha256": "81f2bce0c17f6e60715472763a9f79958421fbb96a88f5d462cc37cc2d9e27ba",
+      "size": 9302
     },
     "work/source_refinement_policy_candidate.h": {
       "sha256": "40a8348183a16ac618a0ddd293acb61bc8ea5134097d3ea7a8e425a8177e1098",
@@ -18712,6 +18744,10 @@
     "work/source_sequence_name_cache_candidate.h": {
       "sha256": "f552c8d4bc066e7c467e8ba1ce19f2204b330304909ca6395269847f0fff7be4",
       "size": 3694
+    },
+    "work/source_sfm_collision_group_candidate.h": {
+      "sha256": "39f3513b76cde8aa55ca9ef2b432cc130b9b6ffc61dddfe80c490a90e340d081",
+      "size": 2793
     },
     "work/source_shadow_settings_candidate.h": {
       "sha256": "6e8d91d3934c35c733d53a07846cb9b869aa26e190bfe52587ad12b67523c118",
@@ -18746,8 +18782,8 @@
       "size": 1455
     },
     "work/source_stationary_leaf_selection_candidate.h": {
-      "sha256": "0ee3fa2fc269ae0f87bc7eb92f89f096815306b3abdd6ac03c4b546853f50061",
-      "size": 1945
+      "sha256": "7132503db40d9897384a7a1972a49d3245968755d58992c8a6e36ab6c6618089",
+      "size": 2401
     },
     "work/source_stored_zip_candidate.h": {
       "sha256": "4dc485d54711f1e145449b391746125be73fa7194721aa3fa396f6e8d89d211a",
@@ -18776,6 +18812,10 @@
     "work/source_swept_world_trace_candidate.h": {
       "sha256": "8582b5c0cf0df2c5219e519ecf402176c9fa3e6dd0f186d0e90e5622727fd70b",
       "size": 1941
+    },
+    "work/source_translated_brush_point_trace_candidate.h": {
+      "sha256": "83b8f2fd043b2c13a6d6fbace0c69f8dfd0832c1108fda721c3403b254315911",
+      "size": 1020
     },
     "work/source_vertex_local_light_candidate.h": {
       "sha256": "7c5b03be29767bb2bb44a3feed5cbfc71dc051eecf4ed37d5be9925822f6162e",
@@ -25266,8 +25306,8 @@
       "size": 2355
     },
     "work/verify_engine_point_trace.py": {
-      "sha256": "4028469a183afb4735b955d88796ba9e744e065bff04791f8fab09a950a0e615",
-      "size": 11335
+      "sha256": "0ce793eaa057055ffe990b4da23c01b16f3156abc0373118aad68bb4a5d5c873",
+      "size": 13087
     },
     "work/verify_engine_projection_box_planes_native.py": {
       "sha256": "24ba5112455ea1b37caa0b657d84c13042821dc719d304a3ec013ae6c0419194",
@@ -26417,6 +26457,10 @@
       "sha256": "761cda000b0ebb77fc2140c401419505c998e8a85321ce8c3c5bb63e5e367a72",
       "size": 193
     },
+    "work/verify_particle_trace_filter.py": {
+      "sha256": "9d267a57ee818e860dd40b91850107341e136791a2263a1b3f524db1c83b263c",
+      "size": 8550
+    },
     "work/verify_paste_animation_set_mime.py": {
       "sha256": "41e542b10469b7e520424fcef2a3c47dc67ce114a8d88cc080baf8854289516e",
       "size": 3298
@@ -27265,6 +27309,10 @@
       "sha256": "9e53d2f61cd22a82444e26b43f2669660e1935a8947aec8db76ad6e770978f76",
       "size": 16555
     },
+    "work/verify_translated_brush_point_trace.py": {
+      "sha256": "056cc98f96281db00289fa3bbcb13fcf999dd99d567ba666f78761f0447df671",
+      "size": 9982
+    },
     "work/verify_translucent_fixture_topology_candidate.py": {
       "sha256": "1d1982673dcc07ecc6dd63d01a2f887a89af1b4bcdc50347e15b5c52c373b21d",
       "size": 6283
@@ -27594,8 +27642,8 @@
       "size": 20235
     },
     "work/vulkan_model_draw_candidate.h": {
-      "sha256": "8641d38630b4f0b7cdbfb27c6804482641ee0e811bce5a0b2c74ebad9f812f91",
-      "size": 146554
+      "sha256": "a42f2fe8effa62a59f32e1f8a40cac730f922967f9c5c24a9dfa0ec104fde2a9",
+      "size": 147392
     },
     "work/vulkan_model_swapchain_probe_candidate.h": {
       "sha256": "32e38492b5df57f245dba3da1158cf5c3e644b3317becd85346157229fc7bd1e",
@@ -27740,6 +27788,10 @@
     "work/write_float_log_curveinfo.h": {
       "sha256": "b2436d1dc9bee33e7d980e0bdc35b4134cda81d73ea14206dc608c76fdd2320e",
       "size": 3340
+    },
+    "work/x64_fsin_cos.asm": {
+      "sha256": "948e87d3b7e4494785a191891a1cb982a734b079351cc3ea09a6f86b4e0c90e9",
+      "size": 193
     }
   }
 }

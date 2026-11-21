@@ -39,9 +39,12 @@ inline std::optional<SourceParticleRandomTableCandidate> readSourceParticleRando
 struct SourceParticleRandomCandidate {
     uint32_t seed = 0, consumed = 0;
 
+    uint32_t nextIndex() {
+        return (seed + consumed++) & (std::tuple_size_v<SourceParticleRandomTableCandidate> - 1);
+    }
+
     float sample(const SourceParticleRandomTableCandidate& table) {
-        const auto index = (seed + consumed++) & (table.size() - 1);
-        return table[index];
+        return table[nextIndex()];
     }
 
     float linear(const SourceParticleRandomTableCandidate& table, float minimum, float maximum) {

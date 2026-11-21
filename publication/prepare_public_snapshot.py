@@ -34,6 +34,7 @@ def main():
   if any(r.search(s) for r in SECRET):raise RuntimeError('Possible credential in '+p.name)
   selected[p.relative_to(ROOT).as_posix()]=p
  selected['work/editor_shader_manifest.txt']=ROOT/'work/editor_shader_manifest.txt'
+ selected['work/x64_fsin_cos.asm']=ROOT/'work/x64_fsin_cos.asm'
  for p in ROOT.iterdir():
   if p.is_file() and p.suffix.lower() in {'.cmd','.ps1'}:selected[p.name]=p
  vendor=ROOT/'work/dependencies/vulkan-headers-6802bb4733b6/Vulkan-Headers-6802bb4733b63ed5efd3adb308a6c885ef180ea1'
@@ -161,7 +162,7 @@ original instruction arrays are excluded from this publication.
  shader_rows=shader_manifest(ROOT)
  referenced={name for path in graph for name in re.findall(r'"(?:build/session-core/)?(sfm64-[a-z0-9-]+\.spv)"',(ROOT/path).read_text(errors='replace'))}
  if referenced!={stem+'.spv' for _,stem in shader_rows}:raise RuntimeError('Editor shader manifest does not cover renderer references')
- for name in ['work/editor_shader_manifest.txt','work/build_editor_shader_resources.cmd','work/build_sfm64_editor_x64.cmd']:visit(name)
+ for name in ['work/editor_shader_manifest.txt','work/build_editor_shader_resources.cmd','work/build_sfm64_editor_x64.cmd','work/x64_fsin_cos.asm']:visit(name)
  for _,stem in shader_rows:visit('work/'+stem+'.hlsl')
  shaders=owned_shader_payload(ROOT,build.parent)
  info=dict(target='AMD64 PE32+',source='work/probe_vulkan_win32_surface_x64.cpp',compiled_utc=datetime.fromtimestamp(build.stat().st_mtime,timezone.utc).isoformat(),executable_sha256=sha(build),editor_source_dependencies={k:sha(STAGE/k) for k in sorted(graph)},runtime_shader_sha256={k:hashlib.sha256(v).hexdigest() for k,v in shaders.items()},compiler_warnings=warnings,runtime_test_this_publication='NOT RUN',compatibility='INCOMPLETE')

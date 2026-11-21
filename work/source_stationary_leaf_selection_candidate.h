@@ -4,11 +4,12 @@
 struct SourceStationaryLeafSelectionCandidate{int32_t topNode=-1;std::vector<uint32_t>leaves;};
 // Checked-world input; recovered FIFO-deferred front children, back first.
 // Extents here already include the stationary caller's extra one unit.
-inline SourceStationaryLeafSelectionCandidate sourceStationaryLeafSelectionCandidate(
- const SourceBspBrushOnlyTraceCandidate&world,const std::array<float,3>&center,
+inline SourceStationaryLeafSelectionCandidate sourceStationaryLeafSelectionAtRootCandidate(
+ const SourceBspBrushOnlyTraceCandidate&world,int32_t root,const std::array<float,3>&center,
  const std::array<float,3>&extent,size_t capacity=1024){
  for(float v:center)if(!std::isfinite(v))throw std::runtime_error("invalid leaf center");for(float v:extent)if(!std::isfinite(v)||v<0)throw std::runtime_error("invalid leaf extent");
- SourceStationaryLeafSelectionCandidate result;std::deque<int32_t>pending;int32_t cursor=world.root,last=-1;
+ if(root<0&&uint64_t(-1-int64_t(root))>=world.data.leafBrushes.size())throw std::runtime_error("invalid stationary leaf");
+ SourceStationaryLeafSelectionCandidate result;std::deque<int32_t>pending;int32_t cursor=root,last=-1;
  for(;;){
   if(cursor<0){if(result.topNode==-1)result.topNode=last;if(result.leaves.size()<capacity)result.leaves.push_back(uint32_t(-1-int64_t(cursor)));if(pending.empty())break;cursor=pending.front();pending.pop_front();continue;}
   const auto&n=world.nodes.at(size_t(cursor));const auto&p=world.planes.at(n.plane);last=cursor;
@@ -19,4 +20,9 @@ inline SourceStationaryLeafSelectionCandidate sourceStationaryLeafSelectionCandi
   if(result.topNode==-1)result.topNode=cursor;
   if(pending.size()>=1023)throw std::runtime_error("native stationary leaf queue limit exceeded");pending.push_back(n.children[0]);cursor=n.children[1];
  }return result;
+}
+inline SourceStationaryLeafSelectionCandidate sourceStationaryLeafSelectionCandidate(
+ const SourceBspBrushOnlyTraceCandidate&world,const std::array<float,3>&center,
+ const std::array<float,3>&extent,size_t capacity=1024){
+ return sourceStationaryLeafSelectionAtRootCandidate(world,world.root,center,extent,capacity);
 }
