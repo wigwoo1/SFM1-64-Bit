@@ -26,7 +26,7 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "f2e8a46ad485843daf522926f0102511a81f8f7af7df9a3438b3ebbddbbc6b2b",
+      "sha256": "70e2ebe738579160a138bfef2edaceb6e6690bb64772e5cf9280514399f00734",
       "size": 68446
     },
     "docs/publication-policy.json": {
@@ -34,12 +34,12 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "a31ce824e29bc3419a768f58c5934cf88a00ebd4429c04c77fdbf3103f79e3da",
+      "sha256": "33f082c707abaeefd7374d14346a79bb00352d4a55cef6de9fd4f315945b7499",
       "size": 806
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "b6819223afa8b506b4ce02fd9a361f40810cf1b643ef07531239a9058a557255",
-      "size": 1349441
+      "sha256": "708cc5fc3a999716f2af334293e7c2a050df013848cec40420f6bca1d10e8a64",
+      "size": 1350663
     },
     "publication/README.md": {
       "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
@@ -1024,6 +1024,10 @@
     "work/build_chord_catmull_curve.cmd": {
       "sha256": "76c4d5dc298d65157aa3df0ea0cbe9ae629b078e3707bc3ba1893065c6cbfddc",
       "size": 374
+    },
+    "work/build_client_collision_partition.cmd": {
+      "sha256": "af3ddfe439cbf0ca59b7b862dd3f0a259756d3badcd57954ada2b0712493c3a5",
+      "size": 903
     },
     "work/build_client_exp_normal_test.cmd": {
       "sha256": "61e03e512bd807b64ba56a92d3352c449a13efd48a0bf12f22ae4711761e82d0",
@@ -5277,6 +5281,10 @@
       "sha256": "79bb0f9003a4a629932c17c93184a761e7794b02346c21b04eb638e8f96beba4",
       "size": 414
     },
+    "work/build_sliding_door_spawn.cmd": {
+      "sha256": "42357482119a4a2dc125a9f7e23f348839a2692aa36fab7df96ae7ed58df4a02",
+      "size": 981
+    },
     "work/build_slot267.cmd": {
       "sha256": "d3cd4648149469c3e3277ff1226fcc844839a4b56657de414a30fab5546ec251",
       "size": 297
@@ -5354,8 +5362,8 @@
       "size": 2100
     },
     "work/build_spatial_point_partition.cmd": {
-      "sha256": "baf3f4b18605d046736328a1947d056fbde14e6ed68fe0671e369656b1ce5364",
-      "size": 1158
+      "sha256": "6325fdabe9c930192481491264d61980d73763ade648f2890ca5cecefb9a1998",
+      "size": 1242
     },
     "work/build_spatial_ray_flags.cmd": {
       "sha256": "bb5632218631d1c2a6e61d02e92c79ace189c4331e4396fcc752c469804b177f",
@@ -12577,6 +12585,10 @@
       "sha256": "634748ba2668137cc734e1106f0ddcd6e7452d061d5b0b0665a94bffe058019e",
       "size": 11489
     },
+    "work/probe_client_collision_partition.cpp": {
+      "sha256": "0ed10447fe5520f5f25a46ebfada61f383cea3322b9c0b85bb57a6e45244cd65",
+      "size": 11059
+    },
     "work/probe_concrete_vertexlit_draw_reference.cpp": {
       "sha256": "d17c20d63db6289ac9838b6afc4966ad3798ae2de53fc4ba2e7072b6a6792ba0",
       "size": 9269
@@ -13842,8 +13854,8 @@
       "size": 2550
     },
     "work/probe_native_spatial_partition.cpp": {
-      "sha256": "e5c4155628a42e5b6e67e78b4e82d7d5335b9371e374d95acced65d6223a56c2",
-      "size": 9316
+      "sha256": "492586e5de6e8a849528c06677a9d4948c09761e76dd808b1879af7d68e8589a",
+      "size": 11516
     },
     "work/probe_native_studio_file_read.cpp": {
       "sha256": "e8052033b476ee6033606f047a320407e5624612114d26fc9eba9efbb34ba990",
@@ -14253,6 +14265,10 @@
       "sha256": "ffe90975032b13e13770947e9ac17c2bb26618d5299796b9c6b1678cface97c3",
       "size": 2752
     },
+    "work/probe_sliding_door_spawn.cpp": {
+      "sha256": "7d732fe12ff9409b801039425afbce7c780daffead45d3f5bac5c617443cfffe",
+      "size": 6979
+    },
     "work/probe_source_anisotropy_caps_x86.cpp": {
       "sha256": "7ceb21c4de421d8dd2f728f01e39fe912811195656f71e466b7bed9339c6a517",
       "size": 4269
@@ -14306,8 +14322,8 @@
       "size": 12651
     },
     "work/probe_spatial_point_partition.cpp": {
-      "sha256": "0558a3aac561bdd4217629186fa7cc8590a95bb65576d7ffc31ff5f5e21a6e5b",
-      "size": 2267
+      "sha256": "2a40b2f2cce5b3b6ae688b34bb81b9297f6f07c57f77a2ba5410a68d8449ebdd",
+      "size": 4620
     },
     "work/probe_static_prop_binding.cpp": {
       "sha256": "e69866e2f3b78a9f9dfe726ce38ad6aade8370ce37b89b3356face5813eb0bdb",
@@ -18365,6 +18381,10 @@
       "sha256": "fb1e908c002898f9ea3d96d3b16e3039c806943132d866d8af09bda3af5a121e",
       "size": 5385
     },
+    "work/source_client_collision_partition_candidate.h": {
+      "sha256": "6b91d95a78b4813911e97c9b717928ddd693f3c63ac0fad2376b00187dff20fa",
+      "size": 6931
+    },
     "work/source_collision_surface_candidate.h": {
       "sha256": "8558d721c85b5966d2fddc67950b702a698dea63d971de4fc8c4c1bfd65a0db2",
       "size": 538
@@ -18753,9 +18773,13 @@
       "sha256": "6e8d91d3934c35c733d53a07846cb9b869aa26e190bfe52587ad12b67523c118",
       "size": 1632
     },
+    "work/source_sliding_door_spawn_candidate.h": {
+      "sha256": "c69b1d857f8aaf000239ff17a3732992fdf301c2478045da1d6e966bdb015cef",
+      "size": 2681
+    },
     "work/source_spatial_point_partition_candidate.h": {
-      "sha256": "8c814900be7c7e27299ac8f5fb3a256d1cf952942bd5802cbd9c190784de2792",
-      "size": 9618
+      "sha256": "93dd4054162be78c94d97c04c4bd472ce7655fbe9ac5a8b60f535e352a423eb8",
+      "size": 14644
     },
     "work/source_spatial_point_ray_adapter_candidate.h": {
       "sha256": "a953bfb89e3fc3a46b3f5252fbb1a06f10a776e082c6b490c7aaeb3fb42d6c05",
@@ -18840,6 +18864,10 @@
     "work/source_world_ray_trace_candidate.h": {
       "sha256": "c22fabc2c59b47b523e891a5374a65ad28931bb6f761e145c89dc8fa4ee9cdbb",
       "size": 1319
+    },
+    "work/spatial_point_partition_test_fixture.h": {
+      "sha256": "1c3ec3a126273c64cfc62c8ead41e02e15c19b1798e8eae22ae78cf23154466e",
+      "size": 1222
     },
     "work/split_flex_profile.py": {
       "sha256": "0b74a303e5cf6632a589d396db4e1bd14fc54f50665ac75a71f1d78016983e55",
@@ -23794,8 +23822,8 @@
       "size": 4950
     },
     "work/test_spatial_point_partition.cpp": {
-      "sha256": "64a7dbc48a671a6658c1fd7bd2f1cb3c57efb55d788a587a443deb90cf2108a4",
-      "size": 3000
+      "sha256": "7f19748f469f989999612e163b065d238d15f7bcf0eeba6754d726932d86e1ba",
+      "size": 4223
     },
     "work/test_spatial_point_ray_adapter.cpp": {
       "sha256": "84dd0e9f9479b94673c45dc62983a438dcb00da4339187a6dea36e7efb6e6c11",
@@ -25021,6 +25049,10 @@
       "sha256": "7c111f39c95b84216b3ffcc196b0d54d58b248951155dce8b9a2fd771e3088dc",
       "size": 217
     },
+    "work/verify_client_collision_partition.py": {
+      "sha256": "5a576ecba651a4c2a3232f06cfda97332123e02d0403039a5977d583a9db19bc",
+      "size": 9199
+    },
     "work/verify_client_exp_normal.py": {
       "sha256": "e88feb301123a15a4432e09964f44e496b287ad56adce7b69ac02060a22babdc",
       "size": 1498
@@ -25244,6 +25276,10 @@
     "work/verify_dynamic_shader_commands.py": {
       "sha256": "e0d56ffcb49fec16bb7a44f8380a41b1392c8d26e4c82c3a138b7b6f3558bb68",
       "size": 1841
+    },
+    "work/verify_dynamic_spatial_point_partition.py": {
+      "sha256": "832fc3a545050305c1a4d8d32b769770f0b5aa6ab6d87a61c874463633e68a5d",
+      "size": 11182
     },
     "work/verify_dynamic_viewport_gpu.py": {
       "sha256": "f250b5e9d214be0b261a828d520c9a1e017c5a477e0e4edd786e0e0499f286ff",
@@ -26925,6 +26961,10 @@
       "sha256": "b3c7e20ca36d51da839ea318d3dbb70d24a10252ce8004a83cfa6e92f98cce17",
       "size": 1588
     },
+    "work/verify_sliding_door_spawn.py": {
+      "sha256": "cd9210d67305a685de5b193b87c7d474f3bd387e8a64116214581715f2de6208",
+      "size": 12958
+    },
     "work/verify_software_flex_normalize.py": {
       "sha256": "978d143f420beb9b41dd661d801f1802512eb16f374d464d4b35d2563cbd013f",
       "size": 1173
@@ -27034,8 +27074,8 @@
       "size": 16875
     },
     "work/verify_spatial_point_partition.py": {
-      "sha256": "6c48bc58a87cb16ca0b74ca33d9aa4f5a1fb5321313a5c8260942f63d00e9496",
-      "size": 7371
+      "sha256": "0b3bad5f466f63b01e04fa290be5c51310c02a08f06f8f6015e09bf45ab9768a",
+      "size": 7287
     },
     "work/verify_spatial_ray_flags.py": {
       "sha256": "8b260e71dc8df5eecf3317e5b479de560edf6d25b261c1d29f5c48caa750f282",

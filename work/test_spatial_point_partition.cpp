@@ -16,6 +16,26 @@ int main(){try{
     // Caller buffers may disappear: the partition owns every ID/box/list.
     entries.clear();entries.shrink_to_fit();require(partition.queryPoint({-100,0,0},{200,0,0},0x65)==baseline);
     const auto&shared=partition;std::array<std::future<bool>,4>jobs;for(auto&job:jobs)job=std::async(std::launch::async,[&](){for(unsigned i=0;i<128;++i)if(shared.queryPoint({-100,0,0},{200,0,0},0x65)!=baseline)return false;return true;});for(auto&job:jobs)require(job.get());
-    auto retained=partition.queryPoint({0,0,0},{0,0,0},0x65);partition=SourceSpatialPointPartitionCandidate({});require(retained==baseline&&partition.queryPoint({0,0,0},{0,0,0},0x65).empty());
+    const auto bounds = partition.storedBounds(0);
+    reject([&](){partition.move(0, {5,0,0,-5,1,1});});
+    reject([&](){partition.move(0, {-4,-4,-4,4,4,std::numeric_limits<float>::infinity()});});
+    reject([&](){partition.replaceLists(0, 0, 65536);});
+    reject([&](){partition.create({baseline.back(), 4, {-4,-4,-4,4,4,4}});});
+    require(partition.storedBounds(0)==bounds&&partition.storedMask(0)==0x65);
+    partition.destroy(0);
+    require(partition.size()==11&&partition.queryPoint({0,0,0},{},0x65)==std::vector<uint64_t>(baseline.begin(),baseline.end()-1));
+    bool rejectedStale = false;
+    try { partition.move(0, {-4,-4,-4,4,4,4}); } catch (const std::runtime_error&) { rejectedStale = true; }
+    require(rejectedStale);
+    require(partition.create({baseline.back(), 0x65, {-4,-4,-4,4,4,4}})==0&&partition.size()==12);
+    auto reused = baseline;
+    std::rotate(reused.begin(),reused.end()-1,reused.end());
+    require(partition.queryPoint({0,0,0},{},0x65)==reused);
+    partition.destroy(0);
+    require(partition.create({baseline.back(),0,{-4,-4,-4,4,4,4}})==0);
+    partition.replaceLists(0,0,0x65);
+    partition.move(0,{-4,-4,-4,4,4,4});
+    require(partition.queryPoint({0,0,0},{},0x65)==reused);
+    auto retained=partition.queryPoint({0,0,0},{0,0,0},0x65);partition=SourceSpatialPointPartitionCandidate({});require(retained==reused&&partition.queryPoint({0,0,0},{0,0,0},0x65).empty());
     std::cout<<"PASS owned partition safety checks="<<checks<<" concurrent_queries=512\n";return 0;
 }catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

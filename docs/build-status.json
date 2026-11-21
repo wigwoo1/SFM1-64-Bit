@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-11-21T20:46:37.459179+00:00",
-  "executable_sha256": "c2221241c5b7d2667101a02be6e6fca60a2578afcf702b9be92279c3d0a3d716",
+  "compiled_utc": "2026-11-21T21:31:42.171794+00:00",
+  "executable_sha256": "d41d0a61c0cb64c60cbc30dae8eb9cad66585805f2b9262defbb641106cc672d",
   "editor_source_dependencies": {
     "work/ambient_occlusion_view_candidate.h": "203729920a2c6ae63a6015e2dcfb831beb2505b196a31093205ff5168c724288",
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
@@ -450,7 +450,7 @@
     "work/source_render_sample_accumulation_candidate.h": "86c1b8faf0fc37ef87b145ffcd37a8c32a95bbaa2267170b659cc54c1af8f28a",
     "work/source_render_shutter_schedule_candidate.h": "c43453f689306821c171ec53e8861c0131b9bf48c992a1088c1d0886242ff1d0",
     "work/source_shadow_settings_candidate.h": "6e8d91d3934c35c733d53a07846cb9b869aa26e190bfe52587ad12b67523c118",
-    "work/source_spatial_point_partition_candidate.h": "8c814900be7c7e27299ac8f5fb3a256d1cf952942bd5802cbd9c190784de2792",
+    "work/source_spatial_point_partition_candidate.h": "93dd4054162be78c94d97c04c4bd472ce7655fbe9ac5a8b60f535e352a423eb8",
     "work/source_spatial_point_ray_adapter_candidate.h": "a953bfb89e3fc3a46b3f5252fbb1a06f10a776e082c6b490c7aaeb3fb42d6c05",
     "work/source_static_prop_point_registry_candidate.h": "2af39df5db8413f6f4c10a0bbeafdbfd34bda79e462843f531422b73e5906eda",
     "work/source_static_prop_point_spatial_candidate.h": "c31b9442358896f8128bbd4d618b549441585d8bbbbdca975ecf976adc9ef943",

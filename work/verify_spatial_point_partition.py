@@ -1,8 +1,8 @@
 """Fresh original/x64 ordered enumeration plus frozen native corpus regression."""
-import collections,hashlib,json,random,shutil,struct,subprocess,tempfile
+import collections,hashlib,json,os,random,shutil,struct,subprocess,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
-OUT=ROOT/'outputs/spatial-point-partition-20261016'
+OUT=Path(os.environ.get('SFM64_SPATIAL_POINT_TEST_DIRECTORY', ROOT/'outputs/spatial-point-partition-20261016'))
 GAME=Path('F:/SteamLibrary/steamapps/common/SourceFilmmaker/game')
 PRIOR=ROOT/'outputs/native-spatial-partition-20261016/verification-r0u7wtua/results.json'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -10,7 +10,10 @@ def require(ok,message):
  if not ok:raise RuntimeError(message)
 def main():
  old=json.loads(PRIOR.read_text());require(old['status']=='PASS','Native reference status');OUT.mkdir(exist_ok=True);run=Path(tempfile.mkdtemp(prefix='verification-',dir=OUT));libs=run/'libraries';libs.mkdir()
- for p,s in old['original_hashes'].items():require(sha(Path(p))==s,'Original changed '+p)
+ # Frozen inputs already contain the old map data. The replay only reads the
+ # engine and tier0, so authenticate those and the frozen files independently.
+ original_hashes={str(p):old['original_hashes'][str(p)] for p in (GAME/'bin/engine.dll',GAME/'bin/tier0.dll')}
+ for p,s in original_hashes.items():require(sha(Path(p))==s,'Original changed '+p)
  shutil.copyfile(GAME/'bin/tier0.dll',libs/'tier0.dll');executables=[]
  for name,machine in [('spatial_partition_native_x86',0x14c),('spatial_point_partition_owned_x64',0x8664),('spatial_point_partition_safety_x64',0x8664)]:
   exe=OUT/(name+'.exe');raw=exe.read_bytes();p=struct.unpack_from('<I',raw,60)[0];require(raw[p:p+4]==b'PE\0\0' and struct.unpack_from('<H',raw,p+4)[0]==machine and b'asInvoker' in raw,'Executable identity');executables.append(dict(path=str(exe),sha256=sha(exe),machine=hex(machine)))
@@ -58,8 +61,8 @@ def main():
   if frozen:require(native.read_bytes()==frozen.read_bytes(),'Fresh native reference changed '+name)
   n=struct.unpack_from('<I',wire)[0];queries=struct.unpack_from('<I',wire,4+n*36)[0];totals['queries']+=queries;totals['fixtures']+=1
   records.append(dict(name=name,entities=n,queries=queries,path=str(case),fixture_sha256=sha(q),ordered_sha256=sha(owned),stored_boxes_sha256=sha(Path(str(owned)+'.stored-boxes'))));print('PASS native/x64 ordered partition '+name+' queries='+str(queries),flush=True)
- for p,s in old['original_hashes'].items():require(sha(Path(p))==s,'Original changed after tests '+p)
+ for p,s in original_hashes.items():require(sha(Path(p))==s,'Original changed after tests '+p)
  sources={str(ROOT/'work'/p):sha(ROOT/'work'/p) for p in ['source_spatial_point_partition_candidate.h','probe_spatial_point_partition.cpp','test_spatial_point_partition.cpp','build_spatial_point_partition.cmd','verify_spatial_point_partition.py','probe_native_spatial_partition.cpp','source_displacement_bounds_gate_candidate.h']}
- result=dict(status='PASS',path=str(run),totals=dict(totals),ordered_differences=0,stored_box_differences=0,safety=safety.strip(),executables=executables,sources=sources,records=records,original_hashes=old['original_hashes'],reference_receipt=str(PRIOR),reference_receipt_sha256=sha(PRIOR),limitations=['Owned x64 immutable initial insert/point-ray enumeration; full64bit scene IDs and owned local visit state.','Fresh actual original partition per fixture; privatePE with realtier0allocator/locks and controlled MDLscope/profiling services. No originalx86dependency in owned code.','No dynamic move/removal/hulls/callback mutation/general scheduling/editor/fullscene integration.','Masks limited16bits, scene65535entries; rejects nonfinite/overflow and quantization beyond supported finite domain rather than unchecked conversion.','No performance speedup claim; hashcontainer differences are irrelevant to per-cell lookup/list traversal, but memory/performance not benchmarked.'])
+ result=dict(status='PASS',path=str(run),totals=dict(totals),ordered_differences=0,stored_box_differences=0,safety=safety.strip(),executables=executables,sources=sources,records=records,original_hashes=original_hashes,reference_receipt=str(PRIOR),reference_receipt_sha256=sha(PRIOR),limitations=['Initial insertion and point-ray enumeration exercised here.','Original partition uses a private PE with the original tier0 allocator and locks.','Other query types, mutation and editor integration are outside this regression.','Masks are 16-bit and scene capacity is 65,535 handles.'])
  (run/'results.json').write_text(json.dumps(result,indent=2));print('PASS '+str(run/'results.json'),flush=True)
 if __name__=='__main__':main()
