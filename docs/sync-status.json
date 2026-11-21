@@ -1,13 +1,12 @@
 {
-  "checked_utc": "2026-11-21T15:43:01.947462+00:00",
-  "status": "Experimental AMD64 editor rebuilt and verified in packaged Vulkan control tests.",
+  "checked_utc": "2026-11-21T16:27:56.185179+00:00",
   "repository": "wigwoo1/SFM1-64-Bit",
+  "status": "Experimental AMD64 editor rebuilt and verified in packaged Vulkan control tests.",
   "build_exit_code": 0,
   "compiler_warning_count": 18,
   "compiled_shader_count": 31,
   "control_test_frames": 10,
-  "render_samples": 20,
-  "executable_sha256": "0619d3a4188866835adec0a90a486572ee0c9999c03f09c75e1766bcbc7e83af",
-  "package_sha256": "c89fb044630189c6e638c4ee62f3642e74f866d64677b63f0c0c42123c24ca70",
-  "known_limitation": "HDR sample accumulation is opt-in and reuses a frozen pose and camera. Full Source Filmmaker compatibility and visual parity remain unverified."
+  "executable_sha256": "4a7e689b2c619c010fa13fc51332f682878949a7e67d95f5fc7d548fe845cd4e",
+  "package_sha256": "ba7e86bdb04d8f992d714437270170b663ca0980413c4c91dd361249aaea1ba1",
+  "known_limitation": "Animated shutter sampling is opt-in and keeps the lens position fixed. Full Source Filmmaker compatibility and visual parity remain unverified."
 }

@@ -20,9 +20,13 @@ class RetainedShotTimelineCandidate {
  std::unique_ptr<RetainedFilmTrackCandidate> filmTrack;
 public:
  RetainedShotTimelineCandidate(Graph graph,uint32_t rootClip):baseline(std::move(graph)),root(rootClip){if(filmClipTrackCandidate(baseline,root))filmTrack=std::make_unique<RetainedFilmTrackCandidate>(baseline,root);}
- FilmShotTimeCandidate selectShot(int32_t tick)const{
-  if(!filmTrack)return selectFilmShotCandidate(baseline,root,tick);
-  auto selection=filmTrack->classify(tick);if(selection.state==FilmTimelineStateCandidate::Gap)throw std::runtime_error("no active film clip");
+ FilmShotTimeCandidate selectShot(int32_t tick)const{return selectShot(tick,tick);}
+ FilmShotTimeCandidate selectShot(int32_t outputTick,int32_t sampleTick)const{
+  if(!filmTrack){
+   if(outputTick!=sampleTick)throw std::runtime_error("shutter sampling requires an owned film track");
+   return selectFilmShotCandidate(baseline,root,outputTick);
+  }
+  auto selection=filmTrack->classify(outputTick,sampleTick);if(selection.state==FilmTimelineStateCandidate::Gap)throw std::runtime_error("no active film clip");
   if(selection.state==FilmTimelineStateCandidate::SceneLessClip)throw std::runtime_error("selected film clip has no renderable scene");
   return *selection.shot;
  }
@@ -34,8 +38,11 @@ public:
   auto shots=activeFilmShotsCandidate(baseline,root,tick);if(shots.empty())return {FilmTimelineStateCandidate::Gap,{}};if(shots.size()!=1)throw std::runtime_error("ambiguous active renderable shots");return {FilmTimelineStateCandidate::SceneClip,shots[0]};
  }
  RetainedShotStepCandidate step(int32_t rootParentTick,size_t scalarWorkers=0,size_t vectorWorkers=0,size_t expressionWorkers=0){
+  return stepAtShutterSample(rootParentTick,rootParentTick,scalarWorkers,vectorWorkers,expressionWorkers);
+ }
+ RetainedShotStepCandidate stepAtShutterSample(int32_t outputTick,int32_t sampleTick,size_t scalarWorkers=0,size_t vectorWorkers=0,size_t expressionWorkers=0){
   if(scalarWorkers>64||vectorWorkers>64||expressionWorkers>64||scalarWorkers+vectorWorkers+expressionWorkers>64)throw std::runtime_error("combined sampling worker budget exceeds 64");
-  auto shot=selectShot(rootParentTick);bool rebuild=selected!=shot.clip||!prepared;
+  auto shot=selectShot(outputTick,sampleTick);bool rebuild=selected!=shot.clip||!prepared;
   if(rebuild){
    prepared.reset();runtime.reset();selected=UINT32_MAX;
    auto next=std::make_unique<SessionRuntime>(Graph(baseline));

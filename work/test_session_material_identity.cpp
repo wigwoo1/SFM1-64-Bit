@@ -62,6 +62,19 @@ static int safetyIdentity(const char*directory){
  check(vmtValuesCandidate(syntax,"$basetexture")==std::vector<std::string>{"fixture/right"},"binding does not alias leading slash");
  syntax=parseVmtCandidate("VertexLitGeneric { \"$basetexture\" \"fixture/base\" }");auto slashOnly=sessionMaterialBindingCandidate({slash},{mount});slashOnly(vmt,syntax);
  check(vmtValuesCandidate(syntax,"$basetexture")==std::vector<std::string>{"fixture/base"},"unmatched leading slash does not affect ordinary material");
+ ModelMaterialMetadataCandidate mdl;mdl.names={"a"};mdl.directories={"\\models\\"};mdl.skins={{0}};
+ auto rooted=resolveMountedModelMaterialCandidate(mdl,0,0,{mount},binding);
+ check(rooted.vmt==vmt&&rooted.resourceKey=="/models/a","rooted MDL material uses the mounted file and its distinct resource key");
+ check(vmtValuesCandidate(rooted.syntax,"$basetexture")==std::vector<std::string>{"fixture/wrong"},"rooted resource receives its own override");
+ mdl.directories={"models/"};
+ auto relative=resolveMountedModelMaterialCandidate(mdl,0,0,{mount},binding);
+ check(relative.vmt==rooted.vmt&&relative.resourceKey=="models/a","relative resource shares the file with a distinct identity");
+ check(vmtValuesCandidate(relative.syntax,"$basetexture")==std::vector<std::string>{"fixture/right"},"relative resource keeps its own override");
+ for(const auto&invalidDirectory:{"//server/","/../outside/","/C:/outside/"}){
+  mdl.directories={invalidDirectory};rejected=false;
+  try{resolveMountedModelMaterialCandidate(mdl,0,0,{mount});}catch(const std::runtime_error&){rejected=true;}
+  check(rejected,"rooted MDL directory cannot escape the material mount");
+ }
  rejected=false;try{binding(root/"outside.vmt",syntax);}catch(const std::runtime_error&){rejected=true;}check(rejected,"binding mount containment retained");
  rejected=false;try{binding(mount/"materials/../../outside.vmt",syntax);}catch(const std::runtime_error&){rejected=true;}check(rejected,"binding lexical traversal refused");
  for(const auto&name:{"../outside","models/../../outside","C:/outside","/outside","\\\\server\\share"}){
@@ -76,6 +89,9 @@ static int safetyIdentity(const char*directory){
  auto draw=prepareSceneMaterialDrawInputsCandidate(inputs,{mount});check(draw[0].alpha==std::vector<float>{.4f,.9f},"draw alpha matching preserves distinct resource keys");
  check(&draw[0].indices==&model.indices&&&draw[0].ranges==&model.ranges,"draw topology remains referenced");
  check(draw[0].materials[0].translucent&&draw[0].materials[1].translucent,"draw alpha translucency retained");
+ model.materials[0].source.resourceKey=rooted.resourceKey;
+ auto rootedDraw=prepareSceneMaterialDrawInputsCandidate(inputs,{mount});
+ check(rootedDraw[0].alpha==std::vector<float>{.8f,.9f},"rooted draw receives only its own alpha override");
  std::ifstream sentinel(root/"outside.vmt");std::string content((std::istreambuf_iterator<char>(sentinel)),{});check(content=="DO NOT READ OR MODIFY","external fixture unchanged");
  std::cout<<"PASS material_identity_safety_checks="<<checks<<" filesystem_policy_unchanged=1 native_renderer=unverified\n";return 0;
 }

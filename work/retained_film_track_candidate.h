@@ -19,10 +19,20 @@ public:
   for(const auto&clip:clips_){const auto&child=g.elements.at(clip.id);if(!hierarchyRefs(g,child,"camera",1).empty()&&!hierarchyRefs(g,child,"scene",1).empty())sceneClips_.insert(clip.id);}
  }
  size_t clipCount()const{return clips_.size();}
- FilmTimelineSelectionCandidate classify(int32_t tick)const{auto shot=select(tick);return {shot?(sceneClips_.count(shot->clip)?FilmTimelineStateCandidate::SceneClip:FilmTimelineStateCandidate::SceneLessClip):FilmTimelineStateCandidate::Gap,shot};}
- std::optional<FilmShotTimeCandidate>select(int32_t rootParentTick)const{
-  auto tick=rootFrame_.childTime(rootParentTick,false);
-  for(const auto&clip:clips_){if(clip.frame.start>tick)break;if(tick<int64_t(clip.frame.start)+clip.frame.duration)return FilmShotTimeCandidate{clip.id,clip.frame.childTime(tick,false),tick};}
+ FilmTimelineSelectionCandidate classify(int32_t tick)const{return classify(tick,tick);}
+ FilmTimelineSelectionCandidate classify(int32_t outputTick,int32_t sampleTick)const{auto shot=select(outputTick,sampleTick);return {shot?(sceneClips_.count(shot->clip)?FilmTimelineStateCandidate::SceneClip:FilmTimelineStateCandidate::SceneLessClip):FilmTimelineStateCandidate::Gap,shot};}
+ std::optional<FilmShotTimeCandidate>select(int32_t tick)const{return select(tick,tick);}
+ // Normal film refinement chooses the clip at output time and sends the
+ // separately transformed shutter time to that clip, even across a cut.
+ std::optional<FilmShotTimeCandidate>select(int32_t outputTick,int32_t sampleTick)const{
+  const auto output=rootFrame_.childTime(outputTick,false);
+  for(const auto&clip:clips_){
+   if(clip.frame.start>output)break;
+   if(output<int64_t(clip.frame.start)+clip.frame.duration){
+    const auto sample=outputTick==sampleTick?output:rootFrame_.childTime(sampleTick,false);
+    return FilmShotTimeCandidate{clip.id,clip.frame.childTime(sample,false),sample};
+   }
+  }
   return {};
  }
 };

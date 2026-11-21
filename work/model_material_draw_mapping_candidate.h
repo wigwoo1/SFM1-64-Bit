@@ -25,7 +25,7 @@ struct ModelMaterialDrawMappingCandidate {
 // Logical identity from an already loaded VMT path and explicit mount profile.
 // Lexical association only, never host-path authorization or native FindMaterial.
 inline std::optional<std::vector<std::string>>modelRenderMaterialKeysCandidate(const ModelRenderInputsCandidate&inputs,const std::vector<std::filesystem::path>&mounts)noexcept{
- try{std::vector<std::string>keys;keys.reserve(inputs.materials.size());for(const auto&material:inputs.materials){std::string key;for(const auto&mount:mounts){auto relative=material.source.vmt.lexically_normal().lexically_relative((mount/"materials").lexically_normal());if(relative.empty()||relative.is_absolute())continue;bool outside=false;for(const auto&part:relative)if(part=="..")outside=true;if(outside)continue;if(materialFindCacheKeyCandidate(relative.generic_string(),key)&&!key.empty())break;key.clear();}if(key.empty())return {};keys.push_back(std::move(key));}return keys;}catch(...){return {};}
+ try{std::vector<std::string>keys;keys.reserve(inputs.materials.size());for(const auto&material:inputs.materials){std::string key=material.source.resourceKey;if(key.empty())for(const auto&mount:mounts){auto relative=material.source.vmt.lexically_normal().lexically_relative((mount/"materials").lexically_normal());if(relative.empty()||relative.is_absolute())continue;bool outside=false;for(const auto&part:relative)if(part=="..")outside=true;if(outside)continue;if(materialFindCacheKeyCandidate(relative.generic_string(),key)&&!key.empty())break;key.clear();}if(key.empty())return {};keys.push_back(std::move(key));}return keys;}catch(...){return {};}
 }
 
 // Ordinary LOD0 mapping for caller-authenticated immutable geometry and render

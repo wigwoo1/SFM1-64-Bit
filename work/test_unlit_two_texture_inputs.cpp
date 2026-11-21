@@ -15,13 +15,15 @@ int main(int argc,char**argv){try{
  model.materials.directories={"models/effects/pyro/"};model.materials.skins={{0}};
  model.meshes.push_back({0,0,0,0,0,0,{}});
  auto native=prepareModelRenderInputsCandidate(model,0,{installed},0);
+ auto fallbackSkin=prepareModelRenderInputsCandidate(model,1,{installed},0);
+ require(fallbackSkin.materials.at(0).source.vmt==native.materials.at(0).source.vmt,"out-of-range model skin uses first family");
  const auto&material=native.materials.at(0);
  require(material.unlitTwoTexture&&material.additive&&!material.translucent&&!material.vertexTransition,"native family/blend classification");
  require(material.image.width==64&&material.image.height==64&&material.secondBaseImage.width==128&&material.secondBaseImage.height==128,"native two-texture decode dimensions");
  require(material.source.baseTexture2.filename()=="pilotlight_motion.vtf","native $texture2 resolution");
  require(material.baseTextureFlags==0x40u&&material.secondTextureFlags==0x40u,"installed VTF flags must survive decoding");
  require(material.baseTextureTransform==identityMaterialUvTransformCandidate()&&material.secondTextureTransform==identityMaterialUvTransformCandidate(),"authored proxy evaluation must not be invented");
- auto overrideValues=[](const std::filesystem::path&,VmtNodeCandidate&syntax){
+ auto overrideValues=[](const std::filesystem::path&,VmtNodeCandidate&syntax,const std::string&){
   syntax.children.push_back({"$basetexturetransform","[1 0 0 0.003242 0 1 0 -0.015513 0 0 1 0 0 0 0 1]",{},false});
   syntax.children.push_back({"$texture2transform","[1 0 0 0.719841 0 1 0 0.177722 0 0 1 0 0 0 0 1]",{},false});
  };

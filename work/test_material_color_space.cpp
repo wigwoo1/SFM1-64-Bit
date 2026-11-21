@@ -10,7 +10,7 @@ int main(){try{
  if(rejected!=6)throw std::runtime_error("malformed color policy accepted");
  std::filesystem::path mount=R"(F:\SteamLibrary\steamapps\common\SourceFilmmaker\game\usermod)";auto base=mount/"models/anno/mamagen/mamagen";
  auto model=readSfmModelGeometryCandidate(readBinaryAssetCandidate(base.string()+".mdl"),readBinaryAssetCandidate(base.string()+".vvd"),readBinaryAssetCandidate(base.string()+".dx90.vtx"));
- auto input=prepareModelRenderInputsCandidate(model,0,{mount},2,{},[](const auto&,VmtNodeCandidate&syntax){for(const char*key:{"$gammacolorread","$linearwrite"}){VmtNodeCandidate node;node.key=key;node.value="1";syntax.children.push_back(std::move(node));}});
+ auto input=prepareModelRenderInputsCandidate(model,0,{mount},2,{},[](const auto&,VmtNodeCandidate&syntax,const std::string&){for(const char*key:{"$gammacolorread","$linearwrite"}){VmtNodeCandidate node;node.key=key;node.value="1";syntax.children.push_back(std::move(node));}});
  if(input.materials.empty())throw std::runtime_error("model material coverage");for(const auto&material:input.materials)if(material.colorSpace.baseSrgb||material.colorSpace.outputSrgb)throw std::runtime_error("material color settings lost during move");
  std::cout<<"PASS material color policy:16integer combinations, six malformed rejections, installed model prepared settings preserved; GPU policy selection pending\n";return 0;
 }catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
