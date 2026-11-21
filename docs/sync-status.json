@@ -1,16 +1,14 @@
 {
-  "checked_utc": "2026-11-21T19:28:26.957739+00:00",
   "repository": "wigwoo1/SFM1-64-Bit",
-  "status": "Experimental AMD64 editor rebuilt. Packaged Vulkan control and particle replay tests passed.",
-  "build_exit_code": 0,
-  "compiler_warning_count": 18,
-  "compiled_shader_count": 31,
-  "control_test_frames": 10,
-  "executable_sha256": "4308c640611de7998a2296ff3f93e1565e05185eb43d2794e34b2ef85a53021e",
-  "package_sha256": "35a0128f4f56130375255e290fa17b5b9640f05ff1d37e4969a025e5dfb9cc02",
-  "particle_diagnostic_rows": 16,
-  "stock_sheet_lifetime_test_rows": 8,
-  "public_package_note": "The experimental export diagnostic uses python.exe on PATH. Interactive export was untested.",
-  "partial_attachment_rows_matched": 8,
-  "known_limitation": "Diagnostics cover selected particle birth, lifetime, motion, and partial control-point attachment cases. Stock particle rendering, interactive workflow parity, and full Source Filmmaker compatibility remain unverified."
+  "checked_utc": "2026-11-21T20:04:58.751657+00:00",
+  "status": "The current editor source failed to compile. The last verified experimental Windows x64 source snapshot and download remain available.",
+  "attempted_build_exit_code": 1,
+  "attempted_build_compiler_warning_count": 8,
+  "attempted_build_compiled_shader_count": 31,
+  "attempted_build_primary_error": "work/retained_session_scene_candidate.h at lines 420 and 422 reads a field named normal that the BSP trace result does not expose (MSVC C2039).",
+  "published_build_previously_verified_at_commit": "781983493c3def0b5f5eaaf901a82930da23f1b5",
+  "published_executable_sha256": "4308c640611de7998a2296ff3f93e1565e05185eb43d2794e34b2ef85a53021e",
+  "published_package_sha256": "35a0128f4f56130375255e290fa17b5b9640f05ff1d37e4969a025e5dfb9cc02",
+  "published_package_git_blob_sha": "5fc406e5a609dab64a6cb72701c67d9aefa37db6",
+  "compatibility": "Experimental and incomplete."
 }
