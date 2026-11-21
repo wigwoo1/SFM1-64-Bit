@@ -58,8 +58,19 @@ static VkShaderModule phongModule(PhongVkContext&c,const std::filesystem::path&p
 #include "phong_ambient_pixel_fixture.h"
 int main(int argc,char**argv){try{
     static_assert(sizeof(void*)==8,"native x64 required");
-    if(argc!=6)throw std::runtime_error("usage: shader-dir query-file fresh-dir vendor device");
+    if(argc!=6&&argc!=7)throw std::runtime_error("usage: shader-dir query-file fresh-dir vendor device [4x4-textures]");
     const auto queries=phongAmbientPixelQueries(argv[2]);
+    const bool textureGrid=argc==7;
+    std::vector<std::array<float,64>> grids;
+    if(textureGrid){
+        std::ifstream file(argv[6],std::ios::binary);
+        grids.resize(queries.size());
+        if(!file.read(reinterpret_cast<char*>(grids.data()),grids.size()*sizeof(grids.front()))||file.peek()!=EOF)
+            throw std::runtime_error("4x4 texture input framing");
+        for(const auto&grid:grids)for(const float value:grid)if(!std::isfinite(value)||value<0||value>1)
+            throw std::runtime_error("4x4 texture input domain");
+    }
+    const VkDeviceSize textureBytes=textureGrid?256:16;
     const std::filesystem::path output=argv[3];
     if(!std::filesystem::create_directory(output))throw std::runtime_error("fresh Vulkan directory required");
     const auto vendor=uint32_t(std::stoul(argv[4])),deviceId=uint32_t(std::stoul(argv[5]));
@@ -82,9 +93,11 @@ int main(int argc,char**argv){try{
         float priority=1;VkDeviceQueueCreateInfo queueInfo{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};queueInfo.queueFamilyIndex=c.family;queueInfo.queueCount=1;queueInfo.pQueuePriorities=&priority;VkDeviceCreateInfo devInfo{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};devInfo.queueCreateInfoCount=1;devInfo.pQueueCreateInfos=&queueInfo;VKCHECK(VC(vkCreateDevice)(c.physical,&devInfo,nullptr,&c.device));VC(vkGetDeviceQueue)(c.device,c.family,0,&c.queue);VC(vkGetPhysicalDeviceMemoryProperties)(c.physical,&c.memory);
         VkCommandPool pool{};VkCommandPoolCreateInfo poolInfo{VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};poolInfo.queueFamilyIndex=c.family;poolInfo.flags=VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;VKCHECK(VC(vkCreateCommandPool)(c.device,&poolInfo,nullptr,&pool));c.cleanup.push_back([&c,pool]{VC(vkDestroyCommandPool)(c.device,pool,nullptr);});VkCommandBuffer command{};VkCommandBufferAllocateInfo cmdInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};cmdInfo.commandPool=pool;cmdInfo.level=VK_COMMAND_BUFFER_LEVEL_PRIMARY;cmdInfo.commandBufferCount=1;VKCHECK(VC(vkAllocateCommandBuffers)(c.device,&cmdInfo,&command));
         auto input=makePhongBuffer(c,sizeof(PhongAmbientPixelQuery),VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-        auto staging=makePhongBuffer(c,32,VK_BUFFER_USAGE_TRANSFER_SRC_BIT),readback=makePhongBuffer(c,256,VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+        auto staging=makePhongBuffer(c,textureBytes+16,VK_BUFFER_USAGE_TRANSFER_SRC_BIT),readback=makePhongBuffer(c,256,VK_BUFFER_USAGE_TRANSFER_DST_BIT);
         auto target=makePhongImage(c,4,VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT|VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
-        std::array<PhongVkImage,2>textures;for(auto&i:textures)i=makePhongImage(c,1,VK_IMAGE_USAGE_SAMPLED_BIT|VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+        const auto textureUsage=VK_IMAGE_USAGE_SAMPLED_BIT|VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        std::array<PhongVkImage,2>textures{
+            makePhongImage(c,textureGrid?4:1,textureUsage),makePhongImage(c,1,textureUsage)};
         VkSamplerCreateInfo samplerInfo{};samplerInfo.sType=VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;samplerInfo.magFilter=samplerInfo.minFilter=VK_FILTER_NEAREST;samplerInfo.mipmapMode=VK_SAMPLER_MIPMAP_MODE_NEAREST;
         samplerInfo.addressModeU=samplerInfo.addressModeV=samplerInfo.addressModeW=VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;samplerInfo.maxLod=0;
         VkSampler sampler{};VKCHECK(VC(vkCreateSampler)(c.device,&samplerInfo,nullptr,&sampler));c.cleanup.push_back([&c,sampler]{VC(vkDestroySampler)(c.device,sampler,nullptr);});
@@ -129,7 +142,9 @@ int main(int argc,char**argv){try{
         VkPipeline pipeline{};VKCHECK(VC(vkCreateGraphicsPipelines)(c.device,VK_NULL_HANDLE,1,&pi,nullptr,&pipeline));c.cleanup.push_back([&c,pipeline]{VC(vkDestroyPipeline)(c.device,pipeline,nullptr);});
         std::ofstream samples(output/"vulkan-pixels.bin",std::ios::binary);
         for(const auto&q:queries){
-            std::memcpy(input.mapped,&q,sizeof(q));std::memcpy(staging.mapped,q.base.data(),16);std::memcpy(static_cast<uint8_t*>(staging.mapped)+16,q.normalSample.data(),16);
+            std::memcpy(input.mapped,&q,sizeof(q));
+            std::memcpy(staging.mapped,textureGrid?grids[cases].data():q.base.data(),size_t(textureBytes));
+            std::memcpy(static_cast<uint8_t*>(staging.mapped)+textureBytes,q.normalSample.data(),16);
             VKCHECK(VC(vkResetCommandBuffer)(command,0));VkCommandBufferBeginInfo begin{};begin.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;VKCHECK(VC(vkBeginCommandBuffer)(command,&begin));
             VkMemoryBarrier host{};host.sType=VK_STRUCTURE_TYPE_MEMORY_BARRIER;host.srcAccessMask=VK_ACCESS_HOST_WRITE_BIT;host.dstAccessMask=VK_ACCESS_SHADER_READ_BIT|VK_ACCESS_TRANSFER_READ_BIT;
             VC(vkCmdPipelineBarrier)(command,VK_PIPELINE_STAGE_HOST_BIT,VK_PIPELINE_STAGE_VERTEX_SHADER_BIT|VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT|VK_PIPELINE_STAGE_TRANSFER_BIT,0,1,&host,0,nullptr,0,nullptr);
@@ -137,7 +152,7 @@ int main(int argc,char**argv){try{
             for(unsigned i=0;i<2;++i){auto&bar=transitions[i];bar.sType=VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;bar.srcAccessMask=cases?VK_ACCESS_SHADER_READ_BIT:0;bar.dstAccessMask=VK_ACCESS_TRANSFER_WRITE_BIT;
                 bar.oldLayout=cases?VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:VK_IMAGE_LAYOUT_UNDEFINED;bar.newLayout=VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;bar.srcQueueFamilyIndex=bar.dstQueueFamilyIndex=VK_QUEUE_FAMILY_IGNORED;bar.image=textures[i].handle;bar.subresourceRange={VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1};}
             VC(vkCmdPipelineBarrier)(command,cases?VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT:VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_TRANSFER_BIT,0,0,nullptr,0,nullptr,2,transitions.data());
-            for(unsigned i=0;i<2;++i){VkBufferImageCopy copy{};copy.bufferOffset=i*16;copy.imageSubresource={VK_IMAGE_ASPECT_COLOR_BIT,0,0,1};copy.imageExtent={1,1,1};VC(vkCmdCopyBufferToImage)(command,staging.handle,textures[i].handle,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1,&copy);
+            for(unsigned i=0;i<2;++i){VkBufferImageCopy copy{};copy.bufferOffset=i?textureBytes:0;copy.imageSubresource={VK_IMAGE_ASPECT_COLOR_BIT,0,0,1};const uint32_t size=!i&&textureGrid?4:1;copy.imageExtent={size,size,1};VC(vkCmdCopyBufferToImage)(command,staging.handle,textures[i].handle,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1,&copy);
                 transitions[i].srcAccessMask=VK_ACCESS_TRANSFER_WRITE_BIT;transitions[i].dstAccessMask=VK_ACCESS_SHADER_READ_BIT;transitions[i].oldLayout=VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;transitions[i].newLayout=VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;}
             VC(vkCmdPipelineBarrier)(command,VK_PIPELINE_STAGE_TRANSFER_BIT,VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,0,0,nullptr,0,nullptr,2,transitions.data());
             VkClearValue clear{};VkRenderPassBeginInfo render{};render.sType=VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;render.renderPass=pass;render.framebuffer=framebuffer;render.renderArea={{0,0},{4,4}};render.clearValueCount=1;render.pClearValues=&clear;
@@ -147,7 +162,7 @@ int main(int argc,char**argv){try{
             VC(vkCmdPipelineBarrier)(command,VK_PIPELINE_STAGE_TRANSFER_BIT,VK_PIPELINE_STAGE_HOST_BIT,0,0,nullptr,1,&readable,0,nullptr);VKCHECK(VC(vkEndCommandBuffer)(command));
             VkSubmitInfo submit{};submit.sType=VK_STRUCTURE_TYPE_SUBMIT_INFO;submit.commandBufferCount=1;submit.pCommandBuffers=&command;VKCHECK(VC(vkQueueSubmit)(c.queue,1,&submit,VK_NULL_HANDLE));VKCHECK(VC(vkQueueWaitIdle)(c.queue));
             std::array<float,64>pixels{};std::memcpy(pixels.data(),readback.mapped,256);
-            for(unsigned i=0;i<16;++i)for(unsigned channel=0;channel<4;++channel)if(!std::isfinite(pixels[i*4+channel])||pixels[i*4+channel]!=pixels[channel])throw std::runtime_error("Vulkan constant quad mismatch");
+            for(unsigned i=0;i<16;++i)for(unsigned channel=0;channel<4;++channel)if(!std::isfinite(pixels[i*4+channel])||(!textureGrid&&pixels[i*4+channel]!=pixels[channel]))throw std::runtime_error("Vulkan quad readback invalid");
             samples.write(reinterpret_cast<const char*>(pixels.data()),256);++cases;
         }
         samples.flush();if(!samples)throw std::runtime_error("Vulkan result write");VKCHECK(VC(vkDeviceWaitIdle)(c.device));

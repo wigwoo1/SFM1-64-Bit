@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-11-07T14:00:48.491182+00:00",
-  "executable_sha256": "78af88b4fb8621a7f9bad76870ee7aac72492cee1f6b7edb5c23881ba0f4b656",
+  "compiled_utc": "2026-11-21T07:46:05.009912+00:00",
+  "executable_sha256": "feb9f7c16623d74bc60f8c9f1801250472807d9cdb87cda4d900c257df6eda6c",
   "editor_source_dependencies": {
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
     "work/animation_keys.h": "0ba29f76618039904fb15c9ea4ddf86ac3c8f9ec28d9efc9d6de25900d4542cb",
@@ -149,10 +149,11 @@
     "work/model_eyeball_metadata_candidate.h": "80f18a5c4af829ff84d9319c178a1a2fd7944a0efe0ec807fafa8285f10c5d25",
     "work/model_flex_deformation_candidate.h": "3840d812821be8b6438a9c319739637fed7bd6e4c66d300ad58b691c2b471b0c",
     "work/model_material_metadata.h": "72f1f3bfcb807279532835a45eb0f6841b2838478fbd9c588db7b3ca6151cc9b",
-    "work/model_prepared_texture_candidate.h": "664c1a359602272d31ffebce9c68e59893e8398b0aa6f93530d7df0fc1ec462a",
+    "work/model_prepared_texture_candidate.h": "7946e4b81c7e38bdeefa6b15e7e6dd73981301d099bb727ceaf2f1d33862484a",
     "work/model_proxy_context_value_candidate.h": "719fffd903750278ae1162c1bdb3d1b4e96245f2554079094c5a1ead544574ed",
-    "work/model_render_inputs_candidate.h": "7ac310aeaa18ca18072b09dbe8df924a90e7c87525190aa159c8b7959ca97dc1",
+    "work/model_render_inputs_candidate.h": "ef11b4f1078ad1ed66bd2fc1d832f6e053c1a572c88b27c169d508eadccc49c8",
     "work/model_skinning_geometry.h": "66dd8eb3544cb502a0b077585e51f938c90a71400d691c080da931633b4407e2",
+    "work/model_warp_draw_inputs_candidate.h": "2b8f383e588a7379a897f2285e91f3417cf5dc5e7828b5d08da80261cef99579",
     "work/monotonic_engine_time_candidate.h": "b9c206e5e2f6e3390d69f3ce270940c6eed740e4dcfec9999d19b9d90e2a390d",
     "work/mounted_model_material_candidate.h": "33ce2c3f10c3c03b729e3ca7993278e4aa10e8f454003911f033923bec0d61ff",
     "work/native_alpha_shadow_state_candidate.h": "a26ec47683366e3c33f27967a108deeb31bfdaf87bcbbb62b10dab7d89d38034",
@@ -438,10 +439,10 @@
     "work/vulkan_light_shader_readback_candidate.h": "f3c9e6f7e6353f77a5f0fa9aeb4222fe46cffbea69e5947a026fb304b10f4091",
     "work/vulkan_material_descriptor_counts_candidate.h": "ca8c658a46826d8b0e7081dc6a3abc7ea95611a92f8b5bdd9ddf981e2e8e708c",
     "work/vulkan_material_images_candidate.h": "aee2adb27b21d448506ec040ee17e346f488498a68b9ebd872d687936b3652ed",
-    "work/vulkan_model_draw_candidate.h": "d1489deb84dc0a78136c157c96066d3c7e8c4552fa2729ce6069525257aadab0",
+    "work/vulkan_model_draw_candidate.h": "1ee59b1d20f2fc4c0423cdecc1ec68abb0209aeb9dc3828fa517d146cab3d57e",
     "work/vulkan_model_swapchain_probe_candidate.h": "32e38492b5df57f245dba3da1158cf5c3e644b3317becd85346157229fc7bd1e",
     "work/vulkan_offscreen_target_candidate.h": "f741ae54b5c6d3e37a9e728037343adeee42e93f16a00fc86054196b89c0f54a",
-    "work/vulkan_prepared_model_images_candidate.h": "b8f2601a473f5d432d17206263585876cb0735b0517c67a531d3e0994424beec",
+    "work/vulkan_prepared_model_images_candidate.h": "aebf798f660a6c1db6f54c3ea01a118131abee26de760961baf9ab8b73894853",
     "work/vulkan_prepared_scene_candidate.h": "a9803d1f0f212c591f304cdcb3252ac1b73b7730895074022e10f64af849f14b",
     "work/vulkan_prepared_texture_binding_candidate.h": "6d93351594a22adea7656ba54720a42375f6e9700805812941a8101022c7ae8f",
     "work/vulkan_projected_light_buffer_candidate.h": "2d1a7ef3898c02b0d2db013644a764e1f4d2e1712fdad9ac1d1872365a31e78d",
@@ -524,10 +525,6 @@
     [
       "C4457",
       "declaration of 'selected' hides function parameter"
-    ],
-    [
-      "C4457",
-      "declaration of 'inputs' hides function parameter"
     ],
     [
       "C4189",

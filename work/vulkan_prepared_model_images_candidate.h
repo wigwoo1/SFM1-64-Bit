@@ -11,6 +11,7 @@ class VulkanPreparedModelImagesCandidate {
     VkDescriptorSetLayout textureLayout=VK_NULL_HANDLE;
     std::unique_ptr<VulkanMaterialImagesCandidate>legacy;
     std::vector<Selected>base,second;
+    std::vector<Selected>detail;
     struct LightwarpBindings { Selected warp,normal,exponent; };
     std::vector<LightwarpBindings> lightwarp;
 public:
@@ -19,7 +20,7 @@ public:
     VkSampler sampler=VK_NULL_HANDLE;size_t preparedTextures=0;
     VulkanPreparedModelImagesCandidate(HMODULE l,VkDevice d,VkPhysicalDevice p):library(l),device(d),physical(p){}
     VulkanPreparedModelImagesCandidate(const VulkanPreparedModelImagesCandidate&)=delete;
-    ~VulkanPreparedModelImagesCandidate(){legacy.reset();lightwarp.clear();base.clear();second.clear();if(textureLayout)load<PFN_vkDestroyDescriptorSetLayout>(library,"vkDestroyDescriptorSetLayout")(device,textureLayout,nullptr);}
+    ~VulkanPreparedModelImagesCandidate(){legacy.reset();lightwarp.clear();base.clear();second.clear();detail.clear();if(textureLayout)load<PFN_vkDestroyDescriptorSetLayout>(library,"vkDestroyDescriptorSetLayout")(device,textureLayout,nullptr);}
     void create(const std::vector<ModelRenderMaterialCandidate>&materials,VkDescriptorSetLayout materialLayout,
         bool mask,bool baseSrgb,bool materialColor,bool bcEnabled,const VulkanTextureSamplerFeaturesCandidate&samplingFeatures={},bool lightwarpLayout=false){
         if(legacy||textureLayout)throw std::runtime_error("prepared model images already created");
@@ -54,6 +55,15 @@ public:
             out.lease=out.owner->acquireFrame(input.frame);if(!out.lease)throw std::runtime_error("prepared model GPU texture frame");++preparedTextures;
         };
         for(size_t n=0;n<materials.size();++n){const auto&m=materials[n];const bool srgb=materialColor?m.colorSpace.baseSrgb:baseSrgb;prepare(m.preparedBase,srgb,base[n]);prepare(m.preparedSecond,srgb,second[n]);}
+        for(size_t n=0;n<materials.size();++n){
+            const auto& input=materials[n].phongDetail;
+            if(!input)continue;
+            if(detail.empty())detail.resize(materials.size());
+            // Mode 6 samples linear UNORM. Keep this independent of model base
+            // gamma and of the existing material descriptor-set layout.
+            prepare(input->texture,false,detail[n]);
+            if(!detail[n].lease)throw std::runtime_error("Phong detail GPU texture unavailable");
+        }
         for(size_t n=0;n<materials.size();++n){
             const auto&inputs=materials[n].lightwarpInputs;
             // LightmappedGeneric and VertexLitGeneric use the same linear auxiliary image slot.
@@ -105,10 +115,15 @@ public:
     bool hasExponent(size_t index)const{return index<lightwarp.size() && bool(lightwarp[index].exponent.lease);}
     bool hasNormal(size_t index)const{return index<lightwarp.size() && bool(lightwarp[index].normal.lease);}
     bool hasWarp(size_t index)const{return index<lightwarp.size() && bool(lightwarp[index].warp.lease);}
+    // Borrowed set with sampled image at 0 and sampler at 1. The model resource
+    // owner and its cache retain it through completion of all consuming draws.
+    VkDescriptorSet phongDetailDescriptor(size_t index)const{
+        return index<detail.size()&&detail[index].lease?detail[index].lease->descriptor():VK_NULL_HANDLE;
+    }
     size_t lightwarpBindingCount()const{return std::count_if(lightwarp.begin(),lightwarp.end(),[](const auto& b){return bool(b.warp.lease);});}
     void upload(VkCommandBuffer command){if(!legacy)throw std::runtime_error("prepared model images missing");legacy->upload(command);
         for(const auto&bindings:lightwarp)
             for(const auto* channel:{&bindings.warp,&bindings.normal,&bindings.exponent})
                 if(channel->owner)channel->owner->recordUpload(command,VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-        for(const auto*items:{&base,&second})for(const auto&selected:*items)if(selected.owner)selected.owner->recordUpload(command,VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);}
+        for(const auto*items:{&base,&second,&detail})for(const auto&selected:*items)if(selected.owner)selected.owner->recordUpload(command,VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);}
 };

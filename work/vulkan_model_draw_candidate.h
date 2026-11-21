@@ -42,6 +42,7 @@
 #include "geometry_pose_file_candidate.h"
 #include "vulkan_material_images_candidate.h"
 #include "vulkan_prepared_model_images_candidate.h"
+#include "model_warp_draw_inputs_candidate.h"
 #include "vulkan_gobo_upload_readback_candidate.h"
 #include "scene_projected_light_inputs_candidate.h"
 #include <charconv>
@@ -207,32 +208,16 @@ if(action==PlaybackEditorActionCandidate::ExportShotFirstFrame){if(exportImageWi
    if(cube==frozenScene->modelAmbientCubes.end() || vis==frozenScene->modelSkyVisible.end() || vis->second.size()!=1)continue;
    const auto& model=inputs.at(address.model);
    const auto& mat=model.materials.at(address.material);
-   if(currentMaterialAlpha[slot]!=1 || mat.translucent || mat.alphaCutoff || mat.selfIllum.enabled || !materialCache.get(model).hasWarp(address.material))continue;
-   if(normalWarpPipeline && materialCache.get(model).hasNormal(address.material))normalSlots.insert(slot);
-   {
-    auto& payload=phong[slot];
-    const auto& inputs=mat.lightwarpInputs;
-    const bool textureExponent=exponentPipeline && inputs.phongExponentControl==0.f &&
-      inputs.scalarSkyPhong && inputs.scalarSkyPhong->useBaseAlpha && !normalSlots.count(slot) &&
-      materialCache.get(model).hasExponent(address.material);
-    if(textureExponent)exponentSlots.insert(slot);
-    if(inputs.scalarSkyPhong && (inputs.scalarSkyPhong->useBaseAlpha || normalSlots.count(slot)) &&
-       (textureExponent || inputs.phongExponentControl.value_or(0)>0)){
-     const auto& controls=*inputs.scalarSkyPhong;
-     std::copy(controls.fresnelBoost.begin(),controls.fresnelBoost.end(),payload.begin());
-     // Pack the base-alpha selector in the sign of the nonnegative boost.
-     if(controls.useBaseAlpha)payload[3]=-payload[3];
-     std::copy_n(frozenScene->lightingCameraPosition.begin(),3,payload.begin()+4);
-     payload[7]=*inputs.phongExponentControl;
-     std::copy_n(controls.rim.begin(),2,payload.begin()+8);
-    }
-   }
-   auto& data=lighting[slot];
-   const auto& sky=frozenScene->hdrSkyLights->front();
-   for(size_t face=0;face<6;++face){
-    std::copy_n(cube->second[face].begin(),3,data.begin()+4*face);
-    data[4*face+3]=face<3?sky.towardLight[face]:(vis->second.front()?sky.intensity[face-3]:0.f);
-   }
+   const auto& images=materialCache.get(model);
+   const auto candidate=prepareModelWarpDrawInputsCandidate(mat,currentMaterialAlpha[slot],
+    images.hasWarp(address.material),normalWarpPipeline && images.hasNormal(address.material),
+    exponentPipeline && images.hasExponent(address.material),cube->second,
+    frozenScene->hdrSkyLights->front(),vis->second.front(),frozenScene->lightingCameraPosition);
+   if(!candidate)continue;
+   if(candidate->route==ModelWarpDrawRouteCandidate::Normal)normalSlots.insert(slot);
+   if(candidate->route==ModelWarpDrawRouteCandidate::Exponent)exponentSlots.insert(slot);
+   phong.emplace(slot,candidate->phong);
+   lighting.emplace(slot,candidate->light);
   }
   if(!lighting.empty()){
    if(resources.materialPipelines.empty())resources.materialPipelines.resize(sceneView.materials.size());

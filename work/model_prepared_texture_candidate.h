@@ -11,10 +11,16 @@ struct ModelPreparedTextureCandidate {
     uint32_t sourceMip=0;
     bool fullMipSampling=false;
 };
-inline ModelPreparedTextureCandidate prepareModelTextureSnapshotCandidate(const std::string&name,
-    const std::vector<uint8_t>&bytes,uint32_t requestedMip,uint32_t frame){
+struct ModelPreparedPhongDetailCandidate {
+    ModelPreparedTextureCandidate texture;
+    std::array<float, 8> uvRows;
+    float blendFactor;
+};
+inline ModelPreparedTextureCandidate prepareModelTextureSnapshotCandidate(
+    const std::shared_ptr<const MaterialTextureResourceCandidate>& resource,const std::string&name,uint32_t requestedMip,uint32_t frame){
     ModelPreparedTextureCandidate result;result.frame=frame;result.sourceMip=requestedMip;
-    auto resource=MaterialTextureResourceCandidate::fromVtf(name,bytes);const auto&layout=resource->layout();
+    if(!resource)throw std::runtime_error("prepared model texture resource");
+    const auto&bytes=resource->bytes();const auto&layout=resource->layout();
     if(frame>=layout.frameCount)throw std::runtime_error("prepared model texture frame");
     const auto fmt=layout.format;const auto power=[](uint32_t n){return n&&n<=32768&&!(n&(n-1));};
     // Preserve the existing decoded-image route outside the measured ordinary
@@ -55,4 +61,8 @@ inline ModelPreparedTextureCandidate prepareModelTextureSnapshotCandidate(const 
     // retain the preceding policy until their backend contract is proven.
     result.fullMipSampling=(layout.flags&0x10u)==0;
     return result;
+}
+inline ModelPreparedTextureCandidate prepareModelTextureSnapshotCandidate(const std::string&name,
+    const std::vector<uint8_t>&bytes,uint32_t requestedMip,uint32_t frame){
+    return prepareModelTextureSnapshotCandidate(MaterialTextureResourceCandidate::fromVtf(name,bytes),name,requestedMip,frame);
 }

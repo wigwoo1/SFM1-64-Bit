@@ -28,6 +28,8 @@ struct MaterialProxyEvaluationInputsCandidate {
     // Explicit per-draw, identity-checked source. Absence/default is unknown.
     // No Graph/parser dependency or original renderable pointer crosses here.
     std::optional<MaterialModelProxyBindContextCandidate>modelContext;
+    // Sampled with currentTimeBits for this bind. An absent duration is unknown.
+    std::optional<uint32_t>frameDurationBits;
 };
 // A per-call write plan. Reads see earlier writes in declaration order, while
 // public binding reads still see the committed state. Only the store can
@@ -51,6 +53,7 @@ class MaterialProxyEvaluationCandidate {
     }
 public:
     std::optional<uint32_t>currentTime()const noexcept{return inputs.currentTimeBits;}
+    std::optional<uint32_t>frameDuration()const noexcept{return inputs.frameDurationBits;}
     std::optional<std::array<uint32_t,4>>sharedMissingVariableCache()const noexcept{return inputs.sharedMissingVariableCacheBits;}
     std::optional<uint32_t>sharedMissingVariableCount()const noexcept{return inputs.sharedMissingVariableComponentCount;}
     bool verifiedPuppetWithoutGameEntity()const noexcept{return inputs.modelContext&&inputs.modelContext->verifiedPuppetWithoutEntity();}
