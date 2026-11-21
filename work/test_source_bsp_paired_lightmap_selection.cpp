@@ -33,7 +33,49 @@ static bool sameBrush(const SourceBspBrushGeometryCandidate&a,const SourceBspBru
 }
 template<class F>static void refuses(F f,const char* message){bool rejected=false;try{f();}catch(const std::exception&){rejected=true;}check(rejected,message);}
 
+static void verifyCornerNormals() {
+    auto b=fixture();
+    const auto append=[&](size_t lump,const std::vector<uint8_t>& data){
+        u32(b,8+16*lump,uint32_t(b.size()));
+        u32(b,12+16*lump,uint32_t(data.size()));
+        b.insert(b.end(),data.begin(),data.end());
+    };
+    std::vector<uint8_t> normals(4*12),indices(6*2);
+    f32(normals,0,1);
+    f32(normals,12+8,-1);
+    f32(normals,24+4,.6f);
+    f32(normals,24+8,-.8f);
+    u16(indices,6,1);
+    u16(indices,8,2);
+    u16(indices,10,3);
+    append(30,normals);
+    append(31,indices);
+
+    const auto ambiguous=readSourceBspInlineBrushCandidate(b,0);
+    check(ambiguous.normals==std::vector<std::array<float,3>>(3,{0,0,1}),
+          "mismatched face tables used an ambiguous normal stream");
+    const size_t ldr=get32(b,8+7*16),hdr=get32(b,8+58*16);
+    u16(b,ldr+8,3);
+    u16(b,hdr+8,3);
+    std::memcpy(b.data()+hdr+56,b.data()+ldr+56,10);
+    const std::vector<std::array<float,3>> expected{{0,0,-1},{0,.6f,-.8f},{0,0,1}};
+    for(auto selection:{SourceBspLightmapSelectionCandidate::Ldr,SourceBspLightmapSelectionCandidate::Hdr}){
+        const auto brush=readSourceBspInlineBrushCandidate(b,0,nullptr,selection);
+        check(brush.normals==expected&&brush.positions==ambiguous.positions&&brush.triangles.size()==1,
+              "per-corner normals, earlier face offset or zero fallback differ");
+    }
+
+    auto truncated=b;
+    u32(truncated,12+31*16,10);
+    refuses([&]{readSourceBspInlineBrushCandidate(truncated,0);},"truncated corner normal stream accepted");
+    auto badIndex=b;
+    u16(badIndex,get32(badIndex,8+31*16)+8,4);
+    refuses([&]{readSourceBspInlineBrushCandidate(badIndex,0);},"out-of-range corner normal index accepted");
+    std::cout<<"bsp_corner_normals=PASS paired_tables=2 prefix=1 zero_fallback=1 ambiguous_fallback=1 rejected_malformed=2\n";
+}
+
 int main(){try{
+    verifyCornerNormals();
     static_assert(sizeof(void*)==8,"x64 fixture required");auto b=fixture();const auto original=b;
     auto legacy=readSourceBspInlineBrushCandidate(b,0);auto legacyExplicit=readSourceBspInlineBrushCandidate(b,0,nullptr,SourceBspLightmapSelectionCandidate::LegacyPreview);check(sameBrush(legacy,legacyExplicit),"default/explicit legacy geometry mismatch");
     SourceBspBrushEmissionTraceCandidate ldrTrace,hdrTrace;std::vector<uint32_t> ldrFaces,hdrFaces;std::vector<std::array<float,3>> ldrPositions,hdrPositions;

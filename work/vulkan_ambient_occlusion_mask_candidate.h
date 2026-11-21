@@ -3,6 +3,12 @@
 #include "editor_shader_resources_candidate.h"
 #include <fstream>
 
+inline bool vulkanAmbientOcclusionShadingRequestedCandidate() {
+    char value[8]{};
+    return GetEnvironmentVariableA("SFM64_DIAGNOSTIC_AO_MASK_READBACK",value,sizeof(value))==5 &&
+           std::strcmp(value,"shade")==0;
+}
+
 // Caller waits for its frame fence before resizing, updating descriptors or
 // destroying the owner. Both rendering and compute use the same command buffer.
 class VulkanAmbientOcclusionMaskCandidate {
@@ -16,10 +22,11 @@ class VulkanAmbientOcclusionMaskCandidate {
     };
     Texture noise_, mask_;
     uint32_t width_ = 0, height_ = 0;
+    uint32_t noiseExtent_;
     VkSampler clamp_ = VK_NULL_HANDLE, tile_ = VK_NULL_HANDLE;
     VkDescriptorSetLayout descriptors_ = VK_NULL_HANDLE;
     VkDescriptorPool pool_ = VK_NULL_HANDLE;
-    VkDescriptorSet set_ = VK_NULL_HANDLE;
+    VkDescriptorSet set_ = VK_NULL_HANDLE, shadingSet_ = VK_NULL_HANDLE;
     VkPipelineLayout layout_ = VK_NULL_HANDLE;
     VkPipeline pipeline_ = VK_NULL_HANDLE;
     bool noiseRecorded_ = false;
@@ -110,7 +117,7 @@ class VulkanAmbientOcclusionMaskCandidate {
         VK_DESCRIPTOR_TYPE_SAMPLER, VK_DESCRIPTOR_TYPE_SAMPLER,
         VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
     };
-    void createLayout() {
+    void createLayout(VkDescriptorSetLayout shadingLayout) {
         VkDescriptorSetLayoutBinding bindings[6]{};
         for (uint32_t i = 0; i < 6; ++i)
             bindings[i] = {i,types_[i],1,VK_SHADER_STAGE_COMPUTE_BIT,nullptr};
@@ -121,11 +128,11 @@ class VulkanAmbientOcclusionMaskCandidate {
         check(proc<PFN_vkCreateDescriptorSetLayout>("vkCreateDescriptorSetLayout")(
             device_, &descriptorLayout, nullptr, &descriptors_));
         const VkDescriptorPoolSize sizes[]{
-            {types_[0],2}, {types_[2],2}, {types_[4],1}, {types_[5],1}
+            {types_[0],shadingLayout?3u:2u}, {types_[2],shadingLayout?3u:2u}, {types_[4],1}, {types_[5],1}
         };
         VkDescriptorPoolCreateInfo pool{};
         pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        pool.maxSets = 1;
+        pool.maxSets = shadingLayout?2:1;
         pool.poolSizeCount = 4;
         pool.pPoolSizes = sizes;
         check(proc<PFN_vkCreateDescriptorPool>("vkCreateDescriptorPool")(device_, &pool, nullptr, &pool_));
@@ -135,6 +142,10 @@ class VulkanAmbientOcclusionMaskCandidate {
         allocate.descriptorSetCount = 1;
         allocate.pSetLayouts = &descriptors_;
         check(proc<PFN_vkAllocateDescriptorSets>("vkAllocateDescriptorSets")(device_, &allocate, &set_));
+        if (shadingLayout) {
+            allocate.pSetLayouts = &shadingLayout;
+            check(proc<PFN_vkAllocateDescriptorSets>("vkAllocateDescriptorSets")(device_, &allocate, &shadingSet_));
+        }
         VkPipelineLayoutCreateInfo layout{};
         layout.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         layout.setLayoutCount = 1;
@@ -189,9 +200,8 @@ class VulkanAmbientOcclusionMaskCandidate {
         if (!staging) throw std::runtime_error("Missing AO noise staging buffer");
         transition(command,noise_,VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_TRANSFER_BIT,0,VK_ACCESS_TRANSFER_WRITE_BIT);
-        constexpr auto tile = ambientOcclusionNoiseExtentCandidate;
         VkBufferImageCopy copy{};
-        copy.imageExtent = {tile,tile,1};
+        copy.imageExtent = {noiseExtent_,noiseExtent_,1};
         copy.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT,0,0,1};
         proc<PFN_vkCmdCopyBufferToImage>("vkCmdCopyBufferToImage")(
             command,staging,noise_.image,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1,&copy);
@@ -201,8 +211,10 @@ class VulkanAmbientOcclusionMaskCandidate {
         noiseRecorded_ = true;
     }
 public:
-    VulkanAmbientOcclusionMaskCandidate(HMODULE library,VkDevice device,VkPhysicalDevice physical,uint32_t family)
-        : library_(library),device_(device),physical_(physical) {
+    VulkanAmbientOcclusionMaskCandidate(HMODULE library,VkDevice device,VkPhysicalDevice physical,uint32_t family,
+                                       VkDescriptorSetLayout shadingLayout = VK_NULL_HANDLE,
+                                       uint32_t noiseExtent = ambientOcclusionNoiseExtentCandidate)
+        : library_(library),device_(device),physical_(physical),noiseExtent_(noiseExtent) {
         try {
             const auto queueProperties = proc<PFN_vkGetPhysicalDeviceQueueFamilyProperties>("vkGetPhysicalDeviceQueueFamilyProperties");
             uint32_t count=0;
@@ -211,11 +223,11 @@ public:
             queueProperties(physical_,&count,families.data());
             if (family>=count || !(families[family].queueFlags&VK_QUEUE_COMPUTE_BIT))
                 throw std::runtime_error("AO mask requires compute support on the viewport queue");
-            constexpr auto size=ambientOcclusionNoiseExtentCandidate;
-            noise_=texture(VK_FORMAT_R32G32B32A32_SFLOAT,VK_IMAGE_USAGE_SAMPLED_BIT|VK_IMAGE_USAGE_TRANSFER_DST_BIT,size,size);
+            noise_=texture(VK_FORMAT_R32G32B32A32_SFLOAT,VK_IMAGE_USAGE_SAMPLED_BIT|VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                           noiseExtent_,noiseExtent_);
             clamp_=sampler(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
             tile_=sampler(VK_SAMPLER_ADDRESS_MODE_REPEAT);
-            createLayout();
+            createLayout(shadingLayout);
             createPipeline();
         } catch (...) {
             reset();
@@ -224,6 +236,7 @@ public:
     }
     VulkanAmbientOcclusionMaskCandidate(const VulkanAmbientOcclusionMaskCandidate&) = delete;
     ~VulkanAmbientOcclusionMaskCandidate() { reset(); }
+    VkDescriptorSet shadingSet() const { return shadingSet_; }
 
     void bind(VkImageView front,VkBuffer uniform,uint32_t width,uint32_t height) {
         if (!front || !uniform) throw std::runtime_error("AO mask input bindings missing");
@@ -254,6 +267,22 @@ public:
             else writes[i].pBufferInfo=&buffer;
         }
         proc<PFN_vkUpdateDescriptorSets>("vkUpdateDescriptorSets")(device_,6,writes,0,nullptr);
+        if (shadingSet_) {
+            const VkDescriptorImageInfo shadeImages[]{
+                {VK_NULL_HANDLE,mask_.view,VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+                {clamp_,VK_NULL_HANDLE,VK_IMAGE_LAYOUT_UNDEFINED},
+            };
+            VkWriteDescriptorSet shadeWrites[2]{};
+            for (uint32_t i=0;i<2;++i) {
+                shadeWrites[i].sType=VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                shadeWrites[i].dstSet=shadingSet_;
+                shadeWrites[i].dstBinding=i;
+                shadeWrites[i].descriptorCount=1;
+                shadeWrites[i].descriptorType=i==0?VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:VK_DESCRIPTOR_TYPE_SAMPLER;
+                shadeWrites[i].pImageInfo=&shadeImages[i];
+            }
+            proc<PFN_vkUpdateDescriptorSets>("vkUpdateDescriptorSets")(device_,2,shadeWrites,0,nullptr);
+        }
     }
 
     void record(VkCommandBuffer command,VkBuffer noiseStaging,VkBuffer readback) {
@@ -279,5 +308,10 @@ public:
         host.dstAccessMask=VK_ACCESS_HOST_READ_BIT;
         proc<PFN_vkCmdPipelineBarrier>("vkCmdPipelineBarrier")(command,VK_PIPELINE_STAGE_TRANSFER_BIT,
             VK_PIPELINE_STAGE_HOST_BIT,0,1,&host,0,nullptr,0,nullptr);
+        if (shadingSet_)
+            transition(command,mask_,VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                       VK_PIPELINE_STAGE_TRANSFER_BIT|VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                       VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,VK_ACCESS_TRANSFER_READ_BIT|VK_ACCESS_SHADER_WRITE_BIT,
+                       VK_ACCESS_SHADER_READ_BIT);
     }
 };

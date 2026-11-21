@@ -2,6 +2,9 @@
 [[vk::binding(1,0)]] SamplerState baseSampler;
 [[vk::binding(8,0)]] Texture2D<float4> warpImage;
 [[vk::binding(11,0)]] SamplerState warpSampler;
+#ifdef AMBIENT_OCCLUSION
+[[vk::binding(0,1)]] Texture2D<float> occlusionImage;
+#endif
 #ifdef NORMAL_MAP
 [[vk::binding(6,0)]] Texture2D<float4> normalImage;
 [[vk::binding(9,0)]] SamplerState normalSampler;
@@ -11,6 +14,9 @@
 [[vk::binding(10,0)]] SamplerState exponentSampler;
 #endif
 struct Material {
+#ifdef AMBIENT_OCCLUSION
+    [[vk::offset(64)]] float4 occlusionTintStrength;
+#endif
     [[vk::offset(96)]] float4 fresnelBoost;
     [[vk::offset(144)]] float4 eyeExponent;
     [[vk::offset(112)]] float4 uvX;
@@ -24,6 +30,9 @@ float4 main([[vk::location(0)]] float2 uv:TEXCOORD0,[[vk::location(1)]] float3 n
     , [[vk::location(3)]] float4 tangent:TEXCOORD3, [[vk::location(4)]] float3 worldPosition:TEXCOORD4
 #else
     , [[vk::location(3)]] float3 worldPosition:TEXCOORD3
+#endif
+#ifdef AMBIENT_OCCLUSION
+    , float4 pixel : SV_Position
 #endif
 ):SV_Target0 {
     float2 baseUV=float2(dot(float3(uv,1),material.uvX.xyz),dot(float3(uv,1),material.uvY.xyz));
@@ -76,5 +85,9 @@ float4 main([[vk::location(0)]] float2 uv:TEXCOORD0,[[vk::location(1)]] float3 n
         }
         rgb+=highlight;
     }
+#ifdef AMBIENT_OCCLUSION
+    float visibility=occlusionImage.Load(int3(int2(pixel.xy),0));
+    rgb*=1-material.occlusionTintStrength.w*(1-visibility)*(1-material.occlusionTintStrength.xyz);
+#endif
     return float4(rgb,base.a);
 }

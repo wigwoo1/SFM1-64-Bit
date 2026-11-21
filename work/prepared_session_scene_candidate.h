@@ -5,6 +5,7 @@
 #include "render_camera_file_candidate.h"
 #include "source_hdr_sky_lights_candidate.h"
 #include "session_exposure_candidate.h"
+#include "session_camera_ambient_occlusion_candidate.h"
 #include <chrono>
 #include <optional>
 struct ScenePreparationProfileCandidate {double evaluation=0,poses=0,geometry=0,materials=0,upload=0,decoration=0,furGuides=0,furRibbons=0,furAppend=0;};
@@ -46,6 +47,7 @@ struct PreparedSessionSceneCandidate {
  std::vector<SceneUnavailableModelDiagnosticCandidate>missingModels;
  std::shared_ptr<const std::vector<SourceSkyLightCandidate>> hdrSkyLights;
  std::optional<SessionExposureCandidate> sessionExposure;
+ std::optional<SessionCameraAmbientOcclusionCandidate> cameraAmbientOcclusion;
 };
 using SceneGeometryDecorationCandidate=std::function<void(const Graph&,const SessionRenderSceneCandidate&,const std::vector<SceneGeometryModelCandidate>&,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&,PreparedSessionSceneCandidate&)>;
 inline PreparedSessionSceneCandidate prepareSessionSceneCandidate(const Graph&graph,const SessionRenderSceneCandidate&scene,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&asset,SceneRenderInputsCacheCandidate&materials,GeometryDeformationWorkerPoolCandidate&workers,const std::vector<std::filesystem::path>&mounts,bool allowScale=false,bool allowNameMapping=false,const SceneModelDeformationCandidate&deform={},const SceneBorrowedDeformationCandidate&borrowed={},const SceneGeometryDecorationCandidate&decorate={}){

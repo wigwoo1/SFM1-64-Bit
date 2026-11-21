@@ -11,6 +11,24 @@ struct ModelWarpDrawInputsCandidate {
     std::array<float, 24> light{};
 };
 
+// The native tool-mode Phong initializer supplies 1 when the VMT omits this
+// value. The draw stage clamps the resolved strength to [0,1].
+inline float modelWarpOcclusionStrengthCandidate(
+        const ModelRenderMaterialCandidate& material, const ModelWarpDrawInputsCandidate& draw) {
+    if (!material.lightwarpInputs.scalarSkyPhong ||
+        (draw.route != ModelWarpDrawRouteCandidate::Exponent && draw.phong[7] <= 0) ||
+        vmtAsciiLowerCandidate(material.source.syntax.key) != "vertexlitgeneric") return 0;
+    const auto values = vmtValuesCandidate(material.source.syntax, "$ambientocclusion");
+    if (values.empty()) return 1;
+    if (values.size() != 1) return 0;
+    std::istringstream input(values.front());
+    input.imbue(std::locale::classic());
+    float strength;
+    if (!(input >> strength) || !std::isfinite(strength)) return 0;
+    input >> std::ws;
+    return input.eof() ? std::clamp(strength, 0.f, 1.f) : 0;
+}
+
 // Current experimental renderer inputs. The availability flags describe views
 // created on the logical device, not just textures named in a material.
 inline std::optional<ModelWarpDrawInputsCandidate> prepareModelWarpDrawInputsCandidate(

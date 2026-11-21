@@ -64,6 +64,30 @@ inline SourceBspBrushGeometryCandidate readSourceBspInlineBrushCandidate(const s
  auto&vertices=lumps[3];auto&edges=lumps[12];auto&surfedges=lumps[13];auto&texinfo=lumps[6];auto&texdata=lumps[2];auto&strings=lumps[43];auto&stringTable=lumps[44];auto&lighting=lumps[lightingLump];auto&dispInfo=lumps[26];auto&dispVerts=lumps[33];auto&dispTris=lumps[48];
  if(vertices.size%12||edges.size%4||surfedges.size%4||texinfo.size%72||texdata.size%32||stringTable.size%4||dispInfo.size%176||dispVerts.size%20||dispTris.size%2)throw std::runtime_error("VBSP geometry lump alignment");
  size_t m=models.offset+modelIndex*48;int32_t firstFace=i32(m+40),faceCount=i32(m+44);if(firstFace<0||faceCount<0||uint64_t(firstFace)+faceCount>faces.size/56)throw std::runtime_error("VBSP model face span");
+ const auto& storedNormals=lumps[30];
+ const auto& normalIndices=lumps[31];
+ bool useStoredNormals=storedNormals.size&&normalIndices.size;
+ // The map has one corner-normal stream, shared by the LDR and HDR face tables.
+ // Where the face order is ambiguous, retain the geometry-derived fallback.
+ const auto& otherFaces=lumps[faceLump==7?58:7];
+ if(useStoredNormals&&otherFaces.size){
+  useStoredNormals=otherFaces.size==faces.size&&otherFaces.version==faces.version&&!otherFaces.fourCC;
+  for(size_t offset=0;useStoredNormals&&offset<faces.size;offset+=56)
+   useStoredNormals=std::memcmp(b.data()+faces.offset+offset,b.data()+otherFaces.offset+offset,10)==0;
+ }
+ size_t firstCornerNormal=0;
+ if(useStoredNormals){
+  if(storedNormals.version||normalIndices.version||storedNormals.fourCC||normalIndices.fourCC||
+     storedNormals.size%12||normalIndices.size%2)throw std::runtime_error("unsupported VBSP corner normal layout");
+  size_t totalCorners=0;
+  for(size_t face=0;face<faces.size/56;++face){
+   if(face==size_t(firstFace))firstCornerNormal=totalCorners;
+   const int16_t count=i16(faces.offset+face*56+8);
+   if(count<0||size_t(count)>normalIndices.size/2-totalCorners)throw std::runtime_error("VBSP corner normal span");
+   totalCorners+=size_t(count);
+  }
+  if(totalCorners!=normalIndices.size/2)throw std::runtime_error("VBSP corner normal coverage");
+ }
  SourceBspBrushGeometryCandidate out;for(size_t c=0;c<3;++c){out.boundsMin[c]=f32(m+c*4);out.boundsMax[c]=f32(m+12+c*4);out.modelOrigin[c]=f32(m+24+c*4);if(out.boundsMin[c]>out.boundsMax[c])throw std::runtime_error("VBSP model bounds");}
  auto vertexAt=[&](uint32_t index){if(index>=vertices.size/12)throw std::runtime_error("VBSP vertex index");std::array<float,3>v{};size_t p=vertices.offset+size_t(index)*12;for(size_t c=0;c<3;++c)v[c]=f32(p+c*4);return v;};
  auto materialName=[&](uint32_t texInfoIndex){if(texInfoIndex>=texinfo.size/72)throw std::runtime_error("VBSP texinfo index");size_t ti=texinfo.offset+size_t(texInfoIndex)*72;int32_t dataIndex=i32(ti+68);if(dataIndex<0||uint64_t(dataIndex)>=texdata.size/32)throw std::runtime_error("VBSP texdata index");size_t td=texdata.offset+size_t(dataIndex)*32;int32_t nameId=i32(td+12);uint32_t width=u32(td+16),height=u32(td+20),viewWidth=u32(td+24),viewHeight=u32(td+28);if(nameId<0||uint64_t(nameId)>=stringTable.size/4)throw std::runtime_error("VBSP material string id");int32_t relative=i32(stringTable.offset+size_t(nameId)*4);if(relative<0||uint32_t(relative)>=strings.size)throw std::runtime_error("VBSP material string offset");size_t p=strings.offset+uint32_t(relative),end=p;while(end<strings.offset+strings.size&&b[end])++end;if(end==strings.offset+strings.size)throw std::runtime_error("VBSP material string termination");if(!viewWidth)viewWidth=width?width:512;if(!viewHeight)viewHeight=height?height:512;return std::tuple<std::string,std::array<std::array<float,4>,2>,uint32_t,uint32_t>{std::string(reinterpret_cast<const char*>(b.data()+p),end-p),{{{{f32(ti),f32(ti+4),f32(ti+8),f32(ti+12)}},{{f32(ti+16),f32(ti+20),f32(ti+24),f32(ti+28)}}}},viewWidth,viewHeight};};
@@ -83,6 +107,8 @@ inline SourceBspBrushGeometryCandidate readSourceBspInlineBrushCandidate(const s
  std::map<std::string,uint32_t>materialIds;
  for(int32_t faceNo=0;faceNo<faceCount;++faceNo){size_t f=faces.offset+size_t(firstFace+faceNo)*56;int32_t firstEdge=i32(f+4);int16_t edgeCount=i16(f+8),texInfoIndex=i16(f+10),displacementIndex=i16(f+12);if(displacementIndex!=-1)++out.displacementFaces;if(firstEdge<0||edgeCount<3||uint64_t(firstEdge)+uint16_t(edgeCount)>surfedges.size/4)throw std::runtime_error("VBSP face edge span");if(texInfoIndex<0)throw std::runtime_error("VBSP face texinfo");auto[name,axes,w,h]=materialName(uint32_t(texInfoIndex));auto [mi,inserted]=materialIds.emplace(name,uint32_t(materialIds.size()));if(inserted)out.materials.push_back(name);
   std::vector<uint32_t>faceVertices;faceVertices.reserve(edgeCount);for(int16_t e=0;e<edgeCount;++e){int32_t se=i32(surfedges.offset+size_t(firstEdge+e)*4);if(se==INT32_MIN)throw std::runtime_error("VBSP surfedge overflow");uint32_t edge=uint32_t(se<0?-se:se);if(edge>=edges.size/4)throw std::runtime_error("VBSP edge index");size_t ep=edges.offset+size_t(edge)*4;uint32_t vertex=u16(ep+(se<0?2:0));faceVertices.push_back(vertex);}
+  const size_t faceCornerNormal=firstCornerNormal;
+  if(useStoredNormals)firstCornerNormal+=size_t(edgeCount);
   if(displacementIndex>=0){
    if(uint64_t(displacementIndex)>=dispInfo.size/176)throw std::runtime_error("VBSP displacement info index");size_t d=dispInfo.offset+size_t(displacementIndex)*176;uint32_t dispVertStart=u32(d+12),dispTriStart=u32(d+16);int32_t power=i32(d+20);uint16_t mapFace=u16(d+36);if(mapFace!=uint32_t(firstFace+faceNo)||power<1||power>4)throw std::runtime_error("VBSP displacement face identity or power");uint32_t side=(1u<<power)+1,quadCount=(side-1)*(side-1),vertexCount=side*side,triangleCount=quadCount*2;if(uint64_t(dispVertStart)+vertexCount>dispVerts.size/20||uint64_t(dispTriStart)+triangleCount>dispTris.size/2)throw std::runtime_error("VBSP displacement span");if(faceVertices.size()!=4)throw std::runtime_error("VBSP displacement base face is not a quad");
    std::array<std::array<float,3>,4>baseCorners{};for(size_t i=0;i<4;++i)baseCorners[i]=vertexAt(faceVertices[i]);std::array<float,3>start{f32(d),f32(d+4),f32(d+8)};size_t startCorner=0;float best=std::numeric_limits<float>::infinity();for(size_t i=0;i<4;++i){float dist=0;for(size_t c=0;c<3;++c){float delta=baseCorners[i][c]-start[c];dist+=delta*delta;}if(dist<best){best=dist;startCorner=i;}}if(best>1e-4f)throw std::runtime_error("VBSP displacement start position not on base face");auto c0=baseCorners[startCorner],c1=baseCorners[(startCorner+1)&3],c2=baseCorners[(startCorner+2)&3],c3=baseCorners[(startCorner+3)&3];
@@ -92,9 +118,19 @@ inline SourceBspBrushGeometryCandidate readSourceBspInlineBrushCandidate(const s
    for(uint32_t v=0;v<vertexCount;++v){auto&normal=out.normals[first+v];float len=std::sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);if(!std::isfinite(len)||len<1e-8f)normal={0,0,1};else for(float&component:normal)component/=len;}
    continue;
   }
-  std::vector<uint32_t>corners;corners.reserve(edgeCount);std::array<float,3>normal{};
+  std::vector<uint32_t>corners;corners.reserve(edgeCount);
    for(uint32_t vertex:faceVertices){auto pos=vertexAt(vertex);float u=(pos[0]*axes[0][0]+pos[1]*axes[0][1]+pos[2]*axes[0][2]+axes[0][3])/float(w);float v=1.f-(pos[0]*axes[1][0]+pos[1]*axes[1][1]+pos[2]*axes[1][2]+axes[1][3])/float(h);uint32_t ci=uint32_t(out.positions.size());out.positions.push_back(pos);out.uvs.push_back({u,v});out.normals.push_back({0,0,0});out.lightColors.push_back(sampleLight(f,uint32_t(texInfoIndex),pos));out.displacementAlphas.push_back(0.f);corners.push_back(ci);if(trace&&trace->vertex)trace->vertex(uint32_t(firstFace+faceNo),pos);}
   for(size_t k=1;k+1<corners.size();++k){auto a=out.positions[corners[0]],bb=out.positions[corners[k]],c=out.positions[corners[k+1]];std::array<float,3>n{(bb[1]-a[1])*(c[2]-a[2])-(bb[2]-a[2])*(c[1]-a[1]),(bb[2]-a[2])*(c[0]-a[0])-(bb[0]-a[0])*(c[2]-a[2]),(bb[0]-a[0])*(c[1]-a[1])-(bb[1]-a[1])*(c[0]-a[0])};float length=std::sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]);if(!std::isfinite(length))throw std::runtime_error("nonfinite VBSP triangle normal");if(length<1e-8f){++out.skippedDegenerateTriangles;continue;}for(float&v0:n)v0/=length;for(size_t q:{size_t(0),k,k+1})out.normals[corners[q]]=n;out.triangles.push_back({{corners[0],corners[k],corners[k+1]},mi->second});if(trace&&trace->triangle)trace->triangle(uint32_t(firstFace+faceNo));}
+  if(useStoredNormals){
+   for(size_t corner=0;corner<corners.size();++corner){
+    const auto index=u16(normalIndices.offset+(faceCornerNormal+corner)*2);
+    if(index>=storedNormals.size/12)throw std::runtime_error("VBSP corner normal index");
+    const size_t address=storedNormals.offset+size_t(index)*12;
+    const std::array<float,3> authored{f32(address),f32(address+4),f32(address+8)};
+    // Compilers may leave zero normals on surfaces without lighting.
+    if(authored!=std::array<float,3>{})out.normals[corners[corner]]=authored;
+   }
+  }
  }
  return out;
 }

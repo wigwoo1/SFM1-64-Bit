@@ -1,5 +1,10 @@
 {
-  "checked_utc": "2026-11-21T14:11:15.719965+00:00",
-  "status": "PUBLICATION PREPARED; inspect commit for remote result",
-  "repository": "wigwoo1/SFM1-64-Bit"
+  "checked_utc": "2026-11-21T14:51:24.939975+00:00",
+  "status": "Experimental AMD64 editor rebuilt. Default Vulkan smoke test passed.",
+  "repository": "wigwoo1/SFM1-64-Bit",
+  "build_exit_code": 0,
+  "compiler_warning_count": 18,
+  "compiled_shader_count": 30,
+  "post_package_smoke_test": "The editor processed and presented five benchmark frames in control-test mode.",
+  "known_limitation": "The opt-in Source ambient occlusion noise diagnostic rejects the stock reflection texture, which stores six mip levels. The default path passed with diagnostics disabled. Visual parity remains unverified."
 }

@@ -20,6 +20,9 @@ ps_6_0 sfm64-model-warp-diffuse
 vs_6_0 sfm64-model-warp-vertex
 ps_6_0 sfm64-model-warp-normal
 ps_6_0 sfm64-model-warp-exponent
+ps_6_0 sfm64-model-warp-ao-diffuse
+ps_6_0 sfm64-model-warp-ao-normal
+ps_6_0 sfm64-model-warp-ao-exponent
 ps_6_0 sfm64-hdr2-ssbump-fragment
 vs_6_0 sfm64-viewport-copy-vertex
 ps_6_0 sfm64-viewport-copy-fragment
