@@ -15,6 +15,9 @@
 #ifdef TRANSLATED_BRUSH_POINT_TRACE
 #include "source_translated_brush_point_trace_candidate.h"
 #endif
+#ifdef TRANSLATED_BRUSH_BOX_TRACE
+#include "source_translated_brush_box_trace_candidate.h"
+#endif
 #ifdef CACHE_WORLD_POSITION
 #include "source_bsp_light_cache_world_candidate.h"
 #ifdef CACHE_NEW_RECORD_ANCHOR
@@ -123,6 +126,9 @@ int main(int argc,char**argv){try{
  SourceBspDisplacementCollisionCandidate loaded(b,0);auto&meshes=loaded.meshes;
 #endif
  SourcePreparedWorldRayCandidate combined(owned,meshes);
+#if defined(TRANSLATED_BRUSH_BOX_TRACE) && !defined(NATIVE_BRUSH_WORLD)
+ std::vector<std::optional<SourceTranslatedBrushBoxTraceCandidate>> boxModels(owned.modelRoots.size());
+#endif
 #ifdef WORLD_PLANE_TAGS
  std::ofstream planeTagsOut(std::string(argv[4])+".plane-tags",std::ios::binary);if(!planeTagsOut)throw std::runtime_error("plane tags sidecar");
 #endif
@@ -238,6 +244,16 @@ if(refs.size()>65535)throw std::runtime_error("leaf reference index overflow");l
   (void)combined.modelRoot(modelIndex);
 #endif
 #endif
+#ifdef TRANSLATED_BRUSH_BOX_TRACE
+  SourceSolidTriggerSweepCandidate hull;
+  hull.center=start;
+  hull.delta=delta;
+  hull.swept=q[7]!=0;
+  hull.isRay=false;
+  if(!in.read(reinterpret_cast<char*>(hull.offset.data()),12)||
+     !in.read(reinterpret_cast<char*>(hull.extents.data()),12))
+   throw std::runtime_error("incomplete inline box hull query");
+#endif
 #ifdef WORLD_SURFACE_FLAGS
   std::array<uint32_t,2>surfaceResult{};
 #endif
@@ -261,6 +277,11 @@ if(refs.size()>65535)throw std::runtime_error("leaf reference index overflow");l
   std::array<uint8_t,84>trace;trace.fill(0xcd);
 #ifdef TRANSLATED_BRUSH_POINT_TRACE
   ray.bytes[69]=uint8_t(q[7]);
+#ifdef TRANSLATED_BRUSH_BOX_TRACE
+  ray.bytes[68]=0;
+  std::memcpy(ray.bytes.data()+32,hull.offset.data(),12);
+  std::memcpy(ray.bytes.data()+48,hull.extents.data(),12);
+#endif
   BrushFixtureCollideable entity{collideableTable.data(),int32_t(modelIndex+1),origin};
   using Clip=bool(__thiscall*)(void*,const void*,uint32_t,void*,void*);
   const auto clip=reinterpret_cast<Clip>(base+0x16d6f0);
@@ -303,7 +324,11 @@ std::memcpy(&result.state.displacementFlags,trace.data()+0x34,2);std::memcpy(&re
   anchor=sourceLightCachePositionCandidate(start,inputLeaf,observedCache);if(anchor!=cacheWorld.position(start))throw std::runtime_error("observed versus direct cache adapter differs");
 #endif
 #else
-#ifdef TRANSLATED_BRUSH_POINT_TRACE
+#ifdef TRANSLATED_BRUSH_BOX_TRACE
+  auto& box=boxModels.at(modelIndex);
+  if(!box)box.emplace(owned,combined,modelIndex);
+  result=box->trace(origin,hull,q[6]);
+#elif defined(TRANSLATED_BRUSH_POINT_TRACE)
   result=sourceTranslatedBrushPointTraceCandidate(combined,modelIndex,origin,start,delta,q[6],q[7]!=0);
 #elif defined(FULL_WORLD_TRACE)
 #ifdef WORLD_SURFACE_FLAGS

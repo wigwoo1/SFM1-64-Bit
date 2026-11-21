@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-11-21T21:31:42.171794+00:00",
-  "executable_sha256": "d41d0a61c0cb64c60cbc30dae8eb9cad66585805f2b9262defbb641106cc672d",
+  "compiled_utc": "2026-11-21T22:30:37.753206+00:00",
+  "executable_sha256": "57c3c7e11f1d2d050ccc4c4d6169116765bffb87f6c38c92a5d92ec4a0d80172",
   "editor_source_dependencies": {
     "work/ambient_occlusion_view_candidate.h": "203729920a2c6ae63a6015e2dcfb831beb2505b196a31093205ff5168c724288",
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
@@ -408,7 +408,7 @@
     "work/source_loose_collision_scene_assets_candidate.h": "2b2bfd3309653fa344411fbcb3341c958860496f87979f0f2fe1c9e37b3e55d6",
     "work/source_model_cached_lighting_candidate.h": "d7383e0492bf056d35e064e70b1d58388dc3685712e2051e3ebf0e73a294a345",
     "work/source_new_record_leaf_ambient_candidate.h": "7f74a10e35c1f773799c4bc2d3a657d7a16d6a9a443b0744a28a2279c8681a0b",
-    "work/source_optimized_box_line_ray_candidate.h": "de205729c707e149b4b64ba133a3708b6b8698c7acac2eed200ac125b958a152",
+    "work/source_optimized_box_line_ray_candidate.h": "22d819e0e66dc1ad253dab6630235edc10eb538b34ac4463f00139cb7c21f7f3",
     "work/source_optimized_box_record_candidate.h": "5700e8e1f8bb23f1e854512468d77418d7af4bec207468049260b5fc190725e5",
     "work/source_particle_appearance_candidate.h": "3ff2469da8c7213ed7fd0ce42e7f477b31df0538fa7644222e36cee378b277f5",
     "work/source_particle_cached_plane_collision_candidate.h": "e5c7ddceec3883556300da6e2f8fe8d84fd34532a884fecb46e1f8705a0f6cae",

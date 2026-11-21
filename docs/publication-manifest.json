@@ -26,7 +26,7 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "70e2ebe738579160a138bfef2edaceb6e6690bb64772e5cf9280514399f00734",
+      "sha256": "011109d9ee94a70679f42b33bd3a85ff3bdf667bf7d472edb03eed06761c98a2",
       "size": 68446
     },
     "docs/publication-policy.json": {
@@ -34,12 +34,12 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "d7d8aff85c07d7f0e199dcdbb2dbe20a60660a79132a82476efb417d6d20b911",
-      "size": 1016
+      "sha256": "7d0bc793ae7d2afed866c36b789fda3e18b2c95aab5104437f80d48673330295",
+      "size": 911
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "708cc5fc3a999716f2af334293e7c2a050df013848cec40420f6bca1d10e8a64",
-      "size": 1350663
+      "sha256": "070eeddfa6ce78d9dfb0227ec892bb3f64bb637dac53f4cfb93d9a2041c5e665",
+      "size": 1350879
     },
     "publication/README.md": {
       "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
@@ -2612,6 +2612,10 @@
     "work/build_map_simulation_clock.cmd": {
       "sha256": "506b0186985ffa4b07f91adad1d3174156b810ed54928f1e684f6e61a25bc357",
       "size": 872
+    },
+    "work/build_map_trigger_actor.cmd": {
+      "sha256": "b051ea1a915c58489a0cf95e5b55414e21b7d231901dbf696db97fcb235b449b",
+      "size": 840
     },
     "work/build_map_trigger_io.cmd": {
       "sha256": "815d605b5f0743ba7b167e82fa6e51eb90caad556790cc01fec989d60642fea5",
@@ -5317,6 +5321,10 @@
       "sha256": "7eaf4cd00bc375495f5717e3e754feb50f0acbd4d5b08e0a1d79615d6124b6f1",
       "size": 446
     },
+    "work/build_solid_trigger_scan.cmd": {
+      "sha256": "86854aa137591802a9208c33647571d358f83482ef4bb878b5eecb634b0f5ecf",
+      "size": 838
+    },
     "work/build_source_bsp_leaf_ambient.cmd": {
       "sha256": "98a36713db9ce09b2425292aaaa2ef2b3d364efca19529d0bd2fe818da1c96ea",
       "size": 507
@@ -6445,6 +6453,10 @@
       "sha256": "88c3b951c44da648100e873225d2cbc48cec8eec17fec42bb101d3980c52f721",
       "size": 376
     },
+    "work/build_translated_brush_box_trace.cmd": {
+      "sha256": "2a2fa34e8b5f08ab550532388ab2f57fddd9a5f6c438f94ca7d10fe099a108e2",
+      "size": 976
+    },
     "work/build_translated_brush_point_trace.cmd": {
       "sha256": "ea4bd9d1e5be9400f19ed32748f21adf8aa68fe9902208ef7d2efc8a8890aac8",
       "size": 995
@@ -6460,6 +6472,10 @@
     "work/build_trig_startup_native.cmd": {
       "sha256": "c9f88b504a3540c2ca8e430dc0a5318a6ce42cc84cce8335611d4e5b023f01f7",
       "size": 469
+    },
+    "work/build_trigger_activation_scan.cmd": {
+      "sha256": "5faa786b1ed16711275dbf90003640acb8e26e697c75ac62095401cee9016eef",
+      "size": 899
     },
     "work/build_two_point_curve_evaluation.cmd": {
       "sha256": "e633ef59ae72aae99c2784241800329bd723835e6eff7dfa1dc0c83f1c133490",
@@ -12961,6 +12977,10 @@
       "sha256": "68fb098adc2942346d99d1e2e0dfacd38fbbd46385b5aeeca8920826a4e28ac3",
       "size": 9436
     },
+    "work/probe_map_trigger_actor.cpp": {
+      "sha256": "b96b11cd8feb7b0640683fb47a7ca0c233c580fc4bae36b74522e434e575e786",
+      "size": 10658
+    },
     "work/probe_map_trigger_io.cpp": {
       "sha256": "fe5dd8a8e934beb658cd262a5088273dbd37ebe4e05d3492d926441326f487cb",
       "size": 15153
@@ -14293,6 +14313,10 @@
       "sha256": "7d732fe12ff9409b801039425afbce7c780daffead45d3f5bac5c617443cfffe",
       "size": 6979
     },
+    "work/probe_solid_trigger_scan.cpp": {
+      "sha256": "88b403865ba8780d2fc2e96e3d3da47a9d3ceec7eeb63583b03c77a0b939c9e3",
+      "size": 12269
+    },
     "work/probe_source_anisotropy_caps_x86.cpp": {
       "sha256": "7ceb21c4de421d8dd2f728f01e39fe912811195656f71e466b7bed9339c6a517",
       "size": 4269
@@ -14466,8 +14490,8 @@
       "size": 4615
     },
     "work/probe_swept_world_trace.cpp": {
-      "sha256": "57fed2e1c6cd40cd6878965b75f602740e1ec15a5f94f5dec0eba59930b8782f",
-      "size": 28620
+      "sha256": "e85fcc81a9ba5712175dc6395a51fbdd6b36a67851c41af5396b87b0b9e35908",
+      "size": 29630
     },
     "work/probe_texture_allocation.cpp": {
       "sha256": "36576659e7c187837082d03aee4bd9403b7da943334f1b79593b03d58cc0cec5",
@@ -14540,6 +14564,10 @@
     "work/probe_translucent_fixture_geometry_x64.cpp": {
       "sha256": "647ca4cc0ac97b3a04a0e4fbf00ed8375f67a6ece86e953c8531843f16a278b7",
       "size": 1917
+    },
+    "work/probe_trigger_activation_scan.cpp": {
+      "sha256": "1cf53dcf18a8e49a643e7b78f7153cf68cf336dd87281a107883e3450f7ba3f6",
+      "size": 16594
     },
     "work/probe_unlit_generic_concrete.cpp": {
       "sha256": "949fa0de95692a1c64d4ab850d7ce2e4160e8d33d51c7fa9dcb116e8aca468aa",
@@ -18565,6 +18593,10 @@
       "sha256": "2eb7417d4ae641e0169ac621fa067e5af8e74396cdc6fbdfdc778859df2b5862",
       "size": 2204
     },
+    "work/source_map_trigger_actor_candidate.h": {
+      "sha256": "4bb82f8933147e3b12b0d527c7fb4bca1f34d175b3d9069949103505ad3521bc",
+      "size": 1773
+    },
     "work/source_map_trigger_io_candidate.h": {
       "sha256": "28583232cc2dc093dd0813bfe24c981be48564b2fd2f13b31bc19ffc90a3692b",
       "size": 3389
@@ -18614,8 +18646,8 @@
       "size": 2167
     },
     "work/source_optimized_box_line_ray_candidate.h": {
-      "sha256": "de205729c707e149b4b64ba133a3708b6b8698c7acac2eed200ac125b958a152",
-      "size": 5861
+      "sha256": "22d819e0e66dc1ad253dab6630235edc10eb538b34ac4463f00139cb7c21f7f3",
+      "size": 6170
     },
     "work/source_optimized_box_record_candidate.h": {
       "sha256": "5700e8e1f8bb23f1e854512468d77418d7af4bec207468049260b5fc190725e5",
@@ -18813,6 +18845,10 @@
       "sha256": "c69b1d857f8aaf000239ff17a3732992fdf301c2478045da1d6e966bdb015cef",
       "size": 2681
     },
+    "work/source_solid_trigger_scan_candidate.h": {
+      "sha256": "aeebaeba39cd8118d6aeacdba805686dfd6bda1dd2f48e68b1b6cb9c97188a77",
+      "size": 4374
+    },
     "work/source_spatial_point_partition_candidate.h": {
       "sha256": "93dd4054162be78c94d97c04c4bd472ce7655fbe9ac5a8b60f535e352a423eb8",
       "size": 14644
@@ -18873,9 +18909,17 @@
       "sha256": "8582b5c0cf0df2c5219e519ecf402176c9fa3e6dd0f186d0e90e5622727fd70b",
       "size": 1941
     },
+    "work/source_translated_brush_box_trace_candidate.h": {
+      "sha256": "0ecac28d3c9476e518f2e8f68553d66141c2e55a8db93c3279547815c4cb9cc7",
+      "size": 6109
+    },
     "work/source_translated_brush_point_trace_candidate.h": {
       "sha256": "83b8f2fd043b2c13a6d6fbace0c69f8dfd0832c1108fda721c3403b254315911",
       "size": 1020
+    },
+    "work/source_trigger_activation_scan_candidate.h": {
+      "sha256": "6da576757d639ed2f7888c6e61a0e45bca42b474c3a25128026232d7e94f95b1",
+      "size": 1984
     },
     "work/source_vertex_local_light_candidate.h": {
       "sha256": "7c5b03be29767bb2bb44a3feed5cbfc71dc051eecf4ed37d5be9925822f6162e",
@@ -25893,6 +25937,10 @@
       "sha256": "a9c836c5fcf4fae11deef632f74fcc05e03f380dd045aa5c2503dbc0d2908105",
       "size": 8309
     },
+    "work/verify_map_trigger_actor.py": {
+      "sha256": "246bf68db619b7828f0543155e480cb4f63d65abf5759db833c151a86275bea3",
+      "size": 7387
+    },
     "work/verify_map_trigger_io.py": {
       "sha256": "589d81446eca3575ce12a4f3815a45a3ea2565e04fd591d8906ae66cd12313e8",
       "size": 14529
@@ -27017,6 +27065,10 @@
       "sha256": "978d143f420beb9b41dd661d801f1802512eb16f374d464d4b35d2563cbd013f",
       "size": 1173
     },
+    "work/verify_solid_trigger_scan.py": {
+      "sha256": "f1833c98f433543ea37bc5f332ed33c28ce60da49ba7403254ad6059719d1212",
+      "size": 11974
+    },
     "work/verify_source_anisotropy.py": {
       "sha256": "f3d836b98362692acd486bd22ffb4d0503cc8209a3025497a8864baa913d19a6",
       "size": 14755
@@ -27397,6 +27449,10 @@
       "sha256": "9e53d2f61cd22a82444e26b43f2669660e1935a8947aec8db76ad6e770978f76",
       "size": 16555
     },
+    "work/verify_translated_brush_box_trace.py": {
+      "sha256": "59059f0b0c2d8725d5f7d461956d310da1a242a88af198f9b375d4bab96e6938",
+      "size": 10029
+    },
     "work/verify_translated_brush_point_trace.py": {
       "sha256": "056cc98f96281db00289fa3bbcb13fcf999dd99d567ba666f78761f0447df671",
       "size": 9982
@@ -27404,6 +27460,10 @@
     "work/verify_translucent_fixture_topology_candidate.py": {
       "sha256": "1d1982673dcc07ecc6dd63d01a2f887a89af1b4bcdc50347e15b5c52c373b21d",
       "size": 6283
+    },
+    "work/verify_trigger_activation_scan.py": {
+      "sha256": "225381ec3e2f95773f12e87f19d6d6a258770f862d19ef08a3f25f6a58ffde13",
+      "size": 11690
     },
     "work/verify_two_texture_admission_x64.py": {
       "sha256": "01a045691fba54d15595bef3499ebdd601e2e7ae09333e7c8d94b6f5c15fabd7",

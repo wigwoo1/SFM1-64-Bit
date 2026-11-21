@@ -14,12 +14,19 @@ struct SourceOptimizedBoxLineStateCandidate {
  // can change the normal without updating these tags.
  std::array<uint8_t,4>planeTags{};
 };
-// Owned SSE2 reconstruction of 10146850 for zero-extent line rays only.
-// Box selection by the map loader, surface metadata and swept hulls are separate.
+// Owned SSE2 reconstruction of 10146850. For a non-ray hull, expand the
+// relative faces by its half extents before the same slab calculation.
 inline void sourceOptimizedBoxLineRayCandidate(const std::array<float,3>&mins,const std::array<float,3>&maxs,
- const std::array<float,3>&start,const std::array<float,3>&end,uint32_t contents,SourceOptimizedBoxLineStateCandidate&state,bool*enteringPlaneHit=nullptr,const std::array<float,3>*rayDelta=nullptr){
+ const std::array<float,3>&start,const std::array<float,3>&end,uint32_t contents,SourceOptimizedBoxLineStateCandidate&state,bool*enteringPlaneHit=nullptr,const std::array<float,3>*rayDelta=nullptr,
+ const std::array<float,3>*hullExtents=nullptr){
  std::array<float,4>low{},high{},delta{},inverse{};
  for(size_t i=0;i<3;++i){if(!std::isfinite(mins[i])||!std::isfinite(maxs[i])||mins[i]>maxs[i]||!std::isfinite(start[i])||!std::isfinite(end[i]))throw std::runtime_error("invalid optimized box/ray");low[i]=mins[i]-start[i];high[i]=maxs[i]-start[i];delta[i]=rayDelta?(*rayDelta)[i]:end[i]-start[i];inverse[i]=delta[i]==0?std::numeric_limits<float>::max():1.0f/delta[i];if(!std::isfinite(low[i])||!std::isfinite(high[i])||!std::isfinite(delta[i])||!std::isfinite(inverse[i]))throw std::runtime_error("optimized box input arithmetic overflow");}
+ if(hullExtents)for(size_t i=0;i<3;++i){
+  const float extent=(*hullExtents)[i];
+  low[i]-=extent;
+  high[i]+=extent;
+  if(extent<0.f||!std::isfinite(low[i])||!std::isfinite(high[i]))throw std::runtime_error("invalid optimized box hull extent");
+ }
  if(!std::isfinite(state.fraction)||!std::isfinite(state.leftSolid)||state.fraction<0||state.fraction>1||state.leftSolid<0||state.leftSolid>1)throw std::runtime_error("invalid optimized box state");
  const __m128 zero=_mm_setzero_ps(),one=_mm_set1_ps(1),negativeLimit=_mm_set1_ps(-std::numeric_limits<float>::max()),positiveLimit=_mm_set1_ps(std::numeric_limits<float>::max());
  const __m128 xyz=_mm_castsi128_ps(_mm_set_epi32(0,-1,-1,-1));
@@ -53,7 +60,7 @@ inline void sourceOptimizedBoxLineRayCandidate(const std::array<float,3>&mins,co
  const float entry=_mm_cvtss_f32(_mm_max_ps(_mm_shuffle_ps(e,e,0),zero)),exit=_mm_cvtss_f32(_mm_min_ps(_mm_shuffle_ps(l,l,0),one));
  if(exit<entry)return;
  auto result=state;
- if(!outside||result.leftSolid>entry){result.startSolid=true;result.contents=contents;if(exit>=1){result.allSolid=true;result.fraction=0;}else if(exit>result.leftSolid){result.leftSolid=exit;if(exit>=result.fraction){result.fraction=1;result.surface={};}}}
+ if(!outside||(!hullExtents&&result.leftSolid>entry)){result.startSolid=true;result.contents=contents;if(exit>=1){result.allSolid=true;result.fraction=0;}else if(exit>result.leftSolid){result.leftSolid=exit;if(exit>=result.fraction){result.fraction=1;result.surface={};}}}
  else if(result.fraction>entry){const int face=_mm_cvtsi128_si32(_mm_castps_si128(finalFace));if(face<0||face>5)throw std::runtime_error("invalid optimized entering face");const size_t axis=size_t(face%3);result.fraction=entry;result.contents=contents;result.plane={0,0,0,face<3?-mins[axis]:maxs[axis]};result.plane[axis]=face<3?-1.0f:1.0f;result.planeTags[0]=uint8_t(axis);result.planeTags[1]=face<3?uint8_t(1u<<axis):0;result.surface={SourceCollisionSurfaceKindCandidate::BoxFace,uint32_t(face)};if(enteringPlaneHit)*enteringPlaneHit=true;}
  if(!std::isfinite(result.fraction)||!std::isfinite(result.leftSolid))throw std::runtime_error("optimized box output nonfinite");state=result;
 }
