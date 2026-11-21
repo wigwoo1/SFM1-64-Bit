@@ -1,9 +1,11 @@
 #pragma once
 
 #include "session_particle_start_candidate.h"
+#include "session_particle_fixed_life_candidate.h"
 #include "source_continuous_particle_emitter_candidate.h"
 #include "source_particle_collection_timing_candidate.h"
 #include "source_particle_definition_candidate.h"
+#include "source_particle_sheet_cache_candidate.h"
 
 struct SessionParticleBirthsCandidate {
     std::string name;
@@ -12,21 +14,32 @@ struct SessionParticleBirthsCandidate {
     float firstSeconds = 0.f, lastSeconds = 0.f;
     int32_t lastControlTick = 0;
     std::optional<std::array<float, 3>> emitterPosition;
+    std::optional<size_t> liveCount;
+    int64_t expired = 0;
+    std::optional<uint32_t> randomDraws;
+    uint64_t birthAttributeHash = 14695981039346656037ull;
+    bool lifetimeFromSheet = false;
 };
 
-// Replay an isolated emitter tree. The diagnostic sink drains each batch,
-// so subsequent batches have their full capacity. A particle store can use
-// the same emitter scheduler with the slots available after its operators.
+// Replay an isolated emitter tree. Supported life programs retain particles
+// across steps. Other definitions drain each diagnostic batch.
 inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCandidate(
         const Graph& graph, uint32_t root, const SourceParticleStartCandidate& startup,
         int32_t target, float timeScale, const SessionParticleSimulationCurveCandidate& simulation,
-        const SessionParticleSimulationCurveCandidate& emission) {
-    if (startup.skippedTicks || target < startup.cursor || timeScale < 0 || !std::isfinite(timeScale)) return {};
+        const SessionParticleSimulationCurveCandidate& emission, int32_t seed = 0,
+        const SourceParticleRandomTableCandidate* randomTable = nullptr,
+        SourceParticleSheetCacheCandidate* sheets = nullptr) {
+    if (startup.skippedTicks || target < startup.cursor || timeScale < 0 || !std::isfinite(timeScale) ||
+        simulation.keys.empty() || emission.keys.empty()) return {};
     struct Collection {
         SourceContinuousParticleEmissionCandidate emission;
         SourceContinuousParticleEmitterCandidate state;
         float clock, maximumStep;
         int32_t capacity;
+        std::optional<SessionParticleLifeProgramCandidate> lifetime;
+        std::vector<SourceParticleLifeCandidate> live;
+        SourceParticleRandomCandidate random;
+        const VtfParticleSheetCandidate* sheet;
     };
     std::vector<SessionParticleBirthsCandidate> result;
     std::vector<Collection> collections;
@@ -67,14 +80,29 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
         const float rate = number(emitter, "emission_rate", 100.f);
         const float start = number(emitter, "emission_start_time", 0.f);
         const float duration = number(emitter, "emission_duration", 0.f);
-        const auto capacity = integer(def, "max_particles", 1000);
+        const auto capacity = integer(def, "max_particles", -1);
         const auto maximumStep = number(def, "maximum time step", .1f);
         if (!std::isfinite(rate) || rate < 0 || !std::isfinite(start) ||
-            !std::isfinite(duration) || duration < 0 || capacity < 0 ||
+            !std::isfinite(duration) || duration < 0 || capacity < 0 || capacity > 5000 ||
             !std::isfinite(maximumStep) || maximumStep != .1f) return false;
 
+        auto lifetime = sessionParticleLifeProgramCandidate(graph, def);
+        // The root's seed and draw cursor are verified. A child may offset
+        // its draw cursor using definition data, so admit fixed children.
+        const bool seeded = active.size() == 1 && seed != 0 && randomTable;
+        if (lifetime && lifetime->needsRandom() && !seeded) lifetime.reset();
+        const VtfParticleSheetCandidate* sheet = nullptr;
+        if (lifetime && lifetime->sequenceFps != 0.f) {
+            const auto* material = sourceParticleAttributeCandidate(graph, def, "material", 5);
+            if (material && sheets) sheet = sheets->resolve(material->values.front().text);
+            if (!sheet) lifetime.reset();
+        }
         result.push_back({graph.strings.at(def.name), id});
-        collections.push_back({{rate, start, duration}, {}, 0.f, maximumStep, std::min(capacity, 5000)});
+        if (lifetime) result.back().liveCount = 0;
+        if (lifetime && lifetime->needsRandom()) result.back().randomDraws = 0;
+        result.back().lifetimeFromSheet = sheet != nullptr;
+        collections.push_back({{rate, start, duration}, {}, 0.f, maximumStep, capacity, lifetime, {},
+                               {static_cast<uint32_t>(seed), 0}, sheet});
         if (const auto* children = sourceParticleAttributeCandidate(graph, def, "children", 15))
             for (const auto& entry : children->values) {
                 if (entry.reference >= graph.elements.size()) return false;
@@ -113,15 +141,51 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                 if (command.durationSeconds < 1.e-22) continue;
                 c.clock += command.durationSeconds;
                 const auto batch = sourceContinuousParticleBirthsCandidate(
-                    c.state, c.emission, c.clock, command.durationSeconds, 1.f, c.capacity);
+                    c.state, c.emission, c.clock, command.durationSeconds, 1.f,
+                    c.capacity - static_cast<int32_t>(c.live.size()));
                 auto& summary = result[n];
                 summary.requested += batch.requested;
+                const auto begin = c.live.size();
                 batch.visit([&](float time) {
                     if (summary.delivered == 0) summary.firstSeconds = time;
+                    if (c.lifetime)
+                        c.live.push_back({static_cast<uint32_t>(summary.delivered), time,
+                                          c.lifetime->minimum, 1.f, 1.f});
                     ++summary.delivered;
                     summary.lastSeconds = time;
                     summary.lastControlTick = command.localTick;
                 });
+                if (summary.randomDraws) {
+                    // Finish each initializer across the batch before the next
+                    // initializer draws any values from the collection.
+                    for (size_t slot = begin; slot < c.live.size(); ++slot)
+                        c.live[slot].duration = c.random.linear(
+                            *randomTable, c.lifetime->minimum, c.lifetime->maximum);
+                    if (c.lifetime->sequence) {
+                        const auto [first, last] = *c.lifetime->sequence;
+                        for (size_t slot = begin; slot < c.live.size(); ++slot)
+                            c.live[slot].sequence = c.random.sequence(*randomTable, first, last);
+                    }
+                    if (c.sheet)
+                        for (size_t slot = begin; slot < c.live.size(); ++slot)
+                            c.live[slot].duration = sourceParticleSheetLifetimeCandidate(
+                                c.live[slot].duration, c.live[slot].sequence, c.lifetime->sequenceFps, c.sheet);
+                    for (size_t slot = begin; slot < c.live.size(); ++slot) {
+                        uint32_t lifeBits;
+                        std::memcpy(&lifeBits, &c.live[slot].duration, sizeof(lifeBits));
+                        for (const auto value : {lifeBits, static_cast<uint32_t>(c.live[slot].sequence)})
+                            for (unsigned shift = 0; shift < 32; shift += 8)
+                                summary.birthAttributeHash =
+                                    (summary.birthAttributeHash ^ ((value >> shift) & 255u)) * 1099511628211ull;
+                    }
+                    summary.randomDraws = c.random.consumed;
+                }
+                // Source applies these lifetime operators after emission.
+                if (c.lifetime) {
+                    const auto* fade = c.lifetime->fade ? &*c.lifetime->fade : nullptr;
+                    summary.expired += sourceExpireParticleLifeCandidate(c.live, c.clock, fade, false);
+                    summary.liveCount = c.live.size();
+                }
             }
         }
         if (advance.complete) return result;

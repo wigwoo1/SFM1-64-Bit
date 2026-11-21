@@ -79,7 +79,7 @@ inline std::optional<SourceParticleStartCandidate> sessionParticleStartupCandida
         const SessionParticleSimulationKeysCandidate& curves, uint32_t particle, int32_t target,
         float simulationScale) {
     const auto found = curves.find(particle);
-    if (found == curves.end()) return {};
+    if (found == curves.end() || found->second.keys.empty()) return {};
     const auto& curve = found->second;
     return sourceParticleCollectionStartCandidate(
         target, curve.keyAt(target), curve.frame.parentTime(curve.keys.front().tick, true),

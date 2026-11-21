@@ -9,8 +9,8 @@
 // admitted. The definition and each child contribute to the collection mask.
 inline std::optional<uint64_t> sourceParticleControlPointMaskCandidate(
         const Graph& graph, uint32_t definition) {
-    static constexpr std::array<std::string_view, 19> zeroMask{
-        "render_animated_sprites", "render_sprite_trail", "alpha fade and decay",
+    static constexpr std::array<std::string_view, 20> zeroMask{
+        "render_animated_sprites", "render_sprite_trail", "alpha fade and decay", "lifespan decay",
         "color fade", "movement basic", "movement lock to control point", "oscillate vector",
         "radius scale", "alpha random", "color random", "lifetime random",
         "position within sphere random", "radius random", "rotation random",

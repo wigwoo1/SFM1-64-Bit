@@ -37,6 +37,8 @@ class RetainedSessionSceneCandidate {
  RetainedShotTimelineCandidate timeline_;
  std::vector<std::filesystem::path>mounts_;
  std::unique_ptr<const SourceParticleCatalogCandidate> particleCatalog_;
+ std::optional<SourceParticleRandomTableCandidate> particleRandomTable_;
+ std::optional<SourceParticleSheetCacheCandidate> particleSheets_;
  SessionParticleSimulationKeysCandidate particleKeys_;
  SessionParticleSimulationKeysCandidate particleEmissionKeys_;
  std::unique_ptr<SessionParticleControlPointBindingsCandidate> particlePointBindings_;
@@ -236,8 +238,13 @@ public:
  void addSceneDecorationCandidate(SceneGeometryDecorationCandidate decoration){auto previous=decoration_;decoration_=[previous,decoration](const auto& graph,const auto& scene,const auto& geometry,const auto& asset,auto& prepared){if(previous)previous(graph,scene,geometry,asset,prepared);decoration(graph,scene,geometry,asset,prepared);};}
  void setModelDeformationCandidate(RetainedModelDeformationCandidate provider){deformation_=std::move(provider);borrowed_={};}
  void setBorrowedDeformationCandidate(RetainedBorrowedDeformationCandidate provider){borrowed_=std::move(provider);deformation_={};}
- void loadParticleDefinitions(bool traceBirths=false){
+ void loadParticleDefinitions(bool traceBirths=false,const std::filesystem::path& randomReference={}){
   traceParticleBirths_=traceBirths;
+  if(traceBirths&&!particleSheets_)particleSheets_.emplace(mounts_);
+  if(traceBirths&&!randomReference.empty()){
+   particleRandomTable_=readSourceParticleRandomTableCandidate(randomReference);
+   std::cout<<"particle_random_table "<<(particleRandomTable_?"validated":"unsupported")<<'\n';
+  }
   if(particleCatalog_)return;
   try{
    particleCatalog_=std::make_unique<const SourceParticleCatalogCandidate>(mounts_);
@@ -368,7 +375,9 @@ private:
         const auto emission=particleEmissionKeys_.find(particle.id);
         if(simulation!=particleKeys_.end()&&emission!=particleEmissionKeys_.end()){
          binding.birthReplay=replaySessionParticleBirthsCandidate(definitionGraph,binding.definition,
-             *binding.startupAtSample,result.shotLocalTick,binding.timeScale,simulation->second,emission->second);
+             *binding.startupAtSample,result.shotLocalTick,binding.timeScale,simulation->second,emission->second,
+             binding.seed,particleRandomTable_?&*particleRandomTable_:nullptr,
+             particleSheets_?&*particleSheets_:nullptr);
          for(auto& birth:binding.birthReplay){
           if(birth.delivered==0)continue;
           const auto points=particlePointBindings_->sample(

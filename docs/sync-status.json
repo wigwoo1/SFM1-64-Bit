@@ -1,14 +1,15 @@
 {
-  "checked_utc": "2026-11-21T18:02:37.513160+00:00",
+  "checked_utc": "2026-11-21T18:40:59.553640+00:00",
   "repository": "wigwoo1/SFM1-64-Bit",
-  "status": "Experimental AMD64 editor rebuilt and verified in packaged Vulkan control tests.",
+  "status": "Experimental AMD64 editor rebuilt and passed packaged Vulkan control tests.",
   "build_exit_code": 0,
   "compiler_warning_count": 18,
   "compiled_shader_count": 31,
   "control_test_frames": 10,
-  "executable_sha256": "86e1466ec467c02eb5cfd2e1e4592b2216f4e76cbd8248a17319b6d27ffce89e",
-  "package_sha256": "00e83fbfc63f8a7900ba974f28683161497b40b8e0c974c541b6550de9c2a563",
+  "executable_sha256": "13adbafd65a69de5f748fad2ff7d90bbe7cccbfc56f629a9f153b0abf46f5e0f",
+  "package_sha256": "d0716fd00cbd0aefac6a9db66b9b045a6801ba6cedd31cb0a545a3102d11c40c",
   "particle_diagnostic_rows": 16,
-  "public_package_note": "The export diagnostic defaults to python.exe on PATH. Interactive export was untested.",
-  "known_limitation": "The optional emitter diagnostic drains birth batches immediately. Live particle simulation, particle rendering, full Source Filmmaker compatibility and visual parity remain unverified."
+  "stock_sheet_lifetime_test_rows": 8,
+  "public_package_note": "The experimental export diagnostic uses python.exe on PATH. Interactive export was untested.",
+  "known_limitation": "The optional diagnostic evaluates supported lifetime fixtures. Stock particle rendering, interactive workflow parity and full Source Filmmaker compatibility remain unverified."
 }
