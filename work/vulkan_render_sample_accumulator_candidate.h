@@ -16,6 +16,23 @@ inline uint32_t vulkanRenderSampleDiagnosticCountCandidate() {
     return count;
 }
 
+struct VulkanRenderSamplingOptionsCandidate {
+    uint32_t explicitCount;
+    bool sessionRefinement;
+    bool enabled() const { return sessionRefinement || explicitCount != 0; }
+};
+
+inline VulkanRenderSamplingOptionsCandidate vulkanRenderSamplingOptionsCandidate() {
+    char text[2]{};
+    const auto length=GetEnvironmentVariableA("SFM64_DIAGNOSTIC_SESSION_REFINEMENT",text,sizeof(text));
+    if(length&&(length!=1||text[0]!='1'))
+        throw std::runtime_error("Expected 1 for SFM64_DIAGNOSTIC_SESSION_REFINEMENT");
+    const auto explicitCount=vulkanRenderSampleDiagnosticCountCandidate();
+    if(length&&explicitCount)
+        throw std::runtime_error("Session refinement and an explicit sample count cannot be combined");
+    return {explicitCount,length!=0};
+}
+
 // External scratch buffers are device-owned by the draw loop. All records
 // and the final transfer share its command buffer and fence.
 class VulkanRenderSampleAccumulatorCandidate {

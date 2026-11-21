@@ -4,7 +4,8 @@
 #include "source_refinement_policy_candidate.h"
 
 inline SourceRefinementPlanCandidate readSessionProgressiveRefinementCandidate(
-        const Graph& graph,uint32_t root,uint32_t camera,uint32_t packedRate) {
+        const Graph& graph,uint32_t root,uint32_t camera,uint32_t packedRate,
+        SourceRefinementSettingsCandidate* effectiveSettings=nullptr) {
     const auto render=sessionRenderSettingsElementCandidate(graph,root);
     const auto refinement=render==UINT32_MAX?UINT32_MAX:
         hierarchySingleReference(graph,graph.elements.at(render),"ProgressiveRefinement");
@@ -53,5 +54,6 @@ inline SourceRefinementPlanCandidate readSessionProgressiveRefinementCandidate(
             settings.depthOfField&&!settings.depthQualityOverride?integer(camera,"depthOfFieldQuality",0):0,
             settings.overrideShutter?0:integer(camera,"shutterSpeed",208,7)};
     }
+    if(effectiveSettings)*effectiveSettings=settings;
     return sourceRefinementPlanCandidate(settings,optics,packedRate);
 }

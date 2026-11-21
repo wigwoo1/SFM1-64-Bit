@@ -23,7 +23,22 @@ inline std::map<uint32_t,std::vector<uint32_t>> discoverSessionTypedPlayPathsCan
 
 inline std::map<uint32_t,std::vector<uint32_t>> discoverSessionAdditionalPlayPathsCandidate(const Graph&graph,uint32_t root,const std::vector<SessionExpressionChainCandidate>&chains){
  std::set<uint32_t>covered;for(const auto&chain:chains){covered.insert(chain.play);covered.insert(chain.copy);}
- std::map<uint32_t,std::vector<uint32_t>>result;for(const auto&item:channelTimePaths(graph,root)){if(covered.count(item.first))continue;ChannelBinding b(graph,item.first);if(b.mode!=3||!b.destination.present()||(b.destination.scalarType!=3&&b.destination.scalarType!=10&&b.destination.scalarType!=13))continue;if(item.second.size()!=1)throw std::runtime_error("ambiguous additional playback path");result.emplace(item.first,item.second.at(0));}return result;
+ std::map<uint32_t,std::vector<uint32_t>>result;
+ for(const auto&item:channelTimePaths(graph,root)){
+  if(covered.count(item.first))continue;
+  ChannelBinding b(graph,item.first);
+  if(b.mode!=3||!b.destination.present())continue;
+  const auto type=b.destination.scalarType;
+  const bool particleBool=type==4 && b.log!=UINT32_MAX && b.layers.size()<=1 &&
+      (b.destination.attribute=="simulating"||b.destination.attribute=="emitting") &&
+      graph.strings.at(graph.elements.at(b.destination.element).type)=="DmeGameParticleSystem" &&
+      graph.strings.at(graph.elements.at(b.log).type)=="DmeBoolLog" &&
+      hierarchyRefs(graph,graph.elements.at(b.log),"curveinfo",1).empty();
+  if(type!=3&&type!=10&&type!=13&&!particleBool)continue;
+  if(item.second.size()!=1)throw std::runtime_error("ambiguous additional playback path");
+  result.emplace(item.first,item.second.at(0));
+ }
+ return result;
 }
 
 inline std::vector<uint32_t>discoverSessionColorCopyChannelsCandidate(const Graph&graph,uint32_t root){std::vector<uint32_t>result;for(const auto&item:channelTimePaths(graph,root)){ChannelBinding b(graph,item.first);if(b.mode==1&&b.source.present()&&b.destination.present()&&b.source.scalarType==8&&b.destination.scalarType==8)result.push_back(item.first);}return result;}

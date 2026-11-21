@@ -26,20 +26,20 @@
       "size": 508
     },
     "docs/build-status.json": {
-      "sha256": "647381038f3cd7b8ce4c16048acd6c9178e0e09c8015918f593a347c0695d576",
-      "size": 61311
+      "sha256": "5d5f2cda7eee0d63405b2d05d3d698efe7d335564312feeecb9c8a2f0b4fa6f4",
+      "size": 61157
     },
     "docs/publication-policy.json": {
       "sha256": "a972ec573f886d9faf5fcd9a21285a93333464226f47c7312e502f0ca22d1734",
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "cfddd0fd559a14f56a33d4f0cacb7f12db9b98c3dd46ae25efe6462a7e5db983",
-      "size": 655
+      "sha256": "4e4f2b3d183a4ecf7927c9ae1557147a9794c003c644b5c037d766cb9d24fc2c",
+      "size": 706
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
-      "sha256": "ba7e86bdb04d8f992d714437270170b663ca0980413c4c91dd361249aaea1ba1",
-      "size": 1193396
+      "sha256": "6e6cfa26efc11ee6691792c3a090a01fd4a1fb3e3e6b4d46aad0a023a64dd4b7",
+      "size": 1200987
     },
     "publication/README.md": {
       "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
@@ -9074,8 +9074,8 @@
       "size": 1098
     },
     "work/film_scene_render_binding_candidate.h": {
-      "sha256": "4737ae840ef49c89e9fbb53fc4a48d4696dd6fdeac70977a0e6d164da663a1ae",
-      "size": 1431
+      "sha256": "183ef916d631b1ae995ff07df09827fac6307b3522d905bba98033dae71d7a97",
+      "size": 1544
     },
     "work/film_shot_time_candidate.h": {
       "sha256": "759b130a9a98c701f567afc999f700dfaa247ebd905ac96f4708d7524b8d0b8e",
@@ -10362,8 +10362,8 @@
       "size": 5813
     },
     "work/live_session_scene_candidate.h": {
-      "sha256": "07d36b9add9ae092bc1ade05a9bb8e27204f8692e561c8dc9cd037c246e44d18",
-      "size": 1089
+      "sha256": "2d7deff9ab851e2a0ce078b68216f1c3e07f6686615c415d8d003e044f4bcefc",
+      "size": 1167
     },
     "work/locate_current_scale_kernel.py": {
       "sha256": "ca30d570246e4a44d0d2a873ceb115321ba0209ed52fb97c0d319ffa66042ab2",
@@ -12474,12 +12474,12 @@
       "size": 5906
     },
     "work/prepared_session_expression_chain_pass.h": {
-      "sha256": "dc788d17eed427a77619abeb4abb2c51ec39d69e81abe62699a8fd1bc4f5f9ff",
-      "size": 18638
+      "sha256": "24f6ea9501db1603457563a9cba11f7127222ffec292876130cdde177d3837d2",
+      "size": 18673
     },
     "work/prepared_session_scene_candidate.h": {
-      "sha256": "08797b0c14708b8717df3d8a3f898a70468226237eb4c3c61ac927eb3cc9af6e",
-      "size": 5936
+      "sha256": "deebea8e73891a62b7c0cc162a3fdb255b322e6641c0added01916c3f6c666ae",
+      "size": 6069
     },
     "work/preserve_flex_scan_reference.py": {
       "sha256": "1eeffd5f7a7a91cc23f6f68c863a9fe41282864b924238f042b87f91272505d4",
@@ -17354,8 +17354,8 @@
       "size": 3065
     },
     "work/retained_session_scene_candidate.h": {
-      "sha256": "f463646b8418c07febfa455085d22b576ca33291f0e981165b7a00f0b46639d1",
-      "size": 22370
+      "sha256": "9027d0531499db5f308638f64a11ef9e646c29ab4b84541d02012226c4385d95",
+      "size": 24439
     },
     "work/retained_shader_constants_candidate.h": {
       "sha256": "70e1899f36e039715b62e09133a5f65b665e62f898e4460c050968c5f8663912",
@@ -17514,8 +17514,8 @@
       "size": 2076
     },
     "work/runtime_typed_channel_play.h": {
-      "sha256": "3ee20f03619c01d610ce74179063fc24ec90bf01b67d163ffd3356b8de2e5913",
-      "size": 1564
+      "sha256": "5b0481e14b65904875d43624a25b3c63bf18250cbb5ba243588503222181f165",
+      "size": 2054
     },
     "work/runtime_undo_journal.h": {
       "sha256": "87597ddcf1991cb836a8c17bf215c57f223b061c29c4092b8cb0e064d3d74bbe",
@@ -17694,8 +17694,8 @@
       "size": 1685
     },
     "work/session_camera_view_projection_candidate.h": {
-      "sha256": "bd419f5fb18bf5e1f6d23671f245fcc276635407521e681153962e5dbef90bb8",
-      "size": 1610
+      "sha256": "b237005cf67a7d606c72911fded4e258b21a84d4b010697e5f2766ea684bf939",
+      "size": 4023
     },
     "work/session_change_scheduler.h": {
       "sha256": "2223d28378a53a83e06bc70cecc8c7e651ac8d04f426deca92865087946df311",
@@ -17714,8 +17714,8 @@
       "size": 3051
     },
     "work/session_expression_chain_discovery.h": {
-      "sha256": "33e41db178c29a1a7b22d8fb4b7df7e1c631fc5849cd67e2e81b4e3f4e484985",
-      "size": 3453
+      "sha256": "6fc1c8f867a6b647847f8918dee0ed8b89d6daa86565f42cbbc81364d8099844",
+      "size": 3910
     },
     "work/session_expression_chain_pass.h": {
       "sha256": "53fbe45e982af8d5fb9178f16ef808ec6357a039a31bb2d2d20211fbc53e10a6",
@@ -17857,6 +17857,10 @@
       "sha256": "5028fdd1d3c4eb1361c3b83d7550b1d1af2a94ee739ed096d0970c153b852181",
       "size": 1180
     },
+    "work/session_particle_bool_play_candidate.h": {
+      "sha256": "61605d449cf17f8063912da94267ec1f936afb449643dad5090b1457d5b5b5d9",
+      "size": 2361
+    },
     "work/session_point_constraint_runtime.h": {
       "sha256": "883e695be79bc9893728aa9536baadc64d30af7eb21fda487fddf6cb8fc06563",
       "size": 1997
@@ -17866,8 +17870,8 @@
       "size": 927
     },
     "work/session_progressive_refinement_candidate.h": {
-      "sha256": "105272c8b0433cf386fc724407eb60ead41dd60fe66c7e9de62f81c4751f17cf",
-      "size": 3224
+      "sha256": "9d70ad9d201d67ca166fccc71c9604a6ad64d37066864f586398d993219bb65b",
+      "size": 3348
     },
     "work/session_quaternion_runtime.h": {
       "sha256": "96c94867eabfc91eb7be693442cd6e06556c1139f95d484c49fe6019a28fbd1f",
@@ -17894,8 +17898,8 @@
       "size": 933
     },
     "work/session_render_scene_candidate.h": {
-      "sha256": "09ea8434598cff42a6410dd93d5f51f197eb030d5aa8970a79a273b8e7ca5727",
-      "size": 2175
+      "sha256": "01cd642b3eb291d14aa2753e5dea8be813a320054d55cd75258fc6d22a65a1d9",
+      "size": 3048
     },
     "work/session_runtime.h": {
       "sha256": "1cdf5c1dd721fadecd11a94cc580f6f2bc0596597f3d89fa219892a09a59037f",
@@ -18321,6 +18325,10 @@
       "sha256": "2384ccb1a6c1566942d30336bf8d1d7efd63dbe1d4c3ae12719b60b0cd042d9b",
       "size": 1617
     },
+    "work/source_camera_sample_candidate.h": {
+      "sha256": "fb1e908c002898f9ea3d96d3b16e3039c806943132d866d8af09bda3af5a121e",
+      "size": 5385
+    },
     "work/source_collision_surface_candidate.h": {
       "sha256": "8558d721c85b5966d2fddc67950b702a698dea63d971de4fc8c4c1bfd65a0db2",
       "size": 538
@@ -18521,6 +18529,10 @@
       "sha256": "5700e8e1f8bb23f1e854512468d77418d7af4bec207468049260b5fc190725e5",
       "size": 1904
     },
+    "work/source_particle_collection_timing_candidate.h": {
+      "sha256": "172b4bff00dd0ae9942947626009cd7a482d14b4ff64aacb8f9eb83657d0fec7",
+      "size": 3341
+    },
     "work/source_phy_aabb_candidate.h": {
       "sha256": "cf6e16305be45bc11eab2bbd2c79200637438dc38fae4d63c78570eab59f7165",
       "size": 4033
@@ -18622,8 +18634,8 @@
       "size": 396
     },
     "work/source_render_shutter_schedule_candidate.h": {
-      "sha256": "31a012b79455c09f512daaa24d6f3676972f614fc55b195dcb97df1a5121d0a9",
-      "size": 2290
+      "sha256": "c43453f689306821c171ec53e8861c0131b9bf48c992a1088c1d0886242ff1d0",
+      "size": 3629
     },
     "work/source_sequence_name_cache_candidate.h": {
       "sha256": "f552c8d4bc066e7c467e8ba1ce19f2204b330304909ca6395269847f0fff7be4",
@@ -27478,8 +27490,8 @@
       "size": 4110
     },
     "work/vulkan_graphics_pipeline_candidate.h": {
-      "sha256": "78f752b024f73115e32f4c94222a9d3a6b90259b140a6eb6b1a9d2d9e85046e9",
-      "size": 21811
+      "sha256": "d0c5d830ec60d557aa51c87bccc2d4259609b7df2142a8175920e29f18312757",
+      "size": 21812
     },
     "work/vulkan_hdr2_lightmap_binding_candidate.h": {
       "sha256": "e2b769d4b414dbbddc6fa2a987fef0465b8b55773d4d8e98dc5dbed7da32a7a5",
@@ -27506,8 +27518,8 @@
       "size": 20235
     },
     "work/vulkan_model_draw_candidate.h": {
-      "sha256": "b4ed5837cccae09d05e0c52c6c847f14b1ce82a75238e305b386ec5f0a363fe3",
-      "size": 139419
+      "sha256": "aee3806561976cf4e079cf2c835f24dd0f6a1dce9850ff95bc2b3cf311f8fdfa",
+      "size": 141937
     },
     "work/vulkan_model_swapchain_probe_candidate.h": {
       "sha256": "32e38492b5df57f245dba3da1158cf5c3e644b3317becd85346157229fc7bd1e",
@@ -27538,8 +27550,8 @@
       "size": 5326
     },
     "work/vulkan_render_sample_accumulator_candidate.h": {
-      "sha256": "adadf1556a1987641b2ecae4bbb0127434d890fa7105af5762f0803c3ecdc363",
-      "size": 10986
+      "sha256": "11f24ef5d543e2c1286dcf5df9ef54cf40b527469bce823ddec0416cffb388d5",
+      "size": 11758
     },
     "work/vulkan_scene_commands_candidate.h": {
       "sha256": "0c19640cb23e24f9e2ae3ded42ebe81acdfee48f7f8f206341efc760034c30a4",

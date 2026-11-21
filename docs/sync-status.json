@@ -1,12 +1,12 @@
 {
-  "checked_utc": "2026-11-21T16:27:56.185179+00:00",
+  "checked_utc": "2026-11-21T17:13:36.863598+00:00",
   "repository": "wigwoo1/SFM1-64-Bit",
   "status": "Experimental AMD64 editor rebuilt and verified in packaged Vulkan control tests.",
   "build_exit_code": 0,
   "compiler_warning_count": 18,
   "compiled_shader_count": 31,
   "control_test_frames": 10,
-  "executable_sha256": "4a7e689b2c619c010fa13fc51332f682878949a7e67d95f5fc7d548fe845cd4e",
-  "package_sha256": "ba7e86bdb04d8f992d714437270170b663ca0980413c4c91dd361249aaea1ba1",
-  "known_limitation": "Animated shutter sampling is opt-in and keeps the lens position fixed. Full Source Filmmaker compatibility and visual parity remain unverified."
+  "executable_sha256": "aeb199e7d941e09f3d131c057be74e7ff4b0c1b60b9c95feacf49acf1a7be7e4",
+  "package_sha256": "6e6cfa26efc11ee6691792c3a090a01fd4a1fb3e3e6b4d46aad0a023a64dd4b7",
+  "known_limitation": "Camera refinement is opt-in. The editor evaluates particle controls without simulating or rendering particle collections. Full Source Filmmaker compatibility and visual parity remain unverified."
 }

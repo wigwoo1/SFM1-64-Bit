@@ -30,7 +30,7 @@ class PreparedSessionExpressionChainPassCandidate {
 public:
  PreparedSessionExpressionChainPassCandidate(SessionRuntime&runtimeValue,const std::vector<SessionExpressionChainCandidate>&chains,const std::map<uint32_t,std::vector<uint32_t>>&typedPaths={},const std::vector<uint32_t>&colorCopies={},const std::vector<uint32_t>&packColors={}):runtime(runtimeValue),bindingRevisionAtPreparation(runtimeValue.bindingRevision){
  auto profileStart=std::chrono::steady_clock::now();plan=planSessionExpressionChainsCandidate(runtime.graph,chains);
- for(const auto&item:typedPaths){ChannelBinding binding(runtime.graph,item.first);if(binding.mode!=3||(binding.destination.scalarType!=3&&binding.destination.scalarType!=10&&binding.destination.scalarType!=13))throw std::runtime_error("unsupported additional typed channel");plan.operations.push_back(channelOperation(item.first,binding));}
+ for(const auto&item:typedPaths){ChannelBinding binding(runtime.graph,item.first);if(binding.mode!=3||(binding.destination.scalarType!=3&&binding.destination.scalarType!=4&&binding.destination.scalarType!=10&&binding.destination.scalarType!=13))throw std::runtime_error("unsupported additional typed channel");plan.operations.push_back(channelOperation(item.first,binding));}
  for(auto id:colorCopies){ChannelBinding binding(runtime.graph,id);if(binding.mode!=1||binding.source.scalarType!=8||binding.destination.scalarType!=8)throw std::runtime_error("unsupported additional color copy");plan.operations.push_back(channelOperation(id,binding));}
  for(auto id:packColors)plan.operations.push_back(packColorOperationCandidate(runtime.graph,id));
  if(!typedPaths.empty()||!colorCopies.empty()||!packColors.empty()){

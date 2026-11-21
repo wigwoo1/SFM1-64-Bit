@@ -48,6 +48,8 @@ struct PreparedSessionSceneCandidate {
  std::shared_ptr<const std::vector<SourceSkyLightCandidate>> hdrSkyLights;
  std::optional<SessionExposureCandidate> sessionExposure;
  std::optional<SessionCameraAmbientOcclusionCandidate> cameraAmbientOcclusion;
+ int32_t shotLocalTick=0;
+ std::vector<SessionParticleControlCandidate> gameParticles;
 };
 using SceneGeometryDecorationCandidate=std::function<void(const Graph&,const SessionRenderSceneCandidate&,const std::vector<SceneGeometryModelCandidate>&,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&,PreparedSessionSceneCandidate&)>;
 inline PreparedSessionSceneCandidate prepareSessionSceneCandidate(const Graph&graph,const SessionRenderSceneCandidate&scene,const std::function<const SfmModelGeometryCandidate&(const std::string&)>&asset,SceneRenderInputsCacheCandidate&materials,GeometryDeformationWorkerPoolCandidate&workers,const std::vector<std::filesystem::path>&mounts,bool allowScale=false,bool allowNameMapping=false,const SceneModelDeformationCandidate&deform={},const SceneBorrowedDeformationCandidate&borrowed={},const SceneGeometryDecorationCandidate&decorate={}){
@@ -68,5 +70,6 @@ inline PreparedSessionSceneCandidate prepareSessionSceneCandidate(const Graph&gr
  PreparedSessionSceneCandidate result{scene.viewProjection,std::move(inputs),std::move(upload),std::move(alpha),scene.width,scene.height};
  result.missingAssets=std::move(missingAssets);
  result.shot=scene.shot;result.lightSnapshots=scene.lights;
+ result.gameParticles=scene.gameParticles;
  result.profile={0,milliseconds(start,posesEnd),milliseconds(posesEnd,geometryEnd),milliseconds(geometryEnd,materialsEnd),milliseconds(materialsEnd,Clock::now())};if(decorate){auto decorationStart=Clock::now();decorate(graph,scene,geometry,asset,result);result.profile.decoration=milliseconds(decorationStart,Clock::now());}return result;
 }

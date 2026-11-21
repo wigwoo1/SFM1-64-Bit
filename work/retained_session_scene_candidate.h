@@ -27,6 +27,10 @@
 #include <charconv>
 using RetainedModelDeformationCandidate=std::function<VvdGeometryCandidate(const Graph&,const SessionRenderModelCandidate&,const SfmModelGeometryCandidate&)>;
 using RetainedBorrowedDeformationCandidate=std::function<const VvdGeometryCandidate&(const Graph&,const SessionRenderModelCandidate&,const SfmModelGeometryCandidate&)>;
+struct RetainedShutterScheduleCandidate {
+ std::vector<SourceRenderShutterSampleCandidate> timing;
+ std::vector<SessionCameraSamplePointsCandidate> optics;
+};
 class RetainedSessionSceneCandidate {
  RetainedShotTimelineCandidate timeline_;
  std::vector<std::filesystem::path>mounts_;
@@ -105,9 +109,12 @@ class RetainedSessionSceneCandidate {
  }
  void prepareModelLightingInputs(const Graph& graph,const SessionRenderSceneCandidate& scene,
      const std::vector<SceneGeometryModelCandidate>& geometry,PreparedSessionSceneCandidate& prepared){
-  const auto camera=readSessionCameraSettingsCandidate(graph,scene.camera);
-  const auto cameraMatrix=graphLocalTransformMatrix(graph,camera.transform);
-  for(unsigned i=0;i<3;++i)prepared.lightingCameraPosition[i]=cameraMatrix[i][3];
+  if(scene.sampledCameraOrigin)prepared.lightingCameraPosition=*scene.sampledCameraOrigin;
+  else{
+   const auto camera=readSessionCameraSettingsCandidate(graph,scene.camera);
+   const auto cameraMatrix=graphLocalTransformMatrix(graph,camera.transform);
+   for(unsigned i=0;i<3;++i)prepared.lightingCameraPosition[i]=cameraMatrix[i][3];
+  }
   std::set<uint32_t> members;
   const auto* sets=namedAttribute(graph,graph.elements.at(scene.shot),"animationSets");
   if(sets && sets->type==15){
@@ -230,28 +237,56 @@ public:
   static_assert(std::is_nothrow_move_assignable<RetainedShotTimelineCandidate>::value,"timeline commit must not throw");
   RetainedShotTimelineCandidate next(std::move(graph),root);timeline_=std::move(next);
  }
- std::vector<SourceRenderShutterSampleCandidate> shutterSchedule(int32_t outputTick,uint32_t sampleCount){
+ RetainedShutterScheduleCandidate shutterSchedule(int32_t outputTick,uint32_t explicitCount,
+     const std::vector<SessionCameraSamplePointsCandidate>& suppliedPoints){
   if(timeline_.classifyFrame(outputTick).state!=FilmTimelineStateCandidate::SceneClip)return {};
   const auto step=timeline_.step(outputTick,scalarWorkers_,vectorWorkers_,expressionWorkers_);
   const auto& graph=timeline_.graph();
   const auto camera=readFilmSceneRenderBindingCandidate(graph,step.shot.clip).camera;
   const auto rate=sessionFrameRateCandidate(timeline_.savedGraph(),timeline_.renderRoot(),false);
-  const auto plan=readSessionProgressiveRefinementCandidate(graph,timeline_.renderRoot(),camera,rate);
+  SourceRefinementSettingsCandidate settings;
+  const auto plan=readSessionProgressiveRefinementCandidate(graph,timeline_.renderRoot(),camera,rate,&settings);
   std::cout<<"session_refinement_plan tick="<<outputTick<<" camera="<<camera
            <<" shutter_ticks="<<plan.shutterTicks<<" shutter_groups="<<plan.shutterGroups
            <<" lens_samples_per_group="<<plan.lensSamplesPerGroup<<" total_samples="<<plan.totalSamples<<"\n";
-  return sourceRenderShutterScheduleCandidate(outputTick,recoveredFrameTicksCandidate(1.f,rate,0),
-                                               plan.shutterTicks,sampleCount,1);
+  const bool useLens=settings.enabled&&settings.depthOfField&&camera!=UINT32_MAX;
+  const bool useRaster=settings.enabled&&settings.antialiasing&&camera!=UINT32_MAX;
+  const auto total=explicitCount?explicitCount:plan.totalSamples;
+  if(!suppliedPoints.empty() && suppliedPoints.size()!=total)
+   throw std::runtime_error("Camera point count differs from the frame's refinement sample count");
+  RetainedShutterScheduleCandidate result;
+  result.timing=sourceRenderShutterScheduleCandidate(
+      outputTick,recoveredFrameTicksCandidate(1.f,rate,0),plan.shutterTicks,
+      explicitCount?explicitCount:plan.shutterGroups,explicitCount?1u:plan.lensSamplesPerGroup);
+  if(explicitCount){
+   result.optics=suppliedPoints;
+  }else if(useLens||useRaster){
+   result.optics.resize(total);
+   for(uint32_t ordinal=0;ordinal<total;++ordinal){
+    const auto index=sourceRenderPointOrdinalsCandidate(ordinal,total);
+    auto& points=result.optics[ordinal];
+    if(useLens)points.lens=suppliedPoints.empty()?renderRefinementDiskPointCandidate(index.lens,total):
+                                                 suppliedPoints[ordinal].lens;
+    if(useRaster)points.raster=suppliedPoints.empty()?renderRefinementDiskPointCandidate(index.raster,total):
+                                                     suppliedPoints[ordinal].raster;
+   }
+  }
+  if(!explicitCount)
+   std::cout<<"session_refinement_draws="<<total<<" tick="<<outputTick
+            <<" lens="<<useLens<<" antialiasing="<<useRaster
+            <<" points="<<(result.optics.empty()?"none":suppliedPoints.empty()?"sfm64_disk":"provided")<<"\n";
+  return result;
  }
  PreparedSessionSceneCandidate sample(int32_t tick,uint32_t width=512,uint32_t height=512){return samplePrepared(tick,tick,width,height);}
- PreparedSessionSceneCandidate sampleShutter(int32_t outputTick,int32_t sampleTick,uint32_t width,uint32_t height,bool movie){
+ PreparedSessionSceneCandidate sampleShutter(int32_t outputTick,int32_t sampleTick,uint32_t width,uint32_t height,bool movie,
+     const SessionCameraSamplePointsCandidate* cameraSamples=nullptr){
   if(movie){const auto dimensions=sessionMovieDimensionsCandidate(timeline_.savedGraph(),timeline_.renderRoot());width=dimensions.width;height=dimensions.height;}
-  auto scene=samplePrepared(outputTick,sampleTick,width,height);
+  auto scene=samplePrepared(outputTick,sampleTick,width,height,cameraSamples);
   scene.packedFrameRate=sessionFrameRateCandidate(timeline_.savedGraph(),timeline_.renderRoot(),false);
   return scene;
  }
 private:
- PreparedSessionSceneCandidate samplePrepared(int32_t outputTick,int32_t tick,uint32_t width,uint32_t height){auto start=std::chrono::steady_clock::now();auto step=evaluateLiveShutterSampleCandidate(timeline_,outputTick,tick,width,height,scalarWorkers_,vectorWorkers_,expressionWorkers_);auto evaluated=std::chrono::steady_clock::now();auto unavailableModels=admitInlineModels(step.scene);auto admittedAt=std::chrono::steady_clock::now();if(expressionWorkers_)std::cout<<"scene_private_expression_jobs="<<step.evaluation.privateExpressionJobs<<"\n";SceneModelDeformationCandidate deform;if(deformation_)deform=[this](const SessionRenderModelCandidate&instance,const SfmModelGeometryCandidate&model){return deformation_(timeline_.graph(),instance,model);};SceneBorrowedDeformationCandidate borrowed;if(borrowed_)borrowed=[this](const SessionRenderModelCandidate&instance,const SfmModelGeometryCandidate&model)->const VvdGeometryCandidate&{return borrowed_(timeline_.graph(),instance,model);};auto decorate=[this](const Graph&graph,const SessionRenderSceneCandidate&scene,const std::vector<SceneGeometryModelCandidate>&geometry,const auto&assetLoader,PreparedSessionSceneCandidate&prepared){world_.append(graph,timeline_.renderRoot(),prepared);if(hdr2Profile_)prepareModelLightingInputs(graph,scene,geometry,prepared);if(decoration_)decoration_(graph,scene,geometry,assetLoader,prepared);};auto result=prepareSessionSceneCandidate(timeline_.graph(),step.scene,[this](const std::string&name)->const SfmModelGeometryCandidate&{return asset(name);},materials_,workers_,mounts_,allowScale_,allowNameMapping_,deform,borrowed,decorate);result.profile.evaluation=std::chrono::duration<double,std::milli>(evaluated-start).count();result.profile.poses+=std::chrono::duration<double,std::milli>(admittedAt-evaluated).count();result.missingModels=std::move(unavailableModels);
+ PreparedSessionSceneCandidate samplePrepared(int32_t outputTick,int32_t tick,uint32_t width,uint32_t height,const SessionCameraSamplePointsCandidate* cameraSamples=nullptr){auto start=std::chrono::steady_clock::now();auto step=evaluateLiveShutterSampleCandidate(timeline_,outputTick,tick,width,height,scalarWorkers_,vectorWorkers_,expressionWorkers_,cameraSamples);auto evaluated=std::chrono::steady_clock::now();auto unavailableModels=admitInlineModels(step.scene);auto admittedAt=std::chrono::steady_clock::now();if(expressionWorkers_)std::cout<<"scene_private_expression_jobs="<<step.evaluation.privateExpressionJobs<<"\n";SceneModelDeformationCandidate deform;if(deformation_)deform=[this](const SessionRenderModelCandidate&instance,const SfmModelGeometryCandidate&model){return deformation_(timeline_.graph(),instance,model);};SceneBorrowedDeformationCandidate borrowed;if(borrowed_)borrowed=[this](const SessionRenderModelCandidate&instance,const SfmModelGeometryCandidate&model)->const VvdGeometryCandidate&{return borrowed_(timeline_.graph(),instance,model);};auto decorate=[this](const Graph&graph,const SessionRenderSceneCandidate&scene,const std::vector<SceneGeometryModelCandidate>&geometry,const auto&assetLoader,PreparedSessionSceneCandidate&prepared){world_.append(graph,timeline_.renderRoot(),prepared);if(hdr2Profile_)prepareModelLightingInputs(graph,scene,geometry,prepared);if(decoration_)decoration_(graph,scene,geometry,assetLoader,prepared);};auto result=prepareSessionSceneCandidate(timeline_.graph(),step.scene,[this](const std::string&name)->const SfmModelGeometryCandidate&{return asset(name);},materials_,workers_,mounts_,allowScale_,allowNameMapping_,deform,borrowed,decorate);result.profile.evaluation=std::chrono::duration<double,std::milli>(evaluated-start).count();result.profile.poses+=std::chrono::duration<double,std::milli>(admittedAt-evaluated).count();result.missingModels=std::move(unavailableModels);result.shotLocalTick=step.evaluation.shot.localTick;
   if(hdr2Profile_){
    if(hdr2Profile_->usesSessionExposure())result.sessionExposure=readSessionExposureCandidate(timeline_.graph(),timeline_.renderRoot(),step.scene.camera);
    result.hdr2=SceneHdr2PreparedFrameCandidate::prepare(result,hdr2Profile_);
