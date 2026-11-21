@@ -34,7 +34,7 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "90a74fb441c1adb0f54bf85ff4e811c5450447a8cfe97843e076f941f18a649a",
+      "sha256": "2150cc09be9e73556be5eca71366c27607f4284a0840a56690bbe727cdde349b",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -10532,6 +10532,10 @@
     "work/material_buffer_resize_native_init.h": {
       "sha256": "fbfd66e2af66f5bf5a5e26435b1be328f01f5eb913dd270a30fb3afc8061c9bb",
       "size": 1826
+    },
+    "work/material_burnlevel_puppet_proxy_candidate.h": {
+      "sha256": "484db01aeb7a18b0e96a91748d9625356fe8fe7564974e5a01fd7f61ecf8010d",
+      "size": 1810
     },
     "work/material_color_space_candidate.h": {
       "sha256": "ec28ccd3a9e9242f8a8f9b4359567ada4d54994b34ada46fe4571202890af9bf",
