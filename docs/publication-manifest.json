@@ -34,8 +34,8 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "33f082c707abaeefd7374d14346a79bb00352d4a55cef6de9fd4f315945b7499",
-      "size": 806
+      "sha256": "d7d8aff85c07d7f0e199dcdbb2dbe20a60660a79132a82476efb417d6d20b911",
+      "size": 1016
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "708cc5fc3a999716f2af334293e7c2a050df013848cec40420f6bca1d10e8a64",
@@ -2608,6 +2608,14 @@
     "work/build_manager_remove.cmd": {
       "sha256": "c85a7a1e5e81ff67dc51c96b2367856c55b57ba251fec3502ef97b892a4ae35b",
       "size": 752
+    },
+    "work/build_map_simulation_clock.cmd": {
+      "sha256": "506b0186985ffa4b07f91adad1d3174156b810ed54928f1e684f6e61a25bc357",
+      "size": 872
+    },
+    "work/build_map_trigger_io.cmd": {
+      "sha256": "815d605b5f0743ba7b167e82fa6e51eb90caad556790cc01fec989d60642fea5",
+      "size": 838
     },
     "work/build_material_alpha_shader.cmd": {
       "sha256": "2ca616226c65b8c2b146e846e49d6e85dcaf5193f5b031a941f4b2155a8a887c",
@@ -5280,6 +5288,10 @@
     "work/build_skin_validation_benchmark.cmd": {
       "sha256": "79bb0f9003a4a629932c17c93184a761e7794b02346c21b04eb638e8f96beba4",
       "size": 414
+    },
+    "work/build_sliding_door_motion.cmd": {
+      "sha256": "d4f07a8e8cc8d7463bca109c29003395d10ea090a89586c950853106c234bde4",
+      "size": 852
     },
     "work/build_sliding_door_spawn.cmd": {
       "sha256": "42357482119a4a2dc125a9f7e23f348839a2692aa36fab7df96ae7ed58df4a02",
@@ -12945,6 +12957,14 @@
       "sha256": "31952305d1323a398c1bd7df31ec4f4cbcb91e7dc2edf8eeb9727d98b7a89f95",
       "size": 2614
     },
+    "work/probe_map_simulation_clock.cpp": {
+      "sha256": "68fb098adc2942346d99d1e2e0dfacd38fbbd46385b5aeeca8920826a4e28ac3",
+      "size": 9436
+    },
+    "work/probe_map_trigger_io.cpp": {
+      "sha256": "fe5dd8a8e934beb658cd262a5088273dbd37ebe4e05d3492d926441326f487cb",
+      "size": 15153
+    },
     "work/probe_material_animation_arithmetic.cpp": {
       "sha256": "8bbb954b0f1b325157b551c7662e95dd19e95a67ed281d606b09804051aed573",
       "size": 5222
@@ -14264,6 +14284,10 @@
     "work/probe_shadow_bias_capabilities.cpp": {
       "sha256": "ffe90975032b13e13770947e9ac17c2bb26618d5299796b9c6b1678cface97c3",
       "size": 2752
+    },
+    "work/probe_sliding_door_motion.cpp": {
+      "sha256": "e47865ce706f8ac1ff114709f95501f3d3b6a8ac560800e3ea90d724ba2ae499",
+      "size": 7877
     },
     "work/probe_sliding_door_spawn.cpp": {
       "sha256": "7d732fe12ff9409b801039425afbce7c780daffead45d3f5bac5c617443cfffe",
@@ -18537,6 +18561,14 @@
       "sha256": "2b2bfd3309653fa344411fbcb3341c958860496f87979f0f2fe1c9e37b3e55d6",
       "size": 6667
     },
+    "work/source_map_simulation_clock_candidate.h": {
+      "sha256": "2eb7417d4ae641e0169ac621fa067e5af8e74396cdc6fbdfdc778859df2b5862",
+      "size": 2204
+    },
+    "work/source_map_trigger_io_candidate.h": {
+      "sha256": "28583232cc2dc093dd0813bfe24c981be48564b2fd2f13b31bc19ffc90a3692b",
+      "size": 3389
+    },
     "work/source_material_keyvalues_files_candidate.h": {
       "sha256": "689322491f41421f515248840d9561e2ad8d1c247466218a9ce58f919b475175",
       "size": 9282
@@ -18772,6 +18804,10 @@
     "work/source_shadow_settings_candidate.h": {
       "sha256": "6e8d91d3934c35c733d53a07846cb9b869aa26e190bfe52587ad12b67523c118",
       "size": 1632
+    },
+    "work/source_sliding_door_motion_candidate.h": {
+      "sha256": "e108982d41bf81e0a421b32834ca89f526da461cf3814d1e8f912f78bfd28f26",
+      "size": 3984
     },
     "work/source_sliding_door_spawn_candidate.h": {
       "sha256": "c69b1d857f8aaf000239ff17a3732992fdf301c2478045da1d6e966bdb015cef",
@@ -25853,6 +25889,14 @@
       "sha256": "697332d75bf9f7e4ac7f401349511aa5827ffeaa67bd5f6449514cb7912590fb",
       "size": 1884
     },
+    "work/verify_map_simulation_clock.py": {
+      "sha256": "a9c836c5fcf4fae11deef632f74fcc05e03f380dd045aa5c2503dbc0d2908105",
+      "size": 8309
+    },
+    "work/verify_map_trigger_io.py": {
+      "sha256": "589d81446eca3575ce12a4f3815a45a3ea2565e04fd591d8906ae66cd12313e8",
+      "size": 14529
+    },
     "work/verify_mask_upload_launch.py": {
       "sha256": "147490de2ab18af91cb2235fe505e7250e23b6f188c374b7fc90f06af7b038f9",
       "size": 3952
@@ -26960,6 +27004,10 @@
     "work/verify_shot_time_export.py": {
       "sha256": "b3c7e20ca36d51da839ea318d3dbb70d24a10252ce8004a83cfa6e92f98cce17",
       "size": 1588
+    },
+    "work/verify_sliding_door_motion.py": {
+      "sha256": "1e3197cac2df07a0d6231dd6f9a3a51cdc117f7f7955a57fbb70f26b5d1bff75",
+      "size": 12226
     },
     "work/verify_sliding_door_spawn.py": {
       "sha256": "cd9210d67305a685de5b193b87c7d474f3bd387e8a64116214581715f2de6208",
