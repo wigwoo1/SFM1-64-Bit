@@ -374,16 +374,20 @@ private:
         const auto simulation=particleKeys_.find(particle.id);
         const auto emission=particleEmissionKeys_.find(particle.id);
         if(simulation!=particleKeys_.end()&&emission!=particleEmissionKeys_.end()){
+         const auto pointAt=[&](int32_t tick)->std::optional<SourceParticleControlPointCandidate>{
+          const auto points=particlePointBindings_->sample(
+              *pointHierarchy,particle.id,*binding.controlPointBypassMask,tick,std::nullopt);
+          const auto cp=std::find_if(points.begin(),points.end(),[](const auto& p){return p.index==0;});
+          return cp==points.end()?std::nullopt:std::optional{cp->current};
+         };
          binding.birthReplay=replaySessionParticleBirthsCandidate(definitionGraph,binding.definition,
              *binding.startupAtSample,result.shotLocalTick,binding.timeScale,simulation->second,emission->second,
              binding.seed,particleRandomTable_?&*particleRandomTable_:nullptr,
-             particleSheets_?&*particleSheets_:nullptr);
+             particleSheets_?&*particleSheets_:nullptr,pointAt);
          for(auto& birth:binding.birthReplay){
           if(birth.delivered==0)continue;
-          const auto points=particlePointBindings_->sample(
-              *pointHierarchy,particle.id,*binding.controlPointBypassMask,birth.lastControlTick,std::nullopt);
-          const auto cp=std::find_if(points.begin(),points.end(),[](const auto& p){return p.index==0;});
-          if(cp!=points.end())birth.emitterPosition=cp->current.position;
+          const auto cp=pointAt(birth.lastControlTick);
+          if(cp)birth.emitterPosition=cp->position;
          }
         }
        }

@@ -7,6 +7,13 @@
 #include "source_particle_definition_candidate.h"
 #include "source_particle_sheet_cache_candidate.h"
 
+#include <functional>
+
+struct SessionParticleLiveMotionCandidate {
+    uint32_t id;
+    SourceParticleSpawnPositionCandidate motion;
+};
+
 struct SessionParticleBirthsCandidate {
     std::string name;
     uint32_t definition;
@@ -19,7 +26,15 @@ struct SessionParticleBirthsCandidate {
     std::optional<uint32_t> randomDraws;
     uint64_t birthAttributeHash = 14695981039346656037ull;
     bool lifetimeFromSheet = false;
+    std::optional<SourceParticleSpawnPositionCandidate> lastSphereBirth;
+    std::optional<SourceParticleBirthAppearanceCandidate> lastAppearance;
+    int64_t skippedTintBirths = 0;
+    std::optional<SessionParticleLiveMotionCandidate> sampledLiveMotion;
+    std::optional<uint64_t> operatorRandomVectors;
 };
+
+using SessionParticlePointSamplerCandidate =
+    std::function<std::optional<SourceParticleControlPointCandidate>(int32_t)>;
 
 // Replay an isolated emitter tree. Supported life programs retain particles
 // across steps. Other definitions drain each diagnostic batch.
@@ -28,7 +43,8 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
         int32_t target, float timeScale, const SessionParticleSimulationCurveCandidate& simulation,
         const SessionParticleSimulationCurveCandidate& emission, int32_t seed = 0,
         const SourceParticleRandomTableCandidate* randomTable = nullptr,
-        SourceParticleSheetCacheCandidate* sheets = nullptr) {
+        SourceParticleSheetCacheCandidate* sheets = nullptr,
+        const SessionParticlePointSamplerCandidate& pointAt = {}) {
     if (startup.skippedTicks || target < startup.cursor || timeScale < 0 || !std::isfinite(timeScale) ||
         simulation.keys.empty() || emission.keys.empty()) return {};
     struct Collection {
@@ -40,6 +56,9 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
         std::vector<SourceParticleLifeCandidate> live;
         SourceParticleRandomCandidate random;
         const VtfParticleSheetCandidate* sheet;
+        std::optional<SourceParticleVectorCandidate> previousPoint;
+        SourceParticleControlPointLockCandidate lock{};
+        float previousDelta = .05f;
     };
     std::vector<SessionParticleBirthsCandidate> result;
     std::vector<Collection> collections;
@@ -91,18 +110,25 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
         // its draw cursor using definition data, so admit fixed children.
         const bool seeded = active.size() == 1 && seed != 0 && randomTable;
         if (lifetime && lifetime->needsRandom() && !seeded) lifetime.reset();
+        std::optional<SourceParticleVectorCandidate> previousPoint;
+        if (lifetime && lifetime->sphere) {
+            const auto startPoint = pointAt ? pointAt(startup.cursor) : std::nullopt;
+            if (startPoint) previousPoint = startPoint->position;
+            else lifetime.reset();
+        }
         const VtfParticleSheetCandidate* sheet = nullptr;
         if (lifetime && lifetime->sequenceFps != 0.f) {
             const auto* material = sourceParticleAttributeCandidate(graph, def, "material", 5);
             if (material && sheets) sheet = sheets->resolve(material->values.front().text);
             if (!sheet) lifetime.reset();
         }
+        if (!lifetime) previousPoint.reset();
         result.push_back({graph.strings.at(def.name), id});
         if (lifetime) result.back().liveCount = 0;
         if (lifetime && lifetime->needsRandom()) result.back().randomDraws = 0;
         result.back().lifetimeFromSheet = sheet != nullptr;
         collections.push_back({{rate, start, duration}, {}, 0.f, maximumStep, capacity, lifetime, {},
-                               {static_cast<uint32_t>(seed), 0}, sheet});
+                               {static_cast<uint32_t>(seed), 0}, sheet, previousPoint});
         if (const auto* children = sourceParticleAttributeCandidate(graph, def, "children", 15))
             for (const auto& entry : children->values) {
                 if (entry.reference >= graph.elements.size()) return false;
@@ -116,6 +142,13 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
         return true;
     };
     if (!visit(visit, root)) return {};
+
+    // Each diagnostic replay owns a fresh serial manager stream. This scope
+    // leaves out other particle instances and the engine's worker scheduling.
+    std::optional<SourceParticleOperatorRandomCandidate> operatorRandom;
+    if (std::any_of(collections.begin(), collections.end(), [](const auto& c) {
+        return c.lifetime && c.lifetime->partialLock.has_value();
+    })) operatorRandom.emplace(sourceParticleOperatorStartupSeedCandidate);
 
     int32_t cursor = startup.cursor;
     bool emitting = true;
@@ -139,6 +172,8 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                 // This diagnostic admits the non-subdivided substep path.
                 if (command.durationSeconds > c.maximumStep) return {};
                 if (command.durationSeconds < 1.e-22) continue;
+                const auto point = c.previousPoint ? pointAt(command.localTick) : std::nullopt;
+                if (c.previousPoint && !point) return {};
                 c.clock += command.durationSeconds;
                 const auto batch = sourceContinuousParticleBirthsCandidate(
                     c.state, c.emission, c.clock, command.durationSeconds, 1.f,
@@ -161,16 +196,46 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                     for (size_t slot = begin; slot < c.live.size(); ++slot)
                         c.live[slot].duration = c.random.linear(
                             *randomTable, c.lifetime->minimum, c.lifetime->maximum);
+                    if (point)
+                        for (size_t slot = begin; slot < c.live.size(); ++slot) {
+                            auto& particle = c.live[slot];
+                            particle.motion = sourceParticleSphereSpawnCandidate(
+                                *c.lifetime->sphere, *point, *c.previousPoint, c.clock,
+                                command.durationSeconds, c.previousDelta, particle.born,
+                                true, c.random, *randomTable);
+                            summary.lastSphereBirth = particle.motion;
+                        }
+                    for (const auto& initializer : c.lifetime->appearance) {
+                        const auto* tint = std::get_if<SourceParticleTintAppearanceCandidate>(&initializer);
+                        if (tint && tint->fade.strength(c.clock) <= 0.f) {
+                            summary.skippedTintBirths += batch.admitted;
+                            continue;
+                        }
+                        for (size_t slot = begin; slot < c.live.size(); ++slot)
+                            applySourceParticleAppearanceCandidate(c.live[slot].appearance, initializer,
+                                c.random, *randomTable);
+                    }
                     if (c.lifetime->sequence) {
                         const auto [first, last] = *c.lifetime->sequence;
                         for (size_t slot = begin; slot < c.live.size(); ++slot)
                             c.live[slot].sequence = c.random.sequence(*randomTable, first, last);
                     }
+                    // Yaw flip modifies an existing attribute, and the native
+                    // dispatcher runs such stages after the first writes.
+                    if (c.lifetime->yawFlip)
+                        for (size_t slot = begin; slot < c.live.size(); ++slot)
+                            c.live[slot].appearance.yaw = sourceParticleYawFlipCandidate(
+                                c.live[slot].appearance.yaw, *c.lifetime->yawFlip, c.random, *randomTable);
                     if (c.sheet)
                         for (size_t slot = begin; slot < c.live.size(); ++slot)
                             c.live[slot].duration = sourceParticleSheetLifetimeCandidate(
                                 c.live[slot].duration, c.live[slot].sequence, c.lifetime->sequenceFps, c.sheet);
                     for (size_t slot = begin; slot < c.live.size(); ++slot) {
+                        if (c.lifetime->hasAppearance()) {
+                            auto& particle = c.live[slot];
+                            particle.initialAlpha = particle.alpha = particle.appearance.opacity;
+                            summary.lastAppearance = particle.appearance;
+                        }
                         uint32_t lifeBits;
                         std::memcpy(&lifeBits, &c.live[slot].duration, sizeof(lifeBits));
                         for (const auto value : {lifeBits, static_cast<uint32_t>(c.live[slot].sequence)})
@@ -180,11 +245,69 @@ inline std::vector<SessionParticleBirthsCandidate> replaySessionParticleBirthsCa
                     }
                     summary.randomDraws = c.random.consumed;
                 }
-                // Source applies these lifetime operators after emission.
+                // Native dispatch compacts the kill list after each operator.
+                // An empty collection skips its remaining operators.
                 if (c.lifetime) {
-                    const auto* fade = c.lifetime->fade ? &*c.lifetime->fade : nullptr;
-                    summary.expired += sourceExpireParticleLifeCandidate(c.live, c.clock, fade, false);
+                    for (const auto update : c.lifetime->updates) {
+                        if (c.live.empty()) break;
+                        switch (update) {
+                        case SessionParticleUpdateCandidate::Expire: {
+                            const auto* fade = c.lifetime->fade ? &*c.lifetime->fade : nullptr;
+                            summary.expired += sourceExpireParticleLifeCandidate(c.live, c.clock, fade, false);
+                            break;
+                        }
+                        case SessionParticleUpdateCandidate::BasicMovement: {
+                            const auto motion = sourceParticleMotionStepCandidate(
+                                *c.lifetime->movement, command.durationSeconds, c.previousDelta);
+                            for (auto& particle : c.live)
+                                sourceAdvanceParticleMotionCandidate(particle.motion, motion);
+                            break;
+                        }
+                        case SessionParticleUpdateCandidate::ControlPointLock: {
+                            const auto translation = c.lock.begin(point->position, 1.f);
+                            if (const auto& partial = c.lifetime->partialLock) {
+                                const bool bypass = sourceParticleLockBypassesFadeCandidate(
+                                    *partial, translation, command.durationSeconds, c.maximumStep);
+                                for (size_t groupStart = 0; groupStart < c.live.size(); groupStart += 4) {
+                                    const auto start = operatorRandom->next();
+                                    const auto end = operatorRandom->next();
+                                    const auto lanes = std::min<size_t>(4, c.live.size() - groupStart);
+                                    for (size_t lane = 0; lane < lanes; ++lane) {
+                                        auto& particle = c.live[groupStart+lane];
+                                        const float age = c.clock - particle.born;
+                                        const float attachment = sourceParticlePartialAttachmentCandidate(
+                                            *partial, age, particle.duration, start[lane], end[lane], bypass);
+                                        if (attachment > 0.f)
+                                            sourceTranslateLockedParticleCandidate(particle.motion, translation,
+                                                age, command.durationSeconds, attachment);
+                                    }
+                                }
+                                summary.operatorRandomVectors = operatorRandom->draws();
+                            } else {
+                                for (auto& particle : c.live)
+                                    sourceTranslateLockedParticleCandidate(particle.motion, translation,
+                                        c.clock - particle.born, command.durationSeconds);
+                            }
+                            break;
+                        }
+                        }
+                    }
                     summary.liveCount = c.live.size();
+                    summary.sampledLiveMotion.reset();
+                    if (c.lifetime->updates.size() > 1 && !c.live.empty()) {
+                        // Sample the oldest survivor when testing a fade so
+                        // the record covers time spent partially attached.
+                        const auto& particle = c.lifetime->partialLock
+                            ? *std::min_element(c.live.begin(), c.live.end(), [](const auto& a, const auto& b) {
+                                return a.born < b.born;
+                            })
+                            : c.live.back();
+                        summary.sampledLiveMotion = SessionParticleLiveMotionCandidate{particle.id, particle.motion};
+                    }
+                }
+                if (point) {
+                    c.previousPoint = point->position;
+                    c.previousDelta = command.durationSeconds;
                 }
             }
         }

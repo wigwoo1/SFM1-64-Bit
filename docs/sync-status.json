@@ -1,15 +1,16 @@
 {
-  "checked_utc": "2026-11-21T18:40:59.553640+00:00",
+  "checked_utc": "2026-11-21T19:28:26.957739+00:00",
   "repository": "wigwoo1/SFM1-64-Bit",
-  "status": "Experimental AMD64 editor rebuilt and passed packaged Vulkan control tests.",
+  "status": "Experimental AMD64 editor rebuilt. Packaged Vulkan control and particle replay tests passed.",
   "build_exit_code": 0,
   "compiler_warning_count": 18,
   "compiled_shader_count": 31,
   "control_test_frames": 10,
-  "executable_sha256": "13adbafd65a69de5f748fad2ff7d90bbe7cccbfc56f629a9f153b0abf46f5e0f",
-  "package_sha256": "d0716fd00cbd0aefac6a9db66b9b045a6801ba6cedd31cb0a545a3102d11c40c",
+  "executable_sha256": "4308c640611de7998a2296ff3f93e1565e05185eb43d2794e34b2ef85a53021e",
+  "package_sha256": "35a0128f4f56130375255e290fa17b5b9640f05ff1d37e4969a025e5dfb9cc02",
   "particle_diagnostic_rows": 16,
   "stock_sheet_lifetime_test_rows": 8,
   "public_package_note": "The experimental export diagnostic uses python.exe on PATH. Interactive export was untested.",
-  "known_limitation": "The optional diagnostic evaluates supported lifetime fixtures. Stock particle rendering, interactive workflow parity and full Source Filmmaker compatibility remain unverified."
+  "partial_attachment_rows_matched": 8,
+  "known_limitation": "Diagnostics cover selected particle birth, lifetime, motion, and partial control-point attachment cases. Stock particle rendering, interactive workflow parity, and full Source Filmmaker compatibility remain unverified."
 }

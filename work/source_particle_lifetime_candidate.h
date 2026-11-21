@@ -1,5 +1,8 @@
 #pragma once
 
+#include "source_particle_appearance_candidate.h"
+#include "source_particle_sphere_spawn_candidate.h"
+
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -10,6 +13,8 @@ struct SourceParticleLifeCandidate {
     uint32_t id;
     float born, duration, initialAlpha, alpha;
     int32_t sequence = 0;
+    SourceParticleBirthAppearanceCandidate appearance{};
+    SourceParticleSpawnPositionCandidate motion{};
 };
 
 struct SourceParticleAlphaFadeCandidate {

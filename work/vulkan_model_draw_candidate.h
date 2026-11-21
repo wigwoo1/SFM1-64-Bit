@@ -409,6 +409,28 @@ if(action==PlaybackEditorActionCandidate::ExportShotFirstFrame){if(exportImageWi
      if(birth.emitterPosition)
       line<<" emitter_cp0="<<(*birth.emitterPosition)[0]<<','<<(*birth.emitterPosition)[1]
           <<','<<(*birth.emitterPosition)[2];
+     if(birth.lastSphereBirth){
+      const auto& last=*birth.lastSphereBirth;
+      line<<" sphere_position="<<last.position[0]<<','<<last.position[1]<<','<<last.position[2]
+          <<" sphere_previous="<<last.previousPosition[0]<<','<<last.previousPosition[1]
+          <<','<<last.previousPosition[2];
+     }
+     if(birth.lastAppearance){
+      const auto& last=*birth.lastAppearance;
+      line<<" appearance_roll="<<last.roll<<" appearance_radius="<<last.radius
+          <<" appearance_alpha="<<last.opacity<<" appearance_trail="<<last.trail
+          <<" appearance_yaw="<<last.yaw<<" appearance_tint="<<last.tint[0]<<','<<last.tint[1]
+          <<','<<last.tint[2]<<" color_gate_skipped_births="<<birth.skippedTintBirths;
+     }
+     if(birth.sampledLiveMotion){
+      const auto& live=*birth.sampledLiveMotion;
+      line<<" simulated_id="<<live.id<<" simulated_position="<<live.motion.position[0]<<','
+          <<live.motion.position[1]<<','<<live.motion.position[2]
+          <<" simulated_previous="<<live.motion.previousPosition[0]<<','<<live.motion.previousPosition[1]
+          <<','<<live.motion.previousPosition[2];
+     }
+     if(birth.operatorRandomVectors)
+      line<<" operator_random_vectors="<<*birth.operatorRandomVectors;
     }
     std::cout<<line.str()<<'\n';
    }
