@@ -34,7 +34,7 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "b9658c85341be421433689aa2717fb83cc338273c73ccb94ed7b55dd14b7e0bc",
+      "sha256": "f51c72020a13fb76451a996fb4c3ac0a1bcea4717e792157561afa19bae88df4",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -2633,9 +2633,17 @@
       "sha256": "c4cbdf0a1d2b3867e8e8a619788771e5786ea980c99fb22dcf626ecee375d201",
       "size": 762
     },
+    "work/build_map_empty_player_tick.cmd": {
+      "sha256": "af3fdd572f5a334ba6e03b58886509e034467947cee91ad441adb41f6a909237",
+      "size": 740
+    },
     "work/build_map_frame_sync.cmd": {
       "sha256": "09e3d2891f31369a73cc621404b5fa65e91bb1b5c26c7c0a36d6eb374098c5a8",
       "size": 754
+    },
+    "work/build_map_neutral_command.cmd": {
+      "sha256": "f85d99acbee7e3cd87044588be63563d8e306b985038baafddf1f90eab54bbaa",
+      "size": 766
     },
     "work/build_map_noclip.cmd": {
       "sha256": "9de3c297017ef4e5bcbbfbaf751a368dc256711f340d44f0855db01a6a7327df",
@@ -2649,13 +2657,33 @@
       "sha256": "452db5a7c7db22090ed432efd97a5fd385337796689d37a2f694b599955ecd20",
       "size": 736
     },
+    "work/build_map_observer_movement.cmd": {
+      "sha256": "0236f03c78b7e31c6ed590219cbfc1a1606d85e8cf5b718bd8df6fad39363e0b",
+      "size": 752
+    },
+    "work/build_map_player_command_filter.cmd": {
+      "sha256": "dd05e34053da0aa2a61a1af3f710756b9b5864e2742bfb286f22165c219fe3d0",
+      "size": 774
+    },
     "work/build_map_playhead_listeners.cmd": {
       "sha256": "51fe66f4392a5449b22e4c96857d5026710be977055d657220fbf84fe5ee97b8",
       "size": 426
     },
+    "work/build_map_simulation_admission.cmd": {
+      "sha256": "1fe74b7ca1c47c0ae8138c8ddbee9f5bb4d62a15e7d76d0f9447e02526fe824e",
+      "size": 762
+    },
     "work/build_map_simulation_clock.cmd": {
       "sha256": "506b0186985ffa4b07f91adad1d3174156b810ed54928f1e684f6e61a25bc357",
       "size": 872
+    },
+    "work/build_map_spawn_placement.cmd": {
+      "sha256": "9f20d1583f04195730b67b5dabbe3a8a3ebe2cbab8ae1a392df4ac8604cb5aac",
+      "size": 774
+    },
+    "work/build_map_spawn_selection.cmd": {
+      "sha256": "0ba2bfa7e12a2bf0e2737c48f92d9a50b645983cdbb10c70b4b76ae908ccfd60",
+      "size": 774
     },
     "work/build_map_touch_links.cmd": {
       "sha256": "4d51647c1163711643a6e8bfe4e7e73af63e76420a78829f59b3271c2ff8f217",
@@ -2668,6 +2696,14 @@
     "work/build_map_trigger_io.cmd": {
       "sha256": "815d605b5f0743ba7b167e82fa6e51eb90caad556790cc01fec989d60642fea5",
       "size": 838
+    },
+    "work/build_map_trigger_update_admission.cmd": {
+      "sha256": "5f67ababb3357adee749c9f733912dff2d6c270c77275b6d0d9892eeb4db3869",
+      "size": 784
+    },
+    "work/build_map_welcome_solidity.cmd": {
+      "sha256": "f50f355471246891cebb7a5b54d14dab9547adba08ebeada55ccc79b8b2d1bfe",
+      "size": 441
     },
     "work/build_material_alpha_shader.cmd": {
       "sha256": "2ca616226c65b8c2b146e846e49d6e85dcaf5193f5b031a941f4b2155a8a887c",
@@ -4956,6 +4992,10 @@
     "work/build_selfillum_material_cache.cmd": {
       "sha256": "26256336ea5b0c0fcb15dcfefc9845e9939240de55ba62a52a4c14819ac8a451",
       "size": 697
+    },
+    "work/build_server_hull_trace_boundary.cmd": {
+      "sha256": "9bfdd600e435f0d6c5fe0ff2a512c59643239309ba597803ff4e7a78694f7170",
+      "size": 768
     },
     "work/build_session_attribute_handles_tests.cmd": {
       "sha256": "992a909469122ba43b69340d95d782db7c7cf31f48679b96e486b2b6ed2540d5",
@@ -13041,9 +13081,17 @@
       "sha256": "23d47f1b1304c0a0730fc03eb3db8a3e77a1e4c6ba1af0f8107852e35d1e65af",
       "size": 8361
     },
+    "work/probe_map_empty_player_tick.cpp": {
+      "sha256": "c7c313093722835e75f7ce4a6b99ba556acfa4930ac4a954bd0b4a81ca85aa93",
+      "size": 5693
+    },
     "work/probe_map_frame_sync.cpp": {
       "sha256": "990be38814483fa07efe870ac0b10bfb9f47a72141fa104b3de1d31ad9432d78",
       "size": 6536
+    },
+    "work/probe_map_neutral_command.cpp": {
+      "sha256": "ace8dcc3d56696eac4667c0f4e09a4dbf0b758b6d82d30dcb4ecbc73454c2770",
+      "size": 7231
     },
     "work/probe_map_noclip.cpp": {
       "sha256": "d3612b9ebcc9e21dfd2a9e3a11cc933f0bec0b84703b29db53f0d8c8b3b38b65",
@@ -13057,13 +13105,33 @@
       "sha256": "d400b6fbbd83e6ce0b0f1ea8cf25faed640eafea9cd654c4f1958abf3d57dfd9",
       "size": 8530
     },
+    "work/probe_map_observer_movement.cpp": {
+      "sha256": "4ee9c665f026951122d20cc263c743f724b219860e272cacbecf383234d29103",
+      "size": 8255
+    },
+    "work/probe_map_player_command_filter.cpp": {
+      "sha256": "57146d338095e4d0df86b61eca10b16c7d51a90b5f7a7d2768b4d7d3121741cf",
+      "size": 6911
+    },
     "work/probe_map_playhead_listeners.cpp": {
       "sha256": "7c1658949b8967063895f66698acf635a7009ab0fa37572be0b136883f955903",
       "size": 21807
     },
+    "work/probe_map_simulation_admission.cpp": {
+      "sha256": "2a93e18b6bbe015330ee483098e7f8c358f111ebd02767916d399fb9a0728ab7",
+      "size": 6077
+    },
     "work/probe_map_simulation_clock.cpp": {
       "sha256": "cf13327d66ece55c1b0f54118d9d135df06349d044fbd8101cac9dfcdeef0580",
       "size": 20259
+    },
+    "work/probe_map_spawn_placement.cpp": {
+      "sha256": "42c07957375525f954d3fe3999231b56097ab6bbc24588a60e5a69a5587077cb",
+      "size": 7635
+    },
+    "work/probe_map_spawn_selection.cpp": {
+      "sha256": "827a86f0727b4c2a90371d1c8c64429f6faba39639afc9d8c54fcaff96dbe6d4",
+      "size": 7443
     },
     "work/probe_map_touch_links.cpp": {
       "sha256": "4c95520bd733791392e8f6179927f14a8a29459bfdc0c19b0fba4693bcfa6239",
@@ -13076,6 +13144,14 @@
     "work/probe_map_trigger_io.cpp": {
       "sha256": "fe5dd8a8e934beb658cd262a5088273dbd37ebe4e05d3492d926441326f487cb",
       "size": 15153
+    },
+    "work/probe_map_trigger_update_admission.cpp": {
+      "sha256": "99b7c2b7f5c3e835dc67c6bfb4568e5a5deffafceab6da263be986dbe65e96eb",
+      "size": 6291
+    },
+    "work/probe_map_welcome_solidity.cpp": {
+      "sha256": "a33b346d43868e48c5ac87799e64f80ce8d20803067cd967535534cdf44ec855",
+      "size": 10752
     },
     "work/probe_material_animation_arithmetic.cpp": {
       "sha256": "8bbb954b0f1b325157b551c7662e95dd19e95a67ed281d606b09804051aed573",
@@ -14328,6 +14404,10 @@
     "work/probe_scene_model_ambient_vulkan.cpp": {
       "sha256": "fbd83a82815321dadcf9b4ae60b7237d62ae9035afc70ba395192d05ed9a919c",
       "size": 11857
+    },
+    "work/probe_server_hull_trace_boundary.cpp": {
+      "sha256": "f2f9daab4890733cac8fa92c5d3d220bd8839978cb59959a08dd641486e3ecb9",
+      "size": 5687
     },
     "work/probe_session_model_proxy_context.cpp": {
       "sha256": "baf1aa3a34502c68ffcf513f168411ab744ae2669d3bb3a423ba72bca0f0575f",
@@ -18705,9 +18785,17 @@
       "sha256": "856c5b0851f0a46e20af499a0469c00832e29a56820641737d56905736903dc2",
       "size": 1381
     },
+    "work/source_map_empty_player_tick_candidate.h": {
+      "sha256": "a72d08db71f414ae88ec761d4192d10d86bd4fb940a7f5d88739100abd93b9a8",
+      "size": 592
+    },
     "work/source_map_frame_sync_candidate.h": {
       "sha256": "c7a1b770afb1b2b889dc50950864908c2a3827a3fa5ecff56362e89561f8c34e",
       "size": 1475
+    },
+    "work/source_map_neutral_command_candidate.h": {
+      "sha256": "6fd632c419a202607ddde6f48923251f7354ac5fccc2b227602bee904f675330",
+      "size": 644
     },
     "work/source_map_noclip_candidate.h": {
       "sha256": "b75165537d09d5df1be8bdd1c2f1b5b83fd059d47da2724e6bdbf91a5699ad6f",
@@ -18717,13 +18805,33 @@
       "sha256": "cf201968777429a73f2bce14004fecd11825d79064337db3326662738b11fc4b",
       "size": 1286
     },
+    "work/source_map_observer_movement_candidate.h": {
+      "sha256": "39d9fcef7a68cfb9ba979dc9a5f91cf75bee64ec38e3ddb570a57333ae757966",
+      "size": 1615
+    },
+    "work/source_map_player_command_filter_candidate.h": {
+      "sha256": "23ae07e62d57a5e7141517f79f3e7f5600b9c792d2d6c329c73eaa09303bb2ab",
+      "size": 1019
+    },
     "work/source_map_player_pose_candidate.h": {
       "sha256": "982567b4293a64425e110c71190d64f995145d179a3469ed6b7a1fd90081df00",
       "size": 1198
     },
+    "work/source_map_simulation_admission_candidate.h": {
+      "sha256": "2023bd76e30e5a34bce675904ebe014e9d58476fe900cb3f780889bb8291ab1f",
+      "size": 2114
+    },
     "work/source_map_simulation_clock_candidate.h": {
       "sha256": "8f82bdfa4911b22d4909ad71c6c593c75442ffed954f2a887e61f869aab2f6a3",
       "size": 4858
+    },
+    "work/source_map_spawn_placement_candidate.h": {
+      "sha256": "05d61fc9943ad2c2ae9064f6c7eb5d97f641ed4df28ea988515adb50bc82b403",
+      "size": 785
+    },
+    "work/source_map_spawn_selection_candidate.h": {
+      "sha256": "ad338a395fa4cd8c12d434f50a14747bf4d1506f6c82ab9660f3366ea2ce86ef",
+      "size": 598
     },
     "work/source_map_touch_links_candidate.h": {
       "sha256": "09ba518ac44fd28b5044878f96eaeed7e0ff039a24de6178820245e53f7a6d93",
@@ -18736,6 +18844,10 @@
     "work/source_map_trigger_io_candidate.h": {
       "sha256": "28583232cc2dc093dd0813bfe24c981be48564b2fd2f13b31bc19ffc90a3692b",
       "size": 3389
+    },
+    "work/source_map_trigger_update_admission_candidate.h": {
+      "sha256": "b18d06ec5bceb8f8a9d1ec95ab840d6aa5e7ca84db82b0211dd82b411a07c6ad",
+      "size": 672
     },
     "work/source_map_welcome_observer_candidate.h": {
       "sha256": "d0f72c2fca38fc3b3a4b0a30a9ec26dedb08ba071de89b8ed34b1d1b4998761b",
@@ -18968,6 +19080,10 @@
     "work/source_sequence_name_cache_candidate.h": {
       "sha256": "f552c8d4bc066e7c467e8ba1ce19f2204b330304909ca6395269847f0fff7be4",
       "size": 3694
+    },
+    "work/source_server_hull_ray_candidate.h": {
+      "sha256": "55e27a00a1c31e5882cceb36943803bd5795aa6ef40ce8fd45c43f95fb018ff9",
+      "size": 1329
     },
     "work/source_sfm_collision_group_candidate.h": {
       "sha256": "39f3513b76cde8aa55ca9ef2b432cc130b9b6ffc61dddfe80c490a90e340d081",
@@ -26093,9 +26209,17 @@
       "sha256": "aa1df3369d81896ebd7fab5fd7a97a72d1b3a26428004a8764b52f3e0b0e7e86",
       "size": 4114
     },
+    "work/verify_map_empty_player_tick.py": {
+      "sha256": "8317cb1a3b5f5ef57749816289196adaf29265f7520ebec013a69fd2253ebd3b",
+      "size": 4486
+    },
     "work/verify_map_frame_sync.py": {
       "sha256": "ea5197ac11f13240036e5908e0a96f42860c6136d30e1f982dfaf88459606d4e",
       "size": 4214
+    },
+    "work/verify_map_neutral_command.py": {
+      "sha256": "a16774898ad292ca42f0cf7262d5b86fa674dc768c7d2b5811648d93f22ee48f",
+      "size": 4222
     },
     "work/verify_map_noclip.py": {
       "sha256": "3404dc60a97434309a72fb991ad24e0cfb74f6fdec5fab3295813489e166b9a7",
@@ -26109,13 +26233,33 @@
       "sha256": "1cc385e23b9bea17f847594f9a48553cdb4ddf6770882e1a31319ea35eee1bbe",
       "size": 4180
     },
+    "work/verify_map_observer_movement.py": {
+      "sha256": "0af2422476dbd219bc6d11d606012df9996735e0690730a701163709d3da300b",
+      "size": 4256
+    },
+    "work/verify_map_player_command_filter.py": {
+      "sha256": "24ee4516986b33c249ae31f06daa44aff4b03bc470432b676fb268c83afca0f4",
+      "size": 4471
+    },
     "work/verify_map_playhead_listeners.py": {
       "sha256": "688a01ff2366d9b5ddacfd6f4c056948608d65c5a2d88deb245ba909f173daaf",
       "size": 9439
     },
+    "work/verify_map_simulation_admission.py": {
+      "sha256": "3edd5a87ae72371a97ba96db657fd62f980ca3ff748ecf398ec7205d9c8e6e8b",
+      "size": 4303
+    },
     "work/verify_map_simulation_clock.py": {
       "sha256": "c77594c5ad0960461d06f0a9c331061c13a8c722a68570cf28fddb94c954797f",
       "size": 17413
+    },
+    "work/verify_map_spawn_placement.py": {
+      "sha256": "0c1ee9a5833c17aa2ec291181aa75198c201cd16235d34a953c05402db6f8619",
+      "size": 4108
+    },
+    "work/verify_map_spawn_selection.py": {
+      "sha256": "13d93b2632dd43383146c0b67d3064b98ef5783bd622fe7a1ec4053fb3777863",
+      "size": 4700
     },
     "work/verify_map_touch_links.py": {
       "sha256": "55d3379aede80a9fac86c676b754c1f782aa4ff38c728f83da4c2b7a1dcf4df8",
@@ -26128,6 +26272,14 @@
     "work/verify_map_trigger_io.py": {
       "sha256": "589d81446eca3575ce12a4f3815a45a3ea2565e04fd591d8906ae66cd12313e8",
       "size": 14529
+    },
+    "work/verify_map_trigger_update_admission.py": {
+      "sha256": "4b5e59c3a87cb19d7614f7964b5e5a39bf9e13ea851c2522fba8c85625e07bf9",
+      "size": 4806
+    },
+    "work/verify_map_welcome_solidity.py": {
+      "sha256": "550036d2a10b4dbddf607f75e555cbbc3fbfa903a93d0daa7088a571ac8c5d86",
+      "size": 5594
     },
     "work/verify_mask_upload_launch.py": {
       "sha256": "147490de2ab18af91cb2235fe505e7250e23b6f188c374b7fc90f06af7b038f9",
@@ -27092,6 +27244,10 @@
     "work/verify_selfillum_srgb_fixture.py": {
       "sha256": "37e1ac43ee975cd81af1aaebf0102f7db83dc209037ade33a40bf6c80009cb84",
       "size": 3032
+    },
+    "work/verify_server_hull_trace_boundary.py": {
+      "sha256": "ab2d511e322dbfe3f4164027db94376c96b7e5eff0cb4e407259539183d4c392",
+      "size": 4424
     },
     "work/verify_session_exposure_candidate.py": {
       "sha256": "fd87ee27ac8686a4d00d9c015825fa748d2a72e76c24b47c5ad506622872c98a",
