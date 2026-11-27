@@ -18,7 +18,7 @@ REFERENCES = {
     IFM: '12504c248047e181d31a8500fb6693d1a2d3c805e841fc2227e41aa4e2d2b47e',
 }
 QUERY = struct.Struct('<4Ii13I')
-REPLY = struct.Struct('<9I')
+REPLY = struct.Struct('<12I12f')
 
 
 def cases():
@@ -74,8 +74,16 @@ def expected(row, counts):
         counts['client_flag_without_scan'] += 1
     if not passes and scan:
         counts['scan_without_client_flag'] += 1
+    present = mapped or local
+    pose = (0.,)*12
+    if present:
+        if mapped:
+            pose = (100.5, -20., 95., -25., 130., -11., 117., -218., 15.25)
+        else:
+            pose = (-100., 11.125, 75., 31.25, -240., 18., 117.625, -218.5, 33.75)
+        pose += (-16., 177.5, 14.25)
     return (mapped, local, noclip, passes, scan, scan != 0, bool(scan and not queued),
-            previous if scan == 1 else 0, accurate if scan else 0)
+            previous if scan == 1 else 0, accurate if scan else 0, present, present, present, *pose)
 
 
 def installed_ranges(run):
@@ -83,6 +91,8 @@ def installed_ranges(run):
         ('Client tool handle lookup', 0x10343c60, 0x10343cce),
         ('Single-client local player fallback', 0x102637e0, 0x10263815),
         ('Server tool noclip query', 0x10343d50, 0x10343d81),
+        ('Read live eye position and angles', 0x10343980, 0x103439f5),
+        ('Snap player from eye position and view offset', 0x10343770, 0x10343803),
         ('Client-only trigger filter', 0x102563e0, 0x10256584),
         ('Player movement relink before nonsolid return', 0x101776a0, 0x101776ca),
         ('Touch relink and engine notification', 0x100cddb0, 0x100cdec5),
@@ -94,8 +104,12 @@ def installed_ranges(run):
     ifm, ifm_ranges = verify_installed_ranges(IFM, run/'ifm-reference.local.txt', [
         ('Client and server tool query in mode restoration', 0x101b00f1, 0x101b0123),
         ('Client and server tool query at second restoration site', 0x10209ddb, 0x10209e0d),
+        ('Local player snap from the selected camera transform', 0x10276790, 0x1027684b),
+        ('Read live view, clear roll and restore FOV', 0x10276850, 0x102768b3),
     ])
     assert server.word(0x10525284 + 4) == 0x10343c60
+    assert server.word(0x10525284 + 8) == 0x10343770
+    assert server.word(0x10525284 + 12) == 0x10343980
     assert server.word(0x10525284 + 0x18) == 0x10343d50
     assert client.word(0x10579034 + 0x5c) == 0x1028fe70
     assert ifm.string(0x10ac9440) == 'noclip'

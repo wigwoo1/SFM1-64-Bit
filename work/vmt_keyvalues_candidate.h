@@ -21,6 +21,17 @@ class VmtParserCandidate {
 public:
  explicit VmtParserCandidate(const std::string&s):source(s){}
  VmtNodeCandidate parse(){auto shader=next();if(shader.kind!=Token::Text||shader.text.empty())throw std::runtime_error("VMT shader required");if(next().kind!=Token::Open)throw std::runtime_error("VMT root block required");VmtNodeCandidate root;root.key=std::move(shader.text);root.block=true;root.children=body(0);if(next().kind!=Token::End)throw std::runtime_error("VMT trailing tokens/conditions unsupported");return root;}
+ std::vector<std::vector<VmtNodeCandidate>> parseEntityBlocks() {
+  std::vector<std::vector<VmtNodeCandidate>> entities;
+  for(auto token=next();token.kind!=Token::End;token=next()) {
+   if(token.kind!=Token::Open)throw std::runtime_error("BSP entity block required");
+   auto fields=body(0);
+   for(const auto& field:fields)
+    if(field.block||field.key.empty())throw std::runtime_error("flat BSP entity fields required");
+   entities.push_back(std::move(fields));
+  }
+  return entities;
+ }
 };
 inline VmtNodeCandidate parseVmtCandidate(const std::string&source){return VmtParserCandidate(source).parse();}
 inline std::string vmtAsciiLowerCandidate(std::string text){for(char&c:text)if(c>='A'&&c<='Z')c=char(c-'A'+'a');return text;}

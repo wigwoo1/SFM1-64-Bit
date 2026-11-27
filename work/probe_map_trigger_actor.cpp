@@ -1,4 +1,5 @@
 #include "source_map_trigger_actor_candidate.h"
+#include "source_map_player_pose_candidate.h"
 
 #include <array>
 #include <cstring>
@@ -19,8 +20,16 @@ struct Query {
 struct Reply {
     uint32_t mapped, local, reportsNoclip, passesClientFilter;
     uint32_t scan, checkUntouch, addedToQueue, priorOrigin, accurate;
+    uint32_t readPlayerPose, snappedPlayerPose, detached;
+    SourceMapPlayerVector eye{}, angles{}, origin{}, snapAngles{};
 };
-static_assert(sizeof(Query) == 72 && sizeof(Reply) == 36);
+static_assert(sizeof(Query) == 72 && sizeof(Reply) == 96);
+
+constexpr SourceMapPlayerVector requestedEye{117.125f, -218.25f, 79.25f};
+constexpr SourceMapPlayerVector requestedAngles{-16.f, 177.5f, 14.25f};
+constexpr SourceMapPlayerVector directEye{100.5f, -20.f, 95.f}, localEye{-100.f, 11.125f, 75.f};
+constexpr SourceMapPlayerVector directAngles{-25.f, 130.f, -11.f}, localAngles{31.25f, -240.f, 18.f};
+constexpr SourceMapPlayerVector directOffset{.125f, -.25f, 64.f}, localOffset{-.5f, .25f, 45.5f};
 
 #ifdef NATIVE_MAP_TRIGGER_ACTOR
 #include <windows.h>
@@ -65,10 +74,32 @@ void __cdecl registerUntouch(void* actor) {
 }
 
 void boundary(unsigned slot, CONTEXT& context) {
-    if (slot != 0) throw std::runtime_error("unexpected native boundary");
     auto* words = reinterpret_cast<const uintptr_t*>(context.Esp);
-    registerUntouch(reinterpret_cast<void*>(words[1]));
+    if (slot==0) {
+        registerUntouch(reinterpret_cast<void*>(words[1]));
+    } else if(slot==1) {
+        cell<SourceMapPlayerVector>(reinterpret_cast<void*>(context.Ecx),0x280)=
+            *reinterpret_cast<const SourceMapPlayerVector*>(words[1]);
+    } else {
+        throw std::runtime_error("unexpected native boundary");
+    }
     PrivateX86BoundaryObserverFixture::returnCdecl(context);
+    if(slot==1) context.Esp+=4;
+}
+
+SourceMapPlayerVector* __fastcall eyePosition(void* player,void*,SourceMapPlayerVector* result) {
+    *result=cell<SourceMapPlayerVector>(player,0x290);
+    return result;
+}
+const SourceMapPlayerVector* __fastcall eyeAngles(void* player,void*) {
+    return &cell<SourceMapPlayerVector>(player,0x2a0);
+}
+const SourceMapPlayerVector* __fastcall viewOffset(void* player,void*) {
+    return &cell<SourceMapPlayerVector>(player,0x2b0);
+}
+void __fastcall detach(void* player,void*,void* parent,int32_t attachment) {
+    if(parent || attachment!=-1) throw std::runtime_error("unexpected player hierarchy change");
+    cell<uint32_t>(player,0x2c0)=1;
 }
 
 void checkNotification(void* edict, uint32_t accurate, SourceMapTouchScanCandidate scan) {
@@ -109,7 +140,20 @@ void __cdecl ignoreWarning(const char*, ...) {}
 
 Reply run(const Query& query) {
     Reply reply{};
-    alignas(4) std::array<uint8_t, 0x180> direct{}, local{};
+    alignas(4) std::array<uint8_t, 0xbc0> direct{}, local{};
+    uintptr_t playerTable[0x23c/4+1]{};
+    playerTable[0x94/4]=reinterpret_cast<uintptr_t>(detach);
+    playerTable[0x220/4]=reinterpret_cast<uintptr_t>(eyePosition);
+    playerTable[0x224/4]=reinterpret_cast<uintptr_t>(eyeAngles);
+    playerTable[0x23c/4]=reinterpret_cast<uintptr_t>(viewOffset);
+    cell<const uintptr_t*>(direct.data(),0)=playerTable;
+    cell<const uintptr_t*>(local.data(),0)=playerTable;
+    cell<SourceMapPlayerVector>(direct.data(),0x290)=directEye;
+    cell<SourceMapPlayerVector>(local.data(),0x290)=localEye;
+    cell<SourceMapPlayerVector>(direct.data(),0x2a0)=directAngles;
+    cell<SourceMapPlayerVector>(local.data(),0x2a0)=localAngles;
+    cell<SourceMapPlayerVector>(direct.data(),0x2b0)=directOffset;
+    cell<SourceMapPlayerVector>(local.data(),0x2b0)=localOffset;
     cell<uint8_t>(direct.data(), 0x156) = static_cast<uint8_t>(query.directMove);
     cell<uint8_t>(local.data(), 0x156) = static_cast<uint8_t>(query.localMove);
     uintptr_t networkableTable[6]{};
@@ -143,6 +187,17 @@ Reply run(const Query& query) {
     reply.mapped = reinterpret_cast<Mapping>(0x10343c60)(&tools, source) == direct.data();
     reply.local = reinterpret_cast<void* (__cdecl*)()>(0x102637e0)() == local.data();
     reply.reportsNoclip = reinterpret_cast<NoClip>(0x10343d50)(&tools, source);
+    using ReadPose=bool(__thiscall*)(void*, SourceMapPlayerVector*, SourceMapPlayerVector*, void*);
+    using SnapPose=bool(__thiscall*)(void*, const SourceMapPlayerVector*, const SourceMapPlayerVector*, void*);
+    reply.readPlayerPose=reinterpret_cast<ReadPose>(global<uintptr_t>(tools+0xc))(&tools,&reply.eye,&reply.angles,source);
+    reply.snappedPlayerPose=reinterpret_cast<SnapPose>(global<uintptr_t>(tools+8))(&tools,&requestedEye,&requestedAngles,source);
+    if(reply.snappedPlayerPose) {
+        auto* player=cell<uint32_t>(direct.data(),0x2c0)?direct.data():local.data();
+        reply.origin=cell<SourceMapPlayerVector>(player,0x280);
+        reply.snapAngles=cell<SourceMapPlayerVector>(player,0xba8);
+        reply.detached=cell<uint32_t>(player,0x2c0);
+        if(cell<uint32_t>(player,0xbb8)!=1) throw std::runtime_error("native snap did not mark eye angles");
+    }
     if (index < 2048) global<Interface*>(0x1060eebc + index * 16) = nullptr;
 
     alignas(4) std::array<uint8_t, 0x190> actor{};
@@ -206,9 +261,19 @@ Reply run(const Query& query) {
     const auto scan = sourceMapTouchScanCandidate(query.hasEdict != 0, query.isWorld != 0,
         static_cast<uint8_t>(query.solidType), static_cast<uint16_t>(query.solidFlags), query.modelState != 0);
     const bool relink = scan != SourceMapTouchScanCandidate::none;
-    return {mapped, local, noclip, (query.actorFlags & 0x80u) != 0, static_cast<uint32_t>(scan), relink,
+    Reply reply{mapped, local, noclip, (query.actorFlags & 0x80u) != 0, static_cast<uint32_t>(scan), relink,
         relink && !query.alreadyQueued, scan == SourceMapTouchScanCandidate::solidMoved && query.priorOrigin,
         relink && query.accurate};
+    const auto player=sourceMapPlayerSource(mapped,local);
+    if(player!=SourceMapPlayerSource::absent) {
+        const bool direct=player==SourceMapPlayerSource::mappedClient;
+        reply.readPlayerPose=reply.snappedPlayerPose=reply.detached=1;
+        reply.eye=direct?directEye:localEye;
+        reply.angles=direct?directAngles:localAngles;
+        reply.origin=sourceMapPlayerOriginForEye(requestedEye,direct?directOffset:localOffset);
+        reply.snapAngles=requestedAngles;
+    }
+    return reply;
 }
 #endif
 
@@ -222,7 +287,7 @@ int main(int argc, char** argv) {
         NativePrivateWorldImageFixture image(argv[3], 0x6de6c4);
         image.seal();
         PrivateX86BoundaryObserverFixture observer{
-            {0x10111000, 0x10002500, 0x10002600, 0x10002700}, boundary};
+            {0x10111000, 0x100c2b60, 0x10002600, 0x10002700}, boundary};
         observer.configure(true);
 #endif
         Query query{};

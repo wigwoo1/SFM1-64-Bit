@@ -1,17 +1,13 @@
 {
   "repository": "wigwoo1/SFM1-64-Bit",
-  "checked_utc": "2026-11-25T13:56:51.907654+00:00",
-  "status": "Checked the allowlisted source. The last verified experimental Windows x64 build is current.",
-  "editor_dependency_count": 543,
-  "build_this_check": "Reused the verified build. The editor dependency hashes match.",
-  "last_build_exit_code": 0,
-  "compile_warnings": 18,
+  "checked_utc": "2026-11-27T06:13:33.678291+00:00",
+  "status": "Checked allowlisted source and rebuilt the experimental Windows x64 editor.",
+  "build_exit_code": 0,
+  "editor_dependencies": 543,
+  "compiler_warnings": 18,
   "compiled_shaders": 31,
-  "executable_sha256": "57c3c7e11f1d2d050ccc4c4d6169116765bffb87f6c38c92a5d92ec4a0d80172",
-  "package_sha256": "070eeddfa6ce78d9dfb0227ec892bb3f64bb637dac53f4cfb93d9a2041c5e665",
-  "previous_packaged_control_test": "PASS",
-  "previous_packaged_control_test_frames": 5,
-  "runtime_test_this_check": "Not rerun this check. The unchanged ZIP previously passed a five-frame Vulkan smoke test.",
-  "compatibility": "Experimental and incomplete. Interactive workflow and visual parity remain unverified.",
-  "public_package_note": "The experimental export command resolves python.exe on PATH. Interactive export was not tested."
+  "executable_sha256": "02fc02e708202e033b4acd6ecff92c2591e2edfedd94d118cd6d9df6231b7d2d",
+  "package_sha256": "1ea79256d49778c2c265f0d03c2ad2a1b36976db85bcbfb059f53404af63dbd3",
+  "runtime_test_this_check": "Not run.",
+  "compatibility": "Experimental and incomplete. Interactive workflows and visual parity remain unverified."
 }

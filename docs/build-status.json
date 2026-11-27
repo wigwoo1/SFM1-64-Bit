@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-11-21T22:30:37.753206+00:00",
-  "executable_sha256": "57c3c7e11f1d2d050ccc4c4d6169116765bffb87f6c38c92a5d92ec4a0d80172",
+  "compiled_utc": "2026-11-27T06:10:48.715361+00:00",
+  "executable_sha256": "02fc02e708202e033b4acd6ecff92c2591e2edfedd94d118cd6d9df6231b7d2d",
   "editor_source_dependencies": {
     "work/ambient_occlusion_view_candidate.h": "203729920a2c6ae63a6015e2dcfb831beb2505b196a31093205ff5168c724288",
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
@@ -502,7 +502,7 @@
     "work/viewport_camera_fov_candidate.h": "c686160fe531b76c46fd5833333d0e4c60475001549d4cba5f8cffdb47599ff7",
     "work/viewport_camera_guide_geometry_candidate.h": "f9f6841b517e19a5a6ae9d9030ed249314af508c00c59aab229a607c988b7681",
     "work/viewport_fit_candidate.h": "8a9d47c13b443375dc9b65d966a40c9bc48ee7119b600ed1267fab07f3232bae",
-    "work/vmt_keyvalues_candidate.h": "1f48fc6ddb67f69b58fc1e67e80de4a34b96bfd62e18090ce06788c55e8fbfe5",
+    "work/vmt_keyvalues_candidate.h": "291e56fe772b8ca4d71314bdfb07fc5a2bb8858f462f01a9d2c8852f5bbabf54",
     "work/vtf_block_decode.h": "995dd3114294ac106ea3ad2881e8d12e5cde409b5118c27fb07162f05940a046",
     "work/vtf_effective_flags_candidate.h": "2969f943b9ed622408676ba46bea44373c5ef61caac4d28b8ac731bdd3ebac4e",
     "work/vtf_particle_sheet_candidate.h": "52f180822cdd5134bd586fb445af88436bbdf933e20651b82b89378c41de281f",
