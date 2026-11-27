@@ -29,18 +29,19 @@ void boundary(unsigned slot,CONTEXT& c){using O=PrivateX86BoundaryObserverFixtur
 }
 void prepare(unsigned count,bool masked){entryStorage.clear();entryStorage.resize(count);nativeBuckets.clear();for(unsigned i=0;i<count;++i)nativeBuckets.push_back({entryStorage[i].data(),512,0,0,0});mesh.fill(0);const auto m=reinterpret_cast<uintptr_t>(mesh.data());at<uintptr_t>(m+0xc4)=reinterpret_cast<uintptr_t>(nativePlanes.data());at<uint32_t>(m+0xc8)=512;const uintptr_t owner=0x106436dc;at<uintptr_t>(owner)=reinterpret_cast<uintptr_t>(nativeBuckets.data());at<uint32_t>(owner+0xc)=count;at<uint8_t>(owner+0x16)=masked;at<uint32_t>(owner+0x18)=count-1;inserts=appends=0;}
 #endif
-int main(int argc,char** argv){try{require(argc==3,"expected engine or - and disposable records");
+int main(int argc,char** argv){try{require(argc==4,"expected engine or -, private permutation fixture and disposable records");
+ std::array<uint32_t,256> raw{};std::ifstream fixture(argv[2],std::ios::binary);fixture.read(reinterpret_cast<char*>(raw.data()),sizeof(raw));require(fixture.gcount()==sizeof(raw)&&fixture.peek()==std::char_traits<char>::eof(),"private permutation fixture width");SourcePlaneHashPermutationCandidate permutation{};std::array<bool,256> seen{};for(size_t i=0;i<raw.size();++i){require(raw[i]<256&&!seen[raw[i]],"private permutation data");seen[raw[i]]=true;permutation[i]=uint8_t(raw[i]);}
 #ifndef _WIN64
- NativePrivateWorldImageFixture image(argv[1],0x643eec);image.seal();const auto permutation=sourcePlaneHashPermutationCandidate();require(std::memcmp(permutation.data(),reinterpret_cast<void*>(0x104129b0),1024)==0,"generated permutation differs from engine");PrivateX86BoundaryObserverFixture observer{{0x1015b150,0x10001610,0,0},boundary};observer.configure(true);
+ NativePrivateWorldImageFixture image(argv[1],0x643eec);image.seal();require(std::memcmp(raw.data(),reinterpret_cast<void*>(0x104129b0),1024)==0,"private fixture differs from engine");PrivateX86BoundaryObserverFixture observer{{0x1015b150,0x10001610,0,0},boundary};observer.configure(true);
 #endif
- std::ofstream out(argv[2],std::ios::binary);require(bool(out),"record output");unsigned cases=0,newPlanes=0,reversed=0,duplicates=0;
- for(unsigned count:{1u,3u,8u,17u,64u})for(bool masked:{false,true}){if(masked&&(count&(count-1)))continue;SourceDisplacementPlanePoolCandidate pool(count,masked);
+ std::ofstream out(argv[3],std::ios::binary);require(bool(out),"record output");unsigned cases=0,newPlanes=0,reversed=0,duplicates=0;
+ for(unsigned count:{1u,3u,8u,17u,64u})for(bool masked:{false,true}){if(masked&&(count&(count-1)))continue;SourceDisplacementPlanePoolCandidate pool(count,masked,permutation);
 #ifndef _WIN64
  prepare(count,masked);
 #endif
  uint32_t random=0x4567abc;auto sample=[&](){random=random*1664525u+1013904223u;return float(int((random>>8)%4097)-2048)/16.f;};Plane current{};
- for(unsigned q=0;q<512;++q){Plane p{};if(q%4==0)current={sample(),sample(),sample()};p=current;if(q%4==2)for(auto& v:p)v=-v;if(q%4==3)p={q&4?-0.f:0.f,q&8?-0.f:0.f,float(q%7)};if(q%31==0)p={0,0,0};if(q%37==0)p={1.f,std::nextafter(1.f,2.f),-1.f};
- const auto before=pool.planes.size();const auto hash=sourcePlaneHashCandidate(p);const auto id=pool.intern(p);
+ for(unsigned q=0;q<512;++q){Plane p{};if(q%4==0)current={sample(),sample(),sample()};p=current;if(q%4==2)for(auto& v:p)v=-v;if(q%4==3)p={q&4?-0.f:0.f,q&8?-0.f:0.f,float(q%7)};if(q%31==0)p={0,0,0};if(q%37==0)p={1.f,std::nextafter(1.f,2.f),-1.f};if(q%41==0)p={1.f,1.f,-1.f};
+ const auto before=pool.planes.size();const auto hash=sourcePlaneHashCandidate(p,permutation);const auto id=pool.intern(p);
 #ifndef _WIN64
  using Hash=uint32_t(__thiscall*)(const void*);require(reinterpret_cast<Hash>(0x10261bd0)(p.data())==hash,"Hash12 mismatch");using Intern=uint16_t(__thiscall*)(void*,const void*);const auto actual=reinterpret_cast<Intern>(0x1015b9f0)(mesh.data(),p.data());const auto size=at<uint32_t>(reinterpret_cast<uintptr_t>(mesh.data())+0xd0);require(actual==id&&size==pool.planes.size(),"native cache ID/count mismatch");require(!size||std::memcmp(nativePlanes.data(),pool.planes.data(),size*12)==0,"native cache plane bytes mismatch");for(unsigned b=0;b<count;++b){require(nativeBuckets[b].count==pool.buckets[b].size(),"native bucket count");for(unsigned i=0;i<nativeBuckets[b].count;++i){const auto& n=nativeBuckets[b].entries[i];const auto& own=pool.buckets[b][i];require(n.id==own.id&&std::memcmp(n.plane.data(),own.plane.data(),12)==0,"native bucket record mismatch");}}require(inserts==appends&&appends==size,"insertion service count");
 #endif

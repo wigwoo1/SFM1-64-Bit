@@ -34,16 +34,16 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "7c8820169a4faadc2d8b17bbaeff580e34c31fab3d385ba83176e6f4d7cbaf6d",
-      "size": 165
+      "sha256": "d0861c045d0a9d1eaf778cf8e925d3fd95c839e6b9a16762c4966c022e1bda42",
+      "size": 329
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "51806176eb3042cf1078bf10fdd66be14af3cee18c06d01030de966da4cacb40",
       "size": 1351033
     },
     "publication/README.md": {
-      "sha256": "f97b594a8e168685531407824c5563c5b7b6dbf770c51a66c411004009e38020",
-      "size": 7544
+      "sha256": "b7667fde7d80b09bc1ee3e1862b929488576ddfdde35ebb74579074e7f525ff9",
+      "size": 7842
     },
     "publication/editor_runtime_package.py": {
       "sha256": "52fe1d89907b56d93e0d3626aee9d404c14d837b208f08638a0ccb49870809b8",
@@ -1528,6 +1528,10 @@
     "work/build_displacement_grid_triangles.cmd": {
       "sha256": "400df00648245bbd295265423fab56f5d0b4976ba0a620a7093256014d628290",
       "size": 1095
+    },
+    "work/build_displacement_hull_cache.cmd": {
+      "sha256": "07f2841d651a4b71a03e02b05ee85fb6d65296184a21e682f997b7e14dfe530e",
+      "size": 930
     },
     "work/build_displacement_hull_contact.cmd": {
       "sha256": "b9f80107266c28dfa91ef0fae0f447ca4020a38dcbae0446756a4af74c58cac8",
@@ -12821,6 +12825,10 @@
       "sha256": "8aefa3b1be5a73f7041facbadc088cd8b5344340c8f0e4c69116e9b30751626a",
       "size": 4329
     },
+    "work/probe_displacement_hull_cache.cpp": {
+      "sha256": "9270024d49bc76698ec140972bef5f51b562f87cb211b10329786efe56aee60a",
+      "size": 6765
+    },
     "work/probe_displacement_hull_contact.cpp": {
       "sha256": "c8449c7b7305706e0d74208ad2da690e8827a47dccd171008577af4081f25b65",
       "size": 6177
@@ -12838,8 +12846,8 @@
       "size": 2696
     },
     "work/probe_displacement_plane_pool.cpp": {
-      "sha256": "2c30f10ef0500b3198c9f1c94c96e98a9a6ad314f38c3f9de1c607ceb2140e14",
-      "size": 5555
+      "sha256": "daab434caa9d2fc71ee3ba704281f6823f21cae47af86e4918c0164d3095ebba",
+      "size": 6050
     },
     "work/probe_displacement_ray_tree.cpp": {
       "sha256": "66a27a8eb01bbe3e117ed7e41d666e2619f3456735cf6a63ddc270364e1eda21",
@@ -18745,6 +18753,10 @@
       "sha256": "b34e96a345b4e148800b3adf827082eb08db37be2ee2ae7e8ffe3368b8650e08",
       "size": 1473
     },
+    "work/source_displacement_hull_cache_candidate.h": {
+      "sha256": "ae6836c49ac7922d95a72752bd2bd9e1248706f511f96a6ac8d42766b07f0d15",
+      "size": 1306
+    },
     "work/source_displacement_hull_tree_candidate.h": {
       "sha256": "c82e458380c30b8aeafebf612479e8e2afdf363db28a6578fb4062f26aca19ce",
       "size": 3338
@@ -18766,8 +18778,8 @@
       "size": 812
     },
     "work/source_displacement_plane_pool_candidate.h": {
-      "sha256": "b739bd556a0cfd1ec8dce8c0b9bb658bea616316a7be44c43b207659d055383b",
-      "size": 2767
+      "sha256": "a1e12d8ad1e847f0a10102a189143f32b53b6d743d34dd8579d272ac5f83da1d",
+      "size": 2569
     },
     "work/source_displacement_ray_tree_candidate.h": {
       "sha256": "d442bfaa54f8edf4174cd0f89edf807f11de5c500bb41b2b866d40c68a979b09",
@@ -25645,6 +25657,10 @@
       "sha256": "0d3085a9b623e94453def4232dbc8e430035de69377a1500bf315124cf2dcbfe",
       "size": 4632
     },
+    "work/verify_displacement_hull_cache.py": {
+      "sha256": "88fcd2007602ff11b57271e23d8a01664ee3aa2a63010839a6c2821d143990ef",
+      "size": 5750
+    },
     "work/verify_displacement_hull_contact.py": {
       "sha256": "a31e304850ea5cc0d1b8eba1832cf1d7cc6f7af8df3412c01ea2edc0ed3d11ec",
       "size": 5688
@@ -25664,6 +25680,10 @@
     "work/verify_displacement_pair_bounds.py": {
       "sha256": "5ace37b7eec5b91b5ca93dc0c328027672fb63944da6b77f77e68a56bb0bad9b",
       "size": 3168
+    },
+    "work/verify_displacement_plane_pool.py": {
+      "sha256": "e55e066c3ea8de09c61e740aa7684efb1ddf2a38e667a4a29fab207db3f6bcc8",
+      "size": 5767
     },
     "work/verify_displacement_ray_tree.py": {
       "sha256": "4467d70bbbd9d716fab8d78a391bff9f75928a1efc7cb97a1f4fecfb97d05892",

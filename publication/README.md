@@ -109,10 +109,12 @@ brush-only world composition, displacement tree selection, triangle contacts for
 supplied caches, and edge-plane geometry. These do not establish complete world
 collision or editor integration.
 
-`work/source_displacement_plane_pool_candidate.h` is an UNVERIFIED prototype.
-Its attempted hash-table generator does not match the installed reference table;
-the native comparison rejects that mismatch before testing pool lookup. Two
-random-generator approaches failed. Do not integrate or use this pool until its
-constant-data provenance and lookup behavior are resolved and verified. Existing
-verified editor runtime is unaffected. Private failure receipts and native
-reference dumps remain excluded from publication.
+`work/source_displacement_plane_pool_candidate.h` now requires explicit
+permutation data; its incorrect random-generator default has been removed.
+Hash, exact/sign lookup, cache IDs and bucket records pass isolated native/x64
+comparisons with an identified private table fixture. All 256 published Source SDK
+table entries were independently checked against the installed reference.
+No Valve permutation table is embedded in project source or the editor package.
+Production resource distribution, full cache lifecycle and editor integration
+remain unverified. Existing editor runtime is unaffected. Private table fixtures,
+failure receipts and native reference dumps remain excluded from publication.
