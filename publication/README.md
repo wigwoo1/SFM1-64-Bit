@@ -118,3 +118,95 @@ No Valve permutation table is embedded in project source or the editor package.
 Production resource distribution, full cache lifecycle and editor integration
 remain unverified. Existing editor runtime is unaffected. Private table fixtures,
 failure receipts and native reference dumps remain excluded from publication.
+
+
+## Prepared displacement sweep composition checked (2026-11-27)
+
+An isolated composed helper now connects generated hull cache data, tree selection
+and actual triangle contacts. Fresh warning-free x86/x64 builds each repeated
+twice match 41,472 queries over 48 prepared meshes, including complete trace bytes
+and closer-hit results. The native oracle executes original geometry/contact
+routines with explicit fixed-storage/cache-service adapters; no original code
+arrays or permutation constants are added to the public source or editor.
+
+This remains prepared-input collision research. Global cache lifecycle, original
+BSP import through this sweep, outer world metadata, full world composition,
+stationary dispatch and editor integration are separate gates. All 543 editor
+dependencies are unchanged; this is not a new editor build or a demonstrated
+benchmark collision improvement. Private reference fixtures and receipts remain
+excluded from publication.
+
+
+## Outer world hull metadata checked (2026-11-27)
+
+The prepared displacement sweep now has an independently verified world metadata
+adapter. Fresh warning-free x86/x64 builds, each repeated twice, match all 544
+working-buffer bytes for 41,472 cases. Real contacts exercise both material
+property choices, retained prior surface information and zero-fraction metadata.
+Native leaf-interval argument variations produce identical results. Owned code
+uses semantic surface identity; native addresses occur only in the local probe.
+
+World leaf culling/dedup/finish, complete world composition, native global cache
+lifecycle, stationary dispatch and editor integration remain unverified. This
+research does not change the current editor build. Private reference inputs and
+receipts remain excluded from public publication.
+
+
+## Hull leaf displacement processing checked (2026-11-27)
+
+An isolated hull leaf policy now composes contents filtering, visit suppression,
+hull-expanded bounds culling, real displacement contacts and final solid-state
+updates. Fresh warning-free x86/x64 builds, each repeated twice, match 30,720
+queries including complete working buffers, visit tables and candidate order.
+Native bounds/outer-entry observations execute through unchanged routines.
+
+Brush input is empty or a zero-contents record; mixed brush-contact/world traversal
+is still unverified. Prepared mesh/cache/cull/material inputs, native global cache
+lifecycle, production permutation resource, stationary dispatch and editor
+integration remain separate gates. This work does not change the current editor
+package or demonstrate a benchmark spawn improvement. Private oracle inputs,
+records and native dumps remain excluded from publication.
+
+
+## Mixed prepared world hull geometry checked (2026-11-27)
+
+The owned swept-box world helper now combines BSP traversal, brush contacts and
+real displacement contacts. Fresh warning-free x86/x64 builds, each repeated
+twice, match 64,512 controlled queries and final trace/material fields. Native
+observations establish both brush-over-displacement and displacement-over-brush
+winner changes. A missing default material update on brush solid-exit reset was
+identified from native instructions and corrected before final verification.
+
+This is prepared synthetic world geometry equality. Full original BSP loading,
+material binding, cache lifecycle/resource distribution, public trace setup and
+finish, stationary dispatch, entities/static props and editor integration remain
+separate gates. The current editor build is unchanged. Private reference inputs,
+failed receipts, native dumps and test records remain excluded from publication.
+
+
+## Benchmark-backed prepared hull geometry checked (2026-11-27)
+
+The mixed hull query now has an isolated comparison using actual mtt_soldier BSP
+brush/node/leaf tables and all 43 imported displacement meshes. Fresh warning-free
+x86/x64 builds, each repeated twice, match 16,512 queries across LDR/HDR face modes;
+the two modes produce identical trace records. Actual 2,478 texture-info bindings,
+87 material identities and merged BSP surface flags are used. Reusable derived
+cache/cull/leaf tables were added with explicit permutation input.
+
+Material property numbers are distinguishing test fixtures, not verified original
+IMaterial/physics IDs. Native query routines receive prepared tables; this does
+not execute the whole original BSP loader or prove public trace setup/finish,
+stationary dispatch, cache lifecycle, entity/static-prop filtering, measured spawn
+or editor integration. The editor package is unchanged. Original BSP/assets,
+permutation data, native dumps and test records remain excluded from publication.
+
+
+## Public swept-hull wrapper under verification (2026-11-27)
+
+The newest public-trace wrapper and associated probe are work in progress.
+An initial comparison passed 19,264 prepared benchmark queries and 36 coordinate
+finishing cases. Final repeated x86/x64 verification and the signed-zero fixture
+revision remain pending. Do not treat this wrapper as a completed compatibility
+gate or an editor improvement. It is isolated from the current editor package.
+Original world loading, stationary dispatch, production cache/resource lifecycle,
+entity/static-prop handling and full application compatibility remain unverified.

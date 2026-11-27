@@ -34,16 +34,16 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "d0861c045d0a9d1eaf778cf8e925d3fd95c839e6b9a16762c4966c022e1bda42",
-      "size": 329
+      "sha256": "edc23b24eb9c549ac885c22bab0d4d7241e14f6b2d8739e08765ce0d2d33942d",
+      "size": 386
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "51806176eb3042cf1078bf10fdd66be14af3cee18c06d01030de966da4cacb40",
       "size": 1351033
     },
     "publication/README.md": {
-      "sha256": "b7667fde7d80b09bc1ee3e1862b929488576ddfdde35ebb74579074e7f525ff9",
-      "size": 7842
+      "sha256": "e64582762339aec457aad755b990a32ceb2a3b283d1164f1f28419b63335b1f2",
+      "size": 12499
     },
     "publication/editor_runtime_package.py": {
       "sha256": "52fe1d89907b56d93e0d3626aee9d404c14d837b208f08638a0ccb49870809b8",
@@ -845,6 +845,10 @@
       "sha256": "56b028ebf7aaf030f30a8e573ec8f543ad3f2c4e4764a49aaec1f9a931a4ea0e",
       "size": 1122
     },
+    "work/build_benchmark_world_hull.cmd": {
+      "sha256": "811c5cd88fa9eb2b224a5b29a1704301b564d83582c69ec39c0bb5e72572b2e0",
+      "size": 964
+    },
     "work/build_binary_asset_test.cmd": {
       "sha256": "4a7e5482e77907d8d520381909d0c208a3175d664e20092cdf2f6b6565466dd4",
       "size": 376
@@ -1537,6 +1541,10 @@
       "sha256": "b9f80107266c28dfa91ef0fae0f447ca4020a38dcbae0446756a4af74c58cac8",
       "size": 942
     },
+    "work/build_displacement_hull_sweep.cmd": {
+      "sha256": "8869349027c25b305f4dd805906692612a9390977e9716d84bbe2ce911f9a5e7",
+      "size": 930
+    },
     "work/build_displacement_hull_tree.cmd": {
       "sha256": "aa46f7ce084870b52cbfab17086c9141f5755ca290beebbe49bb2e087f6d8b6d",
       "size": 976
@@ -1572,6 +1580,10 @@
     "work/build_displacement_surface_orientation.cmd": {
       "sha256": "c4058e8cc4272eeacea09871ee3ccee9bce299c387c7a9351e18471cb66eba6a",
       "size": 1116
+    },
+    "work/build_displacement_world_hull.cmd": {
+      "sha256": "2202c12e5db7776c3eaf9964dfc525e4c88571ad3f949cb8dde3dcfa12964819",
+      "size": 930
     },
     "work/build_displacement_world_ray.cmd": {
       "sha256": "cc632785a86263fd61aeb3cb3e5ce3a0b981000899a82b3343621a1dbff23f2e",
@@ -2608,6 +2620,10 @@
     "work/build_leaf_displacement_policy.cmd": {
       "sha256": "2ab67c47c777b3c9f11c1cd3946b035e7d559b767c2c0219790b662e4d0936d0",
       "size": 1072
+    },
+    "work/build_leaf_hull_displacement.cmd": {
+      "sha256": "8a0c00aa09a7da2f114a3779525687c0e31429e39f6596adef7f2ff92b56f982",
+      "size": 976
     },
     "work/build_light_hierarchy_audit.cmd": {
       "sha256": "0ef3d0fc02d008eea119d956254bd62cd4009c3127a522343503d0c14775321a",
@@ -4345,6 +4361,10 @@
       "sha256": "0dba55066d55f378fc31bba4e38c68b134d0cf5bc36caaa5f494e1e1099de78a",
       "size": 439
     },
+    "work/build_prepared_world_hull.cmd": {
+      "sha256": "4cc4093648f5a3d4fdb9caba4cbd84cf925bcacad875d43eac54f5f4dfcc05cc",
+      "size": 958
+    },
     "work/build_prepared_world_ray.cmd": {
       "sha256": "842fde59a7ced9fc64ff5a0f0367f2d93aeea2a8b8e6c6f6f41f06d0b155f920",
       "size": 921
@@ -5892,6 +5912,10 @@
     "work/build_studio_vertex_weights.cmd": {
       "sha256": "1064882dd6995fb8303ce670a354719bf879422eeb5f7a7d461ec33741580c27",
       "size": 1206
+    },
+    "work/build_swept_hull_world_trace.cmd": {
+      "sha256": "beb54cb08255c8af89308eb87a3f00a2f45eee7c06290632fe0595585cc7c639",
+      "size": 976
     },
     "work/build_swept_world_trace.cmd": {
       "sha256": "57ec546743adeecb3c24ae6197412651606e05a2b2b71160d9f7cc99e54d66d6",
@@ -12689,6 +12713,10 @@
       "sha256": "2e49dedb02166aa8ec3af7d813120b5f7e650217d80cdb9e060a4993318efbb9",
       "size": 10299
     },
+    "work/probe_benchmark_world_hull.cpp": {
+      "sha256": "d2f9fabda2a1762cc0844c8918d5df56f1bf3c5d47343a026c01be7174abf585",
+      "size": 24854
+    },
     "work/probe_block_format_admission.cpp": {
       "sha256": "ea22c811007eee2dfd5048ef6a17e0bbe18c751ac6f8f3791b460d481b56ef16",
       "size": 3855
@@ -12833,6 +12861,10 @@
       "sha256": "c8449c7b7305706e0d74208ad2da690e8827a47dccd171008577af4081f25b65",
       "size": 6177
     },
+    "work/probe_displacement_hull_sweep.cpp": {
+      "sha256": "2225f9b28c95e5d3aaff48e8c1778b85a2c6d6fd7e4b7423ae1e523d25595ecb",
+      "size": 12099
+    },
     "work/probe_displacement_hull_tree.cpp": {
       "sha256": "4c00688115eb70d73c2193b457d646613f24ec4f6f8772cb7eac91b45b0e0839",
       "size": 6700
@@ -12864,6 +12896,10 @@
     "work/probe_displacement_surface_orientation.cpp": {
       "sha256": "dca58a6ec262814b404630ba4c0d36d80953bfea989e801bbf7b4151980d425f",
       "size": 3322
+    },
+    "work/probe_displacement_world_hull.cpp": {
+      "sha256": "c4dc8d7a115c9437e34ce68e0a08c581a7e20ca689cbdae79cb60df3e9433431",
+      "size": 14735
     },
     "work/probe_displacement_world_ray.cpp": {
       "sha256": "d802cdb0d7d27a2eda306092387cc387a6a9dbaace9fa5e6794848266b9b4cc6",
@@ -13120,6 +13156,10 @@
     "work/probe_leaf_displacement_policy.cpp": {
       "sha256": "e437069df5bcc72553eea7975594882a1a8244cf68671f6af63e763162c0182e",
       "size": 7440
+    },
+    "work/probe_leaf_hull_displacement.cpp": {
+      "sha256": "4ac0778f5f13b46df50ccbc4c1a1413757d46fa0ce86e34d4296e26190e4ac53",
+      "size": 20695
     },
     "work/probe_lightmapped_parameters.cpp": {
       "sha256": "755e0e078bc1a8d8b4e0a0d1167e97bd99a3a2a428c6ff3d7cf117ae4efd2e56",
@@ -14441,6 +14481,10 @@
       "sha256": "526f37a819cc0b548b202f9a4e5feb52eedbcdf3449385e5f57b7ba815173e3f",
       "size": 30798
     },
+    "work/probe_prepared_world_hull.cpp": {
+      "sha256": "1d5630af3dda97ede343f95b18490476dfb247e2c871f56bbe7981873e582ef5",
+      "size": 25398
+    },
     "work/probe_prepared_world_ray.cpp": {
       "sha256": "7168bd3bb08008754e1cd848e62912c1da8fd539bb7bb416c5c4bca6040cf18f",
       "size": 12211
@@ -14732,6 +14776,10 @@
     "work/probe_studio_vertex_weights.cpp": {
       "sha256": "be99dd7ae5b38ffc96f78919dd59a26312f4045b6b376fb4e7b5660613d23094",
       "size": 4615
+    },
+    "work/probe_swept_hull_world_trace.cpp": {
+      "sha256": "c4e07d4e7a0c807a2ea90015245040678aea167dfa65244b2d0b29e33e9cd653",
+      "size": 27025
     },
     "work/probe_swept_world_trace.cpp": {
       "sha256": "e85fcc81a9ba5712175dc6395a51fbdd6b36a67851c41af5396b87b0b9e35908",
@@ -18757,6 +18805,10 @@
       "sha256": "ae6836c49ac7922d95a72752bd2bd9e1248706f511f96a6ac8d42766b07f0d15",
       "size": 1306
     },
+    "work/source_displacement_hull_sweep_candidate.h": {
+      "sha256": "c2b0cf31a9c6a71ad351bf74a464966261358fc02f470643bd57d3957b8b26a4",
+      "size": 2141
+    },
     "work/source_displacement_hull_tree_candidate.h": {
       "sha256": "c82e458380c30b8aeafebf612479e8e2afdf363db28a6578fb4062f26aca19ce",
       "size": 3338
@@ -18801,6 +18853,10 @@
       "sha256": "c156eac64e88b79ea1d0782860df8983057cd3bcb96445c916590bb1dbe91c70",
       "size": 1235
     },
+    "work/source_displacement_world_hull_candidate.h": {
+      "sha256": "c3a062b8c9f57d01b9e79039523d12cf8735e6532106aa453b00f00fc4d3b2ab",
+      "size": 1399
+    },
     "work/source_displacement_world_ray_candidate.h": {
       "sha256": "06aacb024876f47865bd769902d9cfa6fa89c3ca44b690b6e7dd7f7486d8bf38",
       "size": 1320
@@ -18836,6 +18892,10 @@
     "work/source_leaf_displacement_policy_candidate.h": {
       "sha256": "3ba4087f53cc3e2449ecb745712f4a2c4f5f4ff16d4f5788035dccf371c7134e",
       "size": 2239
+    },
+    "work/source_leaf_hull_displacement_policy_candidate.h": {
+      "sha256": "8f1d9a164fab243109790c1377056043587653fda43a7f9f5840dee7a6c9b032",
+      "size": 2063
     },
     "work/source_light_cache_cell_candidate.h": {
       "sha256": "5d760442693451bcb1b1919a664880aea499b299b2af6177beae879874116354",
@@ -19169,6 +19229,14 @@
       "sha256": "28eb164ea8b337b0557c18d9c113244d1fdefa99cb72671b3d14b4725347b5f3",
       "size": 2276
     },
+    "work/source_prepared_hull_world_tables_candidate.h": {
+      "sha256": "5a875d6ad7c898f27b59439a41df3ec1a1d94a08f304881da5b545e7aee9e179",
+      "size": 1657
+    },
+    "work/source_prepared_world_hull_candidate.h": {
+      "sha256": "b83a45218a5b5130c999cfde3ff03f9f3b1328fbcde9508a23a45a43f1f468a5",
+      "size": 5269
+    },
     "work/source_prepared_world_ray_candidate.h": {
       "sha256": "81f2bce0c17f6e60715472763a9f79958421fbb96a88f5d462cc37cc2d9e27ba",
       "size": 9302
@@ -19268,6 +19336,10 @@
     "work/source_surface_name_table_candidate.h": {
       "sha256": "8f0eda68aea1cf66e7dcbd78271bb83d57cde39c440f5d8ff535f29352133990",
       "size": 4838
+    },
+    "work/source_swept_hull_world_trace_candidate.h": {
+      "sha256": "5cfee498fa5f01f4bc3be35371e6f0ccbc7f15aa0c3895e86ce5f0f22907cfe0",
+      "size": 3531
     },
     "work/source_swept_world_trace_candidate.h": {
       "sha256": "8582b5c0cf0df2c5219e519ecf402176c9fa3e6dd0f186d0e90e5622727fd70b",
@@ -25417,6 +25489,10 @@
       "sha256": "38c70459d0fd03b5255c61d7a029f331785ee3d8bd891268f7636121cc4f6cef",
       "size": 16672
     },
+    "work/verify_benchmark_world_hull.py": {
+      "sha256": "aca93e47fd665af90e3c3451fcef49b9edaf50926fdfe96933eb4fbf3512223f",
+      "size": 12899
+    },
     "work/verify_bookmark_timeline_ui.cmd": {
       "sha256": "5de86ec720f093a918f6b73e6b6a11c90fb2e0758e2209c7e214b6dcba935e2d",
       "size": 403
@@ -25665,6 +25741,10 @@
       "sha256": "a31e304850ea5cc0d1b8eba1832cf1d7cc6f7af8df3412c01ea2edc0ed3d11ec",
       "size": 5688
     },
+    "work/verify_displacement_hull_sweep.py": {
+      "sha256": "e46bccdaf388ef8d79d86f2f3837c9f835c06b17152cc2fecb6556423335e941",
+      "size": 8176
+    },
     "work/verify_displacement_hull_tree.py": {
       "sha256": "d38aa99cd06593fe5a7286eeda742723fac1fd4f90bfc026ef4d62e6be81c678",
       "size": 5734
@@ -25700,6 +25780,10 @@
     "work/verify_displacement_surface_orientation.py": {
       "sha256": "7e24950099b96102882abccd27bd3cf0afc3082dfa0e0e337788227df08ae21a",
       "size": 7019
+    },
+    "work/verify_displacement_world_hull.py": {
+      "sha256": "b5e962ffa881d58292a9e5e8744e1a9c3b3b19b16050b7654a9cf790f73e0659",
+      "size": 10546
     },
     "work/verify_displacement_world_ray.py": {
       "sha256": "94de8840c45a36da4c43000e93fc95aee1d3f4b74c0461d134313dba7a986aa2",
@@ -26224,6 +26308,10 @@
     "work/verify_leaf_displacement_policy.py": {
       "sha256": "b8532ca52214d955eed94d37087cdb1ced320cd293958d52aadd45bea1f01b7a",
       "size": 5741
+    },
+    "work/verify_leaf_hull_displacement.py": {
+      "sha256": "4f242b9024e7f7b3d27305ad0cb3582ece5aea4639f069656c91777dc0b97331",
+      "size": 12676
     },
     "work/verify_light_buffer_launch.py": {
       "sha256": "fe90111009b1bddd6a63bd13f9cf318f25c16e87a34e4296aa99883b2c010fe3",
@@ -27212,6 +27300,10 @@
     "work/verify_prepared_texture_binding_editor.py": {
       "sha256": "2b864282c2da292530f7a63a051a6c6edda5295abc35ad19dcc7ce56505646d9",
       "size": 7352
+    },
+    "work/verify_prepared_world_hull.py": {
+      "sha256": "14b97b28725933d8e7094fb7cb6a3e69418e048025affe0c19f12cc311dc02b7",
+      "size": 11347
     },
     "work/verify_prepared_world_ray.py": {
       "sha256": "98ea202a58dc32eca2d3f73d07b68cfe865c945c2bb7d5e1109067425032617a",
