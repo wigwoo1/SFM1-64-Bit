@@ -34,8 +34,8 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "b35a0aed29fcb2112ea57e2b0b92d37bb53299d1b72cb6e0341fe7749f8dcdb0",
-      "size": 623
+      "sha256": "8251d30d5a6b7231588215f755d083d23ed1c1561cff0ddb285f08382efca0a3",
+      "size": 556
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "1ea79256d49778c2c265f0d03c2ad2a1b36976db85bcbfb059f53404af63dbd3",
@@ -2616,6 +2616,18 @@
     "work/build_map_door_runtime.cmd": {
       "sha256": "69fd84e127a00bebb74d515e1057f6768ee3b4c73ee48b14643fd2c954c20568",
       "size": 657
+    },
+    "work/build_map_editor_transport.cmd": {
+      "sha256": "c4cbdf0a1d2b3867e8e8a619788771e5786ea980c99fb22dcf626ecee375d201",
+      "size": 762
+    },
+    "work/build_map_frame_sync.cmd": {
+      "sha256": "09e3d2891f31369a73cc621404b5fa65e91bb1b5c26c7c0a36d6eb374098c5a8",
+      "size": 754
+    },
+    "work/build_map_noclip.cmd": {
+      "sha256": "9de3c297017ef4e5bcbbfbaf751a368dc256711f340d44f0855db01a6a7327df",
+      "size": 708
     },
     "work/build_map_simulation_clock.cmd": {
       "sha256": "506b0186985ffa4b07f91adad1d3174156b810ed54928f1e684f6e61a25bc357",
@@ -12993,9 +13005,21 @@
       "sha256": "2f6f1ca113b6aca97f4189ca253d646998ef1d4b9976cf78dba798490a7ce1dc",
       "size": 7206
     },
+    "work/probe_map_editor_transport.cpp": {
+      "sha256": "23d47f1b1304c0a0730fc03eb3db8a3e77a1e4c6ba1af0f8107852e35d1e65af",
+      "size": 8361
+    },
+    "work/probe_map_frame_sync.cpp": {
+      "sha256": "990be38814483fa07efe870ac0b10bfb9f47a72141fa104b3de1d31ad9432d78",
+      "size": 6536
+    },
+    "work/probe_map_noclip.cpp": {
+      "sha256": "d3612b9ebcc9e21dfd2a9e3a11cc933f0bec0b84703b29db53f0d8c8b3b38b65",
+      "size": 6214
+    },
     "work/probe_map_simulation_clock.cpp": {
-      "sha256": "68fb098adc2942346d99d1e2e0dfacd38fbbd46385b5aeeca8920826a4e28ac3",
-      "size": 9436
+      "sha256": "cf13327d66ece55c1b0f54118d9d135df06349d044fbd8101cac9dfcdeef0580",
+      "size": 20259
     },
     "work/probe_map_touch_links.cpp": {
       "sha256": "4c95520bd733791392e8f6179927f14a8a29459bfdc0c19b0fba4693bcfa6239",
@@ -18625,13 +18649,25 @@
       "sha256": "1df75bec4945af1fa5397f68e3bf000d311bd5df6bf53028b0c3e6496b7660b0",
       "size": 5680
     },
+    "work/source_map_editor_transport_candidate.h": {
+      "sha256": "856c5b0851f0a46e20af499a0469c00832e29a56820641737d56905736903dc2",
+      "size": 1381
+    },
+    "work/source_map_frame_sync_candidate.h": {
+      "sha256": "c7a1b770afb1b2b889dc50950864908c2a3827a3fa5ecff56362e89561f8c34e",
+      "size": 1475
+    },
+    "work/source_map_noclip_candidate.h": {
+      "sha256": "b75165537d09d5df1be8bdd1c2f1b5b83fd059d47da2724e6bdbf91a5699ad6f",
+      "size": 676
+    },
     "work/source_map_player_pose_candidate.h": {
       "sha256": "982567b4293a64425e110c71190d64f995145d179a3469ed6b7a1fd90081df00",
       "size": 1198
     },
     "work/source_map_simulation_clock_candidate.h": {
-      "sha256": "2eb7417d4ae641e0169ac621fa067e5af8e74396cdc6fbdfdc778859df2b5862",
-      "size": 2204
+      "sha256": "8f82bdfa4911b22d4909ad71c6c593c75442ffed954f2a887e61f869aab2f6a3",
+      "size": 4858
     },
     "work/source_map_touch_links_candidate.h": {
       "sha256": "09ba518ac44fd28b5044878f96eaeed7e0ff039a24de6178820245e53f7a6d93",
@@ -25985,9 +26021,21 @@
       "sha256": "2c963eb54d1ede3066335acd8dc1da73381a3501febb8cb8f7ff52b3786fa6dc",
       "size": 16408
     },
+    "work/verify_map_editor_transport.py": {
+      "sha256": "aa1df3369d81896ebd7fab5fd7a97a72d1b3a26428004a8764b52f3e0b0e7e86",
+      "size": 4114
+    },
+    "work/verify_map_frame_sync.py": {
+      "sha256": "ea5197ac11f13240036e5908e0a96f42860c6136d30e1f982dfaf88459606d4e",
+      "size": 4214
+    },
+    "work/verify_map_noclip.py": {
+      "sha256": "3404dc60a97434309a72fb991ad24e0cfb74f6fdec5fab3295813489e166b9a7",
+      "size": 2987
+    },
     "work/verify_map_simulation_clock.py": {
-      "sha256": "a9c836c5fcf4fae11deef632f74fcc05e03f380dd045aa5c2503dbc0d2908105",
-      "size": 8309
+      "sha256": "c77594c5ad0960461d06f0a9c331061c13a8c722a68570cf28fddb94c954797f",
+      "size": 17413
     },
     "work/verify_map_touch_links.py": {
       "sha256": "55d3379aede80a9fac86c676b754c1f782aa4ff38c728f83da4c2b7a1dcf4df8",

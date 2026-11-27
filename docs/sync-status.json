@@ -1,13 +1,8 @@
 {
   "repository": "wigwoo1/SFM1-64-Bit",
-  "checked_utc": "2026-11-27T06:13:33.678291+00:00",
-  "status": "Checked allowlisted source and rebuilt the experimental Windows x64 editor.",
-  "build_exit_code": 0,
-  "editor_dependencies": 543,
-  "compiler_warnings": 18,
-  "compiled_shaders": 31,
-  "executable_sha256": "02fc02e708202e033b4acd6ecff92c2591e2edfedd94d118cd6d9df6231b7d2d",
-  "package_sha256": "1ea79256d49778c2c265f0d03c2ad2a1b36976db85bcbfb059f53404af63dbd3",
-  "runtime_test_this_check": "Not run.",
-  "compatibility": "Experimental and incomplete. Interactive workflows and visual parity remain unverified."
+  "checked_utc": "2026-11-27T06:47:03.899385+00:00",
+  "status": "Checked allowlisted source; isolated map/transport research updated. Editor dependencies match the published build after retaining the existing public python.exe configuration; unchanged build package retained.",
+  "build_this_check": "NOT REBUILT: public editor dependencies unchanged",
+  "runtime_test_this_check": "NOT RUN",
+  "compatibility": "Experimental and incomplete; isolated tests do not establish editor integration or visual parity."
 }
