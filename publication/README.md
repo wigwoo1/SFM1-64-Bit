@@ -100,3 +100,19 @@ Original session/gameinfo hashes remained unchanged. Runtime logs and benchmark
 captures stay local and are excluded from publication. This establishes this
 package's startup and measured pixel regression, not full Source shading,
 interactive workflow acceptance, or complete SFM compatibility.
+
+## Current collision research status (2026-11-27)
+
+The current editor package is unchanged by the newly published collision research.
+Isolated comparisons cover swept hull BSP traversal, brush contacts/dispatch,
+brush-only world composition, displacement tree selection, triangle contacts for
+supplied caches, and edge-plane geometry. These do not establish complete world
+collision or editor integration.
+
+`work/source_displacement_plane_pool_candidate.h` is an UNVERIFIED prototype.
+Its attempted hash-table generator does not match the installed reference table;
+the native comparison rejects that mismatch before testing pool lookup. Two
+random-generator approaches failed. Do not integrate or use this pool until its
+constant-data provenance and lookup behavior are resolved and verified. Existing
+verified editor runtime is unaffected. Private failure receipts and native
+reference dumps remain excluded from publication.

@@ -34,7 +34,7 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "f51c72020a13fb76451a996fb4c3ac0a1bcea4717e792157561afa19bae88df4",
+      "sha256": "7c8820169a4faadc2d8b17bbaeff580e34c31fab3d385ba83176e6f4d7cbaf6d",
       "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
@@ -42,8 +42,8 @@
       "size": 1351033
     },
     "publication/README.md": {
-      "sha256": "82974ce501ef0bf0e06f81f2ec8cb55650546905b6a19cca1a7bb807a0eaef21",
-      "size": 6614
+      "sha256": "f97b594a8e168685531407824c5563c5b7b6dbf770c51a66c411004009e38020",
+      "size": 7544
     },
     "publication/editor_runtime_package.py": {
       "sha256": "52fe1d89907b56d93e0d3626aee9d404c14d837b208f08638a0ccb49870809b8",
@@ -881,9 +881,17 @@
       "sha256": "891602f8a882e4258d77078f905a09af6de08be1c16e42aeffc88bc2dd21846b",
       "size": 952
     },
+    "work/build_brush_hull_dispatch.cmd": {
+      "sha256": "22bab38552d8ac386e565770e77a27e3ff5c2f459e8feb1244cabbb3b63b07a9",
+      "size": 934
+    },
     "work/build_brush_only_world.cmd": {
       "sha256": "8c0f0aed1333e8a4426e1e7ec5cc3b40a0d968d7d361066770b678a59fbcef5f",
       "size": 718
+    },
+    "work/build_brush_world_hull.cmd": {
+      "sha256": "4b1482bf01fdd3328e46ae0f9601d5f5c71a9fdd2bdfacf71c14606584b0bd42",
+      "size": 940
     },
     "work/build_bsp_ambient_selection.cmd": {
       "sha256": "d06ba532a1418bf861e3f73e812dbdfde870a5736b58082c39efbeae164b54e2",
@@ -904,6 +912,10 @@
     "work/build_bsp_hdr_enable.cmd": {
       "sha256": "ff79e06a62ffe0efe135ea8db65fe0c615aac065319e1a8e0fa6bb98bca6c162",
       "size": 1484
+    },
+    "work/build_bsp_hull_walk.cmd": {
+      "sha256": "a05c427721131ff0a495c3584631b20df4249c5f42d33328edf861f104908b06",
+      "size": 762
     },
     "work/build_bsp_light_cache_position.cmd": {
       "sha256": "916ce536d300c738e671eeb6e159ddc02e72d33ec919cbdf82669a525e14613b",
@@ -1225,6 +1237,10 @@
       "sha256": "ff0a5e3cbc08028696eba9c7fee4477f5164459bfdeff0476ef673701cc394c0",
       "size": 424
     },
+    "work/build_convex_brush_hull.cmd": {
+      "sha256": "3e0637722d3dba7fa767c14d9d9efcb01abb1219227bda3ab277d633531988cd",
+      "size": 778
+    },
     "work/build_coordinated_reference_range_tests.cmd": {
       "sha256": "c91017d7cfae4daa25453106e038dfe0e614e9e1699ad7b4a2ce796fea0b1e02",
       "size": 394
@@ -1501,6 +1517,10 @@
       "sha256": "2e60e594dc9fe86b55b5ab066aa06d8165a0f4c7471a2e9c2a8cef0a74d6d933",
       "size": 1084
     },
+    "work/build_displacement_edge_planes.cmd": {
+      "sha256": "8c9b0cc43755e6e47249fc1c202e29fc211a98f9b03323bd7f1c4dc8cc96ae39",
+      "size": 936
+    },
     "work/build_displacement_face_input.cmd": {
       "sha256": "2a9c5ba8aef772046faf03c1b1ead27adbbf2d365473d8254b74b5fc43c897bd",
       "size": 1084
@@ -1508,6 +1528,14 @@
     "work/build_displacement_grid_triangles.cmd": {
       "sha256": "400df00648245bbd295265423fab56f5d0b4976ba0a620a7093256014d628290",
       "size": 1095
+    },
+    "work/build_displacement_hull_contact.cmd": {
+      "sha256": "b9f80107266c28dfa91ef0fae0f447ca4020a38dcbae0446756a4af74c58cac8",
+      "size": 942
+    },
+    "work/build_displacement_hull_tree.cmd": {
+      "sha256": "aa46f7ce084870b52cbfab17086c9141f5755ca290beebbe49bb2e087f6d8b6d",
+      "size": 976
     },
     "work/build_displacement_leaf_assignment.cmd": {
       "sha256": "b6184aa0a4bb58df0b2a61cf83e56f1f0d6aff667f4310da900cd6f3edc33212",
@@ -1520,6 +1548,10 @@
     "work/build_displacement_pair_bounds.cmd": {
       "sha256": "5b2d3e711747e04ccbbf42372f3e8d6670f260ad82caf0d852528fc02d7f810b",
       "size": 740
+    },
+    "work/build_displacement_plane_pool.cmd": {
+      "sha256": "7fbcbdd6d0ea44aeb25d9a02ed9038ef29e861dbcc9c85fae572f0b6de3cd9f2",
+      "size": 930
     },
     "work/build_displacement_ray_tree.cmd": {
       "sha256": "100af5573b925ce3f9b964cf53c57fd7202a2fbade1c128b7d14975e57e085a4",
@@ -12669,9 +12701,17 @@
       "sha256": "e6e0d6b3912d08775af1498c84408e5d033e8a2d11cddc15612c4a299f15a3f7",
       "size": 3385
     },
+    "work/probe_brush_hull_dispatch.cpp": {
+      "sha256": "96da3b477f77ab6b4ab64137e1fb4040e41904f3ddf081085c4ca458ba088df6",
+      "size": 10894
+    },
     "work/probe_brush_only_world.cpp": {
       "sha256": "e335a44b71bebd77d0be5406d4dbcdec036ff21e22df7dab9c3721b34e238c90",
       "size": 7577
+    },
+    "work/probe_brush_world_hull.cpp": {
+      "sha256": "4aee2886bd59df0c145e88072b17e0285a6354091101603679051e59204c9b26",
+      "size": 9315
     },
     "work/probe_bsp_ambient_selection.cpp": {
       "sha256": "4ced6b84a57425a441c833ae0bc07b54b60eb5a8cbad89d0809df7ed00a15fa5",
@@ -12693,6 +12733,10 @@
       "sha256": "98efdd61bc78d498e0ffe2c5684db27a94df7820bf37f425ffeb39434b8130d0",
       "size": 1046
     },
+    "work/probe_bsp_hull_walk.cpp": {
+      "sha256": "00491c3e648116436dc043b66368403e4cc6c7cb5c6ae6443e7548950a4ac6da",
+      "size": 5593
+    },
     "work/probe_bsp_world_light_query.cpp": {
       "sha256": "ce83179a53ddbd82d3903de3b5348a8e8c598ded989fcd3bff9ebc5428bd1fec",
       "size": 4504
@@ -12708,6 +12752,10 @@
     "work/probe_concrete_vertexlit_draw_reference.cpp": {
       "sha256": "d17c20d63db6289ac9838b6afc4966ad3798ae2de53fc4ba2e7072b6a6792ba0",
       "size": 9269
+    },
+    "work/probe_convex_brush_hull.cpp": {
+      "sha256": "ca844c7d196918e10c41de6411b688974a5305810d8261497cc89269c99a8118",
+      "size": 9194
     },
     "work/probe_d3d9_base_lightmap_x64.cpp": {
       "sha256": "08ac39576e73458b3ba4759bd1876a392730bcbdcc755fc529abd2abba930d4b",
@@ -12761,6 +12809,10 @@
       "sha256": "e482f5a0fbaa4a854a1216dac9730a2d8f85c6ce910dbe66f5ef8ea92fcbd75c",
       "size": 5822
     },
+    "work/probe_displacement_edge_planes.cpp": {
+      "sha256": "bfe77b364cc76a3041ab0d266ed83a6887dd7180f1f419ac136ebcedf2d5b5ca",
+      "size": 4028
+    },
     "work/probe_displacement_face_input.cpp": {
       "sha256": "adc64c07eda40dbd52459784db498778e3a436cd96e8ca1fc42b0a5ec74ea2a7",
       "size": 5194
@@ -12769,6 +12821,14 @@
       "sha256": "8aefa3b1be5a73f7041facbadc088cd8b5344340c8f0e4c69116e9b30751626a",
       "size": 4329
     },
+    "work/probe_displacement_hull_contact.cpp": {
+      "sha256": "c8449c7b7305706e0d74208ad2da690e8827a47dccd171008577af4081f25b65",
+      "size": 6177
+    },
+    "work/probe_displacement_hull_tree.cpp": {
+      "sha256": "4c00688115eb70d73c2193b457d646613f24ec4f6f8772cb7eac91b45b0e0839",
+      "size": 6700
+    },
     "work/probe_displacement_load_policy.cpp": {
       "sha256": "8e535ae29a0a8ad1c690eb4fcf0c11dce1d4493e47d3fa1da59b79afee57c1c9",
       "size": 4729
@@ -12776,6 +12836,10 @@
     "work/probe_displacement_pair_bounds.cpp": {
       "sha256": "bf8511a0f8995aacabf832f63fcdf8dc7b6e5b61c073329566f80256b6d8ce23",
       "size": 2696
+    },
+    "work/probe_displacement_plane_pool.cpp": {
+      "sha256": "2c30f10ef0500b3198c9f1c94c96e98a9a6ad314f38c3f9de1c607ceb2140e14",
+      "size": 5555
     },
     "work/probe_displacement_ray_tree.cpp": {
       "sha256": "66a27a8eb01bbe3e117ed7e41d666e2619f3456735cf6a63ddc270364e1eda21",
@@ -18505,6 +18569,10 @@
       "sha256": "e4e7e5ca51de3a965b9ded59c86936bbb3abc2b173ffb4d83f652324d1dea738",
       "size": 399
     },
+    "work/source_brush_hull_dispatch_candidate.h": {
+      "sha256": "e9fa33042cae30d5d998c5e5d5da3e527b904c9ed853febab301a8ab2b97b747",
+      "size": 2418
+    },
     "work/source_brush_line_dispatch_candidate.h": {
       "sha256": "3a195622b4030764fd31f411c4a8314ae112ee2b050507fe6ee019fb32577f9f",
       "size": 2427
@@ -18520,6 +18588,10 @@
     "work/source_bsp_base_lightmap_candidate.h": {
       "sha256": "f279f641c7b94927ae92b81d4032b63965d4af40b3e9e5b081e4a81acd5c419a",
       "size": 5371
+    },
+    "work/source_bsp_brush_only_hull_trace_candidate.h": {
+      "sha256": "647bdd25b356c0ad06a7352273379760407d3dfd5d8dc105ae81f6a6dc6e0c51",
+      "size": 1367
     },
     "work/source_bsp_brush_only_trace_candidate.h": {
       "sha256": "d2179f051923dcd43d23d3b2a08a6ac5ac9fee9ee6454546f9ee4e921c12c150",
@@ -18544,6 +18616,10 @@
     "work/source_bsp_hdr_enable_candidate.h": {
       "sha256": "c383ee4f64c33d96ec68be3c02201cea7671a44ee46c9428ad7fa5925dc8e83a",
       "size": 924
+    },
+    "work/source_bsp_hull_walk_candidate.h": {
+      "sha256": "15ee43423ce3adbdaf88c3fe0fe254ad28ee86a8ea823a7705a40ef9a9a1e651",
+      "size": 3989
     },
     "work/source_bsp_inline_brush_candidate.h": {
       "sha256": "2b57b81ff7f5c866d2bb15f790a3b5427a4a6fc80377d02109033c0dfe94c9fa",
@@ -18621,6 +18697,10 @@
       "sha256": "5c49e7807eefbe981433fa2ae259a401d9cb4efd7d4b5df8d31d47c7617b3ce8",
       "size": 3355
     },
+    "work/source_convex_brush_hull_candidate.h": {
+      "sha256": "f99047fb03d3f76c0115a8ad5e850bf6f4220e2cd7efa16734b2dae982ce7826",
+      "size": 3261
+    },
     "work/source_convex_brush_ray_candidate.h": {
       "sha256": "d11d64e2a7fe1ebcb5a3b2ab4ddfbb560c892b48b75cdf8451382914bb9907a7",
       "size": 3520
@@ -18649,6 +18729,10 @@
       "sha256": "f3326101150253dddc04865a7662970a74b1f5fd05842c3377ccf21b0428b019",
       "size": 1938
     },
+    "work/source_displacement_edge_planes_candidate.h": {
+      "sha256": "0877001154be832978282dd406cb477c272ed4d5af6c1e3ea52b365ac1e56715",
+      "size": 1747
+    },
     "work/source_displacement_face_input_candidate.h": {
       "sha256": "dd3b50d6224192b0d3b417c8d565e84ba6abb837c91643af09f893bbea2cb553",
       "size": 2173
@@ -18661,6 +18745,14 @@
       "sha256": "b34e96a345b4e148800b3adf827082eb08db37be2ee2ae7e8ffe3368b8650e08",
       "size": 1473
     },
+    "work/source_displacement_hull_tree_candidate.h": {
+      "sha256": "c82e458380c30b8aeafebf612479e8e2afdf363db28a6578fb4062f26aca19ce",
+      "size": 3338
+    },
+    "work/source_displacement_hull_triangle_candidate.h": {
+      "sha256": "126a6e6e34369195e959e59d06567bddb6f6c8934754497ea5936536642e95ff",
+      "size": 5392
+    },
     "work/source_displacement_leaf_assignment_candidate.h": {
       "sha256": "58f9c749575baf2bbb951c885570343b1c9abf870bbb908d5b6efdb80f0121be",
       "size": 1232
@@ -18672,6 +18764,10 @@
     "work/source_displacement_pair_bounds_candidate.h": {
       "sha256": "bb48f248e0c76df15e42f7333edef559d073510ce596b72972214984308d3d24",
       "size": 812
+    },
+    "work/source_displacement_plane_pool_candidate.h": {
+      "sha256": "b739bd556a0cfd1ec8dce8c0b9bb658bea616316a7be44c43b207659d055383b",
+      "size": 2767
     },
     "work/source_displacement_ray_tree_candidate.h": {
       "sha256": "d442bfaa54f8edf4174cd0f89edf807f11de5c500bb41b2b866d40c68a979b09",
@@ -25337,9 +25433,17 @@
       "sha256": "d956545c66ef84ab9724b7f2e824c3bafc6385b99570c53b50e071cc8bfe7069",
       "size": 1216
     },
+    "work/verify_brush_hull_dispatch.py": {
+      "sha256": "edc72531b80e247f2fc361dcb2cffb770905bbd4e4cfb143f2fcc2e5626e4696",
+      "size": 5384
+    },
     "work/verify_brush_only_world.py": {
       "sha256": "9ff474391fd8a37e6ccbec4896a271dba02b7b18ed658a3818634660b6493e71",
       "size": 3539
+    },
+    "work/verify_brush_world_hull.py": {
+      "sha256": "a72a7b126a5b14e36ae8042701aab6c3eeac31f3b99ee13f8202a9351376bc08",
+      "size": 5671
     },
     "work/verify_bsp_ambient_selection.py": {
       "sha256": "951262fd30c5d3dd4a24729d43c2bf19e6aabe6b90e36e81fc64bd5cee3bd8f5",
@@ -25364,6 +25468,10 @@
     "work/verify_bsp_hdr_enable.py": {
       "sha256": "5ba5d6ff4883aa38e6008622ad29bb7059e764151cbf0e1b5c94df52b1b8d4f6",
       "size": 9993
+    },
+    "work/verify_bsp_hull_walk.py": {
+      "sha256": "c732189177799d477136f858ed1a29f41a181160b2dd9adc02e4a53ad4f37576",
+      "size": 5387
     },
     "work/verify_bsp_light_cache_position.py": {
       "sha256": "45962d6b63cf02fe678cb877eb8d7c58e687b1933a983a2f21b8ad297a9026e1",
@@ -25420,6 +25528,10 @@
     "work/verify_converted_embedded_obj.py": {
       "sha256": "fe0cd918cd0788f4133b19df75299714be7e6c379265c13f172df0b20f35b074",
       "size": 4646
+    },
+    "work/verify_convex_brush_hull.py": {
+      "sha256": "f271f822b5899d95c566be0781af42b15cb22402459a587e0be0f32c7cbd4ffb",
+      "size": 5544
     },
     "work/verify_copy_animation_set_transform.py": {
       "sha256": "46014014c26bbff7af20f8eb5391fd21d05641dc0e9f340ea9bd51bf5770c0c1",
@@ -25521,6 +25633,10 @@
       "sha256": "1f2edde9448dd104d2598f0835d7cd34f14e5cda380b96d986834c482b629dbd",
       "size": 6502
     },
+    "work/verify_displacement_edge_planes.py": {
+      "sha256": "66a2273410ae11d1d9d3d932569d87c9e60bcc697c496bddbf098d1bc4a8cd88",
+      "size": 5343
+    },
     "work/verify_displacement_face_input.py": {
       "sha256": "00627a04b610779dc30a4184fe848ea8653a5e0621aa098ebce3c7efdf7137e2",
       "size": 5922
@@ -25528,6 +25644,14 @@
     "work/verify_displacement_grid_triangles.py": {
       "sha256": "0d3085a9b623e94453def4232dbc8e430035de69377a1500bf315124cf2dcbfe",
       "size": 4632
+    },
+    "work/verify_displacement_hull_contact.py": {
+      "sha256": "a31e304850ea5cc0d1b8eba1832cf1d7cc6f7af8df3412c01ea2edc0ed3d11ec",
+      "size": 5688
+    },
+    "work/verify_displacement_hull_tree.py": {
+      "sha256": "d38aa99cd06593fe5a7286eeda742723fac1fd4f90bfc026ef4d62e6be81c678",
+      "size": 5734
     },
     "work/verify_displacement_leaf_assignment.py": {
       "sha256": "7c700bdda1f68ab34e33fa0898fe5afeac863530493d348ed7e2bffbd91222ea",
