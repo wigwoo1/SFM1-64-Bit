@@ -1,8 +1,8 @@
 {
   "target": "AMD64 PE32+",
   "source": "work/probe_vulkan_win32_surface_x64.cpp",
-  "compiled_utc": "2026-11-27T06:10:48.715361+00:00",
-  "executable_sha256": "02fc02e708202e033b4acd6ecff92c2591e2edfedd94d118cd6d9df6231b7d2d",
+  "compiled_utc": "2026-11-27T07:35:30.476391+00:00",
+  "executable_sha256": "bc2cf7ae950adbc0862f5a38e42edd0cf6f330d8309e637d934bb1f4a724e80b",
   "editor_source_dependencies": {
     "work/ambient_occlusion_view_candidate.h": "203729920a2c6ae63a6015e2dcfb831beb2505b196a31093205ff5168c724288",
     "work/anchored_document_time_candidate.h": "99901432559e13fb998aab75224d98138745925a4ea99bf0e73555cb4e32aad4",
@@ -518,7 +518,7 @@
     "work/vulkan_light_shader_readback_candidate.h": "f3c9e6f7e6353f77a5f0fa9aeb4222fe46cffbea69e5947a026fb304b10f4091",
     "work/vulkan_material_descriptor_counts_candidate.h": "ca8c658a46826d8b0e7081dc6a3abc7ea95611a92f8b5bdd9ddf981e2e8e708c",
     "work/vulkan_material_images_candidate.h": "aee2adb27b21d448506ec040ee17e346f488498a68b9ebd872d687936b3652ed",
-    "work/vulkan_model_draw_candidate.h": "a42f2fe8effa62a59f32e1f8a40cac730f922967f9c5c24a9dfa0ec104fde2a9",
+    "work/vulkan_model_draw_candidate.h": "3ee36314a7ed949c3f9b4bfa5c9c0f63cd14a08ff073b5720a151e54821b7128",
     "work/vulkan_model_swapchain_probe_candidate.h": "32e38492b5df57f245dba3da1158cf5c3e644b3317becd85346157229fc7bd1e",
     "work/vulkan_offscreen_target_candidate.h": "4efa21aae4642eb977227727e1f8621d90bc672b745a075d9bb4d12f8bc0875e",
     "work/vulkan_prepared_model_images_candidate.h": "aebf798f660a6c1db6f54c3ea01a118131abee26de760961baf9ab8b73894853",
