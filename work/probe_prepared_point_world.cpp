@@ -1,0 +1,182 @@
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#undef near
+#undef far
+#include <array>
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+#include <memory>
+#include "source_swept_hull_world_trace_candidate.h"
+#include "source_stationary_displacement_hull_normal_candidate.h"
+#include "source_stationary_hull_fallback_candidate.h"
+#include "source_stationary_displacement_hull_policy_candidate.h"
+#include "source_stationary_hull_world_candidate.h"
+#include "source_prepared_point_world_candidate.h"
+#include "source_bsp_displacement_collision_candidate.h"
+#include "source_bsp_trace_surface_flags_candidate.h"
+#include "source_displacement_grid_triangles_candidate.h"
+
+using Vec=std::array<float,3>;using Row=std::array<uint32_t,16>;
+void require(bool v,const char* s){if(!v)throw std::runtime_error(s);}
+uint32_t bits(float f){uint32_t u;std::memcpy(&u,&f,4);return u;}
+template<class T>T& at(uint8_t* p,size_t n){return *reinterpret_cast<T*>(p+n);}
+template<class T>T at(const uint8_t* p,size_t n){T value;std::memcpy(&value,p+n,sizeof(value));return value;}
+std::vector<uint8_t> read(const char* p){std::ifstream f(p,std::ios::binary);require(bool(f),"BSP read");return {(std::istreambuf_iterator<char>(f)),{}};}
+std::vector<uint32_t> identities(){std::vector<uint32_t> ids(32768);for(uint32_t i=0;i<ids.size();++i)ids[i]=i;return ids;}
+std::vector<uint32_t> materialMapping;std::vector<uint16_t> materialFlags;std::unique_ptr<SourceBspTraceSurfaceFlagsCandidate> boundFlags;
+bool excludedBrush(const SourceBspBrushOnlyTraceCandidate& world,uint32_t index,unsigned){const auto& r=world.records.at(index);if(r.optimized){for(unsigned a=0;a<6;++a){uint16_t id;std::memcpy(&id,r.box.data()+32+2*a,2);if(id!=65535&&(materialFlags.at(id)&0x80))return true;}}else{const auto& brush=world.data.brushes.at(index);for(uint32_t a=0;a<brush.count;++a){const auto texture=world.data.sides.at(brush.first+a).texture;if(texture>=0&&(boundFlags->flags({SourceCollisionSurfaceKindCandidate::TextureInfo,uint32_t(texture)})&0x80))return true;}}return false;}
+#ifndef _WIN64
+#include "native_private_world_image_fixture.h"
+#include "private_x86_boundary_observer_fixture.h"
+template<class T>T& address(uintptr_t p){return *reinterpret_cast<T*>(p);}
+struct NativeNode{const SourceLineWalkPlaneCandidate* plane;std::array<int32_t,2> children;};
+struct NativeSide{const SourceBspCollisionPlaneCandidate* plane;uint16_t texture,bevel;};
+struct alignas(16)NativeBox{std::array<uint8_t,48> bytes;};
+struct NativeLeaf{uint32_t contents=0,unused=0;uint16_t first=0,count=0,dispFirst=0,dispCount=0;};
+struct NativeWorld {
+ const SourceBspBrushOnlyTraceCandidate& source;
+ std::vector<NativeNode> nodes;std::vector<NativeSide> sides;std::vector<NativeBox> boxes;
+ std::vector<std::array<uint32_t,2>> brushes;std::vector<NativeLeaf> leaves;std::vector<uint16_t> refs;
+ std::vector<std::array<uint32_t,2>> surfaces;
+ std::array<uint8_t,0x230> fields{};
+ explicit NativeWorld(const SourceBspBrushOnlyTraceCandidate& w):source(w),surfaces(materialFlags.size()){
+  static_assert(sizeof(SourceLineWalkPlaneCandidate)==20&&sizeof(NativeNode)==12&&sizeof(NativeLeaf)==16&&sizeof(NativeSide)==8,"native record widths");
+  for(const auto& n:w.nodes)nodes.push_back({&w.planes.at(n.plane),n.children});
+  for(const auto& s:w.data.sides)sides.push_back({&w.data.planes.at(s.plane),uint16_t(boundFlags->forTexture(s.texture)),uint16_t(s.bevel)});
+  for(size_t i=0;i<w.records.size();++i){boxes.push_back({w.records[i].box});const auto& b=w.data.brushes.at(i);require(b.first<65536&&b.count<65535&&i<65536,"runtime span");brushes.push_back({b.contents,w.records[i].optimized?(uint32_t(i)<<16)|65535:(b.first<<16)|b.count});}
+  for(const auto& row:w.data.leafBrushes){require(refs.size()<65536&&row.size()<65536,"leaf span");leaves.push_back({w.data.leafContents.at(leaves.size()),0,uint16_t(refs.size()),uint16_t(row.size()),0,0});for(auto i:row){require(i<65536,"brush reference");refs.push_back(uint16_t(i));}}
+  const auto p=reinterpret_cast<uintptr_t>(fields.data());address<uintptr_t>(p)=reinterpret_cast<uintptr_t>(nodes.data());address<uintptr_t>(p+0x68)=reinterpret_cast<uintptr_t>(sides.data());address<uintptr_t>(p+0x70)=reinterpret_cast<uintptr_t>(boxes.data());address<uintptr_t>(p+0x88)=reinterpret_cast<uintptr_t>(leaves.data());address<uintptr_t>(p+0x98)=reinterpret_cast<uintptr_t>(refs.data());address<uintptr_t>(p+0xa8)=reinterpret_cast<uintptr_t>(brushes.data());address<uintptr_t>(p+0x218)=reinterpret_cast<uintptr_t>(surfaces.data());
+ }
+};
+#endif
+std::array<uint16_t,2> details(const SourceCollisionSurfaceCandidate& surface,unsigned){const auto id=boundFlags->identity(surface);if(id==SourceBspTraceSurfaceFlagsCandidate::defaultId)return {0x3344,0};require(id<materialFlags.size(),"bound brush material identity");return {uint16_t(1000+id),materialFlags[id]};}
+using Record=std::array<uint8_t,88>;
+Record pack(const SourceSweptHullWorldTraceCandidate& value){Record r{};auto* t=r.data();const auto& s=value.state;std::memcpy(t,value.startPosition.data(),12);std::memcpy(t+12,value.endPosition.data(),12);std::memcpy(t+0x18,s.trace.plane.data(),16);std::memcpy(t+0x28,s.trace.planeTags.data(),4);at<float>(t,0x2c)=s.trace.fraction;at<uint32_t>(t,0x30)=s.trace.contents;at<uint16_t>(t,0x34)=s.displacementFlags;t[0x36]=uint8_t(s.trace.allSolid);t[0x37]=uint8_t(s.trace.startSolid);at<float>(t,0x38)=s.trace.leftSolid;const auto kind=s.trace.surface.kind;at<uint32_t>(t,0x3c)=kind==SourceCollisionSurfaceKindCandidate::Default?0xffffffffu:kind==SourceCollisionSurfaceKindCandidate::Displacement?0x20000000u+s.trace.surface.index:0x10000000u+boundFlags->identity(s.trace.surface);at<uint16_t>(t,0x40)=s.surfaceProperty;at<uint16_t>(t,0x42)=s.surfaceFlags;at<uint16_t>(t,0x4a)=value.worldSurfaceIndex;at<uint32_t>(t,0x54)=s.displacementHit;return r;}
+using Work=std::array<uint8_t,0x230>;
+SourcePreparedWorldHullStateCandidate initialState(unsigned mode){SourcePreparedWorldHullStateCandidate s;s.trace.fraction=mode%3==0?1.f:mode%3==1?.25f:0.f;s.trace.leftSolid=mode&2?.75f:0.f;s.trace.allSolid=(mode&8)!=0;s.trace.startSolid=(mode&4)!=0;s.trace.contents=0x12345678;s.trace.plane={9,8,7,6};s.trace.planeTags={5,4,3,2};s.trace.surface={SourceCollisionSurfaceKindCandidate::RuntimeSurface,77};s.displacementFlags=0xbeef;s.displacementHit=mode?0xffffffffu:0;s.surfaceProperty=0xabcd;s.surfaceFlags=0xef01;s.worldSurfaceIndexSource=SourceCollisionSurfaceCandidate{SourceCollisionSurfaceKindCandidate::RuntimeSurface,mode?77u:23u};return s;}
+void putState(Work& work,const SourcePreparedWorldHullStateCandidate& state){SourceSweptHullWorldTraceCandidate trace;trace.state=state;trace.startPosition={11,12,13};trace.endPosition={14,15,16};if(state.worldSurfaceIndexSource){const auto id=boundFlags->identity(*state.worldSurfaceIndexSource);trace.worldSurfaceIndex=id==UINT32_MAX?65535:uint16_t(id);}const auto record=pack(trace);std::memcpy(work.data()+0x54,record.data(),84);at<uint32_t>(work.data(),0x114)=state.displacementHit;at<uint32_t>(work.data(),0x98)=0x11112222;at<uint16_t>(work.data(),0x9c)=0x3344;at<uint32_t>(work.data(),0xa0)=0x55556666;at<uint32_t>(work.data(),0xa4)=0x77778888;}
+Work initialWork(const Vec& extents,uint32_t mask,unsigned mode,bool wrap){Work work;work.fill(0xa7);const Vec start{91,92,93},end{-91,-92,-93};std::memcpy(work.data(),start.data(),12);std::memcpy(work.data()+12,end.data(),12);Vec minimum;for(size_t a=0;a<3;++a)minimum[a]=-extents[a];std::memcpy(work.data()+0x18,minimum.data(),12);std::memcpy(work.data()+0x24,extents.data(),12);std::memcpy(work.data()+0x30,extents.data(),12);at<uint32_t>(work.data(),0xfc)=mask;work[0x100]=work[0x101]=0;at<uint32_t>(work.data(),0x104)=0;at<uint32_t>(work.data(),0x11c)=0;at<uint32_t>(work.data(),0x120)=17;at<uint32_t>(work.data(),0x124)=wrap?UINT32_MAX:0;for(size_t offset:{size_t(0x128),size_t(0x13c),size_t(0x150),size_t(0x164)})at<uint32_t>(work.data(),offset)=0;at<uint32_t>(work.data(),0x148)=1866;at<uint32_t>(work.data(),0x170)=43;putState(work,initialState(mode));return work;}
+// Authored two-leaf world: a rear brush contains the start, while a front
+// displacement is reached after the brush exit. The distant second mesh selects
+// the fallback +X normal without overlapping the stationary query bounds.
+std::vector<SourceDisplacementRuntimeMeshCandidate> controlledMeshes(){
+ std::vector<SourceDisplacementRuntimeMeshCandidate> meshes;
+ for(unsigned id=0;id<2;++id){SourceDisplacementRuntimeMeshCandidate m;m.power=1;m.contents=id?2u:1u;
+  for(unsigned row=0;row<3;++row)for(unsigned column=0;column<3;++column){const float x=8.f*float(column)-8.f,y=8.f*float(row)-8.f;m.vertices.push_back(id?Vec{50,x,y}:Vec{4,y,x});}
+  std::vector<std::array<uint16_t,3>> packed;
+  for(const auto& grid:sourceDisplacementGridTrianglesCandidate(1,std::vector<uint16_t>(8))){SourceDisplacementCollisionTriangleCandidate triangle;triangle.packedVertices=grid.vertices;m.triangles.push_back(sourceDisplacementCollisionTriangleCandidate(m.vertices,triangle));packed.push_back(grid.vertices);}
+  m.baseNormal=m.triangles.front().normal;m.tree=sourceDisplacementCollisionTreeCandidate(1,m.vertices,packed);meshes.push_back(std::move(m));
+ }
+ require(meshes[0].baseNormal[0]==-1.f&&meshes[1].baseNormal[0]==1.f,"controlled mesh winding");return meshes;
+}
+void controlledWorld(SourceBspBrushOnlyTraceCandidate& world){
+ world.data.planes.clear();world.data.sides.clear();
+ const Vec low{-4,-8,-8},high{-1,8,8};
+ for(uint16_t axis=0;axis<3;++axis)for(uint16_t side=0;side<2;++side){Vec normal{};normal[axis]=side?-1.f:1.f;const float distance=side?-low[axis]:high[axis];world.data.planes.push_back(sourceBspCollisionPlaneCandidate(normal,distance,side?3:axis));world.data.sides.push_back({uint16_t(2*axis+side),int16_t(2*axis+side),-1,0});}
+ world.data.brushes={{0,6,1}};world.data.leafBrushes={{},{0}};world.data.leafContents={0,0};world.data.worldBrushes={0};world.data.worldNodes=1;world.data.displacementRecords=2;
+ world.records=sourceBspCollisionRecordsCandidate(world.data,materialMapping);world.planes={{{1,0,0},0,0}};world.nodes={{0,{-1,-2}}};world.root=0;world.modelRoots={0};
+}
+
+
+
+struct PointTables {std::vector<std::vector<uint32_t>> refs;std::vector<SourceLeafDisplacementCullCandidate> culls;std::vector<std::array<uint16_t,2>> properties;};
+PointTables pointTables(const SourceBspBrushOnlyTraceCandidate& world,const std::vector<SourceDisplacementRuntimeMeshCandidate>& meshes){PointTables tables;tables.refs.resize(world.data.leafBrushes.size());for(size_t i=0;i<meshes.size();++i){const auto& b=meshes[i].tree.expandedBounds;tables.culls.push_back({{b[0],b[1],b[2]},{b[3],b[4],b[5]},meshes[i].contents,uint32_t(i)});tables.properties.push_back({uint16_t(100+i),uint16_t(500+i)});for(auto leaf:sourceDisplacementLeafAssignmentCandidate(world,{b[0],b[1],b[2]},{b[3],b[4],b[5]}))tables.refs.at(leaf).push_back(uint32_t(i));}return tables;}
+std::vector<uint32_t> pointBrushMarks(size_t count,uint32_t index,unsigned mode){std::vector<uint32_t> marks(count);if(mode==1&&count)marks[index%count]=17;if(mode==2)for(size_t i=0;i<count;++i)if(i%3==index%3)marks[i]=17;return marks;}
+std::vector<uint32_t> pointDispMarks(size_t count,uint32_t index,unsigned mode){std::vector<uint32_t> marks(count);if(mode)marks[(index+(mode==2?1u:0u))%count]=17;return marks;}
+struct PointResult {Work work;std::vector<uint32_t> brushVisits,dispVisits;SourcePreparedPointWorldEventsCandidate events;};
+Work pointWork(const Vec& start,const Vec& delta,const Vec& extents,uint32_t mask,unsigned mode,bool swept,size_t brushCount,size_t dispCount){auto work=initialWork(extents,mask,mode,false);for(size_t a=0;a<3;++a){at<float>(work.data(),4*a)=start[a];at<float>(work.data(),12+4*a)=start[a]+delta[a];at<float>(work.data(),0x3c+4*a)=delta[a];at<float>(work.data(),0x48+4*a)=delta[a]==0.f?std::numeric_limits<float>::max():1.f/delta[a];}work[0x100]=1;work[0x101]=uint8_t(swept);at<uint32_t>(work.data(),0x148)=uint32_t(brushCount);at<uint32_t>(work.data(),0x170)=uint32_t(dispCount);return work;}
+PointResult ownedPoint(const SourceBspBrushOnlyTraceCandidate& world,const std::vector<SourceDisplacementRuntimeMeshCandidate>& meshes,const PointTables& tables,const Vec& start,const Vec& delta,const Vec& extents,uint32_t mask,unsigned mode,bool swept,unsigned visit,uint32_t index,bool checkEvents){PointResult result;result.work=pointWork(start,delta,extents,mask,mode,swept,world.data.brushes.size(),meshes.size());result.brushVisits=pointBrushMarks(world.data.brushes.size(),index,visit);result.dispVisits=pointDispMarks(meshes.size(),index,visit);auto state=initialState(mode);sourcePreparedPointWorldCandidate(world,meshes,tables.refs,tables.culls,tables.properties,world.root,start,delta,extents,mask,result.brushVisits,result.dispVisits,17,state,[&](uint32_t brush){return excludedBrush(world,brush,0);},[&](const SourceCollisionSurfaceCandidate& surface){return details(surface,0);},swept,&result.events);putState(result.work,state);
+ if(checkEvents){auto alternate=initialState(mode);auto brushes=pointBrushMarks(world.data.brushes.size(),index,visit),displacements=pointDispMarks(meshes.size(),index,visit);sourcePreparedPointWorldCandidate(world,meshes,tables.refs,tables.culls,tables.properties,world.root,start,delta,extents,mask,brushes,displacements,17,alternate,[&](uint32_t brush){return excludedBrush(world,brush,0);},[&](const SourceCollisionSurfaceCandidate& surface){return details(surface,0);},swept);Work a{},b{};putState(a,state);putState(b,alternate);require(a==b&&brushes==result.brushVisits&&displacements==result.dispVisits,"point events alter geometry");}return result;}
+#ifndef _WIN64
+std::vector<std::array<uint8_t,244>> pointObjects;std::vector<std::array<uint8_t,48>> pointCulls;uintptr_t activeWork=0,activeBrushBase=0;size_t activeBrushCount=0;uint32_t* activeDispVisits=nullptr;SourcePreparedPointWorldEventsCandidate nativeEvents;std::vector<uint32_t> nativeCulls,nativeGatePasses;float beforeFraction=1;unsigned winningKind=0,brushToDisp=0,dispToBrush=0,exitResets=0;uint32_t currentMesh=UINT32_MAX;float beforeLeft=0;uint32_t beforeName=0;
+void pointSlot(CONTEXT& c,unsigned slot,uint32_t value){auto* observer=PrivateX86BoundaryObserverFixture::active;observer->entries[slot]=value;if(slot==1)c.Dr1=value;else if(slot==2)c.Dr2=value;else if(slot==3)c.Dr3=value;else throw std::runtime_error("point observer slot");c.ContextFlags|=CONTEXT_DEBUG_REGISTERS;}
+void pointBoundary(unsigned slot,CONTEXT& c){auto* work=reinterpret_cast<uint8_t*>(activeWork);
+ if(slot==0){require(c.Ecx==activeWork&&c.Edx<0x10000,"point leaf observation");nativeEvents.leaves.push_back(c.Edx);nativeEvents.intervals.push_back({address<float>(c.Esp+4),address<float>(c.Esp+8)});c.EFlags|=0x10000u;}
+ else if(slot==1&&c.Eip==0x10147690){require(c.Ecx==activeWork&&c.Edx>=activeBrushBase&&(c.Edx-activeBrushBase)%8==0&&(c.Edx-activeBrushBase)/8<activeBrushCount&&address<uint32_t>(c.Esp)==0x101483f4,"point brush entry");nativeEvents.brushes.push_back(uint32_t((c.Edx-activeBrushBase)/8));beforeFraction=at<float>(work,0x80);beforeLeft=at<float>(work,0x8c);beforeName=at<uint32_t>(work,0x90);pointSlot(c,1,0x101483f4);c.EFlags|=0x10000u;}
+ else if(slot==1&&c.Eip==0x101483f4){if(at<float>(work,0x80)<beforeFraction){dispToBrush+=winningKind==2;winningKind=1;}if(at<uint32_t>(work,0x90)==UINT32_MAX&&at<float>(work,0x80)==1.f&&at<float>(work,0x8c)>beforeLeft&&at<float>(work,0x8c)>=beforeFraction){++exitResets;winningKind=0;}pointSlot(c,1,0x10147690);c.EFlags|=0x10000u;}
+ else if(slot==2&&c.Eip==0x1014d010){const auto base=reinterpret_cast<uintptr_t>(pointObjects.data());require(c.Ecx==activeWork&&c.Edx>=base&&(c.Edx-base)%244==0&&(c.Edx-base)/244<pointObjects.size()&&address<uint32_t>(c.Esp)==0x10148501,"point terrain entry");currentMesh=uint32_t((c.Edx-base)/244);nativeEvents.displacements.push_back(currentMesh);beforeFraction=at<float>(work,0x80);pointSlot(c,2,0x10148501);c.EFlags|=0x10000u;}
+ else if(slot==2&&c.Eip==0x10148501){if(at<float>(work,0x80)<beforeFraction){brushToDisp+=winningKind==1;winningKind=2;}pointSlot(c,2,0x1014d010);c.EFlags|=0x10000u;}
+ else if(slot==3&&c.Eip==0x1014e790){const auto base=reinterpret_cast<uintptr_t>(pointCulls.data());require(c.Ecx>=base&&(c.Ecx-base)%48==0&&(c.Ecx-base)/48<pointCulls.size()&&c.Edx==c.Ecx+16&&address<uint32_t>(c.Esp)==0x101484d8,"point cull identity");const uint32_t id=uint32_t((c.Ecx-base)/48),visit=address<uint32_t>(c.Ecx+32);require(address<uint32_t>(c.Ecx+36)&at<uint32_t>(work,0xfc),"point cull mask");if(work[0x101])require(activeDispVisits[visit]==17,"point mark before bounds");nativeCulls.push_back(id);pointSlot(c,3,0x101484d8);c.EFlags|=0x10000u;}
+ else if(slot==3&&c.Eip==0x101484d8){if(c.Eax&255u)nativeGatePasses.push_back(nativeCulls.back());pointSlot(c,3,0x1014e790);c.EFlags|=0x10000u;}
+ else throw std::runtime_error("unexpected point observation");
+}
+void pointObjectsPrepare(const std::vector<SourceDisplacementRuntimeMeshCandidate>& meshes,const PointTables& tables){pointObjects.resize(meshes.size());pointCulls.resize(meshes.size());for(size_t i=0;i<meshes.size();++i){const auto& m=meshes[i];auto* object=pointObjects[i].data();pointObjects[i].fill(0);at<uint32_t>(object,0x20)=m.contents;at<uint32_t>(object,0x28)=m.power;at<uint32_t>(object,0x2c)=m.runtimeFlags;std::memcpy(object+4,m.tree.expandedBounds.data(),12);std::memcpy(object+0x14,m.tree.expandedBounds.data()+3,12);std::memcpy(object+0x60,m.baseNormal.data(),12);std::memcpy(object+0x6c,tables.properties[i].data(),4);at<uintptr_t>(object,0x70)=reinterpret_cast<uintptr_t>(m.vertices.data());at<uintptr_t>(object,0x80)=reinterpret_cast<uintptr_t>(m.triangles.data());at<uintptr_t>(object,0x90)=reinterpret_cast<uintptr_t>(m.tree.nodes.data());at<uintptr_t>(object,0xa0)=reinterpret_cast<uintptr_t>(m.tree.leafPairs.data());for(auto row:{std::array<uint32_t,2>{0x70,uint32_t(m.vertices.size())},std::array<uint32_t,2>{0x80,uint32_t(m.triangles.size())},std::array<uint32_t,2>{0x90,uint32_t(m.tree.nodes.size())},std::array<uint32_t,2>{0xa0,uint32_t(m.tree.leafPairs.size())}}){at<uint32_t>(object,row[0]+4)=row[1];at<uint32_t>(object,row[0]+8)=UINT32_MAX;at<uint32_t>(object,row[0]+12)=row[1];}auto* c=pointCulls[i].data();pointCulls[i].fill(0);std::memcpy(c,tables.culls[i].mins.data(),12);std::memcpy(c+16,tables.culls[i].maxs.data(),12);at<uint32_t>(c,32)=tables.culls[i].visitIndex;at<uint32_t>(c,36)=tables.culls[i].contents;}address<uintptr_t>(0x10637820)=reinterpret_cast<uintptr_t>(pointObjects.data());address<uintptr_t>(0x10637824)=reinterpret_cast<uintptr_t>(pointCulls.data());}
+PointResult nativePoint(NativeWorld& world,const PointTables& tables,const Vec& start,const Vec& delta,const Vec& extents,uint32_t mask,unsigned mode,bool swept,unsigned visit,uint32_t index){for(uint32_t i=0;i<world.surfaces.size();++i)world.surfaces[i]={0x10000000u+i,uint32_t(1000+i)|(uint32_t(materialFlags[i])<<16)};address<uint32_t>(0x10402fe8)=UINT32_MAX;address<uint32_t>(0x10402fec)=0x3344;std::vector<uint16_t> refs;for(size_t i=0;i<tables.refs.size();++i){require(refs.size()+tables.refs[i].size()<65536,"point leaf reference span");world.leaves[i].dispFirst=uint16_t(refs.size());world.leaves[i].dispCount=uint16_t(tables.refs[i].size());for(auto id:tables.refs[i])refs.push_back(uint16_t(id));}at<uintptr_t>(world.fields.data(),0xb0)=reinterpret_cast<uintptr_t>(refs.data());const auto beforeObjects=pointObjects,beforeCulls=pointCulls;
+ PointResult result;result.work=pointWork(start,delta,extents,mask,mode,swept,world.brushes.size(),pointObjects.size());result.brushVisits=pointBrushMarks(world.brushes.size(),index,visit);result.dispVisits=pointDispMarks(pointObjects.size(),index,visit);auto* work=result.work.data();at<uintptr_t>(work,0x104)=reinterpret_cast<uintptr_t>(world.fields.data());at<uintptr_t>(work,0x128)=reinterpret_cast<uintptr_t>(result.brushVisits.data());at<uintptr_t>(work,0x150)=reinterpret_cast<uintptr_t>(result.dispVisits.data());activeWork=reinterpret_cast<uintptr_t>(work);activeBrushBase=reinterpret_cast<uintptr_t>(world.brushes.data());activeBrushCount=world.brushes.size();activeDispVisits=result.dispVisits.data();nativeEvents={};nativeCulls.clear();nativeGatePasses.clear();winningKind=0;currentMesh=UINT32_MAX;
+ auto* observer=PrivateX86BoundaryObserverFixture::active;observer->entries={0x10148270,0x10147690,0x1014d010,0x1014e790};observer->configure(true);using Point=void(__fastcall*)(void*,int32_t,float,float,const float*,const float*);reinterpret_cast<Point>(0x10148950)(work,world.source.root,0.f,1.f,reinterpret_cast<float*>(work),reinterpret_cast<float*>(work+12));observer->configure(false);result.events=nativeEvents;require(nativeGatePasses==nativeEvents.displacements,"native point gate/dispatch sequence");require(pointObjects==beforeObjects&&pointCulls==beforeCulls,"point geometry records changed");const auto name=at<uint32_t>(work,0x90);if(name==0x10350ee0u){const auto prop=at<uint16_t>(work,0x94);const uint32_t id=prop>=500?uint32_t(prop-500):uint32_t(prop-100);require(id<pointObjects.size(),"point fixture surface identity");at<uint32_t>(work,0x90)=0x20000000u+id;}else require(name==UINT32_MAX||(name>=0x10000000u&&name<0x10000000u+materialFlags.size()),"point surface namespace");for(size_t offset:{size_t(0x104),size_t(0x128),size_t(0x150)})at<uint32_t>(work,offset)=0;return result;
+}
+#endif
+std::vector<SourceDisplacementRuntimeMeshCandidate> mixedPointMeshes(){std::vector<SourceDisplacementRuntimeMeshCandidate> meshes;for(unsigned id=0;id<4;++id){SourceDisplacementRuntimeMeshCandidate mesh;mesh.power=2;mesh.contents=std::array<uint32_t,4>{1,0x80,0x4000,0x20}[id];mesh.runtimeFlags=id==2?4u:0u;for(unsigned row=0;row<5;++row)for(unsigned column=0;column<5;++column){const float x=16.f*float(column)-32.f,y=16.f*float(row)-32.f,z=id==0?0.f:id==1?24.f:id==2?8.f+.25f*x-.125f*y:-8.f;mesh.vertices.push_back({x,y,z});}std::vector<std::array<uint16_t,3>> packed;for(const auto& grid:sourceDisplacementGridTrianglesCandidate(2,std::vector<uint16_t>(32))){SourceDisplacementCollisionTriangleCandidate triangle;triangle.packedVertices=grid.vertices;triangle.flags=uint16_t(id&1?0x440:0x240);mesh.triangles.push_back(sourceDisplacementCollisionTriangleCandidate(mesh.vertices,triangle));packed.push_back(grid.vertices);}mesh.tree=sourceDisplacementCollisionTreeCandidate(2,mesh.vertices,packed);mesh.baseNormal=mesh.triangles.front().normal;meshes.push_back(std::move(mesh));}return meshes;}
+void mixedPointWorld(SourceBspBrushOnlyTraceCandidate& w,unsigned profile,PointTables& tables){w.data.planes.clear();w.data.sides.clear();w.data.brushes.clear();int16_t flagged=-1,plain=-1;for(size_t i=0;i<materialMapping.size();++i){if((materialFlags[materialMapping[i]]&0x80)&&flagged<0)flagged=int16_t(i);if(!(materialFlags[materialMapping[i]]&0x80)&&plain<0)plain=int16_t(i);}require(flagged>=0&&plain>=0,"point material flag fixtures");const std::array<Vec,8> normals{Vec{1,0,0},Vec{-1,0,0},Vec{0,1,0},Vec{0,-1,0},Vec{0,0,1},Vec{0,0,-1},Vec{.6f,.8f,0},Vec{-.5f,.5f,.70710677f}};const std::array<uint32_t,8> contents{1,0x80,0x81,0x2080,0x80,1,0x4000,0x80};
+ for(unsigned brush=0;brush<8;++brush){const float center=float(int(brush%3)-1)*32;const auto first=uint32_t(w.data.sides.size()),count=brush<4?6u:8u;for(unsigned i=0;i<count;++i){const auto index=uint16_t(w.data.planes.size());w.data.planes.push_back(sourceBspCollisionPlaneCandidate(normals[i],12+normals[i][0]*center,i<6?i/2:3));const int16_t texture=brush==3||brush==7?-1:brush%2==0?flagged:plain;w.data.sides.push_back({index,texture,-1,int16_t(i>=6)});}w.data.brushes.push_back({first,count,contents[brush]});}
+ w.planes={{{0,1,0},0,1},{{1,0,0},0,0},{{1,0,0},0,0}};w.nodes={{0,{1,2}},{1,{-1,-2}},{2,{-3,-4}}};w.root=0;w.data.leafBrushes={{0,1,0,2,3,4,5,6,7},{7,6,5,4,3,2,1,0,7},{0,2,4,6,0,1,3,5,7},{1,1,3,3,5,5,7,0,2,4,6}};
+ if(profile==0)tables.refs={{0,1,0,2,3},{3,2,1,0,1},{0,1,2,3,0},{1,0,1,2,3}};
+ if(profile==1){w.data.leafBrushes={{},{},{1,1},{1}};tables.refs={{1,0,1},{1,0},{2,3},{3,2}};const auto first=w.data.brushes[1].first;w.data.planes[w.data.sides[first+4].plane].distance=40;w.data.planes[w.data.sides[first+5].plane].distance=-32;}
+ if(profile==2){w.data.leafBrushes={{1,1},{1},{},{}};tables.refs={{2,3},{3,2},{1,0,1},{1,0}};}
+ if(profile==3){w.nodes.clear();w.root=-1;w.data.leafBrushes={{0,1,2,3,4,5,6,7,0,1}};tables.refs={{0,1,0,2,3,1}};}
+ w.data.leafContents.assign(w.data.leafBrushes.size(),0);w.data.worldNodes=w.nodes.size();w.data.worldBrushes={0,1,2,3,4,5,6,7};w.records=sourceBspCollisionRecordsCandidate(w.data,materialMapping);
+}
+void writePointVisits(std::ofstream& out,const std::vector<uint32_t>& visits){std::vector<uint8_t> bits((visits.size()+7)/8);for(size_t i=0;i<visits.size();++i){require(visits[i]==0||visits[i]==17,"point visit encoding");if(visits[i])bits[i/8]|=uint8_t(1u<<(i%8));}out.write(reinterpret_cast<const char*>(bits.data()),bits.size());}
+int main(int argc,char** argv){try{
+ require(argc==4,"expected engine or -, BSP and disposable output");const auto bsp=read(argv[2]);auto word=[&](size_t offset){uint32_t value;require(offset<=bsp.size()&&bsp.size()-offset>=4,"BSP word");std::memcpy(&value,bsp.data()+offset,4);return value;};const auto texinfo=word(8+6*16),texinfoBytes=word(8+6*16+4),texdataBytes=word(8+2*16+4);materialFlags.resize(texdataBytes/32);for(uint32_t i=0;i<texinfoBytes/72;++i){const auto id=word(texinfo+72*i+68);materialMapping.push_back(id);materialFlags.at(id)|=uint16_t(word(texinfo+72*i+64));}boundFlags=std::make_unique<SourceBspTraceSurfaceFlagsCandidate>(bsp,materialMapping);SourceBspBrushOnlyTraceCandidate world(bsp,materialMapping);
+#ifndef _WIN64
+ NativePrivateWorldImageFixture image(argv[1],0x643eec);image.seal();PrivateX86BoundaryObserverFixture observer{{0x10148270,0x10147690,0x1014d010,0x1014e790},pointBoundary};
+#endif
+ std::ofstream out(argv[3],std::ios::binary);require(bool(out),"point world output");std::array<uint32_t,8> header{0x50574d31,0,0,560,1866,43,8,4};out.write(reinterpret_cast<const char*>(header.data()),sizeof(header));unsigned cases=0,hits=0,brushWinners=0,dispWinners=0,solid=0,cleared=0,rounded=0,zeroMasks=0,nonswept=0,tinyExtents=0,premarked=0,leafCalls=0,brushCalls=0,dispCalls=0,eventChecks=0;
+ auto record=[&](const auto& meshes,const auto& tables,const Vec& start,const Vec& delta,const Vec& extents,uint32_t mask,unsigned mode,bool swept,unsigned visit,uint32_t index,
+#ifndef _WIN64
+ NativeWorld& nativeWorld,
+#endif
+ unsigned phase){const bool check=cases%31==0;const auto expected=ownedPoint(world,meshes,tables,start,delta,extents,mask,mode,swept,visit,index,check);auto actual=expected;eventChecks+=check;
+#ifndef _WIN64
+ actual=nativePoint(nativeWorld,tables,start,delta,extents,mask,mode,swept,visit,index);const bool intervals=actual.events.intervals.size()==expected.events.intervals.size()&&(actual.events.intervals.empty()||std::memcmp(actual.events.intervals.data(),expected.events.intervals.data(),actual.events.intervals.size()*8)==0);if(actual.work!=expected.work||actual.brushVisits!=expected.brushVisits||actual.dispVisits!=expected.dispVisits||actual.events.leaves!=expected.events.leaves||actual.events.brushes!=expected.events.brushes||actual.events.displacements!=expected.events.displacements||!intervals){std::cerr<<"point case "<<cases<<" phase "<<phase<<" start "<<start[0]<<' '<<start[1]<<' '<<start[2]<<" delta "<<delta[0]<<' '<<delta[1]<<' '<<delta[2]<<" extent "<<extents[0]<<" mask "<<mask<<" mode "<<mode<<" swept "<<swept<<" visit "<<visit<<" root "<<world.root<<'\n';for(size_t i=0;i<560;++i)if(actual.work[i]!=expected.work[i])std::cerr<<"work byte "<<i<<" native "<<unsigned(actual.work[i])<<" owned "<<unsigned(expected.work[i])<<'\n';throw std::runtime_error("complete prepared point world mismatch");}
+#endif
+ std::array<uint32_t,16> input{};for(size_t a=0;a<3;++a){input[a]=bits(start[a]);input[3+a]=bits(delta[a]);input[6+a]=bits(extents[a]);}input[9]=mask;input[10]=mode;input[11]=swept;input[12]=visit;input[13]=phase;input[14]=index;input[15]=uint32_t(world.root);out.write(reinterpret_cast<const char*>(input.data()),sizeof(input));const std::array<uint32_t,3> counts{uint32_t(actual.events.leaves.size()),uint32_t(actual.events.brushes.size()),uint32_t(actual.events.displacements.size())};out.write(reinterpret_cast<const char*>(counts.data()),sizeof(counts));for(const auto* ids:{&actual.events.leaves,&actual.events.brushes,&actual.events.displacements})out.write(reinterpret_cast<const char*>(ids->data()),std::streamsize(ids->size()*4));out.write(reinterpret_cast<const char*>(actual.events.intervals.data()),std::streamsize(actual.events.intervals.size()*8));out.write(reinterpret_cast<const char*>(actual.work.data()),560);writePointVisits(out,actual.brushVisits);writePointVisits(out,actual.dispVisits);require(bool(out),"point record write");++cases;const auto name=at<uint32_t>(actual.work.data(),0x90),marker=at<uint32_t>(actual.work.data(),0x114);const bool changed=at<float>(actual.work.data(),0x80)!=initialState(mode).trace.fraction;hits+=changed;brushWinners+=changed&&name>=0x10000000u&&name<0x10000000u+87;dispWinners+=changed&&name>=0x20000000u&&name<0x20000000u+meshes.size();solid+=actual.work[0x8b]!=0;cleared+=initialState(mode).displacementHit!=0&&marker==0;bool lost=false;for(size_t a=0;a<3;++a){const float end=start[a]+delta[a];lost|=end-start[a]!=delta[a];}rounded+=lost;zeroMasks+=mask==0;nonswept+=!swept;tinyExtents+=extents!=Vec{};premarked+=visit!=0;leafCalls+=counts[0];brushCalls+=counts[1];dispCalls+=counts[2];};
+ for(unsigned hdr=0;hdr<2;++hdr){const SourceBspDisplacementCollisionCandidate imported(bsp,int32_t(hdr));const auto& meshes=imported.meshes;const auto tables=pointTables(world,meshes);
+#ifndef _WIN64
+ pointObjectsPrepare(meshes,tables);NativeWorld nativeWorld(world);
+#endif
+ for(uint32_t index=0;index<meshes.size();++index){const auto& mesh=meshes[index];const auto& b=mesh.tree.expandedBounds;const auto& t=mesh.triangles[index%mesh.triangles.size()];Vec centroid{};for(size_t a=0;a<3;++a)centroid[a]=(mesh.vertices[t.packedVertices[0]&511u][a]+mesh.vertices[t.packedVertices[1]&511u][a]+mesh.vertices[t.packedVertices[2]&511u][a])/3.f;
+ for(unsigned q=0;q<8;++q){Vec start{(b[0]+b[3])*.5f,(b[1]+b[4])*.5f,(b[2]+b[5])*.5f},delta{};if(q==0){start[2]=b[5]+128;delta={0,0,-256};}if(q==1){start[2]=b[2]-128;delta={0,0,256};}if(q==2||q==3)for(size_t a=0;a<3;++a){const float sign=q==2?1.f:-1.f;start[a]=centroid[a]+sign*64*t.normal[a];delta[a]=-sign*128*t.normal[a];}if(q==4)for(size_t a=0;a<3;++a){start[a]+=128;delta[a]=-256;}if(q==5)delta={-1e-7f,0,-0.f};if(q==7){start[0]=b[0]-128;delta={b[3]-b[0]+256,0,0};}
+ for(unsigned extent=0;extent<2;++extent)for(uint32_t mask:{0u,0x80u,0x2081u,0xffffffffu})for(unsigned mode:{0u,1u,4u})for(bool swept:{false,true})for(unsigned visit=0;visit<2;++visit)record(meshes,tables,start,delta,extent?Vec{.000732421875f,.000244140625f,0}:Vec{},mask,mode,swept,visit,index,
+#ifndef _WIN64
+ nativeWorld,
+#endif
+ 0);
+ }} }
+ header[1]=cases;
+ auto meshes=mixedPointMeshes();auto tables=pointTables(world,meshes);
+ for(unsigned profile=0;profile<4;++profile){mixedPointWorld(world,profile,tables);
+#ifndef _WIN64
+ pointObjectsPrepare(meshes,tables);NativeWorld nativeWorld(world);
+#endif
+ for(unsigned q=0;q<12;++q){Vec start{},delta{};switch(q){case 0:start={0,0,64};delta={0,0,-128};break;case 1:start={0,0,-64};delta={0,0,128};break;case 2:start={-32,48,8};delta={64,-96,0};break;case 3:start={32,-48,24};delta={-64,96,-32};break;case 4:start={0,48,36};delta={0,-96,0};break;case 5:start={0,-48,36};delta={0,96,-24};break;case 6:start={-32,0,0};delta={96,0,0};break;case 7:start={32,0,0};delta={-96,0,0};break;case 8:start={.000244140625f,0,64};delta={0,0,-128};break;case 9:start={0,.0001220703125f,48};delta={0,0,-96};break;case 10:start={-0.f,-0.f,0};delta={-0.f,0,-0.f};break;case 11:start={16,16,24};delta={-1e-7f,0,0};break;}
+ for(unsigned extent=0;extent<3;++extent)for(uint32_t mask:{0u,1u,0x80u,0x2080u,0xffffffffu})for(unsigned mode:{0u,1u,2u,4u,9u})for(bool swept:{false,true})for(unsigned visit=0;visit<3;++visit)for(unsigned disabled=0;disabled<2;++disabled){meshes[1].runtimeFlags=disabled?8u:0u;
+#ifndef _WIN64
+ at<uint32_t>(pointObjects[1].data(),0x2c)=meshes[1].runtimeFlags;
+#endif
+ record(meshes,tables,start,delta,extent==0?Vec{}:extent==1?Vec{.000732421875f,.000244140625f,0}:Vec{.0009765625f,0,0},mask,mode,swept,visit,q%4,
+#ifndef _WIN64
+ nativeWorld,
+#endif
+ profile+1);
+ }
+ }}
+ header[2]=cases-header[1];out.seekp(0);out.write(reinterpret_cast<const char*>(header.data()),sizeof(header));out.flush();require(bool(out),"point output finish");
+#ifndef _WIN64
+ image.verify();
+#endif
+ require(hits&&brushWinners&&dispWinners&&solid&&cleared&&rounded&&leafCalls&&brushCalls&&dispCalls,"point world coverage");std::cout<<"{\"cases\":"<<cases<<",\"benchmark_cases\":"<<header[1]<<",\"controlled_cases\":"<<header[2]<<",\"changed_fraction\":"<<hits<<",\"brush_winners\":"<<brushWinners<<",\"displacement_winners\":"<<dispWinners<<",\"start_solid\":"<<solid<<",\"marker_cleared\":"<<cleared<<",\"rounded_delta_cases\":"<<rounded<<",\"zero_masks\":"<<zeroMasks<<",\"nonswept_visit_queries\":"<<nonswept<<",\"tiny_extents\":"<<tinyExtents<<",\"premarked_queries\":"<<premarked<<",\"leaf_calls\":"<<leafCalls<<",\"brush_calls\":"<<brushCalls<<",\"displacement_calls\":"<<dispCalls<<",\"events_disabled_checks\":"<<eventChecks;
+#ifndef _WIN64
+ std::cout<<",\"native_brush_then_displacement\":"<<brushToDisp<<",\"native_displacement_then_brush\":"<<dispToBrush<<",\"native_solid_exit_resets\":"<<exitResets;
+#endif
+ std::cout<<",\"passed\":true}\n";
+ }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

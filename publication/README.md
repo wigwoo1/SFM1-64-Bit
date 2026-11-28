@@ -279,11 +279,84 @@ server filtering remain unverified. Private permutation input is still required
 by the isolated hull sweep fixture; none is bundled in public source or editor.
 
 
-## Stationary dispatcher research in progress (2026-11-28)
+## Prepared stationary displacement dispatcher checked (2026-11-28)
 
-The current snapshot also includes an unfinished prepared stationary displacement
-dispatcher candidate and its comparison probe. One native benchmark run matched
-125,388 queries, but repeated architecture comparisons and controlled coverage of
-the fallback positive-solid branch remain pending. Do not describe this candidate
-as fully verified, integrated into the editor, or a completed collision system.
-The previous editor package is retained unchanged.
+Fresh warning-free x86/x64 test builds, each repeated twice, match 131,868 queries:
+125,388 benchmark and 6,480 controlled. Complete working buffers, parent visits,
+and exact cull/overlap call order match the intact original dispatcher. Controlled
+two-leaf geometry produces 810 positive-solid fallbacks using real brush and
+terrain calculations. Independent visit ordering, direct metadata preservation,
+controlled normal/cull order and temporary-ray arithmetic checks also pass.
+
+The domain is prepared non-ray work with a nonempty displacement list and finite
+centered relative hull bounds. Complete stationary leaf/world/public dispatch,
+server spawn, entities/static props/filters, effective material binding and global
+cache/resource lifecycle remain unverified. Original instructions/table data and
+private fixtures stay excluded. All 543 editor dependencies and its package remain
+unchanged; this is not a demonstrated editor improvement or full SFM compatibility.
+
+
+## Prepared stationary hull leaf checked (2026-11-28)
+
+Fresh warning-free x86/x64 test builds, each repeated twice, match 145,440 complete
+leaf queries: 123,840 benchmark and 21,600 controlled. The full original leaf calls
+real brush and terrain routines. Working buffers, complete parent visits and exact
+brush/cull/overlap call order match. Independent policy replay and controlled box
+predictions also pass. Tests cover the stationary rule differences: visit marking
+before contents filtering, omission of swept surface exclusion, zero-fraction
+termination only after a brush call, and the prior startSolid terrain gate.
+
+This verifies prepared single-leaf processing with nonzero centered hulls. World
+leaf selection/solid-leaf fallback, public stationary setup/finish, server spawn,
+entities/static props/filters, material/physics binding and global cache/resource
+lifecycle remain unverified. No original instruction/table data or private inputs
+are bundled. All 543 editor dependencies and its package remain unchanged. This
+is not a demonstrated editor improvement or complete SFM compatibility.
+
+
+## Prepared stationary hull world checked (2026-11-28)
+
+Fresh warning-free x86/x64 test builds, each repeated twice, match 147,240 complete
+world queries. The original selector, stationary brush/terrain processing and real
+nested fallback execute over prepared benchmark and controlled geometry. Full
+working buffers, parent visits, selected/visited leaf order, top node and nested
+fallback generations match. Independent selection, solidity-finish, zero-mask
+trace and metadata checks pass. A 1,030-leaf fixture checks the 1,024-result cap;
+1,080 cases distinguish selected non-solid leaves from those actually visited.
+
+The existing selector is reused; no original instruction/table data is bundled.
+Queue overflow and malformed topology remain outside this comparison. Public
+stationary trace setup/finish, empty-world return, point-ray routing, engine/server
+entities/static props/filters, effective material binding and global cache/resource
+lifecycle remain separate gates. All 543 editor dependencies and its package are
+unchanged. This is not a demonstrated editor improvement or full SFM compatibility.
+
+
+## Public stationary hull traces checked (2026-11-28)
+
+Fresh warning-free x86/x64 builds, each repeated twice, match 133,192 prepared
+public stationary non-ray hull traces. Original reset/default setup, actual
+stationary world collision, optional coordinate finishing and full result copy
+execute in the private reference. All 84 public bytes and the separately observed
+internal displacement marker match. Independent classification, coordinates,
+zero-mask world finish, empty defaults and wrapped/fresh comparisons pass.
+
+Tests retain 33,952 nonzero deltas classified nonswept, cover 11,152 overflowing
+initial inverse components, and preserve signed-zero/cancellation results. Empty
+worlds return before flag validation. Work/cache storage and material properties
+are explicit fixtures; no original code or table data is bundled.
+
+Available-world isRay=true point routing, effective material/physics binding,
+loader/global cache lifecycle, server entities/static props/filters and actual
+spawn/editor integration remain separate gates. Existing swept/world helpers and
+all 543 editor dependencies are unchanged. The existing editor package is retained;
+this is not a demonstrated editor improvement or complete SFM compatibility.
+
+
+## Point-world candidates pending verification
+
+The point BSP walker, complete point-world helper and associated probe/build
+script are in-progress research candidates. Their full native/x64 comparison
+is UNVERIFIED in this publication. They are not connected to the editor.
+The existing experimental editor package is unchanged. Passing the stationary
+component tests above does not establish point routing or full SFM compatibility.
