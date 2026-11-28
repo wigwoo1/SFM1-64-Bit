@@ -1,5 +1,5 @@
 {
-  "checked_utc": "2026-11-27T23:44:34.373517+00:00",
-  "status": "CHECKED: isolated collision research source updated; newest public-trace wrapper final verification pending; all 543 editor dependencies unchanged; previous x64 build package retained unchanged with 18 recorded warnings; runtime not retested; compatibility remains incomplete",
+  "checked_utc": "2026-11-28T00:37:57.238358+00:00",
+  "status": "CHECKED: isolated stationary brush/overlap/normal/fallback research updated; full stationary dispatcher candidate remains partially verified with final coverage and repeat checks pending; all 543 editor dependencies unchanged; previous x64 build package retained unchanged with 18 recorded warnings; runtime not retested; compatibility remains incomplete",
   "repository": "wigwoo1/SFM1-64-Bit"
 }

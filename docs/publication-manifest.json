@@ -34,16 +34,16 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "edc23b24eb9c549ac885c22bab0d4d7241e14f6b2d8739e08765ce0d2d33942d",
-      "size": 386
+      "sha256": "cfa9d88023cbf95040d5cd6e25b760ef71a2db1191829fb37f73ba23e0353d11",
+      "size": 465
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "51806176eb3042cf1078bf10fdd66be14af3cee18c06d01030de966da4cacb40",
       "size": 1351033
     },
     "publication/README.md": {
-      "sha256": "e64582762339aec457aad755b990a32ceb2a3b283d1164f1f28419b63335b1f2",
-      "size": 12499
+      "sha256": "c21e3844131261bce3e445bea588f1d16e471162614c8c07829373c074109164",
+      "size": 17078
     },
     "publication/editor_runtime_package.py": {
       "sha256": "52fe1d89907b56d93e0d3626aee9d404c14d837b208f08638a0ccb49870809b8",
@@ -1504,6 +1504,10 @@
     "work/build_displacement_bounds_gate.cmd": {
       "sha256": "16eae84bac5b5a2296e720db108812fa5abac968bd3db260a22ebc10d3d3fd32",
       "size": 794
+    },
+    "work/build_displacement_box_overlap.cmd": {
+      "sha256": "91db5f7027927a10aff3157fca8086a4e730024e0c15e52908f19f23a616ec3b",
+      "size": 974
     },
     "work/build_displacement_collision_tree.cmd": {
       "sha256": "8d5ef4299f2e46f9a91aacc648cb52980d1f814d56fe4a214fc528954c7095ce",
@@ -5561,13 +5565,25 @@
       "sha256": "e5ef59f73ba93528a702e30ca82bd5f6e5c9848885eb6b03802fa91363c48877",
       "size": 1004
     },
+    "work/build_stationary_brush_hull.cmd": {
+      "sha256": "09f6940b02c276a5bf0003b494f7c758bd912a38462e23035eec411ff076b5de",
+      "size": 956
+    },
     "work/build_stationary_brush_world.cmd": {
       "sha256": "4bb4b596ba7175f0677cd2a8e3992b04d0f0a4d1ee566195d8488e8c7ee41212",
       "size": 774
     },
+    "work/build_stationary_displacement_hull_policy.cmd": {
+      "sha256": "316d5cc859124baee0190d8d567e582779c6ed7306dada30b66c4133ff8945d6",
+      "size": 1040
+    },
     "work/build_stationary_displacement_normal.cmd": {
       "sha256": "e3dd0f5f104f9afe03ddb55a32912e02386eb77219df4f3e356b0b1fca24536b",
       "size": 757
+    },
+    "work/build_stationary_hull_fallback.cmd": {
+      "sha256": "a5ae117531e142ad605c7a47cc1e562e1855e774ce5930068ab597e3ee188314",
+      "size": 974
     },
     "work/build_stationary_leaf_selection.cmd": {
       "sha256": "bb55085aa5ff1d89cb61549484fe73762b7b011167b02968f296bddd36397859",
@@ -12825,6 +12841,10 @@
       "sha256": "3dc771c6051fe3c09ea194242d743e34ac10913bd38263625e119e16915132ec",
       "size": 2262
     },
+    "work/probe_displacement_box_overlap.cpp": {
+      "sha256": "6168c93f8203cd91279e44d9a6ea0c1051c208f094b44c6e14103b233f5511a3",
+      "size": 13104
+    },
     "work/probe_displacement_collision_tree.cpp": {
       "sha256": "4f86ea009294c589e63eefa60811fbe75343f90f405b757419a47555ce585d2f",
       "size": 5884
@@ -14681,13 +14701,25 @@
       "sha256": "792588bec30c517f4db6f5d2ef4dd7903e602344f32b059f11be6ac3a49cead4",
       "size": 10660
     },
+    "work/probe_stationary_brush_hull.cpp": {
+      "sha256": "1291c12a7754208a95744f009a6583095f0e50d37b80b02bb06e54ed6779b25d",
+      "size": 9574
+    },
     "work/probe_stationary_displacement_finish.cpp": {
       "sha256": "27c7e9965b946fc7a8c46e7b7d55f452e0965a7890f6005e8100d5d51e0f99dd",
       "size": 3456
     },
+    "work/probe_stationary_displacement_hull_policy.cpp": {
+      "sha256": "ee8b6a399733973032d12dbedf58361b8714bae9f58f045ebbcb4f6da7bf5ad5",
+      "size": 36920
+    },
     "work/probe_stationary_displacement_normal.cpp": {
       "sha256": "badbf79b56e45999d082fe1b8bad085ccaa8880e82d2f5352c9a1b54f134a036",
       "size": 3949
+    },
+    "work/probe_stationary_hull_fallback.cpp": {
+      "sha256": "6286e243995bce4f0e5577cc52283b7951115428be822240e6799e65c67898be",
+      "size": 29412
     },
     "work/probe_stationary_leaf_selection.cpp": {
       "sha256": "574050249e4c4fa9531dc4812dc8a1bcdc06490fd104a79930e308df4b6a3e68",
@@ -18769,6 +18801,10 @@
       "sha256": "cb6cff081d0c1356305379782807d41d7db222b8bf7723dcc4136d872ba4176c",
       "size": 2398
     },
+    "work/source_displacement_box_overlap_candidate.h": {
+      "sha256": "f47e457b33bd2a43e70f2445e1b0d71f71848a0dad62df1a3685fcd72c24cad0",
+      "size": 2885
+    },
     "work/source_displacement_collision_tree_candidate.h": {
       "sha256": "946d84061ba2693d743045a6c9008c7544bda92d720277e59a5e1a1d11dc4beb",
       "size": 3089
@@ -19234,8 +19270,8 @@
       "size": 1657
     },
     "work/source_prepared_world_hull_candidate.h": {
-      "sha256": "b83a45218a5b5130c999cfde3ff03f9f3b1328fbcde9508a23a45a43f1f468a5",
-      "size": 5269
+      "sha256": "c62a9ee95b4c860647ae0914650596f59d1b8e865b749bfa47d07602a2ed60ef",
+      "size": 5495
     },
     "work/source_prepared_world_ray_candidate.h": {
       "sha256": "81f2bce0c17f6e60715472763a9f79958421fbb96a88f5d462cc37cc2d9e27ba",
@@ -19301,13 +19337,29 @@
       "sha256": "eb803dab73026cbb438965b2929f97b900f45d9f9c2be0ee7e94a3af44a2d226",
       "size": 1595
     },
+    "work/source_stationary_brush_hull_candidate.h": {
+      "sha256": "bc5106e454f98ba774646e45b9642255b7181b3a818070ddeb0d2164f002782f",
+      "size": 2566
+    },
     "work/source_stationary_brush_only_world_candidate.h": {
       "sha256": "f20dcb2564bb941d44694154326e32fb07472e6d4667165f25672685012f51fc",
       "size": 1074
     },
+    "work/source_stationary_displacement_hull_normal_candidate.h": {
+      "sha256": "b56b9955244d7f0bccdb1d60485f16430e4635e111d71b27e85d19a7533a0b2c",
+      "size": 1924
+    },
+    "work/source_stationary_displacement_hull_policy_candidate.h": {
+      "sha256": "1ea2d1f6d37b50df2bac56cd5f7f136cbf2c6822285ea557d98b36cff04afadc",
+      "size": 5008
+    },
     "work/source_stationary_displacement_normal_candidate.h": {
       "sha256": "1d42b5c40e5ca3e9eb29a19eb20b46978efc4d9ff2c0ffb1abb72e24f1889c31",
       "size": 1455
+    },
+    "work/source_stationary_hull_fallback_candidate.h": {
+      "sha256": "884281a36fd70d199659e709f06c34e79415184527000d459f1f4509ac944d07",
+      "size": 1693
     },
     "work/source_stationary_leaf_selection_candidate.h": {
       "sha256": "7132503db40d9897384a7a1972a49d3245968755d58992c8a6e36ab6c6618089",
@@ -19352,6 +19404,10 @@
     "work/source_translated_brush_point_trace_candidate.h": {
       "sha256": "83b8f2fd043b2c13a6d6fbace0c69f8dfd0832c1108fda721c3403b254315911",
       "size": 1020
+    },
+    "work/source_triangle_box_overlap_candidate.h": {
+      "sha256": "173ea788a08b44841ac3c00eeed530e5653c4715623991da1872916ce4f8a52a",
+      "size": 3031
     },
     "work/source_trigger_activation_scan_candidate.h": {
       "sha256": "6da576757d639ed2f7888c6e61a0e45bca42b474c3a25128026232d7e94f95b1",
@@ -25705,6 +25761,10 @@
       "sha256": "f79a68ae526b54086e606875c85ee1e95134d1b82e171d0a23db972f7b24bf70",
       "size": 4029
     },
+    "work/verify_displacement_box_overlap.py": {
+      "sha256": "27e34acdf74b0da028c11b5de64e2ef36b8000abede02c78097ee14508ad666c",
+      "size": 11893
+    },
     "work/verify_displacement_collision_tree.py": {
       "sha256": "de530c2188fd45227485ddb11ef446162a0effc9e400146baf3627b1b1f96ab2",
       "size": 9342
@@ -27781,6 +27841,10 @@
       "sha256": "028698393606899d4c6391cd9620ca5a135fb76dd27c895340545bf564e00f43",
       "size": 1559
     },
+    "work/verify_stationary_brush_hull.py": {
+      "sha256": "affec411ff836c140e700272c9eeca60b02fd6fd443a218ad35223b84a87eb68",
+      "size": 13176
+    },
     "work/verify_stationary_brush_world.py": {
       "sha256": "c468ea832168bf682594f26d9ea431d401af2dba522b1be0ec10f55afe855813",
       "size": 2135
@@ -27788,6 +27852,10 @@
     "work/verify_stationary_displacement_normal.py": {
       "sha256": "3f3491f2b8826c3ddebb14e7d7c61ec3373074aa4cc514078921180321c8661a",
       "size": 4115
+    },
+    "work/verify_stationary_hull_fallback.py": {
+      "sha256": "d91f5f8e0504688ed3426d46868829d916da56b5932f19e4a109b2e11fec5696",
+      "size": 17560
     },
     "work/verify_stationary_leaf_selection.py": {
       "sha256": "a1223bcf2655cfa3d2c492ed139210999fc5c1e10f7dcb2256490477f5a39267",
@@ -27884,6 +27952,10 @@
     "work/verify_studio_vertex_weights.py": {
       "sha256": "5dd2362e08233d3f45553fd287b0bf1cafc4c629b6c56cb03e0320e5006cd307",
       "size": 12453
+    },
+    "work/verify_swept_hull_world_trace.py": {
+      "sha256": "6f30f8e2b861f41847ede5bf3762887d10f4f4774d9359aec491840282fd2374",
+      "size": 14960
     },
     "work/verify_swept_world_trace.py": {
       "sha256": "73bc44c069ec3db8cf3baa95b44acb9989bdf9541477700533cdae60703d1685",

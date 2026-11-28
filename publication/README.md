@@ -201,12 +201,89 @@ or editor integration. The editor package is unchanged. Original BSP/assets,
 permutation data, native dumps and test records remain excluded from publication.
 
 
-## Public swept-hull wrapper under verification (2026-11-27)
+## Prepared public swept-hull trace checked (2026-11-27)
 
-The newest public-trace wrapper and associated probe are work in progress.
-An initial comparison passed 19,264 prepared benchmark queries and 36 coordinate
-finishing cases. Final repeated x86/x64 verification and the signed-zero fixture
-revision remain pending. Do not treat this wrapper as a completed compatibility
-gate or an editor improvement. It is isolated from the current editor package.
-Original world loading, stationary dispatch, production cache/resource lifecycle,
-entity/static-prop handling and full application compatibility remain unverified.
+Fresh warning-free x86/x64 builds, each repeated twice, match 19,264 prepared
+benchmark queries and 36 independent coordinate-finishing predictions. All 84
+public trace bytes plus the displacement marker match, including the retained
+brush surface index, asymmetric hull offsets, signed zero, disabled position
+output and unavailable world. The previous 16,512-query benchmark regression
+was freshly rebuilt and repeated in both architectures with unchanged records.
+
+Original full wrapper/reset/copy/finish and geometry routines execute in the
+private reference fixture; work/cache services and material property numbers
+are explicitly supplied. No original instruction or lookup-table data is bundled.
+This is an isolated prepared swept non-ray boundary, not a demonstrated editor
+improvement. Original whole-world loading, stationary dispatch, production cache/
+resource lifecycle, effective material properties, entities/static props and
+full application compatibility remain unverified. All 543 editor dependencies
+are unchanged; the current editor package is retained.
+
+
+## Stationary hull brush primitive checked (2026-11-27)
+
+Fresh warning-free x86/x64 builds, each repeated twice, match 790,368 cases
+against the intact original stationary brush primitive, with no substituted
+callees. All 1,866 benchmark brushes are exercised through classified and general
+plane routes. Nonzero and asymmetric relative hulls, touching/adjacent outside
+positions, bevels, empty brushes and prior metadata are covered. Complete trace
+bytes and allowed changes to the native work buffer match; 255,072 box/empty
+cases have additional independent interval predictions.
+
+This verifies the brush calculation only. Stationary displacement overlap and
+fallback tracing, leaf/world composition, actual spawn behavior and editor
+integration remain unverified. Existing point/swept helpers and all 543 editor
+dependencies are unchanged. No original instruction/table data, assets, reference
+records or disassembly is included in the public source.
+
+
+## Prepared stationary displacement overlap checked (2026-11-27)
+
+Fresh warning-free x86/x64 builds, each repeated twice, match 233,161 direct
+triangle and complete mesh overlap queries. Both benchmark face modes (43 meshes
+each) and 16 controlled meshes are covered. Original complete tree/triangle/edge/
+plane routines execute without substituted callees. Exact triangle order and
+arguments match. Independent flat fixtures validate 1,225 predictions, including
+the native plane-side boundary behavior. The owned x64 overlap test needs no
+original engine or permutation fixture at runtime.
+
+An earlier private handoff stopped at an early return; it has been corrected to
+include the reachable triangle-testing tail through the actual function end.
+All previous brush/public-wrapper helpers and all 543 editor dependencies remain
+unchanged. This is isolated prepared collision work: normal/ray fallback, full
+stationary world composition, actual spawn behavior and editor integration are
+still unverified. Original code/table data, assets and reference evidence remain
+excluded from publication.
+
+
+## Stationary hull normal and prepared fallback checked (2026-11-27)
+
+Fresh warning-free x86/x64 test builds, each repeated twice, match 11,200 full
+normal-selection cases and 16,512 complete prepared fallback queries. The latter
+executes original reset, temporary-ray arithmetic, nested visit setup, mixed hull
+world geometry, depth finish and prior-end restoration. Only declared cache
+storage/acquire/release services are supplied. All 560 working-buffer bytes match
+after private-pointer/surface-name normalization. Independent normal/delta/inverse
+predictions, generation rollover, preserved parent visits and LDR/HDR equality
+are checked.
+
+The shared hull helper now accepts an explicit displacement visit flag; existing
+swept callers default to their previous behavior. Fresh synthetic mixed, benchmark
+geometry and public swept-wrapper regressions repeat both architectures and retain
+their accepted record hashes. All 543 editor dependencies are unchanged.
+
+This is prepared collision work, not full stationary dispatch or an editor/spawn
+improvement. Direct-overlap/fallback policy composition, stationary leaf/world
+dispatch, effective material binding, global cache/resource lifecycle and engine/
+server filtering remain unverified. Private permutation input is still required
+by the isolated hull sweep fixture; none is bundled in public source or editor.
+
+
+## Stationary dispatcher research in progress (2026-11-28)
+
+The current snapshot also includes an unfinished prepared stationary displacement
+dispatcher candidate and its comparison probe. One native benchmark run matched
+125,388 queries, but repeated architecture comparisons and controlled coverage of
+the fallback positive-solid branch remain pending. Do not describe this candidate
+as fully verified, integrated into the editor, or a completed collision system.
+The previous editor package is retained unchanged.

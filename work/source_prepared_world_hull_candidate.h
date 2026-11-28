@@ -17,6 +17,9 @@ struct SourcePreparedWorldHullStateCandidate {
 // cache lifetime, stationary dispatch, entity/static-prop contacts and public
 // trace setup/finish are separate. SurfaceDetails returns {property,flags} for
 // a semantic brush surface; no native name/address is stored by this adapter.
+// sweptVisits follows native work+101. A nested stationary normal probe keeps
+// it false while still executing this hull geometry kernel; this is not the
+// stationary overlap dispatcher itself.
 template<class SurfaceExcludes,class SurfaceDetails>
 void sourcePreparedWorldHullCandidate(const SourceBspBrushOnlyTraceCandidate& world,
  const std::vector<SourceDisplacementRuntimeMeshCandidate>& meshes,
@@ -26,7 +29,7 @@ void sourcePreparedWorldHullCandidate(const SourceBspBrushOnlyTraceCandidate& wo
  const std::vector<std::array<uint16_t,2>>& properties,
  const std::array<float,3>& center,const std::array<float,3>& delta,
  const std::array<float,3>& extents,uint32_t mask,SourcePreparedWorldHullStateCandidate& state,
- SurfaceExcludes surfaceExcludes,SurfaceDetails surfaceDetails) {
+ SurfaceExcludes surfaceExcludes,SurfaceDetails surfaceDetails,bool sweptVisits=true) {
  if(meshes.size()!=caches.size()||meshes.size()!=culls.size()||meshes.size()!=properties.size()||leafDisplacements.size()!=world.data.leafBrushes.size())throw std::runtime_error("prepared hull world table coverage");
  auto result=state;std::array<float,3> end{},inverse{};
  for(size_t a=0;a<3;++a){end[a]=center[a]+delta[a];inverse[a]=delta[a]==0?std::numeric_limits<float>::max():1.f/delta[a];if(!std::isfinite(delta[a])||!std::isfinite(inverse[a])||!std::isfinite(end[a]))throw std::runtime_error("invalid prepared hull movement");}
@@ -47,7 +50,7 @@ void sourcePreparedWorldHullCandidate(const SourceBspBrushOnlyTraceCandidate& wo
      if(entering||exitReset){const auto details=surfaceDetails(hit.surface);result.surfaceProperty=details[0];result.surfaceFlags=details[1];}
     });
    SourceLeafDisplacementStateCandidate phase;phase.fraction=result.trace.fraction;phase.startSolid=result.trace.startSolid;phase.allSolid=result.trace.allSolid;phase.displacementHit=result.displacementHit!=0;std::copy_n(result.trace.plane.begin(),3,phase.normal.begin());
-   sourceLeafHullDisplacementPolicyCandidate(leafDisplacements.at(leaf),culls,dispVisits,1,mask,true,!brushes.empty(),phase,center,delta,inverse,extents,
+   sourceLeafHullDisplacementPolicyCandidate(leafDisplacements.at(leaf),culls,dispVisits,1,mask,sweptVisits,!brushes.empty(),phase,center,delta,inverse,extents,
     [&](uint32_t index,auto& hit){
      SourceDisplacementWorldHullStateCandidate d;d.hull.fraction=hit.fraction;d.hull.normal=hit.normal;d.hull.distance=result.trace.plane[3];d.hull.displacementFlags=result.displacementFlags;d.contents=result.trace.contents;d.displacementHit=result.displacementHit;d.surfaceIsDisplacement=result.trace.surface.kind==SourceCollisionSurfaceKindCandidate::Displacement;d.surfaceProperty=result.surfaceProperty;d.surfaceFlags=result.surfaceFlags;
      const float before=hit.fraction;sourceDisplacementWorldHullCandidate(meshes.at(index),caches.at(index),properties.at(index),center,delta,inverse,extents,d);
