@@ -9,6 +9,23 @@ struct SourcePreparedPointWorldEventsCandidate {
  std::vector<std::array<float,2>> intervals;
 };
 
+// The optimized10146850 branch always expands relative slabs by work extents,
+// including isRay=true tiny hulls. Its point solid-exit rule still applies.
+// Feed the existing point slab kernel those prepared relative faces; restore
+// the original world-space plane distance and material identity on entry.
+inline void sourcePreparedPointBrushCandidate(const SourceBspBrushOnlyTraceCandidate& world,
+ uint32_t index,const std::array<float,3>& start,const std::array<float,3>& end,
+ const std::array<float,3>& delta,const std::array<float,3>& extents,
+ SourceOptimizedBoxLineStateCandidate& state,bool& entering){
+ const auto& record=world.records.at(index);
+ if(!record.optimized){sourceBrushLineDispatchCandidate(world.data,world.records,index,start,end,state,&entering,&delta);return;}
+ std::array<float,3> minimum{},maximum{},low{},high{};
+ std::memcpy(minimum.data(),record.box.data(),12);std::memcpy(maximum.data(),record.box.data()+16,12);
+ for(size_t a=0;a<3;++a){const float lo=minimum[a]-start[a],hi=maximum[a]-start[a];low[a]=lo-extents[a];high[a]=hi+extents[a];}
+ sourceOptimizedBoxLineRayCandidate(low,high,{},delta,world.data.brushes.at(index).contents,state,&entering,&delta);
+ if(entering){const uint32_t face=state.surface.index;const size_t axis=face%3;state.plane[3]=face<3?-minimum[axis]:maximum[axis];uint16_t surface;std::memcpy(&surface,record.box.data()+32+2*face,2);state.surface=surface==65535?SourceCollisionSurfaceCandidate{}:SourceCollisionSurfaceCandidate{SourceCollisionSurfaceKindCandidate::RuntimeSurface,surface};}
+}
+
 // Complete prepared point geometry with common full trace/material state.
 // Original point route10148950 and leaf10148270; public setup/finish and global
 // storage ownership are outside this function. Preserve supplied delta and the
@@ -35,7 +52,7 @@ void sourcePreparedPointWorldCandidate(const SourceBspBrushOnlyTraceCandidate& w
     [&](uint32_t brush,auto& hit){
      if(events)observed.brushes.push_back(brush);
      const float beforeFraction=hit.fraction,beforeLeft=hit.leftSolid;bool entering=false;
-     sourceBrushLineDispatchCandidate(world.data,world.records,brush,start,end,hit,&entering,&delta);
+     sourcePreparedPointBrushCandidate(world,brush,start,end,delta,axialExtents,hit,entering);
      const bool exitReset=!entering&&hit.surface.kind==SourceCollisionSurfaceKindCandidate::Default&&hit.fraction==1.f&&hit.leftSolid>beforeLeft&&hit.leftSolid>=beforeFraction;
      if(entering){result.displacementHit=0;result.worldSurfaceIndexSource=hit.surface;}
      if(entering||exitReset){const auto details=surfaceDetails(hit.surface);result.surfaceProperty=details[0];result.surfaceFlags=details[1];}

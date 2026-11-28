@@ -2,7 +2,7 @@
 #include "source_stationary_brush_hull_candidate.h"
 #include "source_stationary_displacement_hull_policy_candidate.h"
 
-// Full prepared non-ray leaf policy10147f40. Unlike the swept brush policy,
+// Full prepared stationary leaf policy10147f40. Unlike the swept brush policy,
 // there is no any-surface exclusion. Mark before contents filtering; fraction
 // zero terminates only after an actual brush call. A prior startSolid suppresses
 // terrain even when the brush list is empty.
@@ -32,12 +32,12 @@ void sourceStationaryHullLeafCandidate(const SourceBspBrushOnlyTraceCandidate& w
  std::vector<uint32_t>& brushVisits,std::vector<uint32_t>& displacementVisits,uint32_t generation,
  const std::array<float,3>& point,const std::array<float,3>& minimum,const std::array<float,3>& maximum,
  uint32_t mask,const std::array<uint16_t,2>& defaultSurface,SourcePreparedWorldHullStateCandidate& state,
- TraceHull traceHull){
+ TraceHull traceHull,bool isRay=false){
  auto result=state;auto brushMarks=brushVisits;auto displacementMarks=displacementVisits;
  std::vector<uint32_t> contents;contents.reserve(world.data.brushes.size());
  for(const auto& brush:world.data.brushes)contents.push_back(brush.contents);
  sourceStationaryHullLeafPolicyCandidate(brushes,contents,brushMarks,generation,mask,!displacements.empty(),result,
   [&](uint32_t index,auto& output){sourceStationaryBrushHullCandidate(world.data,world.records,index,point,minimum,maximum,output.trace);},
-  [&](auto& output){sourceStationaryDisplacementHullCandidate(meshes,culls,displacements,displacementMarks,generation,point,minimum,maximum,mask,defaultSurface,output,traceHull);});
+  [&](auto& output){sourceStationaryDisplacementHullCandidate(meshes,culls,displacements,displacementMarks,generation,point,minimum,maximum,mask,defaultSurface,output,traceHull,isRay);});
  state=std::move(result);brushVisits=std::move(brushMarks);displacementVisits=std::move(displacementMarks);
 }

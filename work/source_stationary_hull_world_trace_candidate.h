@@ -1,8 +1,9 @@
 #pragma once
 #include "source_stationary_hull_world_candidate.h"
 #include "source_swept_hull_world_trace_candidate.h"
+#include "source_prepared_point_world_candidate.h"
 
-// Nonswept non-ray public branch10149eb0. Reuse the existing trace result and
+// Nonswept public branch10149eb0. Reuse the existing trace result and
 // coordinate finisher without changing the separately verified swept entry.
 // Preserve the supplied delta: squared-length underflow can classify a finite
 // nonzero movement as stationary. Empty worlds return before ray/geometry use.
@@ -17,12 +18,18 @@ SourceSweptHullWorldTraceCandidate sourceStationaryHullWorldTraceCandidate(
  SurfaceExcludes surfaceExcludes,SurfaceDetails surfaceDetails,SurfaceIdentity surfaceIdentity){
  SourceSweptHullWorldTraceCandidate result;result.state.surfaceProperty=defaultSurface[0];result.state.surfaceFlags=defaultSurface[1];
  if(!worldAvailable)return result;
- if(ray.swept||ray.isRay)throw std::runtime_error("stationary hull wrapper requires nonswept non-ray input");
+ if(ray.swept)throw std::runtime_error("stationary world wrapper requires nonswept input");
  std::vector<uint32_t> brushVisits(world.data.brushes.size()),displacementVisits(meshes.size());
  sourceStationaryHullWorldCandidate(world,meshes,tables.leafDisplacements,tables.culls,world.root,ray.center,ray.extents,
   brushVisits,displacementVisits,1,mask,defaultSurface,result.state,
-  [&](const auto& probe,auto& output){sourcePreparedWorldHullCandidate(world,meshes,tables.caches,tables.leafDisplacements,tables.culls,properties,
-   probe.start,probe.delta,ray.extents,mask,output,surfaceExcludes,surfaceDetails,false);});
+  [&](const auto& probe,auto& output){
+   if(ray.isRay){
+    std::vector<uint32_t> childBrush(world.data.brushes.size()),childDisplacements(meshes.size());
+    sourcePreparedPointWorldCandidate(world,meshes,tables.leafDisplacements,tables.culls,properties,world.root,
+     probe.start,probe.delta,ray.extents,mask,childBrush,childDisplacements,1,output,surfaceExcludes,surfaceDetails,false);
+   }else sourcePreparedWorldHullCandidate(world,meshes,tables.caches,tables.leafDisplacements,tables.culls,properties,
+    probe.start,probe.delta,ray.extents,mask,output,surfaceExcludes,surfaceDetails,false);
+  },ray.isRay);
  if(result.state.worldSurfaceIndexSource){const auto id=surfaceIdentity(*result.state.worldSurfaceIndexSource);if(id!=UINT32_MAX&&id>=65535)throw std::runtime_error("world surface index outside16-bit namespace");result.worldSurfaceIndex=id==UINT32_MAX?65535:uint16_t(id);}
  if(computePositions)sourceHullWorldTracePositionsCandidate(ray,result);
  return result;

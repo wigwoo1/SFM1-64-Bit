@@ -353,10 +353,99 @@ all 543 editor dependencies are unchanged. The existing editor package is retain
 this is not a demonstrated editor improvement or complete SFM compatibility.
 
 
-## Point-world candidates pending verification
+## Prepared point-world geometry checked (2026-11-28)
 
-The point BSP walker, complete point-world helper and associated probe/build
-script are in-progress research candidates. Their full native/x64 comparison
-is UNVERIFIED in this publication. They are not connected to the editor.
-The existing experimental editor package is unchanged. Passing the stationary
-component tests above does not establish point routing or full SFM compatibility.
+Fresh warning-free x86/x64 builds, each repeated twice, match 109,248 prepared
+point-world queries: 66,048 benchmark and 43,200 controlled. Complete working
+buffers, parent visits, leaf intervals and actual brush/terrain order match the
+intact original routines. Hardware observations execute through original code;
+no geometry or storage callee is replaced. Independent brush-policy, preserved
+nonswept visits, material/plane metadata, zero-fraction and guard checks pass.
+
+The point walker uses tiny hull extents at axial BSP planes and zero expansion
+at oblique planes. Optimized brushes expand relative slabs even for point rays;
+the adapter preserves their point solid-exit behavior and original plane/material
+data. Actual brush-to-terrain and terrain-to-brush winner transfers are covered.
+A fixture node-count binding and missing brush extent expansion were corrected
+before final verification. Original instructions/table data and assets are not
+bundled; the owned point kernel requires no private permutation table.
+
+This verifies prepared point geometry, not public point setup/finish or stationary
+isRay=true dispatch. Effective material/physics IDs, original whole-world loading,
+global lifecycle/concurrency, entity/static-prop/filtering, real spawn and editor
+integration remain separate gates. All 543 editor dependencies and the existing
+experimental package remain unchanged. Full SFM compatibility is incomplete.
+
+
+## Prepared stationary point dispatcher checked (2026-11-28)
+
+Fresh warning-free x86/x64 builds, each repeated twice, match 60,354 prepared
+stationary point-displacement queries. Original direct overlap, normal selection,
+fallback and actual point world geometry run without substituted callees or
+storage services. Complete work buffers, parent/child visits, normal metadata
+and cull/overlap order match. Every 57,514 fallback per native run is observed
+entering the original point world route and restoring its prior end/depth.
+
+The shared dispatcher accepts an explicit point flag while preserving its
+non-ray default. Tiny nonzero point bounds still permit direct overlap. Tests
+cover 2,840 direct contacts, 1,008 real solid fallbacks, generation rollover and
+the different overlap/ray effects of runtime flags 4 and 8. Independent visit,
+normal, overlap, arithmetic, metadata-preservation and guard predictions pass.
+Fresh non-ray dispatcher and public stationary trace regressions repeat both
+architectures and retain their accepted complete-record hashes.
+
+This remains prepared single-list collision work. Complete stationary point
+leaf/world/public orchestration, effective material/physics binding, original
+whole-world loading, global lifecycle/concurrency, entity/static-prop/filtering,
+real spawn and editor integration remain separate gates. The primary point
+fixture needs no private permutation input; older non-ray regressions retain
+their declared private fixtures and cache adapters. No original instructions,
+lookup tables, assets or private evidence are bundled. All 543 editor dependencies
+and the existing experimental package remain unchanged; full SFM compatibility
+is incomplete.
+
+
+## Prepared stationary point leaves and world checked (2026-11-28)
+
+Fresh warning-free x86/x64 builds, each repeated twice, match 162,288 prepared
+queries: 63,720 standalone leaf and 98,568 world calls over benchmark, controlled
+and capacity fixtures. Full work buffers, parent/child visits, selected/visited
+leaf order, stationary brush order, terrain gates and per-leaf state match the
+intact original routines. Lossless child visit records retain generation history.
+No original callee, storage service or geometry result is substituted.
+
+The leaf/world bindings forward point mode with their non-ray defaults retained.
+Tests include 108,144 tiny nonzero point-classified hulls, multiple nested
+fallbacks, the 1,024-leaf selection cap and selected-but-unvisited non-solid
+leaves. Independent selection, solidity finish, controlled brush/terrain gates,
+zero-mask traces, metadata, visit lifecycle and ray/guard checks pass. Fresh
+non-ray leaf, world and public stationary regressions repeat both architectures
+and retain their accepted complete-record hashes.
+
+Public stationary point setup/finishing, retained-underflow-delta handling at
+that boundary, swept point routing, effective material/physics binding, original
+whole-world loading, global lifecycle/concurrency, engine/server entities/static
+props/filters, real spawn and editor integration remain separate gates. Primary
+point tests need no private permutation/cache resource; older non-ray regressions
+retain their declared fixtures/adapters. No original instructions/tables, assets
+or private evidence are bundled. All 543 editor dependencies and the existing
+experimental package remain unchanged. Full SFM compatibility is incomplete.
+
+
+## Prepared public stationary point traces checked (2026-11-28)
+
+The recorded component receipt verifies 133,192 prepared public stationary point
+traces. Fresh warning-free x86/x64 builds each repeated twice match all 84 public
+trace bytes and the separately observed internal displacement marker. Original
+reset/setup, stationary geometry, optional coordinate finishing and copying run
+with explicit work acquire/release fixtures. Independent coordinate, empty-world,
+classification, signed-zero, tiny-hull and retained-delta checks pass. Fresh
+stationary and swept non-ray regressions retain their accepted record hashes.
+
+Point execution needs no private hull cache/permutation resource. Effective
+material/physics binding, original whole-world loading, production pool lifetime
+and concurrency, public swept point routing, entity/static-prop/filtering, real
+spawn and editor integration remain separate gates. No original instructions,
+lookup tables, assets or private evidence are bundled. All 543 editor dependencies
+and the existing experimental x64 package remain unchanged. Full application
+compatibility and visual equivalence remain incomplete.

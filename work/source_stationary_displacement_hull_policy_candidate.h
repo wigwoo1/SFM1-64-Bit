@@ -14,7 +14,7 @@ inline bool sourceStationaryDisplacementCullBoxCandidate(const SourceLeafDisplac
  return true;
 }
 
-// Prepared non-ray work branch of1014d320. Original leaf callers require a
+// Prepared stationary work branch of1014d320. Original leaf callers require a
 // nonempty list. Relative hull bounds are centered (-extents,+extents), as
 // prepared by the checked Ray_t constructor. Hosts supply actual geometry and
 // nested visit/cache storage; these callbacks are not replacement hit results.
@@ -25,7 +25,7 @@ SourceStationaryDisplacementHullOutcomeCandidate sourceStationaryDisplacementHul
  std::vector<uint32_t>& visited,uint32_t generation,const std::array<float,3>& point,
  const std::array<float,3>& relativeMinimum,const std::array<float,3>& relativeMaximum,uint32_t mask,
  const std::array<uint16_t,2>& defaultSurface,SourcePreparedWorldHullStateCandidate& state,
- BoundsOverlap boundsOverlap,MeshOverlap meshOverlap,TraceHull traceHull){
+ BoundsOverlap boundsOverlap,MeshOverlap meshOverlap,TraceHull traceHull,bool isRay=false){
  if(ordered.empty()||meshes.size()!=culls.size()||!generation)throw std::runtime_error("stationary hull policy input coverage");
  bool nonzero=false;std::array<float,3> minimum{},maximum{};
  for(size_t a=0;a<3;++a){
@@ -47,7 +47,7 @@ SourceStationaryDisplacementHullOutcomeCandidate sourceStationaryDisplacementHul
   }
  }
  std::array<float,3> normal{};uint32_t contents=0;
- sourceStationaryDisplacementHullNormalCandidate(meshes,ordered,point,relativeMinimum,relativeMaximum,false,mask,normal,contents);
+ sourceStationaryDisplacementHullNormalCandidate(meshes,ordered,point,relativeMinimum,relativeMaximum,isRay,mask,normal,contents);
  // Native passes contents to1014ce00, which does not consume that argument.
  outcome.fallbackRay=sourceStationaryHullFallbackCandidate(point,normal,defaultSurface,result,traceHull);
  if(result.displacementHit&&result.trace.startSolid){result.trace.allSolid=true;result.trace.fraction=0;result.trace.leftSolid=0;}
@@ -61,8 +61,8 @@ SourceStationaryDisplacementHullOutcomeCandidate sourceStationaryDisplacementHul
  const std::vector<SourceLeafDisplacementCullCandidate>& culls,const std::vector<uint32_t>& ordered,
  std::vector<uint32_t>& visited,uint32_t generation,const std::array<float,3>& point,
  const std::array<float,3>& minimum,const std::array<float,3>& maximum,uint32_t mask,
- const std::array<uint16_t,2>& defaultSurface,SourcePreparedWorldHullStateCandidate& state,TraceHull traceHull){
+ const std::array<uint16_t,2>& defaultSurface,SourcePreparedWorldHullStateCandidate& state,TraceHull traceHull,bool isRay=false){
  return sourceStationaryDisplacementHullPolicyCandidate(meshes,culls,ordered,visited,generation,point,minimum,maximum,mask,defaultSurface,state,
   [&](uint32_t id,const auto& low,const auto& high){return sourceStationaryDisplacementCullBoxCandidate(culls.at(id),low,high);},
-  [&](uint32_t id,const auto& low,const auto& high){return sourceDisplacementBoxOverlapCandidate(meshes.at(id),low,high);},traceHull);
+  [&](uint32_t id,const auto& low,const auto& high){return sourceDisplacementBoxOverlapCandidate(meshes.at(id),low,high);},traceHull,isRay);
 }

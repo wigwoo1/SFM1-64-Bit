@@ -34,16 +34,16 @@
       "size": 4462
     },
     "docs/sync-status.json": {
-      "sha256": "148cf511ac03c307f4d884ed008361a721cd70a0219f89fa52ddb21e5df05a70",
-      "size": 398
+      "sha256": "d2ab84b9120aa3ecb7fbabc8e02dd0a25cf15803518c031fc584b41b01abeb45",
+      "size": 165
     },
     "downloads/sfm64-experimental-windows-x64.zip": {
       "sha256": "51806176eb3042cf1078bf10fdd66be14af3cee18c06d01030de966da4cacb40",
       "size": 1351033
     },
     "publication/README.md": {
-      "sha256": "66a92b64613765484805d98db4fa0ff1626d548ce4c95ce4979fc52ea16d3675",
-      "size": 22173
+      "sha256": "a17673c38454079c694e516da19469b84db574ace3992131bb074ed81989220b",
+      "size": 27498
     },
     "publication/editor_runtime_package.py": {
       "sha256": "52fe1d89907b56d93e0d3626aee9d404c14d837b208f08638a0ccb49870809b8",
@@ -5604,6 +5604,18 @@
     "work/build_stationary_leaf_selection.cmd": {
       "sha256": "bb55085aa5ff1d89cb61549484fe73762b7b011167b02968f296bddd36397859",
       "size": 759
+    },
+    "work/build_stationary_point_policy.cmd": {
+      "sha256": "442365434ffd8fa8e646d133fe20639b52a73099af99c599cee4996128ac2f8b",
+      "size": 982
+    },
+    "work/build_stationary_point_world.cmd": {
+      "sha256": "d836f85d48515792d3334e13e75c7c17e6a3feda68ab5ad08f3e27c0e3f88018",
+      "size": 976
+    },
+    "work/build_stationary_point_world_trace.cmd": {
+      "sha256": "7bcb84cfdc3e9e5395e47ce8b30ebd01b1e9121cd255ed5713c1f05d20928a5f",
+      "size": 1012
     },
     "work/build_studio_association_release_native_32.cmd": {
       "sha256": "706ede9bd7ae4b3ba07dd391fb13b524001e3a165ae91f1a1ca2b24cfa4f2f44",
@@ -14518,8 +14530,8 @@
       "size": 30798
     },
     "work/probe_prepared_point_world.cpp": {
-      "sha256": "06aaf1b6d6e68da084e8d173aadde6b3d89ed04c2db21bd27a645a3eaf420942",
-      "size": 34048
+      "sha256": "fcf622bb2d838b3f0953223b0d910890a601a56b1119abd7dc1e09a57d2bed4e",
+      "size": 31598
     },
     "work/probe_prepared_world_hull.cpp": {
       "sha256": "1d5630af3dda97ede343f95b18490476dfb247e2c871f56bbe7981873e582ef5",
@@ -14756,6 +14768,18 @@
     "work/probe_stationary_leaf_selection.cpp": {
       "sha256": "574050249e4c4fa9531dc4812dc8a1bcdc06490fd104a79930e308df4b6a3e68",
       "size": 5670
+    },
+    "work/probe_stationary_point_policy.cpp": {
+      "sha256": "61737c942fc408e32e01ca289b58143ee70c568b3452995a704d7d889de8e4e9",
+      "size": 32066
+    },
+    "work/probe_stationary_point_world.cpp": {
+      "sha256": "1eee485d4903cf37e9a69644e97872894c251b7d9a69ab443d3ea7d8589f5848",
+      "size": 37518
+    },
+    "work/probe_stationary_point_world_trace.cpp": {
+      "sha256": "07e39d20f97291777c4e0b9613c9f641b253705e90371e6569ff8e49164bdeba",
+      "size": 32120
     },
     "work/probe_studio_association_release.cpp": {
       "sha256": "c35a63e9fa59d25d32b88bbae4243d023ce7dc89e9e7c0fbafff80528b0a4775",
@@ -19306,8 +19330,8 @@
       "size": 1657
     },
     "work/source_prepared_point_world_candidate.h": {
-      "sha256": "a1f8a0f3a8a6d2da0e36fb1e30f4ed28828c7ca4fa164c538852e2fbb22f1f40",
-      "size": 5312
+      "sha256": "7c6ad42bbec0f5ec57a164d5bce10745df06952be9378790f441ac61ccbb3f29",
+      "size": 6858
     },
     "work/source_prepared_world_hull_candidate.h": {
       "sha256": "c62a9ee95b4c860647ae0914650596f59d1b8e865b749bfa47d07602a2ed60ef",
@@ -19390,8 +19414,8 @@
       "size": 1924
     },
     "work/source_stationary_displacement_hull_policy_candidate.h": {
-      "sha256": "1ea2d1f6d37b50df2bac56cd5f7f136cbf2c6822285ea557d98b36cff04afadc",
-      "size": 5008
+      "sha256": "794a26224ec784dfd3a4bb13c60651ad47803005d95fb2b350163c47c3701577",
+      "size": 5051
     },
     "work/source_stationary_displacement_normal_candidate.h": {
       "sha256": "1d42b5c40e5ca3e9eb29a19eb20b46978efc4d9ff2c0ffb1abb72e24f1889c31",
@@ -19402,16 +19426,16 @@
       "size": 1693
     },
     "work/source_stationary_hull_leaf_candidate.h": {
-      "sha256": "ee933ff0a88cbbec1721c2da0c385d5b5fde9939be4df4c117f3145ebd4d490a",
-      "size": 2890
+      "sha256": "5ea898ea55f4802deb0529d6740b60e3d96bb66276c894c08b6e2b7525431a8c",
+      "size": 2916
     },
     "work/source_stationary_hull_world_candidate.h": {
-      "sha256": "07c8886cd1b8dd1fbbafc944b18a4c2da7514619de36066a2fa63bd5dd47762b",
-      "size": 3041
+      "sha256": "a1614ee97803a5f9ec92dc14d9f2313922d47001e1c46e27a8f38382a6e0b109",
+      "size": 3064
     },
     "work/source_stationary_hull_world_trace_candidate.h": {
-      "sha256": "e9bd023603430b64139ed5429fd5ab1c536643fba6d95e0cdf5c1d8a8d758af9",
-      "size": 2227
+      "sha256": "7073be1ab542ae97656de5951138fcd1c0fc1d787434e5901bd6d2e5c0807a8c",
+      "size": 2629
     },
     "work/source_stationary_leaf_selection_candidate.h": {
       "sha256": "7132503db40d9897384a7a1972a49d3245968755d58992c8a6e36ab6c6618089",
@@ -27409,6 +27433,10 @@
       "sha256": "20ad9c8fa64d8f02ed892c3f9a75c3325940c4c0a29c2d107b533390a2bd62b0",
       "size": 9541
     },
+    "work/verify_prepared_point_world.py": {
+      "sha256": "134d5f6c7931aa5e28f55f6b9e29278a3368f02d957f35229d40e8de62e79a6d",
+      "size": 21278
+    },
     "work/verify_prepared_texture_binding_editor.py": {
       "sha256": "2b864282c2da292530f7a63a051a6c6edda5295abc35ad19dcc7ce56505646d9",
       "size": 7352
@@ -27928,6 +27956,18 @@
     "work/verify_stationary_leaf_selection.py": {
       "sha256": "a1223bcf2655cfa3d2c492ed139210999fc5c1e10f7dcb2256490477f5a39267",
       "size": 3449
+    },
+    "work/verify_stationary_point_policy.py": {
+      "sha256": "8d72f1e76eae44845484956a9e53d018086ada6df6f85325f8d386f350a66de9",
+      "size": 21494
+    },
+    "work/verify_stationary_point_world.py": {
+      "sha256": "db80de3252b2db860f730182dbdec33d5e5c3357ec5d826a20907027011c4e74",
+      "size": 23115
+    },
+    "work/verify_stationary_point_world_trace.py": {
+      "sha256": "325ab1d43f1c51efe3ff08e740d3be956489ae55d9295aa40196ebf95fea7605",
+      "size": 21381
     },
     "work/verify_studio_association_release_native.py": {
       "sha256": "d85b95ed5c4b7990edba35e906c986190503d6c0b26e12da0fad62ccea62c99a",
