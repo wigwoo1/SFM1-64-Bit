@@ -1,0 +1,3 @@
+#include "source_prepared_world_trace_candidate.h"
+#define sourceSweptPointWorldTraceCandidate sourcePreparedWorldTraceCandidate
+#include "probe_swept_point_world_trace.cpp"

@@ -1,0 +1,3 @@
+#include "source_prepared_world_trace_candidate.h"
+#define sourceStationaryHullWorldTraceCandidate sourcePreparedWorldTraceCandidate
+#include "probe_stationary_point_world_trace.cpp"

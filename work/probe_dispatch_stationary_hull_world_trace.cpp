@@ -1,0 +1,4 @@
+#include "source_prepared_world_trace_candidate.h"
+#define sourceStationaryHullWorldTraceCandidate sourcePreparedWorldTraceCandidate
+#define sourceSweptHullWorldTraceCandidate sourcePreparedWorldTraceCandidate
+#include "probe_stationary_hull_world_trace.cpp"

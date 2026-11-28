@@ -1,0 +1,3 @@
+#include "world_physics_bridge_corpus_fixture.h"
+#define sourceSweptPointWorldTraceCandidate worldPhysicsCorpusTrace
+#include "probe_swept_point_world_trace.cpp"

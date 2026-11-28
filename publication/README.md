@@ -449,3 +449,111 @@ spawn and editor integration remain separate gates. No original instructions,
 lookup tables, assets or private evidence are bundled. All 543 editor dependencies
 and the existing experimental x64 package remain unchanged. Full application
 compatibility and visual equivalence remain incomplete.
+
+
+## Prepared public swept point traces checked (2026-11-28)
+
+A separate adapter connects the existing prepared point geometry to the shared
+public trace result and coordinate finisher. Fresh warning-free x86/x64 builds,
+each repeated twice, match53832 prepared public traces. The original public
+wrapper executes reset/setup, actual geometry, coordinate finishing and copying;
+only explicitly declared work acquire/release storage services are fixtures.
+All84 public bytes and a separately observed internal marker match. Independent
+coordinates/defaults/materials, option pairs, signed zero, cancellation and
+brush-free analytic terrain predictions pass. The133192-case stationary point
+public regression is freshly rebuilt/repeated on both architectures and retains
+its accepted full-record hash. Existing geometry/public helpers remain unchanged.
+
+Point primary/regression tests require no private permutation or hull cache.
+Material/physics binding, original whole-world loading, global pool allocation/
+lifetime/concurrency, common all-route dispatch, engine/server entities/static
+props/filters, actual spawn and editor integration remain separate gates. No
+original instructions/tables, assets or private evidence are bundled. All543
+editor dependencies and the existing experimental x64 package remain unchanged;
+this is component research, not a verified editor collision or visual improvement.
+
+
+## Prepared public world-trace dispatch checked (2026-11-28)
+
+A new thin prepared dispatcher routes stationary, swept point, and swept hull traces to the existing verified helpers. Four new probes route all owned public calls through that dispatcher. All four accepted native corpora match their immutable complete-record hashes on fresh x86 and x64 builds, repeated twice, with zero warnings. A separate empty-table check confirms all four flag combinations and both compute-position settings preserve the default result when the world is unavailable. Evidence, exact executable identities, and the unchanged 543 editor dependency result remain local under D:/SFM64-development-tests/20261128-prepared-world-trace-dispatch/. This is prepared geometry dispatch only; production resource lifetime, full world loading, entities/static props/filtering, real spawn, editor integration, and full SFM compatibility remain unverified. No editor rebuild was needed.
+
+## Server simple trace-filter orchestration checked (2026-11-28)
+
+An owned server filter now preserves the original decision and service-call ordering. Fresh warning-free x86/x64 builds each repeated twice match6144complete decision/event records and independent predictions. The original predicate executes in a sealed private test image; standard rules, ignored-entity relationships and manager/entity/game collision services are explicit fixtures. Their production implementations, full engine hull entity/static-prop composition, actual spawn and editor integration remain separate gates. This does not update the editor package: all543editor dependencies remain unchanged. Original images, disassembly, private receipts and records are excluded from publication.
+
+
+## Server standard trace rules checked (2026-11-28)
+
+The server standard-rules predicate and original model getter now have a separate intact-native/owned-x64 comparison. Fresh warning-free x86/x64 builds repeated twice match64000complete decision/event records and independent predictions, covering model/solid/movement types, static/missing-base early returns, collision mask gates and two distinct model queries with low-byte return semantics. Virtual classification/entity/model services are explicit fixtures. Their production bodies, ignored-owner relationships, engine entity/static-prop hull composition, actual spawn and editor integration remain unverified. All543editor dependencies and the current package remain unchanged. Private native images, disassembly, records and receipts remain excluded from publication.
+
+Prepared owner resolution passed; not production.
+
+
+## Prepared engine hull and point policy checked (2026-11-28)
+
+The outer engine TraceRay policy now has an intact-native/owned-x64 comparison over prepared services. Fresh warning-free x86/x64 builds each repeated twice match11300complete result/event frames and full80-byte enumeration-ray records. It covers hull extents and offsets, supplied Ray_t flags, shortened deltas, all four constant filter modes, static-prop filtering/bypass, candidate overflow, merge metadata and final hull start/exit handling. Clipping receives the complete same shortened ray. Native executable sections and original inputs remain unchanged.
+
+World results, annotation, partition enumeration, entity resolution, predicate and clipping are explicit test services. This does not establish real world/entity contacts, production loading/lifetime, actual spawn or editor integration. The next bridge must verify the prepared-world result conversion and actual world annotation before joining geometry to the outer policy. All543editor dependencies and the current package remain unchanged. Original images, disassembly, fixtures and local receipts remain excluded from publication.
+
+
+## Typed prepared world result bridge checked (2026-11-28)
+
+A typed adapter now converts the existing prepared world trace into the engine's semantic trace result. Fresh warning-free x86/x64 builds repeated twice pass640complete conversion records against independent C++ and Python wire predictions. Every surface kind, including Default, uses an explicit name-identity resolver; packed properties/flags and world surface index are independent. Internal displacement markers are excluded.
+
+This is a data-conversion check, not a640-case native geometry comparison. The separate11300-case engine policy checkpoint executes the intact original outer trace with prepared service results. Actual engine world annotation, benchmark geometry through this adapter, real entity/static-prop clipping and spawn/editor integration remain unverified. All543editor dependencies and current build package remain unchanged. Private inputs/records/receipts remain excluded from publication.
+
+
+## World geometry result conversion checked through accepted native corpora (2026-11-28)
+
+All339480queries across four accepted public world-trace corpora now pass through the typed physics-result bridge. Eight fresh x86/x64 builds have zero warnings; both architectures repeat twice. Complete public records retain their immutable accepted hashes, and each92-byte semantic sidechannel independently matches the original84-byte public result under explicit name bindings. Terrain names use one shared semantic identity while properties and world surface indices remain separate.
+
+This extends the prior640-case typed conversion check using benchmark-backed and controlled brush/displacement results. It does not establish outer engine TraceRay with actual geometry: its separate11300-case comparison still supplies world trace answers. Actual world annotation, full world/material/cache production binding, real entity/static-prop clipping, spawn and editor integration remain unverified. All543editor dependencies and existing build package remain unchanged. Private native fixtures, permutation data, reference disassembly, assets and receipts remain excluded from publication.
+
+
+## Outer engine composed with prepared benchmark hull world checked (2026-11-28)
+
+A new separate fixture executes the intact original outer engine trace, actual prepared BSP brush/displacement world geometry and actual server world-annotation function. Fresh warning-free x86/x64 builds repeated twice match9632benchmark swept-hull queries and36finisher checks. Complete92-byte native/owned physics results and projected outer records match independent predictions derived from the immutable earlier public-world corpus. The previous world-trace-answer fixture has been removed for this bounded corpus.
+
+Entity enumeration remains deliberately empty; work/cache/storage, material/name and world-entity bindings remain explicit prepared fixtures. Actual mixed entity/static-prop clipping and filtering, production loading/lifetime, stationary/point outer-real-world routes, benchmark spawn and editor integration remain unverified. All543editor dependencies and existing package remain unchanged. Private native images, tables, assets, reference disassembly and receipts remain excluded from publication.
+
+
+## Mixed entity-policy composition checked with prepared benchmark world (2026-11-28)
+
+A separate local fixture now executes the intact original outer trace, actual prepared BSP brush/displacement world and actual server world annotation with three controlled mixed candidate profiles. Fresh zero-warning x86/x64 builds repeat each profile twice; all28896distinct queries and108finisher cases match independent expectations. Complete92-byte trace metadata, ordered callbacks and all80shortened-ray bytes agree. Static predicate bypass, dynamic rejection, start-solid world early return and all-solid stopping are covered.
+
+Entity enumeration/resolution/predicate/clip results remain supplied fixtures. This verifies the outer policy combining prepared real-world geometry with controlled entity results; actual entity/static-prop geometry, native partition, server-filter composition, production lifetime, real spawn and editor integration remain unverified. All543editor source dependencies and current build package remain unchanged. Private native images, tables, assets, disassembly, records and receipts remain excluded from publication.
+
+
+## Collideable clip dispatch policy checked (2026-11-28)
+
+A separate candidate now implements the original complete collideable dispatch policy through explicit services. Fresh zero-warning x86/x64 builds repeated twice match61440independent cases, including all92trace bytes and ordered callback/full80-byte ray frames. Contents rejection, changing flags, opaque root selection, custom-return handling, six leaf routes, studio metadata and annotation are covered. The native complete dispatcher and initializer execute unchanged; geometry leaf results and metadata providers are supplied test services.
+
+This verifies orchestration, not actual entity geometry or transform evaluation. The next gate is independently verified nonpoint physics collision before joining actual leaf geometry to dispatch. Custom/brush/OBB/hitbox/bounds geometry, server filter composition, production resources, benchmark spawn and editor integration remain pending. All543editor dependencies and the existing package remain unchanged. Original images, assets, local fixtures/disassembly and receipts remain excluded from publication.
+
+
+## Point/nonpoint physics preparation checked in actual TraceBox (2026-11-28)
+
+An additive candidate now prepares axis-aligned moving boxes and points using the supplied native isRay flag. Fresh zero-warning x86/x64/MASM builds repeated twice match5344cases across all196preparation bytes. Independent checks cover raw radius, support axes and offset/flag invariance;121accepted point preparation/trace baselines remain unchanged. A hardware observer captures preparation inside full native TraceBox, then lets actual collision complete; complete native outputs are identical with observation enabled or disabled. No software patches are used.
+
+The owned program computes preparation only. Original full native collision results do not establish owned hull intersections. Actual owned nonpoint support/search/tree/finalization is the next gate, followed by dispatch geometry, production bindings, spawn and editor integration. All543editor dependencies and the existing package remain unchanged. Original DLLs/assets, private fixtures, disassembly and local receipts remain excluded from publication.
+
+
+## Complete owned point/nonpoint PHY collision checked (2026-11-28)
+
+A separate owned component now composes actual supported PHY geometry, box/support preparation, compact traversal, convex search, leaf hits and complete trace finalization. Fresh zero-warning x86/x64 builds repeat twice across61pinned supported models:75152distinct point/nonpoint queries match all92semantic result bytes against actual unchanged native TraceBox. The native route uses no observers, patches or supplied collision answers. All7381prior point baselines and7320independent filtered/outside miss expectations remain exact.
+
+The verified scope is fresh scratch, default per-convex contents1, available loose one-solid formats and axis-aligned box queries with original pose angles. Model/bone contents callbacks, persistent cache changes, other/missing/archive formats, actual transformed boxes, engine dispatch leaf composition and production entity/cache/registry ownership remain separate gates. Actual benchmark spawn and editor integration remain unverified. All543editor dependencies and the existing package remain unchanged; original binaries/assets and local evidence stay excluded from publication.
+
+
+## Per-convex contents checked with actual hull geometry (2026-11-28)
+
+The existing generic contents callback now passes actual native/owned hull collision comparisons across61supported loose PHY models plus two disposable metadata-only variants. Fresh zero-warning x86/x64 builds repeated twice match113524complete92-byte results and156874ordered natural callback records. All75152default baseline records stay unchanged; constant/filtered cases and unsigned callback results have independent predictions. Mask-zero callback records verify that contents is requested before filtering.
+
+The native full geometry executes directly without observers, patches or supplied leaf answers. Contents providers are explicit test services; actual studio/MDL provider and engine clip composition remain the next gate. Fresh scratch only; persistent cache, transforms, multisolid/archive/missing assets, production ownership and real spawn/editor integration remain separate. All543editor dependencies and current build package are unchanged. Original libraries/assets and local controlled inputs/evidence remain excluded from publication.
+
+
+## Actual studio hull clip composition checked (2026-11-28)
+
+The owned studio clip now combines the verified collideable dispatch, actual PHY hull geometry and parsed MDL model/bone contents. Fresh warning-free x86/x64 builds each repeated twice pass103771queries across61supported models and2controlled copies, preserving25079point baseline results. Complete92-byte collision metadata, dispatch events and99792contents callbacks match. The intact native engine and real VPhysics geometry execute; model/cache/pose/root/world-list providers remain explicit fixtures. The API distinguishes known cache absence from unresolved assets and guards unsupported custom/hitbox/transform inputs.
+
+All543editor dependencies remain unchanged; this produces no new editor build. Scope remains studio solid6 static props, fresh scratch, supported loose one-solid assets and caller-established identity root. Production cache/material/registry/spatial bindings, real entities, benchmark spawn and editor acceptance remain pending. Native code/assets/copies/observations and local test receipts are excluded from publication.
